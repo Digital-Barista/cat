@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="cat-admin-flex" default="make-wrapped-swf">
+
+	<property name="deploy.dir" value="deploy"/>	
+	<property name="src.home" value="src"/>
+	<property name="html.template.home" value="html-template"/>
+	<property name="APP_ROOT" value="src"/>
+	<property name="DEPLOY_DIR" value="${deploy.dir}"/>
+	
+	<taskdef resource="flexTasks.tasks"/>
+
+	<target name="set.flex.home" unless="flex.home">
+		<property name="flex.home" value="../flex-sdk"/>
+	</target>
+
+	<target name="set.cat.web.home" unless="cat.web.home">
+		<property name="cat.web.home" value="../cat-web"/>
+	</target>
+	
+	<target name="init" depends="set.flex.home,set.cat.web.home">
+		<property name="FLEX_HOME" value="${flex.home}"/>
+		<path id="ear.classpath">
+			<fileset dir="${cat.home}">
+				<include name="lib/*.jar"/>
+				<include name="EarContent/*.jar"/>
+				<include name="EarContent/lib/*.jar"/>
+			</fileset>
+		</path>
+	</target>
+	
+	<target name="clean" depends="init">
+		<delete dir="${deploy}" failonerror="false"/>		
+		<mkdir dir="${deploy.dir}"/>
+	</target>
+	
+	<target name="build" depends="clean">
+		<mxmlc file="${APP_ROOT}/admin.mxml" 
+				output="${DEPLOY_DIR}/admin.swf"
+				actionscript-file-encoding="UTF-8"
+				keep-generated-actionscript="false"
+				incremental="false"
+				services="${cat.web.home}/WebContent/WEB-INF/flex/services-config.xml"
+				context-root="cat">
+            <!-- Get default compiler options. -->
+            <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+
+            <!-- List of path elements that form the roots of ActionScript
+            class hierarchies. -->
+            <source-path path-element="${FLEX_HOME}/frameworks"/>
+
+            <!-- List of SWC files or directories that contain SWC files. -->
+            <compiler.library-path dir="${FLEX_HOME}/frameworks" append="true">
+                <include name="libs" />
+                <include name="../bundles/{locale}" />
+            </compiler.library-path>			
+		</mxmlc>
+	</target>
+	<target name="make-wrapped-swf" depends="build">
+		<html-wrapper 
+            title="CAT Admin Tool"
+            file="admin.html"
+            height="300"
+            width="400"
+            bgcolor="red"
+            application="poc"
+            swf="poc"
+            version-major="9"
+            version-minor="0"
+            version-revision="0"
+            history="true"
+            template="express-installation"
+            output="${DEPLOY_DIR}"/>
+	</target>	
+</project>
