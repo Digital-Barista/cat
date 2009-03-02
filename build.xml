@@ -61,6 +61,16 @@
 			</fileset>
 		</copy>-->
 	</target>
+	
+	<target name="dev.copy.swf" depends="set.cat.web.home">
+		<delete dir="${cat.web.home}/admin"/>
+		<copy todir="${cat.web.home}/admin">
+			<fileset dir="bin-debug">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+	</target>
+
 	<target name="make-wrapped-swf" depends="build">
 		<html-wrapper 
             title="CAT Admin Tool"
