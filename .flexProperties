@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<flexProperties flexServerType="2" serverContextRoot="/cat" serverRoot="C:/Users/Falken/DBI_workspace/cat-web/WebContent" serverRootURL="http://localhost:8080/cat" toolCompile="true" useServerFlexSDK="false" version="1"/>
+<flexProperties flexServerType="2" serverContextRoot="/cat" serverRoot="${DOCUMENTS}/cat-web/WebContent" serverRootURL="http://localhost:8080/cat" toolCompile="true" useServerFlexSDK="false" version="1"/>
