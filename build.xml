@@ -63,8 +63,8 @@
 	</target>
 	
 	<target name="dev.copy.swf" depends="set.cat.web.home">
-		<delete dir="${cat.web.home}/admin"/>
-		<copy todir="${cat.web.home}/admin">
+		<delete dir="${cat.web.home}/WebContent/admin"/>
+		<copy todir="${cat.web.home}/WebContent/admin">
 			<fileset dir="bin-debug">
 				<include name="**/*"/>
 			</fileset>
