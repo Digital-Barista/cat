@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import com.dbi.cat.common.vo.UserVO;
+			import com.dbi.event.CustomMessageEvent;
+			import com.dbi.controls.CustomMessage;
+			
+			private function edit():void
+			{
+				if (data is ClientVO)
+				{
+					var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_CLIENT);
+					event.client = data as ClientVO;
+				}
+				else if (data is EntryPointDefinitionVO)
+				{
+					event = new ClientEvent(ClientEvent.EDIT_ENTRY_POINT);
+					event.entryPoint = data as EntryPointDefinitionVO;
+				}
+				else if (data is KeywordVO)
+				{
+					event = new ClientEvent(ClientEvent.EDIT_KEYWORD);
+					event.keyword = data as KeywordVO;
+				}
+				dispatchEvent(event);
+			}
+			private function deleteItem(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes")
+				{
+					if (data is ClientVO)
+					{
+						var event:ClientEvent = new ClientEvent(ClientEvent.DELETE_CLIENT);
+						event.client = data as ClientVO;
+					}
+					else if (data is EntryPointDefinitionVO)
+					{
+						event = new ClientEvent(ClientEvent.DELETE_ENTRY_POINT);
+						event.entryPoint = data as EntryPointDefinitionVO;
+					}
+					else if (data is KeywordVO)
+					{
+						event = new ClientEvent(ClientEvent.DELETE_KEYWORD);
+						event.keyword = data as KeywordVO;
+					}
+					dispatchEvent(event);
+				}	
+			}
+			private function confirmDelete():void
+			{
+				if (data is ClientVO)
+				{
+					CustomMessage.show("Are you sure you want to delete client: " + data.name + "?",
+						["Yes", "No"],
+						confirmDelete);
+				}
+				else if (data is EntryPointDefinitionVO)
+				{
+					CustomMessage.show("Are you sure you want to delete entry point: " + data.name + "?",
+						["Yes", "No"],
+						confirmDelete);
+				}
+				else if (data is KeywordVO)
+				{
+					CustomMessage.show("Are you sure you want to delete keyword: " + data.name + "?",
+						["Yes", "No"],
+						confirmDelete);
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Button label="Edit" click="{edit()}" />
+	<mx:Button label="Delete" click="confirmDelete()" />
+</mx:HBox>

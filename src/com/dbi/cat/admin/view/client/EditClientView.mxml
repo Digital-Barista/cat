@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="278" height="144" layout="absolute"
+	title="{isNaN(currentClient.clientId) ? 'Create Client' : 'Edit ' + currentClient.name}"
+	showCloseButton="true"
+	close="onClose()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.admin.event.ClientEvent;
+			import com.dbi.cat.common.vo.ClientVO;
+			
+			
+			[Bindable]
+			public var currentClient:ClientVO;
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_CLIENT));
+			}
+			private function save():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_CLIENT);
+				event.client = currentClient;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Form>
+		<mx:FormItem label="Name">
+			<mx:TextInput id="Name"
+				text="{currentClient.name}"
+				change="{currentClient.name = Name.text}" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar>
+		<mx:Button id="Save" label="Save"
+			click="save()" />
+	</mx:ControlBar>
+</mx:TitleWindow>

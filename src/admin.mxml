@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
-
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:map="com.dbi.cat.admin.map.*" xmlns:view="com.dbi.cat.admin.view.*">
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			public var currentView:Number = 0;
+		]]>
+	</mx:Script>
+	<!-- Event maps -->
+	<map:NavigationEventMap />
+	<map:ApplicationEventMap />
+	<map:ClientEventMap />
+	<map:UserEventMap />
+	<map:ModelMap />
+	
+	<!-- Main viewstack -->
+	<mx:ViewStack selectedIndex="{currentView}"
+		width="100%" height="100%">
+		<view:LoginView />
+		<view:MainView />
+	</mx:ViewStack>
 </mx:Application>

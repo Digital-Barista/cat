@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+	xmlns:view="com.dbi.cat.admin.view.*">
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			public var currentView:Number = 0;
+		]]>
+	</mx:Script>
+	<mx:TabNavigator width="100%" height="100%" 
+		selectedIndex="{currentView}">
+		<view:ClientView label="Clients" />
+	</mx:TabNavigator>
+</mx:Canvas>

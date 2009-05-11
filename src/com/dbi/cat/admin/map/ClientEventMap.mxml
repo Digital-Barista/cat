@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" >
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.admin.business.ClientManager;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import mx.controls.Alert;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<!-- Client Events -->
+	<EventHandlers type="{ClientEvent.LIST_CLIENTS}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="getVisibleClients">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadClients"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.SAVE_CLIENT}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="save"
+			arguments="{event.client}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="saveClient"
+					arguments="{event.client}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.EDIT_CLIENT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="editClient"
+			arguments="{event.client}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.DELETE_CLIENT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="deleteClient"
+			arguments="{event.client}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_EDIT_CLIENT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeEditClient" />
+	</EventHandlers>
+	
+	<!-- Entry point events -->
+	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="save"
+			arguments="{event.entryPoint}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="saveEntryPoint"
+					arguments="{event.entryPoint}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.EDIT_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="editEntryPoint"
+			arguments="{event.entryPoint}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.DELETE_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="deleteEntryPoint"
+			arguments="{event.entryPoint}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_EDIT_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeEditEntryPoint" />
+	</EventHandlers>
+	
+	<!-- Keyword events -->
+	<EventHandlers type="{ClientEvent.SAVE_KEYWORD}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="save"
+			arguments="{event.keyword}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="saveKeyword"
+					arguments="{event.keyword}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.EDIT_KEYWORD}">
+		<MethodInvoker generator="{ClientManager}"
+			method="editKeyword"
+			arguments="{event.keyword}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.DELETE_KEYWORD}">
+		<MethodInvoker generator="{ClientManager}"
+			method="deleteKeyword"
+			arguments="{event.keyword}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_EDIT_KEYWORD}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeEditKeyword" />
+	</EventHandlers>
+</EventMap>
