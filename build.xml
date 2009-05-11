@@ -53,6 +53,9 @@
 				<include name="libs/player"/>
 				<include name="locale/{locale}"/>
 			</compiler.library-path>
+			<compiler.library-path dir="../cat-common-flex" append="true">
+                <include name="src" />
+            </compiler.library-path>
 		</mxmlc>
 		<!--<copy todir="${deploy.dir}/assets">
 			<fileset dir="${src.home}/assets">
