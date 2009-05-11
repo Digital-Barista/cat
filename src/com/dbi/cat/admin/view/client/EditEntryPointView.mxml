@@ -37,7 +37,7 @@
 			<controls:AdvancedComboBox id="Type"
 				labelField="label"
 				selectedBindingProperty="type"
-				selectedBindingValue="{currentEntryPointDefinition.value}"
+				selectedBindingValue="{currentEntryPointDefinition.type}"
 				change="{currentEntryPointDefinition.type = Type.selectedItem.value}">
 				<controls:dataProvider>
 					<mx:ArrayCollection>
@@ -50,7 +50,7 @@
 		<mx:FormItem label="Restriction" width="100%">
 			<controls:AdvancedComboBox id="Restriction"
 				labelField="label"
-				selectedBindingProperty="restriction"
+				selectedBindingProperty="value"
 				selectedBindingValue="{currentEntryPointDefinition.restriction}"
 				change="{currentEntryPointDefinition.restriction = Restriction.selectedItem.value}">
 				<controls:dataProvider>

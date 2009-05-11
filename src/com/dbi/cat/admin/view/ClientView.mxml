@@ -2,11 +2,63 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:client="com.dbi.cat.admin.view.client.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.common.vo.EntryPointVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.admin.event.ClientEvent;
 			import mx.collections.HierarchicalData;
 			import mx.collections.ArrayCollection;
 			
 			[Bindable]
 			public var clientsGrouped:HierarchicalData;
+			
+			private function addClient():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_CLIENT);
+				event.client = new ClientVO();
+				dispatchEvent(event);
+			}
+			private function addEntryPoint():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_ENTRY_POINT);
+				event.entryPoint = new EntryPointDefinitionVO();
+				event.entryPoint.clientIDs = new ArrayCollection();
+				
+				// Find the client of the selected item
+				if (ClientGrid.selectedItem is ClientVO)
+					event.client = ClientGrid.selectedItem as ClientVO;
+				else if (ClientGrid.selectedItem is EntryPointDefinitionVO)
+					event.client = ClientGrid.getParentItem(ClientGrid.selectedItem) as ClientVO;
+				else if (ClientGrid.selectedItem is KeywordVO)
+					event.client = ClientGrid.getParentItem(ClientGrid.getParentItem(ClientGrid.selectedItem)) as ClientVO;
+				
+				// Add this client to the entry point
+				event.entryPoint.clientIDs.addItem(event.client.clientId);
+				
+				dispatchEvent(event);
+			}
+			
+			private function addKeyword():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_KEYWORD);
+				event.keyword = new KeywordVO();
+				
+				// Find the entry point for the selected item
+				if (ClientGrid.selectedItem is EntryPointDefinitionVO)
+				{
+					event.entryPoint = ClientGrid.selectedItem as EntryPointDefinitionVO;
+					event.keyword.clientId = ClientGrid.getParentItem(ClientGrid.selectedItem).clientId;
+				}
+				else if (ClientGrid.selectedItem is KeywordVO)
+				{
+					event.entryPoint = ClientGrid.getParentItem(ClientGrid.selectedItem) as EntryPointDefinitionVO;
+					event.keyword.clientId = ClientGrid.getParentItem(ClientGrid.getParentItem(ClientGrid.selectedItem)).clientId;
+				}
+				
+				event.keyword.entryPointId = event.entryPoint.primaryKey;
+				dispatchEvent(event);
+			}
 		]]>
 	</mx:Script>
 	<mx:Canvas
@@ -17,7 +69,7 @@
 		<mx:TitleWindow
 			layout="absolute"
 			width="100%" height="100%">
-			<mx:AdvancedDataGrid
+			<mx:AdvancedDataGrid id="ClientGrid"
 				top="0" bottom="0" left="0" right="0"
 				dataProvider="{clientsGrouped}">
 				<mx:columns>
@@ -29,9 +81,9 @@
 			</mx:AdvancedDataGrid>
 		</mx:TitleWindow>
 		<mx:HBox top="5" right="10">
-			<mx:Button label="New Client"  width="120"/>
-			<mx:Button label="New Entry Point"  width="120"/>
-			<mx:Button label="New Keyword"  width="120"/>
+			<mx:Button label="New Client"  width="120" click="addClient()"/>
+			<mx:Button label="New Entry Point"  width="120" click="addEntryPoint()"  enabled="{ClientGrid.selectedItem != null}"/>
+			<mx:Button label="New Keyword"  width="120" click="addKeyword()" enabled="{ClientGrid.selectedItem != null &amp;&amp; !(ClientGrid.selectedItem is ClientVO)}" />
 		</mx:HBox>
 	</mx:Canvas>
 </mx:Canvas>

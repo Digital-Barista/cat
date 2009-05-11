@@ -33,13 +33,23 @@ package com.dbi.cat.admin.business
 		{
 		}
 
+		private function clearEditValues():void
+		{
+			currentKeyword = null;
+			currentEntryPointDefinition = null;
+			currentClient = null;
+		}
+		
 		//
 		// Client methods
 		//
 		public function loadClients(list:ArrayCollection):void
 		{
 			clients = list;
-			
+			setupGroupedClients();
+		}
+		private function setupGroupedClients():void
+		{
 			clientsGrouped = new HierarchicalData(clients);
 		}
 		
@@ -55,6 +65,7 @@ package com.dbi.cat.admin.business
 		public function closeEditClient():void
 		{
 			PopUpManager.removePopUp(editClientPopup);
+			clearEditValues();
 		}
 		public function deleteClient(client:ClientVO):void
 		{
@@ -70,11 +81,11 @@ package com.dbi.cat.admin.business
 		public function saveClient(client:ClientVO):void
 		{
 			var found:Boolean = false;
-			for (var i:Number = 0; i < clients.length; i++)
+			for each (var c:ClientVO in clients)
 			{
-				if (clients[i].clientId == client.clientId)
+				if (c.clientId == client.clientId)
 				{
-					clients[i] = client;
+					c.name = client.name;
 					found = true;
 					break;
 				}
@@ -87,18 +98,12 @@ package com.dbi.cat.admin.business
 		//
 		// Entry point methods
 		//
-		public function editEntryPoint(entry:EntryPointDefinitionVO):void
+		public function editEntryPoint(entry:EntryPointDefinitionVO, client:ClientVO):void
 		{
 			// Assign current objects being edited
 			currentEntryPointDefinition = ObjectUtil.copy(entry) as EntryPointDefinitionVO;
-			for each (var client:ClientVO in clients)
-			{
-				if (client.entryPoints.contains(entry))
-				{
-					currentClient = client;
-					break;
-				}
-			}
+			currentClient = client;
+			
 			
 			if (editEntryPointPopup == null)
 				editEntryPointPopup = new EditEntryPointView();
@@ -108,6 +113,7 @@ package com.dbi.cat.admin.business
 		public function closeEditEntryPoint():void
 		{
 			PopUpManager.removePopUp(editEntryPointPopup);
+			clearEditValues();
 		}
 		public function deleteEntryPoint(entry:EntryPointDefinitionVO):void
 		{
@@ -123,11 +129,14 @@ package com.dbi.cat.admin.business
 		public function saveEntryPoint(entry:EntryPointDefinitionVO):void
 		{
 			var found:Boolean = false;
-			for (var i:Number = 0; i < currentClient.entryPoints.length; i++)
+			for each (var e:EntryPointDefinitionVO in currentClient.entryPoints)
 			{
-				if (currentClient.entryPoints[i].primaryKey == entry.primaryKey)
+				if (e.primaryKey == entry.primaryKey)
 				{
-					currentClient.entryPoints[i] = entry;
+					e.description = entry.description;
+					e.restriction = entry.restriction;
+					e.type = entry.type;
+					e.value = entry.value;
 					found = true;
 					break;
 				}
@@ -135,30 +144,17 @@ package com.dbi.cat.admin.business
 			if (!found)
 				currentClient.entryPoints.addItem(entry);
 				
+			setupGroupedClients();
 			closeEditEntryPoint();
 		}
 		
 		//
 		// Keyword methods
 		//
-		public function editKeyword(keyword:KeywordVO):void
+		public function editKeyword(keyword:KeywordVO, entry:EntryPointDefinitionVO):void
 		{
 			currentKeyword = ObjectUtil.copy(keyword) as KeywordVO;
-			for each (var client:ClientVO in clients)
-			{
-				var found:Boolean = false;
-				for each (var entry:EntryPointDefinitionVO in client.entryPoints)
-				{
-					if (entry.keywords.contains(entry))
-					{
-						found = true;
-						currentEntryPointDefinition = entry;
-						break;
-					}
-				}
-				if (found)
-					break;
-			}
+			currentEntryPointDefinition = entry;
 			
 			if (editKeywordPopup == null)
 				editKeywordPopup = new EditKeywordView();
@@ -168,6 +164,7 @@ package com.dbi.cat.admin.business
 		public function closeEditKeyword():void
 		{
 			PopUpManager.removePopUp(editKeywordPopup);
+			clearEditValues();
 		}
 		public function deleteKeyword(keyword:KeywordVO):void
 		{
@@ -183,17 +180,18 @@ package com.dbi.cat.admin.business
 		public function saveKeyword(keyword:KeywordVO):void
 		{
 			var found:Boolean = false;
-			for (var i:Number = 0; i < currentEntryPointDefinition.keywords.length; i++)
+			for each (var k:KeywordVO in currentEntryPointDefinition.keywords)
 			{
-				if (currentEntryPointDefinition.keywords[i].primaryKey == keyword.primaryKey)
+				if (k.primaryKey == keyword.primaryKey)
 				{
-					currentEntryPointDefinition.keywords[i] = keyword;
+					k.keyword = keyword.keyword;
 					found = true;
 					break;
 				}
 			}
 			if (!found)
 				currentEntryPointDefinition.keywords.addItem(keyword);
+			setupGroupedClients();
 			closeEditKeyword();
 		}
 	}

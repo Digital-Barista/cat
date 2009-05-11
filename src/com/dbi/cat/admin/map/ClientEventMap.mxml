@@ -30,7 +30,7 @@
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="saveClient"
-					arguments="{event.client}" />
+					arguments="{resultObject}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
@@ -57,14 +57,14 @@
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="saveEntryPoint"
-					arguments="{event.entryPoint}" />
+					arguments="{resultObject}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.EDIT_ENTRY_POINT}">
 		<MethodInvoker generator="{ClientManager}"
 			method="editEntryPoint"
-			arguments="{event.entryPoint}" />
+			arguments="{[event.entryPoint, event.client]}" />
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.DELETE_ENTRY_POINT}">
 		<MethodInvoker generator="{ClientManager}"
@@ -84,14 +84,14 @@
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="saveKeyword"
-					arguments="{event.keyword}" />
+					arguments="{resultObject}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.EDIT_KEYWORD}">
 		<MethodInvoker generator="{ClientManager}"
 			method="editKeyword"
-			arguments="{event.keyword}" />
+			arguments="{[event.keyword, event.entryPoint]}" />
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.DELETE_KEYWORD}">
 		<MethodInvoker generator="{ClientManager}"
