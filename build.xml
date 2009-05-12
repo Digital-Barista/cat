@@ -25,8 +25,13 @@
 		<property name="build.number" value="dev"/>
 		<echo message="Build # is '${build.number}'"/>
 	</target>
+
+	<target name="set.build.number" depends="get.build.number" if="env.BUILD_NUMBER">
+		<property name="build.number" value="${env.BUILD_NUMBER}"/>
+		<echo message="Build # is '${build.number}'"/>
+	</target>
 	
-	<target name="init" depends="set.flex.home,set.cat.web.home,set.cat.common.flex.home">
+	<target name="init" depends="set.build.number,set.flex.home,set.cat.web.home,set.cat.common.flex.home">
 		<property name="FLEX_HOME" value="${flex.home}"/>
 		<path id="ear.classpath">
 			<fileset dir="${cat.home}">
