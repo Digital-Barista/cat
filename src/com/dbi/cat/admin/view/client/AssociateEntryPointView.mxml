@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="406" height="164"
+	showCloseButton="true"
+	close="onClose()">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			
+			[Bindable]
+			public var currentClient:ClientVO;
+			
+			[Bindable]
+			public var entryPointDefinitions:ArrayCollection;
+			
+			private function add():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_ENTRY_POINT);
+				if (!EntryPoint.selectedItem.clientIDs.contains(currentClient.clientId))
+					EntryPoint.selectedItem.clientIDs.addItem(currentClient.clientId);
+					
+				event.entryPoint = EntryPoint.selectedItem as EntryPointDefinitionVO;
+				dispatchEvent(event);
+			}
+			private function onClose():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_ASSOCIATE_ENTRY_POINT));
+			}
+		]]>
+	</mx:Script>
+	<mx:Form>
+		<mx:FormItem label="Client">
+			<mx:Label text="{currentClient.name}" />
+		</mx:FormItem>
+		<mx:FormItem label="Entry Point">
+			<mx:ComboBox id="EntryPoint"
+				labelField="value"
+				dataProvider="{entryPointDefinitions}" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar>
+		<mx:Button label="Add" click="add()" />
+	</mx:ControlBar>
+</mx:TitleWindow>

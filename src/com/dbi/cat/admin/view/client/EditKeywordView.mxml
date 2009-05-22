@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-	width="280" height="150"
+	width="350" height="178"
 	showCloseButton="true"
 	close="onClose()"
 	title="{isNaN(currentKeyword.primaryKey) ? 'Create Keyword' : 'Edit Keyword'}">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.KeywordVO;
 			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 			import com.dbi.cat.admin.event.ClientEvent;
+			
+			[Bindable]
+			public var currentClient:ClientVO;
 			
 			[Bindable]
 			public var currentEntryPointDefinition:EntryPointDefinitionVO;
@@ -30,6 +34,12 @@
 		]]>
 	</mx:Script>
 	<mx:Form>
+		<mx:FormItem label="Client">
+			<mx:Label text="{currentClient.name}" />
+		</mx:FormItem>
+		<mx:FormItem label="Entry Point">
+			<mx:Label text="{currentEntryPointDefinition.value}" />
+		</mx:FormItem>
 		<mx:FormItem label="Keyword">
 			<mx:TextInput id="Keyword"
 				text="{currentKeyword.keyword}"

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" >
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.admin.event.UserEvent;
+			import com.dbi.cat.common.vo.UserVO;
+			import mx.collections.ArrayCollection;
+			import flash.events.MouseEvent;
+			
+			[Bindable]
+			public var userList:ArrayCollection;
+			
+			private function createUser():void
+			{
+				var userEvent:UserEvent = new UserEvent(UserEvent.EDIT_USER);
+				userEvent.user = new UserVO();
+				dispatchEvent(userEvent);
+			}
+			private function filterUsers():void
+			{
+				var event:UserEvent = new UserEvent(UserEvent.FILTER_USERS);
+				event.filterText = tiSearch.text;
+				dispatchEvent(event);
+			}
+			private function clearFilter():void
+			{
+				tiSearch.text = "";
+				filterUsers();
+			}
+			
+		]]>	
+	</mx:Script>
+	<mx:Canvas
+		horizontalCenter="0"
+		width="90%"
+		maxWidth="1000"
+		top="10" bottom="10">
+		<mx:TitleWindow 
+			width="100%" height="100%"
+			layout="absolute">
+			<mx:DataGrid right="0" left="0" bottom="0" top="0" 
+				dataProvider="{userList}">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Username" dataField="username" />
+					<mx:DataGridColumn headerText="Name" dataField="name"/>
+					<mx:DataGridColumn headerText="Email" dataField="email"/>
+					<mx:DataGridColumn headerText="Action" dataField="userId" 
+						sortable="false"
+						itemRenderer="com.dbi.cat.admin.view.user.UserActionsItemRenderer"
+						width="150" />
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:TitleWindow>
+		<mx:HBox right="10" top="7" verticalAlign="middle">
+			<mx:Button id="bCreateUser" label="Create User" 
+				click="createUser()" 
+				verticalCenter="0" right="290"/>
+			<mx:Label text="Filter" />
+			<mx:TextInput id="tiSearch"
+				styleName="filterBox"
+				change="filterUsers()" />
+			<mx:Button id="Clear" label="Clear"
+				click="clearFilter()"  width="64"/>
+		</mx:HBox>
+	</mx:Canvas>
+</mx:Canvas>

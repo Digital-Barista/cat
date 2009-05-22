@@ -15,6 +15,11 @@ package com.dbi.cat.admin.event
 		public static const SAVE_CLIENT:String = "saveClientEvent";
 		public static const DELETE_CLIENT:String = "deleteClientEvent";
 		
+		public static const ASSOCIATE_ENTRY_POINT:String = "associateEntryPointEvent";
+		public static const UNASSOCIATE_ENTRY_POINT:String = "unassociateEntryPointEvent";
+		public static const CLOSE_ASSOCIATE_ENTRY_POINT:String = "closeAssociateEntryPointEvent";
+		
+		public static const LIST_ENTRY_POINT_DEFINITIONS:String = "listEntryPointDefinitionsEvent";
 		public static const EDIT_ENTRY_POINT:String = "editEntryPointEvent";
 		public static const SAVE_ENTRY_POINT:String = "saveEntryPointEvent";
 		public static const DELETE_ENTRY_POINT:String = "deleteEntryPointEvent";

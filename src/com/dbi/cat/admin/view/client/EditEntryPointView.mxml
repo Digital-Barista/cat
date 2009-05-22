@@ -14,9 +14,6 @@
 			import com.dbi.cat.admin.event.ClientEvent;
 			
 			[Bindable]
-			public var currentClient:ClientVO;
-			
-			[Bindable]
 			public var currentEntryPointDefinition:EntryPointDefinitionVO;
 			
 			private function onClose():void
@@ -27,7 +24,6 @@
 			{
 				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_ENTRY_POINT);
 				event.entryPoint = currentEntryPointDefinition;
-				event.client = currentClient;
 				dispatchEvent(event);
 			}
 		]]>
@@ -36,7 +32,7 @@
 		<mx:FormItem label="Type" width="100%">
 			<controls:AdvancedComboBox id="Type"
 				labelField="label"
-				selectedBindingProperty="type"
+				selectedBindingProperty="value"
 				selectedBindingValue="{currentEntryPointDefinition.type}"
 				change="{currentEntryPointDefinition.type = Type.selectedItem.value}">
 				<controls:dataProvider>

@@ -48,8 +48,27 @@
 		<MethodInvoker generator="{ClientManager}"
 			method="closeEditClient" />
 	</EventHandlers>
+	<EventHandlers type="{ClientEvent.ASSOCIATE_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="associateEntryPoint"
+			arguments="{event.client}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_ASSOCIATE_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeAssociateEntryPoint" />
+	</EventHandlers>
 	
 	<!-- Entry point events -->
+	<EventHandlers type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="getEntryPointDefinitions">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadEntryPoints"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="save"
@@ -64,7 +83,7 @@
 	<EventHandlers type="{ClientEvent.EDIT_ENTRY_POINT}">
 		<MethodInvoker generator="{ClientManager}"
 			method="editEntryPoint"
-			arguments="{[event.entryPoint, event.client]}" />
+			arguments="{event.entryPoint}" />
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.DELETE_ENTRY_POINT}">
 		<MethodInvoker generator="{ClientManager}"
@@ -91,7 +110,7 @@
 	<EventHandlers type="{ClientEvent.EDIT_KEYWORD}">
 		<MethodInvoker generator="{ClientManager}"
 			method="editKeyword"
-			arguments="{[event.keyword, event.entryPoint]}" />
+			arguments="{[event.keyword, event.entryPoint, event.client]}" />
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.DELETE_KEYWORD}">
 		<MethodInvoker generator="{ClientManager}"

@@ -1,5 +1,6 @@
 package com.dbi.cat.admin.business
 {
+	import com.dbi.cat.admin.view.client.AssociateEntryPointView;
 	import com.dbi.cat.admin.view.client.EditClientView;
 	import com.dbi.cat.admin.view.client.EditEntryPointView;
 	import com.dbi.cat.admin.view.client.EditKeywordView;
@@ -20,7 +21,9 @@ package com.dbi.cat.admin.business
 	public class ClientManager
 	{
 		public var clients:ArrayCollection;
+		public var clientMap:Object;
 		public var clientsGrouped:HierarchicalData;
+		public var entryPointDefinitions:ArrayCollection;
 		public var currentClient:ClientVO;
 		public var currentEntryPointDefinition:EntryPointDefinitionVO;
 		public var currentKeyword:KeywordVO;
@@ -28,6 +31,7 @@ package com.dbi.cat.admin.business
 		private var editClientPopup:IFlexDisplayObject;
 		private var editEntryPointPopup:IFlexDisplayObject;
 		private var editKeywordPopup:IFlexDisplayObject;
+		private var associateEntryPointPopup:IFlexDisplayObject;
 		
 		public function ClientManager()
 		{
@@ -46,6 +50,9 @@ package com.dbi.cat.admin.business
 		public function loadClients(list:ArrayCollection):void
 		{
 			clients = list;
+			clientMap = new Object();
+			for each (var client:ClientVO in clients)
+				clientMap[client.clientId] = client;
 			setupGroupedClients();
 		}
 		private function setupGroupedClients():void
@@ -91,18 +98,38 @@ package com.dbi.cat.admin.business
 				}
 			}
 			if (!found)
+			{
 				clients.addItem(client);
+				clientMap[client.clientId] = client;
+			}
 			closeEditClient();
+		}
+		
+		public function associateEntryPoint(client:ClientVO):void
+		{
+			currentClient = client;
+			
+			if (associateEntryPointPopup == null)
+				associateEntryPointPopup = new AssociateEntryPointView();
+			PopUpManager.addPopUp(associateEntryPointPopup, UIComponent(Application.application), true);
+			PopUpManager.centerPopUp(associateEntryPointPopup);
+		}
+		public function closeAssociateEntryPoint():void
+		{
+			PopUpManager.removePopUp(associateEntryPointPopup);
 		}
 		
 		//
 		// Entry point methods
 		//
-		public function editEntryPoint(entry:EntryPointDefinitionVO, client:ClientVO):void
+		public function loadEntryPoints(entryPoints:ArrayCollection):void
+		{
+			entryPointDefinitions = entryPoints;
+		}
+		public function editEntryPoint(entry:EntryPointDefinitionVO):void
 		{
 			// Assign current objects being edited
 			currentEntryPointDefinition = ObjectUtil.copy(entry) as EntryPointDefinitionVO;
-			currentClient = client;
 			
 			
 			if (editEntryPointPopup == null)
@@ -128,33 +155,69 @@ package com.dbi.cat.admin.business
 		}
 		public function saveEntryPoint(entry:EntryPointDefinitionVO):void
 		{
+			// Add entry point to list
 			var found:Boolean = false;
-			for each (var e:EntryPointDefinitionVO in currentClient.entryPoints)
+			for (var i:Number = 0; i < entryPointDefinitions.length; i++)
 			{
-				if (e.primaryKey == entry.primaryKey)
+				if (entryPointDefinitions[i].primaryKey == entry.primaryKey)
 				{
-					e.description = entry.description;
-					e.restriction = entry.restriction;
-					e.type = entry.type;
-					e.value = entry.value;
+					entryPointDefinitions[i] = entry;
 					found = true;
 					break;
 				}
 			}
 			if (!found)
-				currentClient.entryPoints.addItem(entry);
+				entryPointDefinitions.addItem(entry);
+			
+			// Add entry point to client
+			for each (var clientId:Number in entry.clientIDs)
+			{
+				found = false;
+				var client:ClientVO = clientMap[clientId];
+				for each (var e:EntryPointDefinitionVO in client.entryPoints)
+				{
+					if (e.primaryKey == entry.primaryKey)
+					{
+						e.description = entry.description;
+						e.restriction = entry.restriction;
+						e.type = entry.type;
+						e.value = entry.value;
+						e.clientIDs = entry.clientIDs;
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					client.entryPoints.addItem(entry);
+			}
 				
+			// Unassociate clients
+			for each (var c:ClientVO in clients)
+			{
+				var cur:IViewCursor = c.entryPoints.createCursor();
+				while (cur.current != null)
+				{
+					if (cur.current.primaryKey == entry.primaryKey &&
+						!cur.current.clientIDs.contains(c.clientId))
+						cur.remove();
+					else
+						cur.moveNext();
+				}
+			}
+			
 			setupGroupedClients();
 			closeEditEntryPoint();
+			closeAssociateEntryPoint();
 		}
 		
 		//
 		// Keyword methods
 		//
-		public function editKeyword(keyword:KeywordVO, entry:EntryPointDefinitionVO):void
+		public function editKeyword(keyword:KeywordVO, entry:EntryPointDefinitionVO, client:ClientVO):void
 		{
 			currentKeyword = ObjectUtil.copy(keyword) as KeywordVO;
 			currentEntryPointDefinition = entry;
+			currentClient = client;
 			
 			if (editKeywordPopup == null)
 				editKeywordPopup = new EditKeywordView();

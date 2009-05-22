@@ -3,10 +3,15 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.admin.view.user.EditUserView;
+			import com.dbi.cat.admin.view.user.UsersView;
+			import com.dbi.cat.admin.business.UserManager;
+			import com.dbi.cat.admin.view.client.ClientView;
+			import com.dbi.cat.admin.view.client.AssociateEntryPointView;
+			import com.dbi.cat.admin.view.client.EntryPointDefinitionView;
 			import com.dbi.cat.admin.view.client.EditKeywordView;
 			import com.dbi.cat.admin.view.client.EditClientView;
 			import com.dbi.cat.admin.view.client.EditEntryPointView;
-			import com.dbi.cat.admin.view.ClientView;
 			import com.dbi.cat.admin.business.ClientManager;
 			import com.dbi.cat.admin.view.LoginView;
 			import com.dbi.cat.admin.business.LoginManager;
@@ -58,14 +63,24 @@
 	<Injectors target="{EditEntryPointView}">
 		<PropertyInjector
 			source="{ClientManager}"
+			sourceKey="currentEntryPointDefinition"
+			targetKey="currentEntryPointDefinition" />
+	</Injectors>
+	<Injectors target="{AssociateEntryPointView}">
+		<PropertyInjector
+			source="{ClientManager}"
 			sourceKey="currentClient"
 			targetKey="currentClient" />
 		<PropertyInjector
 			source="{ClientManager}"
-			sourceKey="currentEntryPointDefinition"
-			targetKey="currentEntryPointDefinition" />
+			sourceKey="entryPointDefinitions"
+			targetKey="entryPointDefinitions" />
 	</Injectors>
 	<Injectors target="{EditKeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentClient"
+			targetKey="currentClient" />
 		<PropertyInjector
 			source="{ClientManager}"
 			sourceKey="currentEntryPointDefinition"
@@ -74,5 +89,23 @@
 			source="{ClientManager}"
 			sourceKey="currentKeyword"
 			targetKey="currentKeyword" />
+	</Injectors>
+	<Injectors target="{EntryPointDefinitionView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="entryPointDefinitions"
+			targetKey="entryPointDefinitions" />
+	</Injectors>
+	<Injectors target="{UsersView}">
+		<PropertyInjector
+			source="{UserManager}"
+			sourceKey="userList"
+			targetKey="userList" />
+	</Injectors>
+	<Injectors target="{EditUserView}">
+		<PropertyInjector
+			source="{UserManager}"
+			sourceKey="userToEdit"
+			targetKey="editUser" />
 	</Injectors>
 </EventMap>

@@ -4,6 +4,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.admin.business.UserManager;
 			import com.dbi.cat.admin.event.UserEvent;
 			import com.dbi.cat.admin.event.ClientEvent;
 			import com.dbi.cat.admin.event.LoadDataEvent;
@@ -21,6 +22,7 @@
 		<ObjectBuilder generator="{NavigationManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{AppManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{LoginManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{UserManager}" constructorArguments="{scope.dispatcher}" />
 	</EventHandlers>
 	
 	<!-- Global unhandled fault event -->
@@ -44,6 +46,8 @@
 	<!-- Data Events -->
 	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
 		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
+		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
+		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />
 	</EventHandlers>
 </EventMap>

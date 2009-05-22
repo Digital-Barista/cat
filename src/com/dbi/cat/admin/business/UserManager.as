@@ -1,6 +1,6 @@
 package com.dbi.cat.admin.business
 {
-	import com.dbi.cat.admin.view.EditUserView;
+	import com.dbi.cat.admin.view.user.EditUserView;
 	import com.dbi.cat.common.vo.RoleVO;
 	import com.dbi.cat.common.vo.UserProfileVO;
 	import com.dbi.cat.common.vo.UserVO;

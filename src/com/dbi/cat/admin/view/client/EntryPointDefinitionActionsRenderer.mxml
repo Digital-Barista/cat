@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	horizontalAlign="right">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.AdvancedDataGrid;
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import com.dbi.cat.common.vo.UserVO;
+			import com.dbi.event.CustomMessageEvent;
+			import com.dbi.controls.CustomMessage;
+			
+			private function edit():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_ENTRY_POINT);
+				event.entryPoint = data as EntryPointDefinitionVO;
+				dispatchEvent(event);
+			}
+			private function deleteItem(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes")
+				{
+					var event:ClientEvent = new ClientEvent(ClientEvent.DELETE_ENTRY_POINT);
+					event.entryPoint = data as EntryPointDefinitionVO;
+					dispatchEvent(event);
+				}	
+			}
+			private function confirmDelete():void
+			{
+				CustomMessage.show("Are you sure you want to delete entry point: " + data.value + "?",
+					["Yes", "No"],
+					deleteItem);
+			}
+		]]>
+	</mx:Script>
+	<mx:Button label="Edit" click="{edit()}" />
+	<mx:Button label="Delete" click="confirmDelete()" />
+</mx:HBox>
