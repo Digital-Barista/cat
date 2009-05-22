@@ -19,7 +19,8 @@
 		]]>
 	</mx:Script>
 	<mx:Canvas
-		width="90%" height="100%"
+		width="90%" 
+		top="10" bottom="10"
 		maxWidth="1000" horizontalCenter="0">
 		<mx:TitleWindow
 			width="100%" height="100%"
@@ -33,7 +34,7 @@
 					<mx:DataGridColumn dataField="type" headerText="Type" width="80"  />
 					<mx:DataGridColumn dataField="restriction" headerText="Restriction" width="80"  />
 					<mx:DataGridColumn dataField="description" headerText="Description" />
-					<mx:DataGridColumn itemRenderer="com.dbi.cat.admin.view.client.EntryPointDefinitionActionsRenderer" editable="false" width="130" />
+					<mx:DataGridColumn itemRenderer="com.dbi.cat.admin.view.client.EntryPointDefinitionActionsRenderer" editable="false" width="60" />
 				</mx:columns>
 			</mx:DataGrid>
 		</mx:TitleWindow>

@@ -44,10 +44,10 @@
 					<mx:DataGridColumn headerText="Username" dataField="username" />
 					<mx:DataGridColumn headerText="Name" dataField="name"/>
 					<mx:DataGridColumn headerText="Email" dataField="email"/>
-					<mx:DataGridColumn headerText="Action" dataField="userId" 
+					<mx:DataGridColumn dataField="userId" 
 						sortable="false"
 						itemRenderer="com.dbi.cat.admin.view.user.UserActionsItemRenderer"
-						width="150" />
+						width="60" />
 				</mx:columns>
 			</mx:DataGrid>
 		</mx:TitleWindow>

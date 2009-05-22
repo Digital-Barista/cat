@@ -7,6 +7,11 @@
 			public var currentView:Number = 0;
 		]]>
 	</mx:Script>
+	
+	<!-- Style -->
+	<mx:Style source="/assets/css/AeonGraphical.css" />
+	<mx:Style source="/assets/css/main.css" />
+	
 	<!-- Event maps -->
 	<map:NavigationEventMap />
 	<map:ApplicationEventMap />
@@ -14,9 +19,16 @@
 	<map:UserEventMap />
 	<map:ModelMap />
 	
+	<!-- Header -->
+	<view:Header />
+	
+	<mx:Canvas top="40" bottom="0" left="0" right="0"
+		styleName="mainViewstack" />
+		
 	<!-- Main viewstack -->
 	<mx:ViewStack selectedIndex="{currentView}"
-		width="100%" height="100%">
+		width="100%" 
+		top="10" bottom="0">
 		<view:LoginView />
 		<view:MainView />
 	</mx:ViewStack>

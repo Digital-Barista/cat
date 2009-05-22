@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="40" >
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.controls.CustomMessage;
+			import com.dbi.event.CustomMessageEvent;
+			import com.dbi.cat.admin.event.LoginEvent;
+			
+			
+        	[Embed("/assets/swf/logout.swf")]
+	        public static const logoutIcon:Class;
+	        
+			[Bindable]
+			public var currentView:Number = 0;
+	        
+			private function confirmLogout():void
+			{
+				CustomMessage.show("Are you sure you want to logout?",
+					["Yes", "No"],
+					doLogout);
+			}
+			private function doLogout(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes")
+					dispatchEvent(new LoginEvent(LoginEvent.LOGOUT));
+			}
+		]]>
+	</mx:Script>
+	<mx:Label text="CAT Administrator"
+		styleName="headerLabel"
+		left="10" verticalCenter="0" />
+	<mx:Canvas 
+		width="25"
+		height="25"
+		right="5" verticalCenter="0"
+		click="confirmLogout()"
+		toolTip="Logout"
+		buttonMode="true"
+		useHandCursor="true"
+		visible="{currentView != 0}">
+		<mx:SWFLoader source="{logoutIcon}"
+			width="100%" height="100%" />
+	</mx:Canvas>
+</mx:Canvas>

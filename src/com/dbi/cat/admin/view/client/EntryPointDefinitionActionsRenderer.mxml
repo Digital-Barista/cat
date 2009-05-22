@@ -12,6 +12,14 @@
 			import com.dbi.event.CustomMessageEvent;
 			import com.dbi.controls.CustomMessage;
 			
+			[Bindable]
+			[Embed("/assets/swf/edit.swf")]
+			private var editIcon:Class;
+			
+			[Bindable]
+			[Embed("/assets/swf/delete.swf")]
+			private var deleteIcon:Class;
+			
 			private function edit():void
 			{
 				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_ENTRY_POINT);
@@ -35,6 +43,6 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Button label="Edit" click="{edit()}" />
-	<mx:Button label="Delete" click="confirmDelete()" />
+	<mx:SWFLoader id="Edit" source="{editIcon}" click="{edit()}" height="25" width="25" toolTip="Edit" />
+	<mx:SWFLoader id="Delete" source="{deleteIcon}" click="confirmDelete()" height="25" width="25" toolTip="Delete" />
 </mx:HBox>

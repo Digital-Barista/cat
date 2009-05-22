@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	horizontalAlign="right">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.admin.event.UserEvent;
 			import com.dbi.cat.common.vo.UserVO;
 			import com.dbi.event.CustomMessageEvent;
 			import com.dbi.controls.CustomMessage;
+			
+			[Bindable]
+			[Embed("/assets/swf/edit.swf")]
+			private var editIcon:Class;
+			
+			[Bindable]
+			[Embed("/assets/swf/delete.swf")]
+			private var deleteIcon:Class;
 			
 			private function fireEvent(type:String):void
 			{
@@ -26,6 +35,6 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Button label="Edit" click="{fireEvent(UserEvent.EDIT_USER)}" />
-	<mx:Button label="Delete" click="deleteUser()" />
+	<mx:SWFLoader id="Edit" source="{editIcon}" click="{fireEvent(UserEvent.EDIT_USER)}" height="25" width="25" toolTip="Edit" />
+	<mx:SWFLoader id="Delete" source="{deleteIcon}" click="deleteUser()" height="25" width="25" toolTip="Delete" />
 </mx:HBox>

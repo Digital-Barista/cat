@@ -60,7 +60,7 @@
 	</mx:Script>
 	<mx:Canvas
 		width="90%"
-		height="100%"
+		top="10" bottom="10"
 		maxWidth="1000"
 		horizontalCenter="0">
 		<mx:TitleWindow
@@ -75,7 +75,7 @@
 					<mx:AdvancedDataGridColumn dataField="name" headerText="" />
 					<mx:AdvancedDataGridColumn dataField="type" headerText="Type" width="80"  />
 					<mx:AdvancedDataGridColumn dataField="description" headerText="Description" width="80"  />
-					<mx:AdvancedDataGridColumn itemRenderer="com.dbi.cat.admin.view.client.ClientActionsItemRenderer" editable="false" width="130" />
+					<mx:AdvancedDataGridColumn itemRenderer="com.dbi.cat.admin.view.client.ClientActionsItemRenderer" editable="false" width="60" />
 				</mx:columns>
 			</mx:AdvancedDataGrid>
 		</mx:TitleWindow>
