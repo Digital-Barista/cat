@@ -54,7 +54,9 @@
 				keep-generated-actionscript="false"
 				incremental="false"
 				services="${cat.web.home}/WebContent/WEB-INF/flex/services-config.xml"
-				context-root="cat">
+				context-root="cat"
+				fork="true"
+				maxmemory="1024m">
 	     	<compiler.keep-as3-metadata name="Property" />
 	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
 			<source-path path-element="${src.home}" />
