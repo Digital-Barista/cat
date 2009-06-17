@@ -24,11 +24,7 @@
 			override public function set data(value:Object):void
 			{
 				super.data = value;
-				if (value is EntryPointDefinitionVO)
-				{
-					if (getChildren().indexOf(Edit) > -1)
-						removeChild(Edit);
-				}
+				Edit.visible = !(value is EntryPointDefinitionVO);
 			}
 			private function edit():void
 			{

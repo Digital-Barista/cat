@@ -2,7 +2,7 @@
 <services-config>
 
     <services>
-        <service-include file-path="remoting-config.xml" />
+        <service-include file-path="../cat-web/WebContent/WEB-INF/flex/remoting-config.xml" />
     </services>
 
     <security>
