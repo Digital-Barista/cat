@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="278" height="144" layout="absolute"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="454" height="190" layout="absolute"
 	title="{isNaN(currentClient.clientId) ? 'Create Client' : 'Edit ' + currentClient.name}"
 	showCloseButton="true"
 	close="onClose()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.SMSConstants;
 			import com.dbi.cat.admin.event.ClientEvent;
 			import com.dbi.cat.common.vo.ClientVO;
 			
@@ -24,11 +25,21 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Form>
+	<mx:Form right="0" left="0" top="0" bottom="0">
 		<mx:FormItem label="Name">
 			<mx:TextInput id="Name"
 				text="{currentClient.name}"
-				change="{currentClient.name = Name.text}" />
+				change="{currentClient.name = Name.text}"  width="300"/>
+		</mx:FormItem>
+		<mx:FormItem label="Add In Message">
+			<mx:TextArea id="AddInMessage"
+				text="{currentClient.adminAddInMessage}"
+				change="{currentClient.adminAddInMessage = AddInMessage.text}"
+				width="300"
+				maxChars="{SMSConstants.MAX_CHARACTERS}"/>
+		</mx:FormItem>
+		<mx:FormItem>
+			<mx:Label text="{currentClient.adminAddInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
 		</mx:FormItem>
 	</mx:Form>
 	<mx:ControlBar>
