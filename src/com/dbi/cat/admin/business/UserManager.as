@@ -76,7 +76,8 @@ package com.dbi.cat.admin.business
 			var found:Boolean = false;
 			for each (var r:RoleVO in userToEdit.roles)
 			{
-				if (role.roleName == r.roleName)
+				if (role.roleName == r.roleName &&
+					role.refId == r.refId)
 				{
 					found = true;
 					break;

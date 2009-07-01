@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="532" height="412"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="600" height="430"
 	layout="absolute" showCloseButton="true"
 	close="cancel()"
 	title="{editUser == null || isNaN(editUser.primaryKey) ? 'Create User' : 'Edit User'}" xmlns:vo="com.dbi.cat.vo.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.dataGridClasses.DataGridColumn;
 			import com.dbi.cat.admin.event.UserEvent;
 			import com.dbi.cat.common.constants.Roles;
 			import com.dbi.cat.common.vo.RoleVO;
@@ -17,6 +18,12 @@
 			import mx.validators.EmailValidator;
 			import flash.events.MouseEvent;
 			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+			[Bindable]
+			public var clientMap:Object;
+			
 			private var _editUser:UserVO;
 			[Bindable]
 			public function get editUser():UserVO
@@ -26,7 +33,6 @@
 			public function set editUser(user:UserVO):void
 			{
 				_editUser = user;
-				filterAvailableRoles();
 			}
 			
 			[Bindable]
@@ -71,12 +77,13 @@
 			{
 				if (isValidDrop(e.dragInitiator, e.target))
 				{
-					if (e.target == liAssignedRoles)
+					if (e.target == AssignedRoleGrid)
 					{
 						// Add role if it isn't already
 						var name:String = liAvailableRoles.selectedItem.toString();
 						var role:RoleVO = new RoleVO();
 						role.roleName = name;
+						role.refId = Client.selectedItem.clientId;
 						
 						var event:UserEvent = new UserEvent(UserEvent.ADD_ROLE);
 						event.role = role;
@@ -85,20 +92,19 @@
 					else if (e.target == liAvailableRoles)
 					{
 						event = new UserEvent(UserEvent.REMOVE_ROLE);
-						event.role = liAssignedRoles.selectedItem as RoleVO;
+						event.role = AssignedRoleGrid.selectedItem as RoleVO;
 						dispatchEvent(event);
 					}
-					filterAvailableRoles();
 				}
 				e.preventDefault();
 			}
 			private function isValidDrop(source:Object, destination:Object):Boolean
 			{
-				if (source == liAssignedRoles &&
+				if (source == AssignedRoleGrid &&
 					destination == liAvailableRoles)
 					return true;
 				if (source == liAvailableRoles &&
-					destination == liAssignedRoles)
+					destination == AssignedRoleGrid)
 					return true;
 				return false;
 			}
@@ -120,35 +126,52 @@
 				}
 				return true;
 			}
+			
+			private function getClientName(role:RoleVO, column:DataGridColumn):String
+			{
+				if (clientMap &&
+					clientMap[role.refId] != null)
+					return clientMap[role.refId].name;
+				
+				return "";
+			}
 		]]>
 	</mx:Script>
-		<mx:Form id="EditUser">
-			<mx:FormItem label="UserName">
+		<mx:Form id="EditUser" width="100%">
+			<mx:FormItem label="UserName" width="100%">
 				<mx:TextInput id="tiUserName" 
-					text="{editUser.username}" width="332"/>
+					text="{editUser.username}" width="100%"/>
 			</mx:FormItem >
-			<mx:FormItem label="Name" width="450">
+			<mx:FormItem label="Name" width="100%">
 				<mx:TextInput id="tiName" 
-					text="{editUser.name}" width="332"/>
+					text="{editUser.name}" width="100%"/>
 			</mx:FormItem>
-			<mx:FormItem label="Email Address" >
+			<mx:FormItem label="Email Address"  width="100%">
 				<mx:TextInput id="tiEmailAddress" 
-					text="{editUser.emailAddress}" width="332"/>
+					text="{editUser.emailAddress}" width="100%"/>
 			</mx:FormItem>
-			<mx:FormItem label="Active">
+			<mx:FormItem label="Active" width="100%">
 				<mx:CheckBox id="cbIsActive" 
 					selected="{editUser.isActive}" />
 			</mx:FormItem>
-			<mx:FormItem label="Roles" width="100%">
-				<mx:HBox width="100%">
+			<mx:FormItem label="Roles" width="100%" height="150">
+				<mx:HBox width="100%" height="150">
 					<mx:Canvas width="100%" height="100%">
 						<mx:Label text="Assigned Roles"
 							top="0" left="0" />
-						<mx:List id="liAssignedRoles"
+						<mx:DataGrid id="AssignedRoleGrid"
+							width="100%" top="15" 
+							dragEnabled="true" 
+							dropEnabled="true"
 							dataProvider="{editUser.roles}"
 							dragEnter="onDragEnter(event)"
-							dragDrop="onDragDrop(event)"
-							labelField="roleName"  width="100%" top="15" height="100" dragEnabled="true" dropEnabled="true"/>
+							dragDrop="onDragDrop(event)" bottom="0"
+							showHeaders="false">
+							<mx:columns>
+								<mx:DataGridColumn dataField="roleName" />
+								<mx:DataGridColumn labelFunction="getClientName" />
+							</mx:columns>
+						</mx:DataGrid>
 					</mx:Canvas>
 					<mx:Canvas width="100%" height="100%">
 						<mx:Label text="Available Roles"
@@ -158,15 +181,20 @@
 							dataProvider="{availableRoles}"
 							dragEnter="onDragEnter(event)"
 							dragDrop="onDragDrop(event)"
-							width="100%" height="100" dragEnabled="true" dropEnabled="true"/>
+							width="100%" dragEnabled="true" dropEnabled="true" bottom="27"/>
+						<mx:ComboBox
+							id="Client"
+							left="0" right="0" bottom="0"
+							dataProvider="{clients}"
+							labelField="name" />
 					</mx:Canvas>
 				</mx:HBox>
 			</mx:FormItem>
-			<mx:FormItem label="Password">
-				<mx:TextInput id="tiPassword" displayAsPassword="true"  width="333"/>
+			<mx:FormItem label="Password" width="100%">
+				<mx:TextInput id="tiPassword" displayAsPassword="true"  width="100%"/>
 			</mx:FormItem>	
-			<mx:FormItem label="Confirm Password">
-				<mx:TextInput id="tiConfirmPassword" displayAsPassword="true"  width="333"/>				
+			<mx:FormItem label="Confirm Password" width="100%">
+				<mx:TextInput id="tiConfirmPassword" displayAsPassword="true"  width="100%"/>				
 			</mx:FormItem>
 		</mx:Form>
 		<mx:ControlBar horizontalAlign="right">

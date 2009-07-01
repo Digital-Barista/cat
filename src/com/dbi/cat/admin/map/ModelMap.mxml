@@ -114,5 +114,13 @@
 			source="{UserManager}"
 			sourceKey="userToEdit"
 			targetKey="editUser" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clientMap"
+			targetKey="clientMap" />
 	</Injectors>
 </EventMap>
