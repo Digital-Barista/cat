@@ -3,7 +3,7 @@ package com.dbi.cat.admin.business
 	import com.dbi.cat.admin.view.client.AssociateEntryPointView;
 	import com.dbi.cat.admin.view.client.EditClientView;
 	import com.dbi.cat.admin.view.client.EditEntryPointView;
-	import com.dbi.cat.admin.view.client.EditKeywordView;
+	import com.dbi.cat.admin.view.keyword.EditKeywordView;
 	import com.dbi.cat.common.vo.ClientVO;
 	import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 	import com.dbi.cat.common.vo.KeywordVO;
@@ -27,6 +27,7 @@ package com.dbi.cat.admin.business
 		public var currentClient:ClientVO;
 		public var currentEntryPointDefinition:EntryPointDefinitionVO;
 		public var currentKeyword:KeywordVO;
+		public var keywords:ArrayCollection;
 		
 		private var editClientPopup:IFlexDisplayObject;
 		private var editEntryPointPopup:IFlexDisplayObject;
@@ -213,6 +214,10 @@ package com.dbi.cat.admin.business
 		//
 		// Keyword methods
 		//
+		public function loadKeywords(keywords:ArrayCollection):void
+		{
+			this.keywords = keywords;
+		}
 		public function editKeyword(keyword:KeywordVO, entry:EntryPointDefinitionVO, client:ClientVO):void
 		{
 			currentKeyword = ObjectUtil.copy(keyword) as KeywordVO;
@@ -231,7 +236,7 @@ package com.dbi.cat.admin.business
 		}
 		public function deleteKeyword(keyword:KeywordVO):void
 		{
-			var cur:IViewCursor = currentEntryPointDefinition.keywords.createCursor();
+			var cur:IViewCursor = keywords.createCursor();
 			while (cur.current != null)
 			{
 				if (cur.current.primaryKey == keyword.primaryKey)
@@ -242,18 +247,7 @@ package com.dbi.cat.admin.business
 		}
 		public function saveKeyword(keyword:KeywordVO):void
 		{
-			var found:Boolean = false;
-			for each (var k:KeywordVO in currentEntryPointDefinition.keywords)
-			{
-				if (k.primaryKey == keyword.primaryKey)
-				{
-					k.keyword = keyword.keyword;
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				currentEntryPointDefinition.keywords.addItem(keyword);
+			keywords.addItem(keyword);
 			setupGroupedClients();
 			closeEditKeyword();
 		}

@@ -6,16 +6,14 @@
 	title="{isNaN(currentKeyword.primaryKey) ? 'Create Keyword' : 'Edit Keyword'}">
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.KeywordVO;
 			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 			import com.dbi.cat.admin.event.ClientEvent;
 			
 			[Bindable]
-			public var currentClient:ClientVO;
-			
-			[Bindable]
-			public var currentEntryPointDefinition:EntryPointDefinitionVO;
+			public var clients:ArrayCollection;
 			
 			[Bindable]
 			public var currentKeyword:KeywordVO;
@@ -27,7 +25,8 @@
 			private function save():void
 			{
 				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_KEYWORD);
-				event.entryPoint = currentEntryPointDefinition;
+				currentKeyword.clientId = Client.selectedItem.clientId;
+				currentKeyword.entryPointId = Address.selectedItem.primaryKey;
 				event.keyword = currentKeyword;
 				dispatchEvent(event);
 			}
@@ -35,15 +34,21 @@
 	</mx:Script>
 	<mx:Form>
 		<mx:FormItem label="Client">
-			<mx:Label text="{currentClient.name}" />
+			<mx:ComboBox id="Client"
+				dataProvider="{clients}"
+				change="{currentKeyword.clientId = Client.selectedItem.clientId}"
+				labelField="name" />
 		</mx:FormItem>
-		<mx:FormItem label="Entry Point">
-			<mx:Label text="{currentEntryPointDefinition.value}" />
+		<mx:FormItem label="Address">
+			<mx:ComboBox id="Address"
+				dataProvider="{Client.selectedItem.entryPoints}"
+				change="{currentKeyword.entryPointId = Address.selectedItem.primaryKey}"
+				labelField="value" />
 		</mx:FormItem>
 		<mx:FormItem label="Keyword">
 			<mx:TextInput id="Keyword"
 				text="{currentKeyword.keyword}"
-				change="{currentKeyword.keyword = Keyword.text}" />
+				change="{currentKeyword.keyword = Keyword.text;}" />
 		</mx:FormItem>
 	</mx:Form>
 	<mx:ControlBar>

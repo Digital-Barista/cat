@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
-	xmlns:view="com.dbi.cat.admin.view.*" xmlns:client="com.dbi.cat.admin.view.client.*" xmlns:user="com.dbi.cat.admin.view.user.*">
+	xmlns:view="com.dbi.cat.admin.view.*" xmlns:client="com.dbi.cat.admin.view.client.*" xmlns:user="com.dbi.cat.admin.view.user.*" xmlns:keyword="com.dbi.cat.admin.view.keyword.*">
 	<mx:Script>
 		<![CDATA[
 			
@@ -14,6 +14,7 @@
 		horizontalAlign="right">
 		<client:ClientView label="Clients" />
 		<client:EntryPointDefinitionView label="Entry Points" />
+		<keyword:KeywordView label="Keywords" />
 		<user:UsersView label="Users" />
 	</mx:TabNavigator>
 </mx:Canvas>

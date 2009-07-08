@@ -70,7 +70,8 @@
 			<mx:AdvancedDataGrid id="ClientGrid"
 				top="0" bottom="0" left="0" right="0"
 				dataProvider="{clientsGrouped}"
-				dropEnabled="true">
+				dropEnabled="true" 
+				displayItemsExpanded="true">
 				<mx:columns>
 					<mx:AdvancedDataGridColumn dataField="name" headerText="" />
 					<mx:AdvancedDataGridColumn dataField="type" headerText="Type" width="80"  />
@@ -82,7 +83,6 @@
 		<mx:HBox top="5" right="10">
 			<mx:Button label="Add Client"  width="120" click="addClient()"/>
 			<mx:Button label="Add Entry Point"  width="120" click="associateEntryPoint()" enabled="{ClientGrid.selectedItem != null}" />
-			<mx:Button label="Add Keyword"  width="120" click="addKeyword()" enabled="{ClientGrid.selectedItem != null &amp;&amp; !(ClientGrid.selectedItem is ClientVO)}" />
 		</mx:HBox>
 	</mx:Canvas>
 </mx:Canvas>

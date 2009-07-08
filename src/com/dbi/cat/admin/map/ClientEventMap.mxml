@@ -121,4 +121,14 @@
 		<MethodInvoker generator="{ClientManager}"
 			method="closeEditKeyword" />
 	</EventHandlers>
+	<EventHandlers type="{ClientEvent.LIST_KEYWORDS}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="getAllKeywords">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadKeywords"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 </EventMap>

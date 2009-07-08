@@ -24,7 +24,7 @@
 			override public function set data(value:Object):void
 			{
 				super.data = value;
-				Edit.visible = !(value is EntryPointDefinitionVO);
+				Edit.visible = (value is ClientVO);
 			}
 			private function edit():void
 			{
@@ -32,13 +32,6 @@
 				{
 					var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_CLIENT);
 					event.client = data as ClientVO;
-				}
-				else if (data is KeywordVO)
-				{
-					event = new ClientEvent(ClientEvent.EDIT_KEYWORD);
-					event.keyword = data as KeywordVO;
-					event.entryPoint = AdvancedDataGrid(owner).getParentItem(data) as EntryPointDefinitionVO;
-					event.client = AdvancedDataGrid(owner).getParentItem(AdvancedDataGrid(owner).getParentItem(data)) as ClientVO;
 				}
 				dispatchEvent(event);
 			}
@@ -60,11 +53,6 @@
 						event.entryPoint.clientIDs.removeItemAt(
 							event.entryPoint.clientIDs.getItemIndex(client.clientId));
 					}
-					else if (data is KeywordVO)
-					{
-						event = new ClientEvent(ClientEvent.DELETE_KEYWORD);
-						event.keyword = data as KeywordVO;
-					}
 					dispatchEvent(event);
 				}	
 			}
@@ -79,12 +67,6 @@
 				else if (data is EntryPointDefinitionVO)
 				{
 					CustomMessage.show("Are you sure you want to delete entry point: " + data.value + "?",
-						["Yes", "No"],
-						deleteItem);
-				}
-				else if (data is KeywordVO)
-				{
-					CustomMessage.show("Are you sure you want to delete keyword: " + data.name + "?",
 						["Yes", "No"],
 						deleteItem);
 				}

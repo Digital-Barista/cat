@@ -29,6 +29,7 @@ package com.dbi.cat.admin.event
 		public static const EDIT_KEYWORD:String = "editKeywordEvent";
 		public static const DELETE_KEYWORD:String = "deleteKeywordEvent";
 		public static const CLOSE_EDIT_KEYWORD:String = "closeEditKeywordEvent";
+		public static const LIST_KEYWORDS:String = "listKeywordsEvent";
 		
 		public var client:ClientVO;
 		public var entryPoint:EntryPointDefinitionVO;

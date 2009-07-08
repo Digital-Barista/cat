@@ -3,6 +3,9 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.admin.view.client.EditClientView;
+			import com.dbi.cat.admin.view.keyword.EditKeywordView;
+			import com.dbi.cat.admin.view.keyword.KeywordView;
 			import com.dbi.cat.admin.view.Header;
 			import com.dbi.cat.admin.view.user.EditUserView;
 			import com.dbi.cat.admin.view.user.UsersView;
@@ -10,8 +13,6 @@
 			import com.dbi.cat.admin.view.client.ClientView;
 			import com.dbi.cat.admin.view.client.AssociateEntryPointView;
 			import com.dbi.cat.admin.view.client.EntryPointDefinitionView;
-			import com.dbi.cat.admin.view.client.EditKeywordView;
-			import com.dbi.cat.admin.view.client.EditClientView;
 			import com.dbi.cat.admin.view.client.EditEntryPointView;
 			import com.dbi.cat.admin.business.ClientManager;
 			import com.dbi.cat.admin.view.LoginView;
@@ -66,6 +67,10 @@
 			source="{ClientManager}"
 			sourceKey="currentClient"
 			targetKey="currentClient" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="entryPointDefinitions"
+			targetKey="addresses" />
 	</Injectors>
 	<Injectors target="{EditEntryPointView}">
 		<PropertyInjector
@@ -86,12 +91,8 @@
 	<Injectors target="{EditKeywordView}">
 		<PropertyInjector
 			source="{ClientManager}"
-			sourceKey="currentClient"
-			targetKey="currentClient" />
-		<PropertyInjector
-			source="{ClientManager}"
-			sourceKey="currentEntryPointDefinition"
-			targetKey="currentEntryPointDefinition" />
+			sourceKey="clients"
+			targetKey="clients" />
 		<PropertyInjector
 			source="{ClientManager}"
 			sourceKey="currentKeyword"
@@ -122,5 +123,11 @@
 			source="{ClientManager}"
 			sourceKey="clientMap"
 			targetKey="clientMap" />
+	</Injectors>
+	<Injectors target="{KeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="keywords"
+			targetKey="keywords" />
 	</Injectors>
 </EventMap>

@@ -39,7 +39,7 @@
 			</mx:DataGrid>
 		</mx:TitleWindow>
 		<mx:HBox top="5" right="10">
-			<mx:Button label="Add Entry Point"  width="120" click="addEntryPoint()" />
+			<mx:Button label="New Entry Point"  width="120" click="addEntryPoint()" />
 		</mx:HBox>
 	</mx:Canvas>
 </mx:Canvas>
