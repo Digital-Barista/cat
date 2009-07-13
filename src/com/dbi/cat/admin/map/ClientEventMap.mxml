@@ -113,9 +113,15 @@
 			arguments="{[event.keyword, event.entryPoint, event.client]}" />
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.DELETE_KEYWORD}">
-		<MethodInvoker generator="{ClientManager}"
-			method="deleteKeyword"
-			arguments="{event.keyword}" />
+		<RemoteObjectInvoker destination="clientManager"
+			method="delete"
+			arguments="{event.keyword}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="deleteKeyword"
+					arguments="{event.keyword}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.CLOSE_EDIT_KEYWORD}">
 		<MethodInvoker generator="{ClientManager}"
