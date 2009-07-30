@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="cat-ejb" default="make-jar">
+
+	<property name="build.dir" value="build"/>
+	<property name="deploy.dir" value="deploy"/>	
+	<property name="src.home" value="ejbModule"/>
+	
+	<target name="set.cat.home" unless="cat.home">
+		<property name="cat.home" value="../campaign-administration-tool"/>
+	</target>
+	
+	<target name="set.cat.data.home" unless="cat.data.home">
+		<property name="cat.data.home" value="../cat-data"/>
+	</target>
+	
+	<target name="init" depends="set.cat.home,set.cat.data.home">
+		<path id="ear.classpath">
+			<fileset dir="${cat.home}">
+				<include name="lib/*.jar"/>
+				<include name="EarContent/*.jar"/>
+				<include name="EarContent/lib/*.jar"/>
+			</fileset>
+			<fileset dir="${cat.data.home}">
+				<include name="deploy/cat-data.jar"/>
+			</fileset>
+		</path>
+	</target>
+	
+	<target name="clean" depends="init">
+		<delete dir="${build.dir}" failonerror="false"/>
+		<delete dir="${deploy}" failonerror="false"/>		
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${deploy.dir}"/>
+	</target>
+	
+	<target name="build" depends="clean">
+		<javac classpathref="ear.classpath" srcdir="${src.home}" destdir="${build.dir}"/>
+	</target>
+	
+	<target name="make-jar" depends="build">
+		<jar basedir="${build.dir}" manifest="${src.home}/META-INF/MANIFEST.MF" destfile="${deploy.dir}/cat-ejb.jar">
+			<fileset dir="${src.home}">
+				<include name="META-INF/ejb-jar.xml"/>
+				<include name="META-INF/jboss.xml"/>
+			</fileset>
+		</jar>
+	</target>
+</project>

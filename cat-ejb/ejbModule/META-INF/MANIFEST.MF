@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: cat-data.jar 
+ lib/commons-httpclient-3.0.1.jar 
+ cat-utils.jar
+
