@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+	width="350" height="178"
+	showCloseButton="true"
+	close="onClose()"
+	title="{isNaN(currentKeyword.primaryKey) ? 'Create Keyword' : 'Edit Keyword'}">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.admin.event.ClientEvent;
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+			[Bindable]
+			public var currentKeyword:KeywordVO;
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_KEYWORD));
+			}
+			private function save():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_KEYWORD);
+				currentKeyword.clientId = Client.selectedItem.clientId;
+				currentKeyword.entryPointId = Address.selectedItem.primaryKey;
+				event.keyword = currentKeyword;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Form>
+		<mx:FormItem label="Client">
+			<mx:ComboBox id="Client"
+				dataProvider="{clients}"
+				change="{currentKeyword.clientId = Client.selectedItem.clientId}"
+				labelField="name" />
+		</mx:FormItem>
+		<mx:FormItem label="Address">
+			<mx:ComboBox id="Address"
+				dataProvider="{Client.selectedItem.entryPoints}"
+				change="{currentKeyword.entryPointId = Address.selectedItem.primaryKey}"
+				labelField="value" />
+		</mx:FormItem>
+		<mx:FormItem label="Keyword">
+			<mx:TextInput id="Keyword"
+				text="{currentKeyword.keyword}"
+				change="{currentKeyword.keyword = Keyword.text;}" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar>
+		<mx:Button id="Save" label="Save"
+			click="save()" />
+	</mx:ControlBar>
+</mx:TitleWindow>
