@@ -570,6 +570,9 @@ package com.dbi.cat.view.workspace
 		}
 		public function loadCampaign(campaign:CampaignVO):void
 		{
+			// Close any open menus
+			closeMenuItems();
+			
 			// Remove any existing components
 			for each (var item:WorkspaceItem in zoomContainer.getComponents())
 				removeWorkspaceItem(item);

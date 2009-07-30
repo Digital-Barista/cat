@@ -24,6 +24,7 @@ package com.dbi.cat.event
 		public static const SAVE_CONNECTOR:String = "saveConnector";
 		public static const SAVE_CONNECTOR_FAIL:String = "saveConnectorFail";
 		public static const FILTER_CAMPAIGNS:String = "filterCampaignsEvent";
+		public static const FILTER_CAMPAIGN_TEMPLATES:String = "filterCampaignTemplatesEvent";
 		public static const PUBLISH_CAMPAIGN:String = "publishCampaignEvent";
 		public static const LOAD_SUBSCRIBER_STATISTICS:String = "loadSubscriberStatisticsEvent";
 	

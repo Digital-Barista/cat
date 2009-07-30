@@ -7,8 +7,8 @@ package com.dbi.cat.business
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.ClientEvent;
 	import com.dbi.cat.event.LayoutInfoEvent;
-	import com.dbi.cat.view.EditCampaignView;
 	import com.dbi.cat.view.EditCommunicationsView;
+	import com.dbi.cat.view.campaign.EditCampaignView;
 	import com.dbi.controls.CustomMessage;
 	
 	import flash.display.DisplayObject;
