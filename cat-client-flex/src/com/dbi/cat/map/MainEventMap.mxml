@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.UnhandledFaultEvent;
+			import com.dbi.cat.business.NavigationManager;
+			import com.dbi.cat.business.LayoutInfoManager;
+			import mx.managers.LayoutManager;
+			import com.dbi.cat.business.ClientManager;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.business.CampaignManager;
+			import com.dbi.cat.event.LoadDataEvent;
+			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.event.ChangePasswordEvent;
+			import com.dbi.cat.business.LoginManager;
+			import com.dbi.cat.event.LoginEvent;
+			import com.dbi.cat.event.NavigationEvent;
+			import com.dbi.cat.business.UserManager;
+			import com.dbi.cat.event.UserEvent;
+			import com.dbi.cat.business.AppManager;
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<services:Services id="services" />
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	
+	<!-- Initialize Events -->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<ObjectBuilder generator="{NavigationManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{AppManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{UserManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{LoginManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{CampaignManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{LayoutInfoManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{ClientManager}"  />
+	</EventHandlers>
+	
+	<EventHandlers type="{FlexEvent.INITIALIZE}">
+		<MethodInvoker generator="{AppManager}" method="registerClasses" />
+		<MethodInvoker generator="{AppManager}" method="setupGlobalEvents" />
+		<MethodInvoker generator="{AppManager}" method="loadExternalParameters" />
+	</EventHandlers>
+	
+	<!-- Global unhandled fault event -->
+	<EventHandlers type="{UnhandledFaultEvent.FAULT}">
+		<MethodInvoker generator="{AppManager}"
+			method="showFault"
+			arguments="{event.fault}" />
+	</EventHandlers>
+	
+	<!-- Login Events -->
+	<EventHandlers type="{LoginEvent.LOGIN}">
+		<MethodInvoker generator="{LoginManager}"
+			method="login"
+			arguments="{[event.username, event.password]}" />
+	</EventHandlers>
+	<EventHandlers type="{LoginEvent.LOGOUT}">
+		<MethodInvoker generator="{LoginManager}"
+			method="logout" />
+	</EventHandlers>
+	
+	<!-- Data Events -->
+	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
+		<EventAnnouncer type="{CampaignEvent.LIST_CAMPAIGNS}" />
+		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
+		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
+		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />
+	</EventHandlers>
+	
+</EventMap>

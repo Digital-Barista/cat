@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	defaultButton="{Redeem}">
+	<mx:Label text="Coupon Code" horizontalCenter="-87" verticalCenter="-150" fontSize="18"/>
+	<mx:TextInput width="300" horizontalCenter="0" verticalCenter="-129"/>
+	<mx:Button label="Redeem" horizontalCenter="112" verticalCenter="-104" id="Redeem"/>
+
+</mx:Canvas>

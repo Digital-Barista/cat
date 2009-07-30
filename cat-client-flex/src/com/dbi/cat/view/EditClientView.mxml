@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="474" height="276"
+	layout="absolute" showCloseButton="true"
+	close="cancel()"
+	title="Edit Client" 
+	xmlns:vo="com.dbi.cat.vo.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.SMSConstants;
+			import com.dbi.cat.view.workspace.MessageItem;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.event.NavigationEvent;
+			import mx.collections.ArrayCollection;
+			import mx.validators.EmailValidator;
+			import com.dbi.cat.event.UserEvent;
+			import flash.events.MouseEvent;
+			
+			[Bindable]
+			public var client:ClientVO;
+			
+			private function save():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_CLIENT);
+				event.client = client;
+				dispatchEvent(event);
+			}
+			private function cancel():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CANCEL_EDIT));
+			}
+		]]>
+	</mx:Script>
+		<mx:Form id="EditUser">
+			<mx:FormItem label="Organization">
+				<mx:Label text="{client.name}" />
+			</mx:FormItem>
+			<mx:FormItem label="Contatct Name">
+				<mx:TextInput id="ContactName"  width="300"/>
+			</mx:FormItem>
+			<mx:FormItem label="Contatct Email">
+				<mx:TextInput id="ContactEmail"  width="300"/>
+			</mx:FormItem>
+			<mx:FormItem label="Contatct Phone">
+				<mx:TextInput id="ContactPhone"  width="300"/>
+			</mx:FormItem>
+			<mx:FormItem label="Add In Message">
+				<mx:TextArea id="AddInMessage"  width="300"
+					 maxChars="{SMSConstants.MAX_CHARACTERS}"
+					text="{client.userAddInMessage}"
+					change="{client.userAddInMessage = AddInMessage.text}" />
+			</mx:FormItem>
+		<mx:FormItem>
+			<mx:Label text="{client.userAddInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
+		</mx:FormItem>
+		</mx:Form>
+		<mx:ControlBar horizontalAlign="right">
+			<mx:Button id="Save" label="Save" click="save()" />
+		</mx:ControlBar>
+</mx:TitleWindow>

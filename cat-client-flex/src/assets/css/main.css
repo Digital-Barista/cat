@@ -1,0 +1,35 @@
+ControlBar
+{
+	paddingTop:2;
+	paddingBottom:2;
+	horizontalAlign:right;
+}
+List
+{
+	dropIndicatorSkin:ClassReference("com.dbi.skins.BlankSkin");
+}
+
+.navBar
+{
+}
+.navTab
+{
+	backgroundColor:#C9CED1;
+}
+.navTabSelected
+{
+	backgroundColor:#FFFFFF;
+}
+.navTabOver
+{
+	backgroundColor:#eaeaea;
+}
+
+.headerTitle
+{
+	fontSize:24;
+	fontWeight:bold;
+}
+.filterBox
+{
+}

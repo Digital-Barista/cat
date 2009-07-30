@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:ns1="com.dbi.cat.view.test.*" 
+	xmlns:workspace="com.dbi.cat.view.workspace.*"
+	width="275" height="100%"
+	defaultButton="{Send}" xmlns:ns2="com.dbi.cat.view.components.*"
+	creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.CampaignVO;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.event.CampaignTestEvent;
+			import com.dbi.cat.event.CampaignEvent;
+			
+			[Bindable]
+			public var campaignTestOutput:String;
+			
+			[Bindable]
+			public var testCampaign:CampaignVO;
+			
+			public function get selectedDate():Date
+			{
+				return new Date(StartDate.selectedDate.fullYear, StartDate.selectedDate.month,
+						StartDate.selectedDate.date, StartTime.selectedTime.hours, StartTime.selectedTime.minutes);
+			}
+			
+			private function init():void
+			{
+				var now:Date = new Date();
+				StartDate.selectedDate = now;
+				StartTime.selectedTime = now;
+			}
+			
+			private function sendResponse():void
+			{
+				var event:CampaignTestEvent = new CampaignTestEvent(CampaignTestEvent.SEND_RESPONSE);
+				event.response = Message.text;
+				dispatchEvent(event);
+			}
+			private function followTimeConnector():void
+			{
+				dispatchEvent(new CampaignTestEvent(CampaignTestEvent.FOLLOW_NEXT_TIME_CONNECTOR));
+			}
+			private function restartTest():void
+			{
+				var event:CampaignTestEvent = new CampaignTestEvent(CampaignTestEvent.START_TEST);
+				event.campaign = testCampaign;
+				event.startDate = selectedDate;
+				dispatchEvent(event);
+			}
+			private function endTest():void
+			{
+				dispatchEvent(new CampaignEvent(CampaignTestEvent.END_TEST_CAMPAIGN));
+			}
+		]]>
+	</mx:Script>
+	<mx:TextArea width="100%" top="175" bottom="0"
+		htmlText="{campaignTestOutput}" 
+		editable="false" />
+	<mx:Canvas height="79"
+		borderStyle="solid" cornerRadius="5" right="0" left="0" top="88">
+		<mx:Label y="0" text="Response" left="5" fontWeight="bold"/>
+		<mx:TextInput y="14" id="Message"  width="191" left="5"/>
+		<mx:Button id="Send" 
+			y="14" label="Send"
+			click="sendResponse()" right="5"/>
+		<mx:Button y="43" label="Follow Next Time Based Connector"
+			click="followTimeConnector()" left="5" right="5"/>
+	</mx:Canvas>
+	<mx:Button
+		label="Restart Test"
+		click="restartTest()"  left="0" y="2" width="130"/>
+	<mx:Button
+		label="End Test"
+		click="endTest()" y="2" right="0" width="130"/>
+	<mx:Canvas height="48" right="0" left="0" top="32" borderStyle="solid" cornerRadius="5">
+		<mx:Label x="7" text="Start Date" verticalCenter="-16" fontWeight="bold"/>
+		<mx:DateField verticalCenter="0"
+			id="StartDate" left="5"/>
+		<ns2:TimeChooser x="103" verticalCenter="1"
+			id="StartTime" >
+		</ns2:TimeChooser>
+	</mx:Canvas>
+	
+</mx:Canvas>

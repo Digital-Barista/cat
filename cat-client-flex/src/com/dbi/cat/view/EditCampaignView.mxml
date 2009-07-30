@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="386" height="286"
+	showCloseButton="true"
+	close="onClose()" layout="absolute" 
+	horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+	xmlns:vo="com.dbi.cat.vo.*" 
+	xmlns:controls="com.dbi.controls.*"
+	title="{isNaN(campaign.primaryKey) ? 'Create Camapign' : 'Edit Campaign'}" >
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.SMSConstants;
+			import com.dbi.cat.view.workspace.MessageItem;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.CampaignVO;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.event.CampaignEvent;
+			
+			private var _campaign:CampaignVO;
+			[Bindable]
+			public function get campaign():CampaignVO
+			{
+				return _campaign;
+			}
+			public function set campaign(value:CampaignVO):void
+			{
+				_campaign = value;
+				buildEntryLists();
+			}
+			
+			private var _clients:ArrayCollection;
+			[Bindable]
+			public function get clients():ArrayCollection
+			{
+				return _clients;
+			}
+			public function set clients(value:ArrayCollection):void
+			{
+				_clients = value;
+				buildEntryLists();
+			}
+			
+			[Bindable]
+			private var entryEmails:ArrayCollection;
+			
+			[Bindable]
+			private var entryPhoneNumbers:ArrayCollection;
+			
+			private function onClose():void
+			{
+				dispatchEvent(new CampaignEvent(CampaignEvent.CLOSE_EDIT_CAMPAIGN));
+			}
+			private function buildEntryLists():void
+			{
+				entryEmails = new ArrayCollection();
+				entryPhoneNumbers = new ArrayCollection();
+				
+				if (clients != null &&
+					campaign != null)
+				{
+					for each (var client:ClientVO in clients)
+					{
+						if (campaign.clientPK == client.clientId)
+						{
+							for each (var e:EntryPointDefinitionVO in client.entryPoints)
+							{
+								if (e.type == EntryPointType.EMAIL)
+									entryEmails.addItem(e);
+								else if (e.type == EntryPointType.SMS)
+									entryPhoneNumbers.addItem(e);
+							}
+							break;
+						}
+					}
+				}
+			}
+			private function saveCampaign():void
+			{
+				// Assign type value which may be defaulted
+				if (campaign.type == EntryPointType.EMAIL)
+					campaign.defaultFromAddress = EntryEmail.selectedItem.value;
+				else if (campaign.type == EntryPointType.SMS)
+					campaign.defaultFromAddress = EntryPhoneNumber.selectedItem.value;
+					
+				// Save campaign
+				var event:CampaignEvent = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN);
+				event.campaign = campaign;
+				event.campaign.clientPK = Client.selectedItem.clientId;
+				dispatchEvent(event);
+			}
+			private function changeClient():void
+			{
+				campaign.clientPK = Client.selectedItem.clientId;
+				buildEntryLists();
+			}
+		]]>
+	</mx:Script>
+	<mx:ArrayCollection id="EntryPointTypes">
+		<mx:Object label="{EntryPointType.SMS}" value="{EntryPointType.SMS}" />
+		<mx:Object label="{EntryPointType.EMAIL}" value="{EntryPointType.EMAIL}" />
+	</mx:ArrayCollection>
+	<mx:Form right="0" left="0" top="0" bottom="0">
+		<mx:FormItem label="Name">
+			<mx:TextInput id="Name"
+				width="245" 
+				text="{campaign.name}"
+				change="{campaign.name = Name.text}" />
+		</mx:FormItem>
+		<mx:FormItem label="Client">
+			<controls:AdvancedComboBox 
+				id="Client"
+				dataProvider="{clients}"
+				selectedBindingProperty="clientId"
+				selectedBindingValue="{campaign.clientPK}"
+				labelField="name" 
+				y="249" horizontalCenter="250"
+				change="changeClient()"  />
+		</mx:FormItem>
+		<mx:FormItem label="Type">
+			<controls:AdvancedComboBox id="CampaignTypeMenu"
+				dataProvider="{EntryPointTypes}"
+				selectedBindingProperty="value"
+				selectedBindingValue="{campaign.type}"
+				change="{campaign.type = CampaignTypeMenu.selectedItem.value}" />
+		</mx:FormItem>
+		<mx:FormItem label="Entry Point"
+			includeInLayout="{campaign.type == EntryPointType.EMAIL}"
+			visible="{campaign.type == EntryPointType.EMAIL}">
+			<controls:AdvancedComboBox id="EntryEmail"
+				dataProvider="{entryEmails}"
+				selectedBindingProperty="value"
+				selectedBindingValue="{campaign.defaultFromAddress}"
+				labelField="value"
+				change="{campaign.defaultFromAddress = EntryEmail.selectedItem.value}" />
+		</mx:FormItem>
+		<mx:FormItem label="Entry Point"
+			includeInLayout="{campaign.type == EntryPointType.SMS}"
+			visible="{campaign.type == EntryPointType.SMS}">
+			<controls:AdvancedComboBox id="EntryPhoneNumber"
+				dataProvider="{entryPhoneNumbers}"
+				selectedBindingProperty="value"
+				selectedBindingValue="{campaign.defaultFromAddress}"
+				labelField="value"
+				change="{campaign.defaultFromAddress = EntryPhoneNumber.selectedItem.value}" />
+		</mx:FormItem>
+		<mx:FormItem label="Add In Message">
+			<mx:TextArea id="AddInMessage"
+				width="245" height="60" maxChars="160"
+				text="{campaign.addInMessage}"
+				change="{campaign.addInMessage = AddInMessage.text}" />
+		</mx:FormItem>
+		<mx:FormItem>
+			<mx:Label text="{campaign.addInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar x="0" y="142">
+		<mx:Button label="Save"
+			click="saveCampaign()"/>
+	</mx:ControlBar>
+</mx:TitleWindow>

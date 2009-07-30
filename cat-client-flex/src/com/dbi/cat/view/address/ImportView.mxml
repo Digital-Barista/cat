@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:address="com.dbi.cat.view.address.*"
+	layout="absolute" width="400" height="400"
+	showCloseButton="true"
+	close="onClose()"
+	title="Import Addresses">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.EntryPointVO;
+			import com.dbi.cat.common.vo.NodeVO;
+			import com.dbi.cat.common.vo.CampaignVO;
+			import mx.controls.Alert;
+			import com.dbi.event.CustomMessageEvent;
+			import com.dbi.controls.CustomMessage;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.event.ImportEvent;
+			
+			[Bindable]
+			public var addresses:ArrayCollection;
+			private var importList:Array;
+			
+			private var _publishedCampaign:CampaignVO;
+			public function get publishedCampaign():CampaignVO
+			{
+				return _publishedCampaign;
+			}
+			public function set publishedCampaign(c:CampaignVO):void
+			{
+				_publishedCampaign = c;
+				entryPoints = new ArrayCollection();
+				if (publishedCampaign != null)
+				{
+					for each (var n:NodeVO in publishedCampaign.nodes)
+					{
+						if (n is EntryPointVO)
+							entryPoints.addItem(n);
+					}
+				}
+			}
+			
+			[Bindable]
+			private var entryPoints:ArrayCollection;
+			
+			[Bindable(event="addressUpdate")]
+			private function get validImport():Boolean
+			{
+				if (addresses != null &&
+					addresses.length > 0 &&
+					EntryPointList.selectedIndex > -1)
+				{
+					for each (var a:Object in addresses)
+					{
+						if (a.selected)
+							return true;
+					}
+				}
+				return false;
+			}
+			
+			private function onSelectAll():void
+			{
+				for each (var a:Object in addresses)
+					a.selected = true;
+				dispatchEvent(new Event("addressUpdate"));
+				AddressGrid.invalidateList();
+			}
+			private function onUnselectAll():void
+			{
+				for each (var a:Object in addresses)
+					a.selected = false;
+				dispatchEvent(new Event("addressUpdate"));
+				AddressGrid.invalidateList();
+			}
+			private function onClose():void
+			{
+				dispatchEvent(new ImportEvent(ImportEvent.CLOSE_IMPORT_WINDOW));
+			}
+			private function loadFile():void
+			{
+				dispatchEvent(new ImportEvent(ImportEvent.CHOOSE_IMPORT_FILE));
+			}
+			private function confirmImport():void
+			{
+				importList = new Array();
+				for each (var a:Object in addresses)
+				{
+					if (a.selected)
+						importList.push(a.address);
+				}
+				CustomMessage.show("Import the " + importList.length + " selected addresses?",
+					["Yes", "No"],
+					doImport);
+			}
+			private function doImport(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes")
+				{
+					var event:ImportEvent = new ImportEvent(ImportEvent.DO_IMPORT);
+					event.addresses = importList;
+					event.entryPointUID = EntryPointList.selectedItem.uid;
+					dispatchEvent(event);
+				}
+			}
+			private function onItemClick():void
+			{
+				dispatchEvent(new Event("addressUpdate"));
+			}
+			private function getEntryPointLabel(entry:EntryPointVO):String
+			{
+				return entry.entryPoint + " - " + entry.keyword;
+			}
+			private function loadAllClientAddresses():void
+			{
+				var event:ImportEvent = new ImportEvent(ImportEvent.LOAD_ALL_CLIENT_ADDRESSES);
+				event.clientId = publishedCampaign.clientPK;
+				event.entryPointType = publishedCampaign.type;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Button label="Load File" left="10" top="10" width="180"
+		click="loadFile()"/>
+	<mx:Button label="Load Current" right="10" top="10" width="180"
+		click="loadAllClientAddresses()" />
+	<address:ImportDataGrid id="AddressGrid"
+		top="40" bottom="70" left="0" right="0"
+		dataProvider="{addresses}"
+		selectable="false"
+		draggableColumns="false"
+		itemClick="onItemClick()"
+		selectAll="onSelectAll()"
+		unselectAll="onUnselectAll()">
+		<address:columns>
+			<mx:DataGridColumn id="SelectColumn"
+				itemRenderer="com.dbi.cat.view.address.AddressSelectRenderer" 
+				width="40" 
+				sortable="false"
+				headerRenderer="com.dbi.cat.view.address.AddressSelectHeader" />
+			<mx:DataGridColumn 
+				headerText="Address" 
+				dataField="address" />
+		</address:columns>
+	</address:ImportDataGrid>
+	<mx:Button label="Import Addresses"
+		enabled="{validImport}"
+		click="confirmImport()" bottom="10" left="10" right="10"/>
+	<mx:ComboBox id="EntryPointList"
+		prompt="[Entry Point to Join]" bottom="40" left="10" right="10"
+		dataProvider="{entryPoints}"
+		labelFunction="getEntryPointLabel"
+		change="{dispatchEvent(new Event('addressUpdate'));}"></mx:ComboBox>
+</mx:TitleWindow>

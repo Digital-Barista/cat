@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.business.LayoutInfoManager;
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.event.LayoutInfoEvent;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<EventHandlers type="{LayoutInfoEvent.LOAD_CAMPAIGN_LAYOUT_INFO}">
+		<RemoteObjectInvoker 
+			destination="layoutManager"
+			method="getLayoutsByCampaignAndVersion"
+			arguments="{[event.campaign.uid, event.campaign.currentVersion]}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{LayoutInfoManager}"
+					method="loadLayoutInfo"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{LayoutInfoEvent.SAVE_LAYOUT_INFO}">
+		<RemoteObjectInvoker 
+			destination="layoutManager"
+			method="save"
+			arguments="{event.layoutInfo}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{LayoutInfoManager}"
+					method="saveLayoutInfo"
+					arguments="{event.layoutInfo}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker generator="{AppManager}"
+					method="hideFault"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{LayoutInfoEvent.SYNC_LAYOUT_INFO}">
+		<MethodInvoker generator="{LayoutInfoManager}"
+			method="syncLayoutInfo" />
+	</EventHandlers>
+</EventMap>
