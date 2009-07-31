@@ -42,7 +42,7 @@
 				<mx:DataGridColumn headerText="Create Date"
 					width="150" />
 				<mx:DataGridColumn sortable="false"
-					itemRenderer="com.dbi.cat.view.components.CampaignActionsItemRenderer"
+					itemRenderer="com.dbi.cat.view.components.CampaignTemplateActionsItemRenderer"
 					width="250" />
 			</mx:columns>
 		</mx:DataGrid>

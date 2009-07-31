@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300" 
+	xmlns:view="com.dbi.cat.view.*" 
+	xmlns:workspace="com.dbi.cat.view.workspace.*"
+	showCloseButton="true"
+	close="onClose()"
+	title="{templateCampaign.name}">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.event.CampaignTemplateEvent;
+			import com.dbi.cat.common.vo.CampaignVO;
+			
+			[Bindable]
+			public var templateCampaign:CampaignVO;
+			
+			private function onClose():void
+			{
+				Workspace.closeMenuItems();
+				
+				// Remove the listener event
+				dispatchEvent(new CampaignTemplateEvent(CampaignTemplateEvent.CLOSE_CAMPAIGN_TEMPLATE_COMMUNICATIONS));
+			}
+		]]>
+	</mx:Script>
+	<view:CommunicationComponentsView  left="0" top="0" bottom="0" width="100"
+		borderSides="right"
+		borderStyle="solid"/>
+	<workspace:WorkspaceView id="Workspace"
+		right="0" left="102" top="0" bottom="0"
+		campaign="{templateCampaign}"  />
+</mx:TitleWindow>

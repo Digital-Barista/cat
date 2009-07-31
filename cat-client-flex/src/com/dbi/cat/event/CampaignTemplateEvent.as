@@ -11,6 +11,7 @@ package com.dbi.cat.event
 		public static const LOAD_CAMPAIGN_TEMPLATE:String = "loadCampaignTemplateEvent";
 		public static const DELETE_CAMPAIGN_TEMPLATE:String = "deleteCampaignTemplateEvent";
 		public static const CLOSE_EDIT_CAMPAIGN_TEMPLATE:String = "closeEditCampaignTemplateEvent";
+		public static const CLOSE_CAMPAIGN_TEMPLATE_COMMUNICATIONS:String = "closeCampaignTemplateCommunicationsEvent";
 		public static const LIST_CAMPAIGN_TEMPLATES:String = "listCampaignTemplatesEvent";
 		public static const EDIT_CAMPAIGN_TEMPLATE:String = "editCampaignTemplateEvent";
 		public static const FILTER_CAMPAIGN_TEMPLATES:String = "filterCampaignTemplatesEvent";

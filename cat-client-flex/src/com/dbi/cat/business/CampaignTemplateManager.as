@@ -1,6 +1,7 @@
 package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.CampaignVO;
+	import com.dbi.cat.view.EditTemplateCommunicationsView;
 	import com.dbi.cat.view.campaign.EditCampaignTemplateView;
 	
 	import flash.display.DisplayObject;
@@ -8,6 +9,7 @@ package com.dbi.cat.business
 	import mx.collections.ArrayCollection;
 	import mx.core.Application;
 	import mx.core.IFlexDisplayObject;
+	import mx.core.UIComponent;
 	import mx.managers.PopUpManager;
 	import mx.utils.ObjectUtil;
 	
@@ -15,7 +17,10 @@ package com.dbi.cat.business
 	public class CampaignTemplateManager
 	{
 		public var campaignTemplateList:ArrayCollection = new ArrayCollection();
+		public var campaignTemplate:CampaignVO;
+		
 		private var editCampaignTemplatePopup:IFlexDisplayObject;
+		private var editCampaignTemplateCommunicationPopup:IFlexDisplayObject;
 		
 		public function CampaignTemplateManager()
 		{
@@ -24,6 +29,22 @@ package com.dbi.cat.business
 		//
 		// Update methods
 		//
+		public function loadCampaignTemplate(campaign:CampaignVO):void
+		{
+			campaignTemplate = campaign;
+			
+			// Move to communication screen if not open
+			if (editCampaignTemplateCommunicationPopup == null)
+			{
+				editCampaignTemplateCommunicationPopup = new EditTemplateCommunicationsView();
+				editCampaignTemplateCommunicationPopup.width = Application.application.width;
+				editCampaignTemplateCommunicationPopup.height = Application.application.height;
+			}
+			PopUpManager.removePopUp(editCampaignTemplateCommunicationPopup);
+			PopUpManager.addPopUp(editCampaignTemplateCommunicationPopup, UIComponent(Application.application), true);	
+			PopUpManager.centerPopUp(editCampaignTemplateCommunicationPopup);
+		}
+		
 		public function editCampaignTemplate(campaign:CampaignVO):void
 		{
 			// Create view
@@ -49,6 +70,11 @@ package com.dbi.cat.business
 		public function closeEditCampaignTemplate():void
 		{
 			PopUpManager.removePopUp(editCampaignTemplatePopup);
+		}
+		public function closeCampaignTemplateCommunications():void
+		{
+			campaignTemplate = null;
+			PopUpManager.removePopUp(editCampaignTemplateCommunicationPopup);
 		}
 	}
 }

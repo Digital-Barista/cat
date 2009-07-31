@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.business.CampaignManager;
 			import com.dbi.cat.business.CampaignTemplateManager;
 			import com.dbi.cat.event.CampaignTemplateEvent;
 			import com.dbi.cat.business.CampaignTestManager;
@@ -22,6 +23,26 @@
 	<EventHandlers type="{CampaignTemplateEvent.CLOSE_EDIT_CAMPAIGN_TEMPLATE}">
 		<MethodInvoker generator="{CampaignTemplateManager}"
 			method="closeEditCampaignTemplate" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignTemplateEvent.CLOSE_CAMPAIGN_TEMPLATE_COMMUNICATIONS}">
+		<MethodInvoker generator="{CampaignTemplateManager}"
+			method="closeCampaignTemplateCommunications" />
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignTemplateEvent.LOAD_CAMPAIGN_TEMPLATE}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="getDetailedCampaign"
+			arguments="{event.campaign.uid}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="loadCampaign"
+					arguments="{resultObject}" />
+				<MethodInvoker generator="{CampaignTemplateManager}"
+					method="loadCampaignTemplate"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
 	</EventHandlers>
 	
 </EventMap>
