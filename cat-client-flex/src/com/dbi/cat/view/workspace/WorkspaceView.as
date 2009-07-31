@@ -69,8 +69,10 @@ package com.dbi.cat.view.workspace
 				c == null ||
 				campaign.uid != c.uid ||
 				campaign.currentVersion != c.currentVersion )
+			{
+				_campaign = c;
 				loadCampaign(c);
-				
+			}	
 			_campaign = c;
 			buildKeywordList();
 		}
@@ -351,7 +353,7 @@ package com.dbi.cat.view.workspace
 		private function addNodeToWorkspace(node:NodeVO):void
 		{
 			// Create new WorkspaceItem based on type
-            var newItem:WorkspaceItem;
+            var newItem:Node;
             
 			if (node is MessageVO)
             {
@@ -371,6 +373,11 @@ package com.dbi.cat.view.workspace
             	c.couponVO = node as CouponVO;
 				newItem = c;
             }
+            
+            // Hide some icons for template campaigns
+            newItem.showInvalidWarning = !campaign.isTemplate;
+            newItem.showStatistics = !campaign.isTemplate;
+            
             addItemToWorkspace(newItem);
 		}
 		private function addConnectorToWorkspace(connector:ConnectorVO):void
@@ -401,6 +408,9 @@ package com.dbi.cat.view.workspace
             	rc.connectorVO = connector as ResponseConnectorVO;
             	newItem = rc;
             }
+            
+            // Hide some icons for template campaigns
+            newItem.showInvalidWarning = !campaign.isTemplate;
             
             // Associate connected nodes
             if (connector.sourceNodeUID != null)
