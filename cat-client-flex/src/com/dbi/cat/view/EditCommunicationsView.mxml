@@ -103,7 +103,6 @@
 			}
 		]]>
 	</mx:Script>
-	<view:CommunicationComponentsView  left="0" top="0" bottom="0" width="100"/>
 	<mx:HBox right="0" left="100" top="0" bottom="0">
 		<mx:TabNavigator id="WorkspaceTabs"
 			right="0" left="0" top="0" bottom="0"
@@ -124,6 +123,7 @@
 			visible="{isTesting}"
 			includeInLayout="{isTesting}"  borderSides="top" borderStyle="solid" borderThickness="30" borderColor="#FFFFFF"/>
 	</mx:HBox>
+	<view:CommunicationComponentsView  left="0" top="0" bottom="0" width="300"/>
 	<mx:HBox top="0" right="5" left="350"
 		verticalAlign="middle" 
 		horizontalAlign="right"

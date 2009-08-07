@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="400" height="300"
-	backgroundColor="0xFFFFFF" 
+	backgroundAlpha="0" 
 	horizontalScrollPolicy="off"
 	xmlns:vo="com.dbi.cat.vo.*" 
 	xmlns:workspace="com.dbi.cat.view.workspace.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.core.UIComponent;
+			import com.dbi.cat.view.workspace.IconItem;
 			import com.dbi.cat.view.workspace.CommunicationComponent;
 			import mx.controls.SWFLoader;
 			import com.dbi.cat.constants.WorkspaceItemType;
 			import mx.core.DragSource;
 			import mx.managers.DragManager;
 			
+			[Bindable]
+			private var showConnectors:Boolean = false;
+			
+			[Bindable]
+			private var showNodes:Boolean = false;
 
 			private function dragIt(event:MouseEvent):void 
             {
@@ -39,41 +46,131 @@
                 DragManager.doDrag(dragInitiator, dragSource, event, dragProxy);
             }
 
+			private function overNodes():void
+			{
+				showNodes = true;
+				showConnectors = false;
+			}
+			
+			private function overConnectors():void
+			{
+				showConnectors = true;
+				showNodes = false;
+			}
+			
+			private function offMenu():void
+			{
+				showNodes = false;
+				showConnectors = false;
+			}
+			
+			private function drawBorder(e:Event):void
+			{
+				var comp:UIComponent = e.target as UIComponent;
+				var g:Graphics = comp.graphics;
+				
+				g.clear();
+				g.beginFill(0xFFFFFF, 1);
+				g.lineStyle(10, 0x000000, 1);
+				g.moveTo(0, 0);
+				g.lineTo(0, 85);
+				g.endFill();
+			}
 		]]>
 	</mx:Script>
-	<mx:VBox id="ComponentContainer"
+	
+	<!-- Nodes popup menu -->
+	<mx:Canvas id="Nodes"
+		y="35"
 		width="100%"
-		top="10" bottom="30"
-		horizontalAlign="center"
+		backgroundAlpha="0" 
+		visible="{showNodes}"
+		rollOut="offMenu()">
+		<mx:VBox left="100" 
+			backgroundColor="0xFFFFFF"
+			borderStyle="solid"
+			verticalGap="20"
+			paddingBottom="30">
+			<workspace:CommunicationComponent
+				width="100%" height="65"
+				mouseDown="dragIt(event)"
+				type="{WorkspaceItemType.ENTRY_POINT}" />
+			<workspace:CommunicationComponent
+				width="100%" height="65"
+				mouseDown="dragIt(event)"
+				type="{WorkspaceItemType.MESSAGE}"  />
+			<workspace:CommunicationComponent
+				width="100%" height="65"
+				mouseDown="dragIt(event)"
+				type="{WorkspaceItemType.COUPON}"  />
+		</mx:VBox>
+	</mx:Canvas>
+	
+	<!-- Connectors popup menu -->
+	<mx:Canvas id="Connectors"
+		y="125"
+		width="100%"
+		backgroundAlpha="0" 
+		visible="{showConnectors}"
+		rollOut="offMenu()">
+		<mx:Canvas borderStyle="solid"
+			borderSides="top bottom"
+			height="85" width="120"
+			left="0" top="0" />
+		<mx:VBox left="100" 
+			backgroundColor="0xFFFFFF"
+			borderStyle="solid"
+			verticalGap="20"
+			paddingBottom="30"
+			paddingTop="5">
+			<workspace:CommunicationComponent
+				width="100%" height="65"
+				mouseDown="dragIt(event)"
+				type="{WorkspaceItemType.IMMEDIATE_CONNECTOR}"  />
+			<workspace:CommunicationComponent
+				width="100%" height="65"
+				mouseDown="dragIt(event)"
+				type="{WorkspaceItemType.DATE_CONNECTOR}"  />
+			<workspace:CommunicationComponent
+				width="100%" height="65"
+				mouseDown="dragIt(event)"
+				type="{WorkspaceItemType.INTERVAL_CONNECTOR}"  />
+			<workspace:CommunicationComponent
+				width="100%" height="65"
+				mouseDown="dragIt(event)"
+				type="{WorkspaceItemType.RESPONSE_CONNECTOR}"  />
+		</mx:VBox>
+	</mx:Canvas>
+	
+	<!-- Mask for border -->
+	<mx:Canvas borderStyle="solid"
+		borderSides="top bottom"
 		backgroundColor="0xFFFFFF"
-		horizontalScrollPolicy="off" verticalGap="20">
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.ENTRY_POINT}" />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.MESSAGE}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.COUPON}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.IMMEDIATE_CONNECTOR}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.DATE_CONNECTOR}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.INTERVAL_CONNECTOR}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.RESPONSE_CONNECTOR}"  />
-	</mx:VBox>
+		height="85" width="101"
+		x="0" y="35"
+		visible="{showNodes}" />
+	<!-- Nodes main icon -->
+	<workspace:IconItem
+		displayIcon="{IconItem.entryPointIcon}"
+		top="35"
+		width="100" height="65"
+		title="Nodes"
+		mouseOver="overNodes()" />
+		
+	<!-- Mask for border -->
+	<mx:Canvas borderStyle="solid"
+		borderSides="top bottom"
+		backgroundColor="0xFFFFFF"
+		height="85" width="101"
+		y="125"
+		visible="{showConnectors}" />
+	<!-- Connectors main icon -->
+	<workspace:IconItem 
+		displayIcon="{IconItem.immediateConnector}"
+		width="100" height="65"
+		y="130"
+		title="Connectors"
+		mouseOver="overConnectors()" />
+		
+	
 </mx:Canvas>
