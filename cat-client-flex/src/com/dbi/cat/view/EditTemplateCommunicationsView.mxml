@@ -22,10 +22,10 @@
 			}
 		]]>
 	</mx:Script>
-	<view:CommunicationComponentsView  left="0" top="0" bottom="0" width="100"
-		borderSides="right"
-		borderStyle="solid"/>
 	<workspace:WorkspaceView id="Workspace"
 		right="0" left="102" top="0" bottom="0"
-		campaign="{templateCampaign}"  />
+		campaign="{templateCampaign}"
+		borderSides="left"
+		borderStyle="solid"  />
+	<view:CommunicationComponentsView  left="0" top="0" bottom="0"/>
 </mx:TitleWindow>

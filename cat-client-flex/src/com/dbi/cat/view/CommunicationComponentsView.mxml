@@ -3,6 +3,7 @@
 	width="400" height="300"
 	backgroundAlpha="0" 
 	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
 	xmlns:vo="com.dbi.cat.vo.*" 
 	xmlns:workspace="com.dbi.cat.view.workspace.*">
 	<mx:Script>

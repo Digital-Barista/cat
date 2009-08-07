@@ -142,11 +142,11 @@ package com.dbi.cat.business
 		{
 			// Move to communication screen if not open
 			if (editCommunicationPopup == null)
-			{
 				editCommunicationPopup = new EditCommunicationsView();
-				editCommunicationPopup.width = Application.application.width;
-				editCommunicationPopup.height = Application.application.height;
-			}
+
+			editCommunicationPopup.width = Application.application.width;
+			editCommunicationPopup.height = Application.application.height;
+				
 			PopUpManager.removePopUp(editCommunicationPopup);
 			PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
 			PopUpManager.centerPopUp(editCommunicationPopup);
