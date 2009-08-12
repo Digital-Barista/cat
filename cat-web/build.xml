@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="cat-web" default="make-war">
+
+	<property name="build.dir" value="build"/>
+	<property name="deploy.dir" value="deploy"/>	
+	<property name="src.home" value="src"/>
+	<property name="base.home" value="WebContent"/>
+	
+	<target name="set.cat.home" unless="cat.home">
+		<property name="cat.home" value="../campaign-administration-tool"/>
+	</target>
+	
+	<target name="set.cat.admin.home" unless="cat.admin.home">
+		<property name="cat.admin.home" value="../cat-admin-flex"/>
+	</target>
+
+	<target name="set.cat.client.home" unless="cat.client.home">
+		<property name="cat.client.home" value="../cat-client-flex"/>
+	</target>
+
+	<target name="set.cat.poc.home" unless="cat.poc.home">
+		<property name="cat.poc.home" value="../cat-poc-flex"/>
+	</target>
+
+	<target name="set.cat.data.home" unless="cat.data.home">
+		<property name="cat.data.home" value="../cat-data"/>
+	</target>
+	
+	<target name="set.cat.ejb.home" unless="cat.ejb.home">
+		<property name="cat.ejb.home" value="../cat-ejb"/>
+	</target>
+	
+	<target name="set.cat.utils.home" unless="cat.utils.home">
+		<property name="cat.utils.home" value="../cat-utils"/>
+	</target>
+	
+	<target name="init" depends="set.cat.home,set.cat.admin.home,set.cat.client.home,set.cat.data.home,set.cat.ejb.home,set.cat.utils.home">
+		<path id="ear.classpath">
+			<fileset dir="${cat.data.home}">
+				<include name="deploy/cat-data.jar"/>
+			</fileset>
+			<fileset dir="${cat.ejb.home}">
+				<include name="deploy/*.jar"/>
+			</fileset>
+			<fileset dir="${cat.utils.home}">
+				<include name="deploy/*.jar"/>
+			</fileset>
+			<fileset dir="${cat.home}">
+				<include name="lib/*.jar"/>
+				<include name="EarContent/*.jar"/>
+				<include name="EarContent/lib/*.jar"/>
+			</fileset>
+		</path>
+	</target>
+	
+	<target name="clean" depends="init">
+		<delete dir="${build.dir}" failonerror="false"/>
+		<delete dir="${deploy}" failonerror="false"/>		
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${deploy.dir}"/>
+	</target>
+	
+	<target name="build" depends="clean">
+		<javac classpathref="ear.classpath" srcdir="${src.home}" destdir="${build.dir}"/>
+	</target>
+	
+	<target name="make-war" depends="build">
+		<war basedir="${base.home}" 
+			webxml="${base.home}/WEB-INF/web.xml" 
+			destfile="${deploy.dir}/cat-web.war" 
+			manifest="${base.home}/META-INF/MANIFEST.MF"
+			excludes="poc/**/*,admin/**/*,client/**/*">
+			<classes dir="${build.dir}"/>
+			<zipfileset prefix="admin" dir="${cat.admin.home}/deploy"/>
+			<zipfileset prefix="client" dir="${cat.client.home}/deploy"/>
+		</war>
+	</target>
+	
+	<target name="dev.copy.flex" depends="set.cat.admin.home,set.cat.client.home,set.cat.poc.home">
+		<delete dir="${base.home}/admin"/>
+		<delete dir="${base.home}/client"/>
+		<delete dir="${base.home}/poc"/>
+		<copy todir="${base.home}/admin">
+			<fileset dir="${cat.admin.home}/bin-debug">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		<copy todir="${base.home}/client">
+			<fileset dir="${cat.client.home}/bin-debug">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		<copy todir="${base.home}/poc">
+			<fileset dir="${cat.poc.home}/bin-debug">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+	</target>
+</project>
