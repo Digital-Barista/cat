@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="496" height="198" layout="absolute"
+	title="{isNaN(currentClient.clientId) ? 'Create Client' : 'Edit ' + currentClient.name}"
+	showCloseButton="true"
+	close="onClose()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.EntryPointVO;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import mx.managers.DragManager;
+			import mx.events.DragEvent;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.constants.SMSConstants;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import com.dbi.cat.common.vo.ClientVO;
+			
+			
+			[Bindable]
+			public var currentClient:ClientVO;
+			
+			[Bindable]
+			public var addresses:ArrayCollection;
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_CLIENT));
+			}
+			private function save():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_CLIENT);
+				event.client = currentClient;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Form right="0" left="0" top="0" bottom="0">
+		<mx:FormItem label="Name">
+			<mx:TextInput id="Name"
+				text="{currentClient.name}"
+				change="{currentClient.name = Name.text}"  width="330"/>
+		</mx:FormItem>
+		<mx:FormItem label="Add In Message">
+			<mx:TextArea id="AddInMessage"
+				text="{currentClient.adminAddInMessage}"
+				change="{currentClient.adminAddInMessage = AddInMessage.text}"
+				width="330"
+				maxChars="{SMSConstants.MAX_CHARACTERS}"/>
+		</mx:FormItem>
+		<mx:FormItem>
+			<mx:Label text="{currentClient.adminAddInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar>
+		<mx:Button id="Save" label="Save"
+			click="save()" />
+	</mx:ControlBar>
+</mx:TitleWindow>
