@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dbi-mail-poller" default="make-jar">
+
+	<property name="build.dir" value="build"/>
+	<property name="deploy.dir" value="deploy"/>	
+	<property name="src.home" value="src"/>
+	
+	<target name="set.cat.home" unless="cat.home">
+		<property name="cat.home" value="../campaign-administration-tool"/>
+	</target>
+	
+	<target name="init" depends="set.cat.home">
+		<path id="ear.classpath">
+			<fileset dir="${cat.home}">
+				<include name="lib/*.jar"/>
+				<include name="EarContent/*.jar"/>
+				<include name="EarContent/lib/*.jar"/>
+			</fileset>
+		</path>
+	</target>
+	
+	<target name="clean" depends="init">
+		<delete dir="${build.dir}" failonerror="false"/>
+		<delete dir="${deploy.dir}" failonerror="false"/>		
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${deploy.dir}"/>
+	</target>
+	
+	<target name="build" depends="clean">
+		<javac classpathref="ear.classpath" srcdir="${src.home}" destdir="${build.dir}" debug="true" debuglevel="lines,vars,source"/>
+	</target>
+	
+	<target name="make-jar" depends="build">
+		<jar basedir="${build.dir}" manifest="${src.home}/META-INF/MANIFEST.MF" destfile="${deploy.dir}/dbi-mail-poller.jar"/>
+	</target>
+</project>
