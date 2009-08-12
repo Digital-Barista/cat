@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.CampaignVO;
+			import com.dbi.cat.event.CampaignEvent;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var campaignList:ArrayCollection;
+			
+			private function createCampaign():void
+			{
+				var event:CampaignEvent = new CampaignEvent(CampaignEvent.EDIT_CAMPAIGN);
+				event.campaign = new CampaignVO();
+				dispatchEvent(event);
+			}
+			private function filterCampaigns():void
+			{
+				var event:CampaignEvent = new CampaignEvent(CampaignEvent.FILTER_CAMPAIGNS);
+				event.filterText = Filter.text;
+				dispatchEvent(event);
+			}
+			private function clear():void
+			{
+				Filter.text = "";
+				filterCampaigns();
+			}
+		]]>
+	</mx:Script>
+	<mx:Canvas
+		horizontalCenter="0"
+		width="90%"
+		maxWidth="1000"
+		top="10" bottom="10">
+		<mx:TitleWindow 
+			width="100%" height="100%"
+			layout="absolute">
+			<mx:DataGrid right="0" left="0" bottom="0" top="0"
+				dataProvider="{campaignList}">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Name" dataField="name" />
+					<mx:DataGridColumn headerText="Type" dataField="type"
+						width="60" />
+					<mx:DataGridColumn headerText="Create Date"
+						width="150" />
+					<mx:DataGridColumn sortable="false"
+						itemRenderer="com.dbi.cat.view.components.CampaignActionsItemRenderer"
+						width="250" />
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:TitleWindow>
+		<mx:HBox right="5" top="7" verticalAlign="middle">
+			<mx:Button label="Start New Campaign"
+				click="createCampaign()"  verticalCenter="0" right="290"/>
+			<mx:Label text="Filter" verticalCenter="0" right="250" />
+			<mx:TextInput verticalCenter="0" right="82" 
+				id="Filter"
+				styleName="filterBox"
+				change="filterCampaigns()"/>
+			<mx:Button label="Clear" verticalCenter="0" right="10"
+				click="clear()" width="64"/>
+		</mx:HBox>
+		
+	</mx:Canvas>
+</mx:Canvas>

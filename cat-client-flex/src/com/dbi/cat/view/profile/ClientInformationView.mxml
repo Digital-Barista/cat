@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Form xmlns:mx="http://www.adobe.com/2006/mxml"
+	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" xmlns:controls="com.dbi.controls.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.event.ClientEvent;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var client:ClientVO;
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+			private function changeClient():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.CHANGE_CLIENT);
+				event.client = Client.selectedItem as ClientVO;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:FormItem label="Organization">
+		<controls:AdvancedComboBox 
+			id="Client"
+			dataProvider="{clients}"
+			selectedBindingProperty="clientId"
+			selectedBindingValue="{client.clientId}"
+			labelField="name" 
+			y="249" horizontalCenter="250"
+			change="changeClient()" />
+	</mx:FormItem>
+	<mx:FormItem label="Contatct Name">
+		<mx:Label text="" />
+	</mx:FormItem>
+	<mx:FormItem label="Contatct Email">
+		<mx:Label text="" />
+	</mx:FormItem>
+	<mx:FormItem label="Contatct Phone">
+		<mx:Label text="" />
+	</mx:FormItem>
+	<mx:FormItem label="Add In Message" width="100%">
+		<mx:TextArea text="{client.userAddInMessage}"  width="95%" editable="false"/>
+	</mx:FormItem>
+</mx:Form>

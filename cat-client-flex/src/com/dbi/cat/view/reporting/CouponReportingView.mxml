@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var couponReports:ArrayCollection;
+		]]>
+	</mx:Script>
+	<mx:AdvancedDataGrid left="0" top="0" right="0" bottom="0">
+		<mx:columns>
+			<mx:AdvancedDataGridColumn headerText="Campaign" />
+			<mx:AdvancedDataGridColumn headerText="Coupon" />
+			<mx:AdvancedDataGridColumn headerText="Max Coupons" />
+			<mx:AdvancedDataGridColumn headerText="Max Redemptions" />
+			<mx:AdvancedDataGridColumn headerText="Unavailable Date" />
+			<mx:AdvancedDataGridColumn headerText="Sent" />
+			<mx:AdvancedDataGridColumn headerText="Redeemed" />
+			<mx:AdvancedDataGridColumn headerText="Avg. Time to Redeem" />
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+</mx:Canvas>
