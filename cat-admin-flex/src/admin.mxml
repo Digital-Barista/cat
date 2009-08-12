@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:map="com.dbi.cat.admin.map.*" xmlns:view="com.dbi.cat.admin.view.*">
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			public var currentView:Number = 0;
+		]]>
+	</mx:Script>
+	
+	<!-- Style -->
+	<mx:Style source="/assets/css/AeonGraphical.css" />
+	<mx:Style source="/assets/css/main.css" />
+	
+	<!-- Event maps -->
+	<map:NavigationEventMap />
+	<map:ApplicationEventMap />
+	<map:ClientEventMap />
+	<map:UserEventMap />
+	<map:ModelMap />
+	
+	<!-- Header -->
+	<view:Header />
+	
+	<mx:Canvas top="40" bottom="0" left="0" right="0"
+		styleName="mainViewstack" />
+		
+	<!-- Main viewstack -->
+	<mx:ViewStack selectedIndex="{currentView}"
+		width="100%" 
+		top="10" bottom="0">
+		<view:LoginView />
+		<view:MainView />
+	</mx:ViewStack>
+</mx:Application>

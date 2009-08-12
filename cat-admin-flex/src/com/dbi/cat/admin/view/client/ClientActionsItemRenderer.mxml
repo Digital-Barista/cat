@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	horizontalAlign="right">
+	<mx:Script>
+		<![CDATA[
+			import flash.debugger.enterDebugger;
+			import mx.controls.AdvancedDataGrid;
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import com.dbi.cat.common.vo.UserVO;
+			import com.dbi.event.CustomMessageEvent;
+			import com.dbi.controls.CustomMessage;
+			
+			[Bindable]
+			[Embed("/assets/swf/edit.swf")]
+			private var editIcon:Class;
+			
+			[Bindable]
+			[Embed("/assets/swf/delete.swf")]
+			private var deleteIcon:Class;
+			
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				Edit.visible = (value is ClientVO);
+			}
+			private function edit():void
+			{
+				if (data is ClientVO)
+				{
+					var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_CLIENT);
+					event.client = data as ClientVO;
+				}
+				dispatchEvent(event);
+			}
+			private function deleteItem(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes")
+				{
+					if (data is ClientVO)
+					{
+						var event:ClientEvent = new ClientEvent(ClientEvent.DELETE_CLIENT);
+						event.client = data as ClientVO;
+					}
+					else if (data is EntryPointDefinitionVO)
+					{
+						var client:ClientVO = AdvancedDataGrid(owner).getParentItem(data) as ClientVO;
+						
+						event = new ClientEvent(ClientEvent.SAVE_ENTRY_POINT);
+						event.entryPoint = data as EntryPointDefinitionVO;
+						event.entryPoint.clientIDs.removeItemAt(
+							event.entryPoint.clientIDs.getItemIndex(client.clientId));
+					}
+					dispatchEvent(event);
+				}	
+			}
+			private function confirmDelete():void
+			{
+				if (data is ClientVO)
+				{
+					CustomMessage.show("Are you sure you want to delete client: " + data.name + "?",
+						["Yes", "No"],
+						deleteItem);
+				}
+				else if (data is EntryPointDefinitionVO)
+				{
+					CustomMessage.show("Are you sure you want to delete entry point: " + data.value + "?",
+						["Yes", "No"],
+						deleteItem);
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:SWFLoader id="Edit" source="{editIcon}" click="{edit()}" height="25" width="25" toolTip="Edit" />
+	<mx:SWFLoader id="Delete" source="{deleteIcon}" click="confirmDelete()" height="25" width="25" toolTip="Delete" />
+</mx:HBox>

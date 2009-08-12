@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.admin.view.client.EditClientView;
+			import com.dbi.cat.admin.view.keyword.EditKeywordView;
+			import com.dbi.cat.admin.view.keyword.KeywordView;
+			import com.dbi.cat.admin.view.Header;
+			import com.dbi.cat.admin.view.user.EditUserView;
+			import com.dbi.cat.admin.view.user.UsersView;
+			import com.dbi.cat.admin.business.UserManager;
+			import com.dbi.cat.admin.view.client.ClientView;
+			import com.dbi.cat.admin.view.client.AssociateEntryPointView;
+			import com.dbi.cat.admin.view.client.EntryPointDefinitionView;
+			import com.dbi.cat.admin.view.client.EditEntryPointView;
+			import com.dbi.cat.admin.business.ClientManager;
+			import com.dbi.cat.admin.view.LoginView;
+			import com.dbi.cat.admin.business.LoginManager;
+			import com.dbi.cat.admin.business.NavigationManager;
+			import com.dbi.cat.admin.view.MainView;
+		]]>
+	</mx:Script>
+	
+		
+	<!-- Injectors -->
+	<Injectors target="{admin}">
+		<PropertyInjector 
+			source="{NavigationManager}"
+			sourceKey="appCurrentView"
+			targetKey="currentView" />
+	</Injectors>
+	<Injectors target="{MainView}">
+		<PropertyInjector 
+			source="{NavigationManager}"
+			sourceKey="mainCurrentView"
+			targetKey="currentView" />
+	</Injectors>
+	<Injectors target="{Header}">
+		<PropertyInjector 
+			source="{NavigationManager}"
+			sourceKey="appCurrentView"
+			targetKey="currentView" />
+	</Injectors>
+	<Injectors target="{LoginView}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="loginState"
+			targetKey="loginState" />
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="loginUsername"
+			targetKey="loginUsername" />
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="loginPassword"
+			targetKey="loginPassword" />
+	</Injectors>
+	<Injectors target="{ClientView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clientsGrouped"
+			targetKey="clientsGrouped" />
+	</Injectors>
+	<Injectors target="{EditClientView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentClient"
+			targetKey="currentClient" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="entryPointDefinitions"
+			targetKey="addresses" />
+	</Injectors>
+	<Injectors target="{EditEntryPointView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentEntryPointDefinition"
+			targetKey="currentEntryPointDefinition" />
+	</Injectors>
+	<Injectors target="{AssociateEntryPointView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentClient"
+			targetKey="currentClient" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="entryPointDefinitions"
+			targetKey="entryPointDefinitions" />
+	</Injectors>
+	<Injectors target="{EditKeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentKeyword"
+			targetKey="currentKeyword" />
+	</Injectors>
+	<Injectors target="{EntryPointDefinitionView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="entryPointDefinitions"
+			targetKey="entryPointDefinitions" />
+	</Injectors>
+	<Injectors target="{UsersView}">
+		<PropertyInjector
+			source="{UserManager}"
+			sourceKey="userList"
+			targetKey="userList" />
+	</Injectors>
+	<Injectors target="{EditUserView}">
+		<PropertyInjector
+			source="{UserManager}"
+			sourceKey="userToEdit"
+			targetKey="editUser" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clientMap"
+			targetKey="clientMap" />
+	</Injectors>
+	<Injectors target="{KeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="keywords"
+			targetKey="keywords" />
+	</Injectors>
+</EventMap>
