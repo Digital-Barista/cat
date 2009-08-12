@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>Campaign Admin Tool</display-name>
+  <description>Messaging Campaign Administrative Tool</description>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/cat-spring-config.xml
+    			 /WEB-INF/cat-ejbs.xml</param-value>
+  </context-param>
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>flex.messaging.HttpFlexSession</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>com.digitalbarista.cat.timer.CATTimerStartupListener</listener-class>
+  </listener>
+  <servlet>
+    <servlet-name>MessageBrokerServlet</servlet-name>
+    <servlet-class>flex.messaging.MessageBrokerServlet</servlet-class>
+    <init-param>
+      <param-name>services.configuration.file</param-name>
+      <param-value>/WEB-INF/flex/services-config.xml</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MessageBrokerServlet</servlet-name>
+    <url-pattern>/messagebroker/*</url-pattern>
+  </servlet-mapping>
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>campaign-admin</realm-name>
+  </login-config>
+  <servlet>
+  	<run-as><role-name>admin</role-name></run-as>
+    <description></description>
+    <display-name>KannelIncomingMessageServlet</display-name>
+    <servlet-name>KannelIncomingMessageServlet</servlet-name>
+    <servlet-class>com.digitalbarista.cat.servlet.KannelIncomingMessageServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>KannelIncomingMessageServlet</servlet-name>
+    <url-pattern>/kannel-sms</url-pattern>
+  </servlet-mapping>
+</web-app>
