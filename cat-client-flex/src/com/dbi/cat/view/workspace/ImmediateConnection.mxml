@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Connection xmlns="com.dbi.cat.view.workspace.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
+	width="400" height="300"
+	editWindowHeight="80"
+	editWindowWidth="250"
+	displayIcon="{immediateConnectorWorkspace}"
+	workspaceIcon="{immediateConnector}"
+	x="{connectorVO.layoutInfo.x}"
+	y="{connectorVO.layoutInfo.y}"
+	label="Immediate Connector">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.LayoutInfoVO;
+			
+			public function get layoutInfo():LayoutInfoVO
+			{
+				return connectorVO.layoutInfo;
+			}
+			public function set layoutInfo(info:LayoutInfoVO):void
+			{
+				connectorVO.layoutInfo = info;
+			}
+			public function get voUID():String
+			{
+				return connectorVO.uid;
+			}
+		]]>
+	</mx:Script>
+	<editContent>
+		<mx:Form right="0" left="0" top="0" bottom="0"   
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
+			<mx:FormItem label="Title">
+				<mx:TextInput id="Title"
+					text="{editConnectorVO.name}"
+					change="{editConnectorVO.name = Title.text}" />
+			</mx:FormItem>
+		</mx:Form>
+	</editContent>
+</Connection>

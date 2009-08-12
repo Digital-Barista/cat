@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
+	xmlns:components="com.dbi.cat.view.components.*"
+	xmlns:navigation="com.dbi.cat.view.navigation.*"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+	styleName="navBar"> 
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.controls.CustomMessage;
+			import com.dbi.event.CustomMessageEvent;
+			import com.dbi.cat.event.LoginEvent;
+			import com.dbi.cat.event.NavigationEvent;
+			import com.dbi.cat.business.NavigationManager;
+			import com.dbi.cat.view.components.NavigationItem;
+			
+        	[Embed("/assets/swf/logout.swf")]
+	        public static const logoutIcon:Class;
+        
+			[Bindable]
+			public var selectedView:Number = NavigationManager.VIEW_MAIN_CAMPAIGNS;
+			
+			private function doLogout():void
+			{
+				CustomMessage.show("Are you sure you want to logout?",
+					["Yes", "No"],
+					confirmLogout);
+			}
+			private function confirmLogout(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes")
+					dispatchEvent(new LoginEvent(LoginEvent.LOGOUT));
+			}
+		]]>
+	</mx:Script>
+	<mx:ViewStack id="navHeader"
+		selectedIndex="{selectedView}"
+		top="0" bottom="0" right="300" left="0">
+		<navigation:CampaignHeader />
+		<navigation:UsersHeader />
+		<navigation:ProfileHeader />
+	</mx:ViewStack>
+	<mx:Canvas 
+		width="25"
+		height="25"
+		right="5" verticalCenter="0"
+		click="doLogout()"
+		toolTip="Logout"
+		buttonMode="true"
+		useHandCursor="true">
+		<mx:SWFLoader source="{logoutIcon}"
+			width="100%" height="100%" />
+	</mx:Canvas>
+	<!--
+	<mx:HBox 
+		id="navContainer"
+		horizontalAlign="right" verticalAlign="middle" 
+		paddingLeft="5" paddingRight="5" paddingTop="5"
+		right="5" top="0" bottom="0">
+		<components:NavigationItem 
+			id="Campaign"
+			iconSource="@Embed(source='/assets/swf/planet.swf')"
+			selected="{selectedView == NavigationManager.VIEW_MAIN_CAMPAIGNS}"
+			click="{dispatchEvent(new NavigationEvent(NavigationEvent.CAMPAIGNS))}" />
+		<components:NavigationItem 
+			id="Users"
+			iconSource="@Embed(source='/assets/swf/people.swf')"
+			selected="{selectedView == NavigationManager.VIEW_MAIN_USERS}"
+			click="{dispatchEvent(new NavigationEvent(NavigationEvent.USERS))}" />
+		<components:NavigationItem 
+			id="Profile"
+			iconSource="@Embed(source='/assets/swf/file.swf')"
+			selected="{selectedView == NavigationManager.VIEW_MAIN_PROFILE}"
+			click="{dispatchEvent(new NavigationEvent(NavigationEvent.PROFILE))}" />
+		<components:NavigationItem 
+			id="LogOut"
+			iconSource="@Embed(source='/assets/swf/file.swf')"
+			selected="{selectedView == NavigationManager.VIEW_LOGIN}"
+			click="doLogout()" />
+	</mx:HBox>
+	-->
+</mx:Canvas>

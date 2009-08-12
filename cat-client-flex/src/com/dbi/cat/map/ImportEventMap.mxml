@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.messaging.SubscriptionInfo;
+			import com.dbi.cat.business.ImportManager;
+			import com.dbi.cat.event.ImportEvent;
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<services:Services id="services" />
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<EventHandlers type="{ImportEvent.CLOSE_IMPORT_WINDOW}">
+		<MethodInvoker generator="{ImportManager}"
+			method="closeImportWindow" />
+	</EventHandlers>
+	<EventHandlers type="{ImportEvent.OPEN_IMPORT_WINDOW}">
+		<MethodInvoker generator="{ImportManager}"
+			method="openImportWindow" />
+	</EventHandlers>
+	<EventHandlers type="{ImportEvent.CHOOSE_IMPORT_FILE}">
+		<MethodInvoker generator="{ImportManager}"
+			method="chooseImportFile" />
+	</EventHandlers>
+	<EventHandlers type="{ImportEvent.DO_IMPORT}">
+		<RemoteObjectInvoker 
+			destination="subscriptionManager"
+			method="subscribeToEntryPoint"
+			arguments="{[event.addresses, event.entryPointUID]}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{ImportManager}"
+					method="importSucceded"
+					arguments="{event.addresses}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ImportEvent.LOAD_ALL_CLIENT_ADDRESSES}">
+		<RemoteObjectInvoker 
+			destination="subscriptionManager"
+			method="getAllAddresses"
+			arguments="{[event.clientId, event.entryPointType]}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{ImportManager}"
+					method="loadClientAddresses"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+</EventMap>
