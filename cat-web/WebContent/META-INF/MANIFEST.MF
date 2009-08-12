@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Class-Path: cat-ejb.jar 
+ lib/flex-messaging-common.jar 
+ lib/flex-messaging-core.jar 
+ lib/backport-util-concurrent.jar 
+ lib/commons-codec-1.3.jar 
+ lib/commons-httpclient-3.0.1.jar 
+ lib/commons-logging.jar 
+ lib/concurrent.jar 
+ lib/flex-messaging-opt.jar 
+ lib/flex-messaging-proxy.jar 
+ lib/flex-messaging-remoting.jar 
+ lib/spring.jar 
+ td-data.jar 
+ cfgatewayadapter.jar 
+ cat-utils.jar 
+ cat-data.jar
+
