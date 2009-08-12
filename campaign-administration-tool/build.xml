@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="campaign-admin-ear" default="make-ear">
+
+	<property name="build.dir" value="build"/>
+	<property name="deploy.dir" value="deploy"/>	
+	<property name="src.home" value="src"/>
+	<property name="base.home" value="EarContent"/>
+	
+	<target name="set.cat.home" unless="cat.home">
+		<property name="cat.home" value="../campaign-administration-tool"/>
+	</target>
+	
+	<target name="set.cat.admin.home" unless="cat.admin.home">
+		<property name="cat.admin.home" value="../cat-admin-flex"/>
+	</target>
+
+	<target name="set.cat.client.home" unless="cat.client.home">
+		<property name="cat.client.home" value="../cat-client-flex"/>
+	</target>
+
+	<target name="set.cat.web.home" unless="cat.web.home">
+		<property name="cat.web.home" value="../cat-web"/>
+	</target>
+	
+	<target name="set.cat.data.home" unless="cat.data.home">
+		<property name="cat.data.home" value="../cat-data"/>
+	</target>
+	
+	<target name="set.cat.ejb.home" unless="cat.ejb.home">
+		<property name="cat.ejb.home" value="../cat-ejb"/>
+	</target>
+	
+	<target name="set.cat.utils.home" unless="cat.utils.home">
+		<property name="cat.utils.home" value="../cat-utils"/>
+	</target>
+	
+	<target name="init" depends="set.cat.home,set.cat.admin.home,set.cat.client.home,set.cat.data.home,set.cat.ejb.home,set.cat.utils.home,set.cat.web.home"/>
+	
+	<target name="clean" depends="init">
+		<delete dir="${deploy}" failonerror="false"/>		
+		<mkdir dir="${deploy.dir}"/>
+	</target>
+	
+	<target name="make-ear" depends="clean">
+		<ear basedir="${base.home}"
+			appxml="${base.home}/META-INF/application.xml"
+			destfile="${deploy.dir}/campaign-administration-tool.ear"
+			manifest="${base.home}/META-INF/MANIFEST.MF">
+			<include name="META-INF/jboss-app.xml"/>
+			<exclude name="lib/cfgatewayadapter.jar"/>
+			<fileset dir="${cat.utils.home}/deploy">
+				<include name="cat-utils.jar"/>
+			</fileset>
+			<fileset dir="${cat.data.home}/deploy">
+				<include name="cat-data.jar"/>
+			</fileset>
+			<fileset dir="${cat.ejb.home}/deploy">
+				<include name="cat-ejb.jar"/>
+			</fileset>
+			<fileset dir="${cat.web.home}/deploy">
+				<include name="cat-web.war"/>
+			</fileset>
+			<fileset dir="${base.home}/lib">
+				<include name="cfgatewayadapter.jar"/>
+			</fileset>
+			<fileset dir="${base.home}">
+				<include name="lib/*.jar"/>
+				<exclude name="cfgatewayadapter.jar"/>
+			</fileset>
+		</ear>
+	</target>
+</project>
