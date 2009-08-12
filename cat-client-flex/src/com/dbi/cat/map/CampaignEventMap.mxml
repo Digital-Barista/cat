@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.business.CampaignTestManager;
+			import com.dbi.cat.view.EditCommunicationsView;
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.business.CampaignManager;
+			import com.dbi.cat.event.CampaignEvent;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<EventHandlers type="{CampaignEvent.LIST_CAMPAIGNS}">
+		<RemoteObjectInvoker 
+			destination="campaignManager"
+			method="getAllCampaigns"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="loadCampaigns"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.FILTER_CAMPAIGNS}">
+		<MethodInvoker generator="{CampaignManager}"
+			method="filterCampaigns"
+			arguments="{event.filterText}" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.EDIT_CAMPAIGN}">
+		<MethodInvoker generator="{CampaignManager}"
+			method="editCampaign"
+			arguments="{event.campaign}" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.CLOSE_EDIT_CAMPAIGN}">
+		<MethodInvoker generator="{CampaignManager}"
+			method="closeEditCampaign" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.LOAD_MODIFIED_CAMPAIGN}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="getDetailedCampaign"
+			arguments="{event.campaign.uid}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="loadModifiedCampaign"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.LOAD_PUBLISHED_CAMPAIGN}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="getLastPublishedCampaign"
+			arguments="{event.campaign.uid}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="loadPublishedCampaign"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.CLOSE_COMMUNICATIONS}">
+		<MethodInvoker generator="{CampaignManager}"
+			method="closeCommunications" />
+		<MethodInvoker generator="{CampaignTestManager}"
+			method="endTestCampaign" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.SAVE_CAMPAIGN}">
+		<RemoteObjectInvoker destination="campaignManager"
+			showBusyCursor="true"
+			method="save"
+			arguments="{event.campaign}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="saveCampaign"
+					arguments="{event.campaign}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.PUBLISH_CAMPAIGN}">
+		<RemoteObjectInvoker destination="campaignManager"
+			showBusyCursor="true"
+			method="publish"
+			arguments="{event.campaign.uid}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="publishCampaign"
+					arguments="{event.campaign}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.DELETE_CAMPAIGN}">
+		<RemoteObjectInvoker destination="campaignManager"
+			showBusyCursor="true"
+			method="delete"
+			arguments="{event.campaign}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="deleteCampaign"
+					arguments="{event.campaign}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<!-- Node actions -->
+	<EventHandlers type="{CampaignEvent.SAVE_NODE}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="save"
+			arguments="{event.node}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="saveNode"
+					arguments="{event.node}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="campaignModificationFail"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.DELETE_NODE}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="delete"
+			arguments="{event.node}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="deleteNode"
+					arguments="{event.node}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="campaignModificationFail"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<!-- Connector actions -->
+	<EventHandlers type="{CampaignEvent.SAVE_CONNECTOR}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="save"
+			arguments="{event.connector}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="saveConnector"
+					arguments="{event.connector}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="campaignModificationFail"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.DELETE_CONNECTOR}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="delete"
+			arguments="{event.connector}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="deleteConnector"
+					arguments="{event.connector}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="campaignModificationFail"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<!-- Subscriber Statistic Events -->
+	<EventHandlers type="{CampaignEvent.LOAD_SUBSCRIBER_STATISTICS}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="getNodeSubscriberCount"
+			arguments="{event.campaign.uid}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="loadSubscriberStatistics"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+</EventMap>

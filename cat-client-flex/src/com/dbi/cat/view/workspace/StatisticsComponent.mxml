@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="25" height="25">
+	<mx:Script>
+		<![CDATA[
+			[Bindable]
+			[Embed("/assets/swf/blue_circle.swf")]
+			private var blueIcon:Class;
+		]]>
+	</mx:Script>
+	<mx:SWFLoader
+		width="100%" height="100%"
+		source="{blueIcon}" />
+	<mx:Label text="{data}"
+		color="0xFFFFFF"
+		fontWeight="bold"
+		width="100%"
+		verticalCenter="0"
+		textAlign="center" />
+</mx:Canvas>
