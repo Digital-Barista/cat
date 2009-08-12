@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:client="com.dbi.cat.admin.view.client.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.common.vo.EntryPointVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import mx.collections.HierarchicalData;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var clientsGrouped:HierarchicalData;
+			
+			private function addClient():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_CLIENT);
+				event.client = new ClientVO();
+				dispatchEvent(event);
+			}
+			
+			private function addKeyword():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_KEYWORD);
+				event.keyword = new KeywordVO();
+				
+				// Find the entry point for the selected item
+				if (ClientGrid.selectedItem is EntryPointDefinitionVO)
+				{
+					event.entryPoint = ClientGrid.selectedItem as EntryPointDefinitionVO;
+					event.client = ClientGrid.getParentItem(ClientGrid.selectedItem) as ClientVO;
+					event.keyword.clientId = ClientGrid.getParentItem(ClientGrid.selectedItem).clientId;
+				}
+				else if (ClientGrid.selectedItem is KeywordVO)
+				{
+					event.entryPoint = ClientGrid.getParentItem(ClientGrid.selectedItem) as EntryPointDefinitionVO;
+					event.client = ClientGrid.getParentItem(ClientGrid.getParentItem(ClientGrid.selectedItem)) as ClientVO;
+					event.keyword.clientId = ClientGrid.getParentItem(ClientGrid.getParentItem(ClientGrid.selectedItem)).clientId;
+				}
+				
+				event.keyword.entryPointId = event.entryPoint.primaryKey;
+				dispatchEvent(event);
+			}
+			private function associateEntryPoint():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.ASSOCIATE_ENTRY_POINT);
+				
+				// Find the client of the selected item
+				if (ClientGrid.selectedItem is ClientVO)
+					event.client = ClientGrid.selectedItem as ClientVO;
+				else if (ClientGrid.selectedItem is EntryPointDefinitionVO)
+					event.client = ClientGrid.getParentItem(ClientGrid.selectedItem) as ClientVO;
+				else if (ClientGrid.selectedItem is KeywordVO)
+					event.client = ClientGrid.getParentItem(ClientGrid.getParentItem(ClientGrid.selectedItem)) as ClientVO;
+				
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Canvas
+		width="90%"
+		top="10" bottom="10"
+		maxWidth="1000"
+		horizontalCenter="0">
+		<mx:TitleWindow
+			layout="absolute"
+			width="100%" height="100%"
+			title="Clients">
+			<mx:AdvancedDataGrid id="ClientGrid"
+				top="0" bottom="0" left="0" right="0"
+				dataProvider="{clientsGrouped}"
+				dropEnabled="true" 
+				displayItemsExpanded="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn dataField="name" headerText="" />
+					<mx:AdvancedDataGridColumn dataField="type" headerText="Type" width="80"  />
+					<mx:AdvancedDataGridColumn dataField="description" headerText="Description" width="80"  />
+					<mx:AdvancedDataGridColumn itemRenderer="com.dbi.cat.admin.view.client.ClientActionsItemRenderer" editable="false" width="60" />
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+		</mx:TitleWindow>
+		<mx:HBox top="5" right="10">
+			<mx:Button label="Add Client"  width="120" click="addClient()"/>
+			<mx:Button label="Add Entry Point"  width="120" click="associateEntryPoint()" enabled="{ClientGrid.selectedItem != null}" />
+		</mx:HBox>
+	</mx:Canvas>
+</mx:Canvas>

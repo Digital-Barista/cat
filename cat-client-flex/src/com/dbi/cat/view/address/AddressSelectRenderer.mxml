@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:CheckBox id="Check" horizontalCenter="0"
+		selected="{data.selected}"
+		change="{data.selected = Check.selected}" />
+</mx:Canvas>

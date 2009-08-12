@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="400" height="300"
+	backgroundColor="0xFFFFFF" 
+	horizontalScrollPolicy="off"
+	xmlns:vo="com.dbi.cat.vo.*" 
+	xmlns:workspace="com.dbi.cat.view.workspace.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.view.workspace.CommunicationComponent;
+			import mx.controls.SWFLoader;
+			import com.dbi.cat.constants.WorkspaceItemType;
+			import mx.core.DragSource;
+			import mx.managers.DragManager;
+			
+
+			private function dragIt(event:MouseEvent):void 
+            {
+                // Get the drag initiator component from the event object.
+                var dragInitiator:CommunicationComponent = event.currentTarget as CommunicationComponent;
+    
+                // Create a DragSource object.
+                var dragSource:DragSource = new DragSource();
+                dragSource.addData(event.currentTarget, "value");
+
+                // Create a copy of the coin image to use as a drag proxy.
+                var dragProxy:SWFLoader = new SWFLoader();
+                dragProxy.alpha = 0.3;
+                dragProxy.width = event.currentTarget.width;
+                dragProxy.height = event.currentTarget.height;
+                
+                // Set appropriate drage icon
+                if (event.currentTarget.workspaceIcon != null)
+                	dragProxy.source = event.currentTarget.workspaceIcon;
+                else
+                	dragProxy.source = event.currentTarget.componentIcon;
+    
+                // Call the DragManager doDrag() method to start the drag. 
+                DragManager.doDrag(dragInitiator, dragSource, event, dragProxy);
+            }
+
+		]]>
+	</mx:Script>
+	<mx:VBox id="ComponentContainer"
+		width="100%"
+		top="10" bottom="30"
+		horizontalAlign="center"
+		backgroundColor="0xFFFFFF"
+		horizontalScrollPolicy="off" verticalGap="20">
+		<workspace:CommunicationComponent
+			width="100%" height="65"
+			mouseDown="dragIt(event)"
+			type="{WorkspaceItemType.ENTRY_POINT}" />
+		<workspace:CommunicationComponent
+			width="100%" height="65"
+			mouseDown="dragIt(event)"
+			type="{WorkspaceItemType.MESSAGE}"  />
+		<workspace:CommunicationComponent
+			width="100%" height="65"
+			mouseDown="dragIt(event)"
+			type="{WorkspaceItemType.IMMEDIATE_CONNECTOR}"  />
+		<workspace:CommunicationComponent
+			width="100%" height="65"
+			mouseDown="dragIt(event)"
+			type="{WorkspaceItemType.DATE_CONNECTOR}"  />
+		<workspace:CommunicationComponent
+			width="100%" height="65"
+			mouseDown="dragIt(event)"
+			type="{WorkspaceItemType.INTERVAL_CONNECTOR}"  />
+		<workspace:CommunicationComponent
+			width="100%" height="65"
+			mouseDown="dragIt(event)"
+			type="{WorkspaceItemType.RESPONSE_CONNECTOR}"  />
+	</mx:VBox>
+</mx:Canvas>

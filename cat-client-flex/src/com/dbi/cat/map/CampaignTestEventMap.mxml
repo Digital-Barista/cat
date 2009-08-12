@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" >
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.business.CampaignTestManager;
+			import com.dbi.cat.event.CampaignTestEvent;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	
+	<EventHandlers type="{CampaignTestEvent.START_TEST}">
+		<MethodInvoker generator="{CampaignTestManager}"
+			method="startTest"
+			arguments="{[event.campaign, event.startDate]}" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignTestEvent.END_TEST_CAMPAIGN}">
+		<MethodInvoker generator="{CampaignTestManager}"
+			method="endTestCampaign" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignTestEvent.SEND_RESPONSE}">
+		<MethodInvoker generator="{CampaignTestManager}"
+			method="receiveResponse"
+			arguments="{event.response}" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignTestEvent.FOLLOW_NEXT_TIME_CONNECTOR}">
+		<MethodInvoker generator="{CampaignTestManager}"
+			method="followNextTimeConnector"  />
+	</EventHandlers>
+</EventMap>

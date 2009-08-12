@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.view.workspace.MessageItem;
+			import com.dbi.cat.business.ImportManager;
+			import com.dbi.cat.view.address.ImportView;
+			import com.dbi.cat.view.TestCampaignView;
+			import com.dbi.cat.business.CampaignTestManager;
+			import com.dbi.cat.view.profile.ClientInformationView;
+			import com.dbi.cat.view.ProfileView;
+			import com.dbi.cat.business.LayoutInfoManager;
+			import mx.managers.LayoutManager;
+			import com.dbi.cat.business.ClientManager;
+			import com.dbi.cat.view.EditCampaignView;
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.business.CampaignManager;
+			import com.dbi.cat.view.CampaignsView;
+			import com.dbi.cat.view.EditUserView;
+			import com.dbi.cat.view.LoginView;
+			import com.dbi.cat.business.LoginManager;
+			import com.dbi.cat.view.components.PanZoomCanvas;
+			import com.dbi.cat.view.UsersView;
+			import com.dbi.cat.business.UserManager;
+			import com.dbi.cat.view.RecoverPasswordView;
+			import mx.controls.Alert;
+			import com.dbi.cat.view.EditCommunicationsView;
+			import com.dbi.cat.view.NavigationView;
+			import com.dbi.cat.view.MainView;
+			import com.dbi.cat.business.NavigationManager;
+			import com.dbi.cat.view.workspace.WorkspaceView;
+		]]>
+	</mx:Script>
+	
+		
+	<Debugger level="{Debugger.ALL}" />
+	
+	<!-- Injectors -->
+	<Injectors target="{client}">
+		<PropertyInjector 
+			source="{NavigationManager}"
+			sourceKey="appCurrentView"
+			targetKey="currentView" />
+	</Injectors>
+	<Injectors target="{MainView}">
+		<PropertyInjector 
+			source="{NavigationManager}"
+			sourceKey="mainCurrentView"
+			targetKey="currentView" />
+	</Injectors>
+	<Injectors target="{NavigationView}">
+		<PropertyInjector 
+			source="{NavigationManager}"
+			sourceKey="mainCurrentView"
+			targetKey="selectedView" />
+	</Injectors>
+	<Injectors target="{RecoverPasswordView}">
+		<PropertyInjector
+			source="{NavigationManager}"
+			sourceKey="recoverPasswordView"
+			targetKey="appState" />
+	</Injectors>
+	<Injectors target="{UsersView}">
+		<PropertyInjector
+			source="{UserManager}"
+			sourceKey="userList"
+			targetKey="userList" />
+	</Injectors>
+	<Injectors target="{LoginView}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="loginState"
+			targetKey="loginState" />
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="loginUsername"
+			targetKey="loginUsername" />
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="loginPassword"
+			targetKey="loginPassword" />
+	</Injectors>
+	<Injectors target="{EditUserView}">
+		<PropertyInjector
+			source="{UserManager}"
+			sourceKey="userToEdit"
+			targetKey="editUser" />
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+	</Injectors>
+	<Injectors target="{CampaignsView}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="modifiedCampaignList"
+			targetKey="campaignList" />
+	</Injectors>
+	<Injectors target="{EditCampaignView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+	</Injectors>
+	<Injectors target="{EditCommunicationsView}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="publishedCampaign"
+			targetKey="publishedCampaign" />
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="modifiedCampaign"
+			targetKey="modifiedCampaign" />
+		<PropertyInjector
+			source="{CampaignTestManager}"
+			sourceKey="isTesting"
+			targetKey="isTesting" />
+		<PropertyInjector
+			source="{CampaignTestManager}"
+			sourceKey="currentNode"
+			targetKey="currentTestNode" />
+	</Injectors>
+	<Injectors target="{LayoutInfoManager}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="allCampaignList"
+			targetKey="campaignList" />
+	</Injectors>
+	<Injectors target="{ProfileView}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentClient"
+			targetKey="currentClient" />
+	</Injectors>
+	<Injectors target="{ClientInformationView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+	</Injectors>
+	<Injectors target="{TestCampaignView}">
+		<PropertyInjector
+			source="{CampaignTestManager}"
+			sourceKey="campaignTestOutput"
+			targetKey="campaignTestOutput" />
+		<PropertyInjector
+			source="{CampaignTestManager}"
+			sourceKey="testCampaign"
+			targetKey="testCampaign" />
+	</Injectors>
+	<Injectors target="{WorkspaceView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clientMap"
+			targetKey="clientMap" />
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="campaignMap"
+			targetKey="campaignMap" />
+	</Injectors>
+	<Injectors target="{ImportView}">
+		<PropertyInjector
+			source="{ImportManager}"
+			sourceKey="importedAddresses"
+			targetKey="addresses" />
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="publishedCampaign"
+			targetKey="publishedCampaign" />
+	</Injectors>
+</EventMap>
