@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.admin.business.LoginManager;
+			import com.dbi.cat.admin.business.UserManager;
+			import com.dbi.cat.admin.event.UserEvent;
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	
+	
+	<!-- Manage Users -->
+	<EventHandlers type="{UserEvent.GET_USER_LIST}">
+		<RemoteObjectInvoker destination="userManager"
+			method="getAllVisibleUsers">
+			<resultHandlers>
+				<MethodInvoker generator="{UserManager}"
+					method="getUserList"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{UserEvent.EDIT_USER}">
+		<MethodInvoker generator="{UserManager}"
+			method="editUser"
+			arguments="{event.user}" />
+	</EventHandlers>
+	<EventHandlers type="{UserEvent.SAVE_USER}">
+		<RemoteObjectInvoker destination="userManager"
+			method="save"
+			arguments="{event.user}">
+			<resultHandlers>
+				<MethodInvoker generator="{UserManager}"
+					method="saveUser"
+					arguments="{[event.user]}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{UserEvent.DELETE_USER}">
+		<RemoteObjectInvoker destination="userManager"
+			method="delete"
+			arguments="{event.user}">
+			<resultHandlers>
+				<MethodInvoker generator="{UserManager}"
+					method="deleteUser"
+					arguments="{[event.user]}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{UserEvent.GET_CURRENT_USER}">
+		<RemoteObjectInvoker destination="userManager"
+			method="getCurrentUser">
+			<resultHandlers>
+				<MethodInvoker generator="{LoginManager}"
+					method="loadCurrentUser"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{UserEvent.FILTER_USERS}">
+		<MethodInvoker generator="{UserManager}"
+			method="filterUsers"
+			arguments="{event.filterText}" />
+	</EventHandlers>
+
+	<!-- Manage role events -->
+	<EventHandlers type="{UserEvent.ADD_ROLE}">
+		<MethodInvoker generator="{UserManager}"
+			method="addRole"
+			arguments="{event.role}" />
+	</EventHandlers>
+	<EventHandlers type="{UserEvent.REMOVE_ROLE}">
+		<MethodInvoker generator="{UserManager}"
+			method="removeRole"
+			arguments="{event.role}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UserEvent.CANCEL_EDIT}">
+		<MethodInvoker generator="{UserManager}"
+			method="cancelEdit" />
+	</EventHandlers>
+</EventMap>

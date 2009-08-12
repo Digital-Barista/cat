@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var keywords:ArrayCollection;
+			
+			private function addKeyword():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_KEYWORD);
+				event.keyword = new KeywordVO();
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Canvas
+		width="90%"
+		top="10" bottom="10"
+		maxWidth="1000"
+		horizontalCenter="0">
+		<mx:TitleWindow
+			layout="absolute"
+			width="100%" height="100%"
+			title="Keywords">
+			<mx:DataGrid id="KeywordGrid"
+				top="0" bottom="0" left="0" right="0"
+				dataProvider="{keywords}"
+				dropEnabled="true">
+				<mx:columns>
+					<mx:DataGridColumn dataField="incomingAddressType" headerText="Type" width="80"  />
+					<mx:DataGridColumn dataField="clientName" headerText="Client" />
+					<mx:DataGridColumn dataField="incomingAddress" headerText="Address" />
+					<mx:DataGridColumn dataField="keyword" headerText="Keyword" />
+					<mx:DataGridColumn itemRenderer="com.dbi.cat.admin.view.keyword.KeywordActionsRenderer" headerText="" width="40" />
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:TitleWindow>
+		<mx:HBox top="5" right="10">
+			<mx:Button label="New Keyword"  width="120"
+				click="addKeyword()"  />
+		</mx:HBox>
+	</mx:Canvas>
+</mx:Canvas>

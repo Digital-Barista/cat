@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="600" height="430"
+	layout="absolute" showCloseButton="true"
+	close="cancel()"
+	title="{editUser == null || isNaN(editUser.primaryKey) ? 'Create User' : 'Edit User'}" xmlns:vo="com.dbi.cat.vo.*">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import com.dbi.cat.admin.event.UserEvent;
+			import com.dbi.cat.common.constants.Roles;
+			import com.dbi.cat.common.vo.RoleVO;
+			import com.dbi.cat.common.vo.UserVO;
+			import mx.core.UIComponent;
+			import mx.collections.IViewCursor;
+			import mx.managers.DragManager;
+			import mx.events.DragEvent;
+			import mx.collections.ArrayCollection;
+			import mx.validators.EmailValidator;
+			import flash.events.MouseEvent;
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+			[Bindable]
+			public var clientMap:Object;
+			
+			private var _editUser:UserVO;
+			[Bindable]
+			public function get editUser():UserVO
+			{
+				return _editUser;
+			}
+			public function set editUser(user:UserVO):void
+			{
+				_editUser = user;
+			}
+			
+			[Bindable]
+			private var availableRoles:ArrayCollection = 
+				new ArrayCollection([Roles.ADMIN, Roles.CLIENT, Roles.ACCOUNT_MANAGER]);
+			
+			private function save():void
+			{
+				editUser.emailAddress = tiEmailAddress.text;
+				editUser.name = tiEmailAddress.text;
+				editUser.username = tiUserName.text;
+				editUser.isActive = cbIsActive.selected;
+				
+				if(tiPassword.text != "" && tiPassword.text == tiConfirmPassword.text)
+				{
+					editUser.password = tiPassword.text;
+				}
+				
+				var userEvent:UserEvent = new UserEvent(UserEvent.SAVE_USER);
+				userEvent.user = editUser;
+				dispatchEvent(userEvent);
+				
+			}
+			private function cancel():void
+			{
+				dispatchEvent(new UserEvent(UserEvent.CANCEL_EDIT));
+			}
+			private function onDragEnter(e:DragEvent):void
+			{
+				e.preventDefault();
+				if (isValidDrop(e.dragInitiator, e.target))
+				{
+					DragManager.acceptDragDrop(e.target as UIComponent);
+					DragManager.showFeedback(DragManager.MOVE);
+				}
+				else
+				{
+					DragManager.showFeedback(DragManager.NONE);
+				}
+			}
+			private function onDragDrop(e:DragEvent):void
+			{
+				if (isValidDrop(e.dragInitiator, e.target))
+				{
+					if (e.target == AssignedRoleGrid)
+					{
+						// Add role if it isn't already
+						var name:String = liAvailableRoles.selectedItem.toString();
+						var role:RoleVO = new RoleVO();
+						role.roleName = name;
+						role.refId = Client.selectedItem.clientId;
+						
+						var event:UserEvent = new UserEvent(UserEvent.ADD_ROLE);
+						event.role = role;
+						dispatchEvent(event);
+					}
+					else if (e.target == liAvailableRoles)
+					{
+						event = new UserEvent(UserEvent.REMOVE_ROLE);
+						event.role = AssignedRoleGrid.selectedItem as RoleVO;
+						dispatchEvent(event);
+					}
+				}
+				e.preventDefault();
+			}
+			private function isValidDrop(source:Object, destination:Object):Boolean
+			{
+				if (source == AssignedRoleGrid &&
+					destination == liAvailableRoles)
+					return true;
+				if (source == liAvailableRoles &&
+					destination == AssignedRoleGrid)
+					return true;
+				return false;
+			}
+			private function filterAvailableRoles():void
+			{
+				availableRoles.filterFunction = filterRoleFunction;
+				availableRoles.refresh();
+			}
+			private function filterRoleFunction(roleName:String):Boolean
+			{
+				if (editUser != null &&
+					editUser.roles != null)
+				{
+					for each (var r:RoleVO in editUser.roles)
+					{
+						if (roleName == r.roleName)
+							return false;
+					}
+				}
+				return true;
+			}
+			
+			private function getClientName(role:RoleVO, column:DataGridColumn):String
+			{
+				if (clientMap &&
+					clientMap[role.refId] != null)
+					return clientMap[role.refId].name;
+				
+				return "";
+			}
+		]]>
+	</mx:Script>
+		<mx:Form id="EditUser" width="100%">
+			<mx:FormItem label="UserName" width="100%">
+				<mx:TextInput id="tiUserName" 
+					text="{editUser.username}" width="100%"/>
+			</mx:FormItem >
+			<mx:FormItem label="Name" width="100%">
+				<mx:TextInput id="tiName" 
+					text="{editUser.name}" width="100%"/>
+			</mx:FormItem>
+			<mx:FormItem label="Email Address"  width="100%">
+				<mx:TextInput id="tiEmailAddress" 
+					text="{editUser.emailAddress}" width="100%"/>
+			</mx:FormItem>
+			<mx:FormItem label="Active" width="100%">
+				<mx:CheckBox id="cbIsActive" 
+					selected="{editUser.isActive}" />
+			</mx:FormItem>
+			<mx:FormItem label="Roles" width="100%" height="150">
+				<mx:HBox width="100%" height="150">
+					<mx:Canvas width="100%" height="100%">
+						<mx:Label text="Assigned Roles"
+							top="0" left="0" />
+						<mx:DataGrid id="AssignedRoleGrid"
+							width="100%" top="15" 
+							dragEnabled="true" 
+							dropEnabled="true"
+							dataProvider="{editUser.roles}"
+							dragEnter="onDragEnter(event)"
+							dragDrop="onDragDrop(event)" bottom="0"
+							showHeaders="false">
+							<mx:columns>
+								<mx:DataGridColumn dataField="roleName" />
+								<mx:DataGridColumn labelFunction="getClientName" />
+							</mx:columns>
+						</mx:DataGrid>
+					</mx:Canvas>
+					<mx:Canvas width="100%" height="100%">
+						<mx:Label text="Available Roles"
+							top="0" left="0" />
+						<mx:List id="liAvailableRoles" 
+							top="15"
+							dataProvider="{availableRoles}"
+							dragEnter="onDragEnter(event)"
+							dragDrop="onDragDrop(event)"
+							width="100%" dragEnabled="true" dropEnabled="true" bottom="27"/>
+						<mx:ComboBox
+							id="Client"
+							left="0" right="0" bottom="0"
+							dataProvider="{clients}"
+							labelField="name" />
+					</mx:Canvas>
+				</mx:HBox>
+			</mx:FormItem>
+			<mx:FormItem label="Password" width="100%">
+				<mx:TextInput id="tiPassword" displayAsPassword="true"  width="100%"/>
+			</mx:FormItem>	
+			<mx:FormItem label="Confirm Password" width="100%">
+				<mx:TextInput id="tiConfirmPassword" displayAsPassword="true"  width="100%"/>				
+			</mx:FormItem>
+		</mx:Form>
+		<mx:ControlBar horizontalAlign="right">
+			<mx:Button id="bSaveUser" label="Save" click="save()" />
+		</mx:ControlBar>
+</mx:TitleWindow>
