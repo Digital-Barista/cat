@@ -54,10 +54,12 @@
 					text="{entryPointVO.name}"
 					change="{entryPointVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="{entryPointVO.entryType}" required="true">
+			<mx:FormItem label="{entryPointVO.entryType}" required="true"
+				visible="{!workspace.campaign.isTemplate}">
 				<mx:Label text="{entryPointVO.entryPoint}" />
 			</mx:FormItem>
-			<mx:FormItem label="Keyword" required="true">
+			<mx:FormItem label="Keyword" required="true"
+				visible="{!workspace.campaign.isTemplate}" >
 				<components:KeywordComboBox id="SubscribeKeyword"
 					labelField="keyword"
 					dataProvider="{workspace.campaignKeywords}"

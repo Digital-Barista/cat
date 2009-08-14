@@ -30,7 +30,7 @@
 		<link>
 			<name>[source path] src</name>
 			<type>2</type>
-			<locationURI>DOCUMENTS/cat-common-flex/src</locationURI>
+			<location>C:/development/cat/branches/v0.9.2-templates/cat-common-flex/src</location>
 		</link>
 	</linkedResources>
 </projectDescription>
