@@ -28,6 +28,11 @@
 		<MethodInvoker generator="{CampaignTemplateManager}"
 			method="closeCampaignTemplateCommunications" />
 	</EventHandlers>
+	<EventHandlers type="{CampaignTemplateEvent.FILTER_CAMPAIGN_TEMPLATES}">
+		<MethodInvoker generator="{CampaignTemplateManager}"
+			method="filterTemplates"
+			arguments="{event.filterText}" />
+	</EventHandlers>
 	
 	<EventHandlers type="{CampaignTemplateEvent.LOAD_CAMPAIGN_TEMPLATE}">
 		<RemoteObjectInvoker destination="campaignManager"

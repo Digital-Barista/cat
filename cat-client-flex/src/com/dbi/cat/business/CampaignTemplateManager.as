@@ -19,6 +19,8 @@ package com.dbi.cat.business
 		public var campaignTemplateList:ArrayCollection = new ArrayCollection();
 		public var campaignTemplate:CampaignVO;
 		
+		private var filterText:String;
+		
 		private var editCampaignTemplatePopup:IFlexDisplayObject;
 		private var editCampaignTemplateCommunicationPopup:IFlexDisplayObject;
 		
@@ -75,6 +77,27 @@ package com.dbi.cat.business
 		{
 			campaignTemplate = null;
 			PopUpManager.removePopUp(editCampaignTemplateCommunicationPopup);
+		}
+		
+		
+		//
+		// Filter methods
+		//
+		public function filterTemplates(filterText:String):void
+		{
+			this.filterText = filterText;
+			if (campaignTemplateList != null)
+			{
+				campaignTemplateList.filterFunction = filterTemplatesFunction;
+				campaignTemplateList.refresh();
+			}
+		}
+		private function filterTemplatesFunction(campaign:CampaignVO):Boolean
+		{
+			if (filterText == null ||
+				campaign.name.toLowerCase().indexOf(filterText.toLowerCase()) > -1)
+				return true;
+			return false;
 		}
 	}
 }
