@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.message.event;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.SessionContext;
@@ -11,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.jboss.util.NotImplementedException;
 
 import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.CampaignDO;
@@ -146,6 +148,80 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 				}
 			}
 			break; //End Message node type
+			
+			case Coupon:
+			{
+				CouponNode cNode = (CouponNode)dest;
+				CATEvent sendMessageEvent=null;
+				NodeDO simpleNode=getCampaignManager().getSimpleNode(cNode.getUid());
+				String fromAddress = simpleNode.getCampaign().getDefaultFrom();
+				if(e.getTargetType().equals(CATTargetType.SpecificSubscriber))
+				{
+					SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
+					Date now = new Date();
+					String actualMessage;
+					
+					if(cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate()))
+					{
+						actualMessage = cNode.getAvailableMessage();
+					} else {
+						actualMessage = cNode.getUnavailableMessage();
+					}
+					
+					switch(simpleNode.getCampaign().getCampaignType())
+					{
+						
+						case Email:
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getEmail(), actualMessage, cNode.getName(),cNode.getUid(),version);
+							break;
+						
+						case SMS:
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, cNode.getName(),cNode.getUid(),version);
+							break;
+							
+						default:
+							throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
+					}
+					s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
+					getEventManager().queueEvent(sendMessageEvent);
+					getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), e.getTarget()));
+				} else if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers)){
+					Query q = getEntityManager().createNamedQuery("all.subscribers.on.node");
+					q.setParameter("nodeUID", conn.getSourceNodeUID());
+					List<SubscriberDO> subs = (List<SubscriberDO>)q.getResultList();
+					for(SubscriberDO s : subs)
+					{
+						
+						Date now = new Date();
+						String actualMessage;
+						
+						if(cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate()))
+						{
+							actualMessage = cNode.getAvailableMessage();
+						} else {
+							actualMessage = cNode.getUnavailableMessage();
+						}
+						
+						switch(simpleNode.getCampaign().getCampaignType())
+						{
+							case Email:
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getEmail(), actualMessage, cNode.getName(), cNode.getUid(), version);
+								break;
+							
+							case SMS:
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, cNode.getName(), cNode.getUid(), version);
+						
+							default:
+								throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
+						}
+						s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
+						getEntityManager().persist(simpleNode);
+						getEventManager().queueEvent(sendMessageEvent);
+						getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), e.getTarget()));
+					}
+				}
+			}
+			break; //End Coupon node type
 			
 			default:
 				throw new IllegalArgumentException("Invalid target type for a ConnectorFired event. --"+e.getTargetType());
