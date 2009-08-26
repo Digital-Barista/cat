@@ -19,9 +19,9 @@ import javax.persistence.Table;
 public class CouponOfferDO implements Serializable {
 
 	private Long primaryKey;
-	private Long maxCoupons;
-	private Long issuedCouponCount;
-	private Long rejectedResponseCount;
+	private Long maxCoupons=0l;
+	private Long issuedCouponCount=0l;
+	private Long rejectedResponseCount=0l;
 	private Date couponExpirationDate;
 	private Date offerUnavailableDate;
 	private String nodeUID;

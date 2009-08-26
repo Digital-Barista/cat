@@ -187,8 +187,9 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 								counter.setNextNumber(1l);
 								counter.setBitScramble(SequentialBitShuffler.generateBitShuffle(COUPON_CODE_LENGTH));
 								getEntityManager().persist(counter);
+								counter = getEntityManager().find(CouponCounterDO.class, COUPON_CODE_LENGTH);
 							}
-							getEntityManager().lock(counter, LockModeType.WRITE);
+							getEntityManager().lock(counter, LockModeType.READ);
 							SequentialBitShuffler shuffler = new SequentialBitShuffler(counter.getBitScramble(),COUPON_CODE_LENGTH);
 							couponCode = shuffler.generateCode(counter.getNextNumber());
 							counter.setNextNumber(counter.getNextNumber()+1);							

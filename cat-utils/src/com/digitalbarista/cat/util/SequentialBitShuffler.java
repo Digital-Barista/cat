@@ -79,14 +79,15 @@ public class SequentialBitShuffler {
 			ret[loop]=-1;
 		Random rnd = new Random();
 		int pos;
-		for(int loop=0; loop<length; loop++)
+		for(int loop=0; loop<ret.length; loop++)
 		{
 			pos = rnd.nextInt(ret.length);
-			while(ret[loop]!=-1)
+			while(ret[pos]!=-1)
 			{
-				if(loop==0) loop=ret.length;
-				loop--;
+				if(pos==0) pos=ret.length;
+				pos--;
 			}
+			ret[pos]=loop;
 		}
 		return ret;
 	}

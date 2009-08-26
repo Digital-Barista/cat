@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * Entity implementation class for Entity: CouponCounter
@@ -68,10 +69,10 @@ public class CouponCounterDO implements Serializable,DataObject {
 		this.nextNumber = nextNumber;
 	}
 
+	@Transient
 	public int[] getBitScramble() {
 		return bitScramble;
 	}
-
 	public void setBitScramble(int[] bitScramble) {
 		this.bitScramble = bitScramble;
 	}
