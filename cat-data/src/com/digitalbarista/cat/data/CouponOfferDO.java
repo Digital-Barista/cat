@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -22,6 +24,7 @@ public class CouponOfferDO implements Serializable {
 	private Long rejectedResponseCount;
 	private Date couponExpirationDate;
 	private Date offerUnavailableDate;
+	private String nodeUID;
 	private static final long serialVersionUID = 1L;
 
 	public CouponOfferDO() {
@@ -30,6 +33,7 @@ public class CouponOfferDO implements Serializable {
 
 	@Id
 	@Column(name="coupon_offer_id")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long getPrimaryKey() {
 		return this.primaryKey;
 	}
@@ -75,5 +79,13 @@ public class CouponOfferDO implements Serializable {
 	}
 	public void setOfferUnavailableDate(Date offerUnavailableDate) {
 		this.offerUnavailableDate = offerUnavailableDate;
+	}
+
+	@Column(name="node_uid")
+	public String getNodeUID() {
+		return nodeUID;
+	}
+	public void setNodeUID(String nodeUID) {
+		this.nodeUID = nodeUID;
 	}
 }

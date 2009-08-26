@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.ejb.SessionContext;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import org.apache.log4j.LogManager;
@@ -16,11 +17,15 @@ import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CouponCounterDO;
+import com.digitalbarista.cat.data.CouponOfferDO;
+import com.digitalbarista.cat.data.CouponResponseDO;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
+import com.digitalbarista.cat.util.SequentialBitShuffler;
 
 public class ConnectorFiredEventHandler extends CATEventHandler {
 
@@ -160,13 +165,59 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
 					Date now = new Date();
 					String actualMessage;
+
+					CouponOfferDO offer = getEntityManager().find(CouponOfferDO.class, cNode.getCouponId());
+					CouponResponseDO response;
 					
-					if(cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate()))
+					if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && offer.getIssuedCouponCount()<offer.getMaxCoupons())
 					{
+						String couponCode=null;
+						
+						if(cNode.getCouponCode()!=null)
+						{
+							couponCode=cNode.getCouponCode();
+						} else {
+							//Get the counter for 6-digit coupon codes.  This may need to change in the future.
+							int COUPON_CODE_LENGTH=6;
+							CouponCounterDO counter = getEntityManager().find(CouponCounterDO.class, COUPON_CODE_LENGTH);
+							if(counter==null)
+							{
+								counter = new CouponCounterDO();
+								counter.setCouponCodeLength(COUPON_CODE_LENGTH);
+								counter.setNextNumber(1l);
+								counter.setBitScramble(SequentialBitShuffler.generateBitShuffle(COUPON_CODE_LENGTH));
+								getEntityManager().persist(counter);
+							}
+							getEntityManager().lock(counter, LockModeType.WRITE);
+							SequentialBitShuffler shuffler = new SequentialBitShuffler(counter.getBitScramble(),COUPON_CODE_LENGTH);
+							couponCode = shuffler.generateCode(counter.getNextNumber());
+							counter.setNextNumber(counter.getNextNumber()+1);							
+						}
 						actualMessage = cNode.getAvailableMessage();
+						int startPos = actualMessage.indexOf('{');
+						int endPos = actualMessage.indexOf('}',-1)+1;
+						if(startPos==-1 || endPos==-1 || endPos<=startPos)
+							throw new IllegalArgumentException("Cannot insert coupon code, since braces are not inserted properly.");
+						actualMessage = actualMessage.substring(0,startPos) + couponCode + ((endPos<actualMessage.length())?actualMessage.substring(endPos):"");
+						offer.setIssuedCouponCount(offer.getIssuedCouponCount()+1);
+						response = new CouponResponseDO();
+						response.setCouponOffer(offer);
+						response.setResponseDate(now);
+						response.setResponseDetail(couponCode);
+						response.setSubscriber(s);
+						response.setCampaign(simpleNode.getCampaign());
 					} else {
+						offer.setRejectedResponseCount(offer.getRejectedResponseCount()+1);
 						actualMessage = cNode.getUnavailableMessage();
+						response = new CouponResponseDO();
+						response.setCouponOffer(offer);
+						response.setResponseDate(now);
+						response.setResponseDetail(offer.getIssuedCouponCount()<offer.getMaxCoupons()?"EXPIRED":"OVER_MAX");
+						response.setSubscriber(s);
+						response.setCampaign(simpleNode.getCampaign());
 					}
+					
+					getEntityManager().persist(response);
 					
 					switch(simpleNode.getCampaign().getCampaignType())
 					{
@@ -195,12 +246,58 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 						Date now = new Date();
 						String actualMessage;
 						
-						if(cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate()))
+						CouponOfferDO offer = getEntityManager().find(CouponOfferDO.class, cNode.getCouponId());
+						CouponResponseDO response;
+						
+						if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && offer.getIssuedCouponCount()<offer.getMaxCoupons())
 						{
+							String couponCode=null;
+							
+							if(cNode.getCouponCode()!=null)
+							{
+								couponCode=cNode.getCouponCode();
+							} else {
+								//Get the counter for 6-digit coupon codes.  This may need to change in the future.
+								int COUPON_CODE_LENGTH=6;
+								CouponCounterDO counter = getEntityManager().find(CouponCounterDO.class, COUPON_CODE_LENGTH);
+								if(counter==null)
+								{
+									counter = new CouponCounterDO();
+									counter.setCouponCodeLength(COUPON_CODE_LENGTH);
+									counter.setNextNumber(1l);
+									counter.setBitScramble(SequentialBitShuffler.generateBitShuffle(COUPON_CODE_LENGTH));
+									getEntityManager().persist(counter);
+								}
+								getEntityManager().lock(counter, LockModeType.WRITE);
+								SequentialBitShuffler shuffler = new SequentialBitShuffler(counter.getBitScramble(),COUPON_CODE_LENGTH);
+								couponCode = shuffler.generateCode(counter.getNextNumber());
+								counter.setNextNumber(counter.getNextNumber()+1);							
+							}
 							actualMessage = cNode.getAvailableMessage();
+							int startPos = actualMessage.indexOf('{');
+							int endPos = actualMessage.indexOf('}',-1)+1;
+							if(startPos==-1 || endPos==-1 || endPos<=startPos)
+								throw new IllegalArgumentException("Cannot insert coupon code, since braces are not inserted properly.");
+							actualMessage = actualMessage.substring(0,startPos) + couponCode + ((endPos<actualMessage.length())?actualMessage.substring(endPos):"");
+							offer.setIssuedCouponCount(offer.getIssuedCouponCount()+1);
+							response = new CouponResponseDO();
+							response.setCouponOffer(offer);
+							response.setResponseDate(now);
+							response.setResponseDetail(couponCode);
+							response.setSubscriber(s);
+							response.setCampaign(simpleNode.getCampaign());
 						} else {
+							offer.setRejectedResponseCount(offer.getRejectedResponseCount()+1);
 							actualMessage = cNode.getUnavailableMessage();
+							response = new CouponResponseDO();
+							response.setCouponOffer(offer);
+							response.setResponseDate(now);
+							response.setResponseDetail(offer.getIssuedCouponCount()<offer.getMaxCoupons()?"EXPIRED":"OVER_MAX");
+							response.setSubscriber(s);
+							response.setCampaign(simpleNode.getCampaign());
 						}
+						
+						getEntityManager().persist(response);
 						
 						switch(simpleNode.getCampaign().getCampaignType())
 						{

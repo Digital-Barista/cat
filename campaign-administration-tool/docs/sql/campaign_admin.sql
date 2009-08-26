@@ -3,6 +3,7 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
 CREATE SCHEMA IF NOT EXISTS `campaign_admin` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
+CREATE SCHEMA IF NOT EXISTS `campaign_admin_prod` ;
 USE `campaign_admin`;
 
 -- -----------------------------------------------------
@@ -627,6 +628,108 @@ CREATE  TABLE IF NOT EXISTS `campaign_admin`.`subscriber_blacklist` (
 ENGINE = InnoDB;
 
 CREATE INDEX `sbs_fk_sub` ON `campaign_admin`.`subscriber_blacklist` (`subscriber_id` ASC) ;
+
+
+-- -----------------------------------------------------
+-- Table `campaign_admin`.`audit_generic`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `campaign_admin`.`audit_generic` ;
+
+CREATE  TABLE IF NOT EXISTS `campaign_admin`.`audit_generic` (
+  `audit_id` BIGINT NOT NULL AUTO_INCREMENT ,
+  `audit_type` VARCHAR(32) NOT NULL ,
+  `audit_time` DATETIME NOT NULL ,
+  `descriminator_1` VARCHAR(36) NULL ,
+  `descriminator_2` VARCHAR(36) NULL ,
+  `audit_data` TEXT NOT NULL ,
+  `audit_user` VARCHAR(50) NOT NULL DEFAULT 'system' ,
+  PRIMARY KEY (`audit_id`) )
+ENGINE = InnoDB;
+
+CREATE INDEX `at_type_idx` ON `campaign_admin`.`audit_generic` (`audit_type` ASC) ;
+
+CREATE INDEX `at_timestamp_idx` ON `campaign_admin`.`audit_generic` (`audit_time` ASC) ;
+
+CREATE INDEX `at_type_timestamp_idx` ON `campaign_admin`.`audit_generic` (`audit_type` ASC, `audit_time` ASC) ;
+
+CREATE INDEX `at_descriminator1_idx` ON `campaign_admin`.`audit_generic` (`descriminator_1` ASC) ;
+
+CREATE INDEX `at_descriminator2_idx` ON `campaign_admin`.`audit_generic` (`descriminator_2` ASC) ;
+
+CREATE INDEX `at_all_descriminator_idx` ON `campaign_admin`.`audit_generic` (`descriminator_1` ASC, `descriminator_2` ASC) ;
+
+CREATE INDEX `at_everything_idx` ON `campaign_admin`.`audit_generic` (`audit_type` ASC, `descriminator_1` ASC, `descriminator_2` ASC, `audit_time` ASC, `audit_user` ASC) ;
+
+CREATE INDEX `at_user_idx` ON `campaign_admin`.`audit_generic` (`audit_user` ASC) ;
+
+CREATE INDEX `at_user_activity_idx` ON `campaign_admin`.`audit_generic` (`audit_user` ASC, `audit_time` ASC) ;
+
+
+-- -----------------------------------------------------
+-- Table `campaign_admin`.`coupon_counters`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `campaign_admin`.`coupon_counters` ;
+
+CREATE  TABLE IF NOT EXISTS `campaign_admin`.`coupon_counters` (
+  `coupon_code_length` INT NOT NULL ,
+  `coupon_bit_scramble` BLOB NOT NULL ,
+  `coupon_next_number` BIGINT NOT NULL DEFAULT 1 ,
+  PRIMARY KEY (`coupon_code_length`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `campaign_admin`.`coupon_offers`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `campaign_admin`.`coupon_offers` ;
+
+CREATE  TABLE IF NOT EXISTS `campaign_admin`.`coupon_offers` (
+  `coupon_offer_id` BIGINT NOT NULL AUTO_INCREMENT ,
+  `max_coupons_issued` BIGINT NOT NULL ,
+  `coupon_issue_count` BIGINT NOT NULL DEFAULT 0 ,
+  `rejected_response_count` BIGINT NOT NULL DEFAULT 0 ,
+  `expiration_date` DATETIME NULL ,
+  `unavailable_date` DATETIME NULL ,
+  `node_uid` VARCHAR(36) NOT NULL ,
+  PRIMARY KEY (`coupon_offer_id`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `campaign_admin`.`coupon_responses`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `campaign_admin`.`coupon_responses` ;
+
+CREATE  TABLE IF NOT EXISTS `campaign_admin`.`coupon_responses` (
+  `coupon_response_id` BIGINT NOT NULL AUTO_INCREMENT ,
+  `response_date` DATETIME NOT NULL ,
+  `response_detail` VARCHAR(16) NOT NULL ,
+  `coupon_offer_id` BIGINT NOT NULL ,
+  `subscriber_id` BIGINT NOT NULL ,
+  `campaign_id` INT NOT NULL ,
+  PRIMARY KEY (`coupon_response_id`) ,
+  CONSTRAINT `cr_coupon_offer_fk`
+    FOREIGN KEY (`coupon_offer_id` )
+    REFERENCES `campaign_admin`.`coupon_offers` (`coupon_offer_id` )
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT,
+  CONSTRAINT `cr_subscriber_fk`
+    FOREIGN KEY (`subscriber_id` )
+    REFERENCES `campaign_admin`.`subscribers` (`subscriber_id` )
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT,
+  CONSTRAINT `cr_campaign_fk`
+    FOREIGN KEY (`campaign_id` )
+    REFERENCES `campaign_admin`.`campaigns` (`campaign_id` )
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT)
+ENGINE = InnoDB;
+
+CREATE INDEX `cr_coupon_offer_fk` ON `campaign_admin`.`coupon_responses` (`coupon_offer_id` ASC) ;
+
+CREATE INDEX `cr_subscriber_fk` ON `campaign_admin`.`coupon_responses` (`subscriber_id` ASC) ;
+
+CREATE INDEX `cr_campaign_fk` ON `campaign_admin`.`coupon_responses` (`campaign_id` ASC) ;
 
 
 

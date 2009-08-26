@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.log4j.LogManager;
 
 import com.digitalbarista.cat.audit.Auditable;
+import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
@@ -25,8 +26,8 @@ public class CouponNode extends Node implements Auditable {
 	private static final String INFO_PROPERTY_UNAVAILABLE_DATE="UnavailableDate";
 	private static final String INFO_PROPERTY_COUPON_CODE="CouponCode";
 	
-	public static final Integer INFINITE_REDEMPTION_COUNT = -1;
-	public static final Integer INFINITE_COUPONS_COUNT = -1;
+	public static final Long INFINITE_REDEMPTION_COUNT = -1l;
+	public static final Long INFINITE_COUPONS_COUNT = -1l;
 		
 	public static final String START_COUPON_CODE = "{";
 	public static final String END_COUPON_CODE = "}";
@@ -36,8 +37,8 @@ public class CouponNode extends Node implements Auditable {
 	private Long couponId=null;
 	private String availableMessage = START_COUPON_CODE + END_COUPON_CODE;
 	private String unavailableMessage=null;
-	private Integer maxCoupons = INFINITE_COUPONS_COUNT;
-	private Integer maxRedemptions = INFINITE_REDEMPTION_COUNT;
+	private Long maxCoupons = INFINITE_COUPONS_COUNT;
+	private Long maxRedemptions = INFINITE_REDEMPTION_COUNT;
 	private Date unavailableDate = null;
 	private String couponCode = null;
 	
@@ -61,10 +62,10 @@ public class CouponNode extends Node implements Auditable {
 					unavailableMessage = ni.getValue();
 	
 				else if(ni.getName().equals(INFO_PROPERTY_MAX_COUPONS) && ni.getValue()!=null)
-					maxCoupons = new Integer(ni.getValue());
+					maxCoupons = new Long(ni.getValue());
 	
 				else if(ni.getName().equals(INFO_PROPERTY_MAX_REDEMPTIONS) && ni.getValue()!=null)
-					maxRedemptions = new Integer(ni.getValue());
+					maxRedemptions = new Long(ni.getValue());
 	
 				else if(ni.getName().equals(INFO_PROPERTY_UNAVAILABLE_DATE) && ni.getValue()!=null)
 					unavailableDate = new SimpleDateFormat(dateFormat).parse(ni.getValue());
@@ -183,10 +184,11 @@ public class CouponNode extends Node implements Auditable {
 		return couponId;
 	}
 
-	public void setCouponId(Long couponId) {
-		this.couponId = couponId;
+	public void associateCouponOffer(CouponOfferDO offer)
+	{
+		couponId = offer.getPrimaryKey();
 	}
-
+	
 	public String getAvailableMessage() {
 		return availableMessage;
 	}
@@ -203,19 +205,19 @@ public class CouponNode extends Node implements Auditable {
 		this.unavailableMessage = unavailableMessage;
 	}
 
-	public Integer getMaxCoupons() {
+	public Long getMaxCoupons() {
 		return maxCoupons;
 	}
 
-	public void setMaxCoupons(Integer maxCoupons) {
+	public void setMaxCoupons(Long maxCoupons) {
 		this.maxCoupons = maxCoupons;
 	}
 
-	public Integer getMaxRedemptions() {
+	public Long getMaxRedemptions() {
 		return maxRedemptions;
 	}
 
-	public void setMaxRedemptions(Integer maxRedemptions) {
+	public void setMaxRedemptions(Long maxRedemptions) {
 		this.maxRedemptions = maxRedemptions;
 	}
 

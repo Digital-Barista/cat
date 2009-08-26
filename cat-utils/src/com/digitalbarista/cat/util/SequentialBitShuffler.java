@@ -1,7 +1,6 @@
 package com.digitalbarista.cat.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 public class SequentialBitShuffler {
 
@@ -71,5 +70,24 @@ public class SequentialBitShuffler {
 			fromNumber = fromNumber >> 5;
 		}
 		return new String(word);
+	}
+	
+	public static int[] generateBitShuffle(int length)
+	{
+		int[] ret=new int[length*5];
+		for(int loop=0; loop<ret.length; loop++)
+			ret[loop]=-1;
+		Random rnd = new Random();
+		int pos;
+		for(int loop=0; loop<length; loop++)
+		{
+			pos = rnd.nextInt(ret.length);
+			while(ret[loop]!=-1)
+			{
+				if(loop==0) loop=ret.length;
+				loop--;
+			}
+		}
+		return ret;
 	}
 }

@@ -37,6 +37,7 @@ import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.IntervalConnector;
 import com.digitalbarista.cat.business.Node;
@@ -51,6 +52,7 @@ import com.digitalbarista.cat.data.ConnectionPoint;
 import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
+import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.LayoutInfoDO;
 import com.digitalbarista.cat.data.NodeConnectorLinkDO;
@@ -367,6 +369,27 @@ public class CampaignManagerImpl implements CampaignManager {
 				newCNL.setCampaign(cnl.getCampaign());
 				newCNL.setNode(cnl.getNode());
 				newCNL.setVersion(version+1);
+
+				//If this is a coupon node, we need to do a few things.
+				if(cnl.getNode().getType().equals(NodeType.Coupon))
+				{
+					CouponNode cNode = new CouponNode();
+					cNode.copyFrom(cnl.getNode());
+					
+					CouponOfferDO offer;
+					if(cNode.getCouponId()==null)
+						offer = new CouponOfferDO();
+					else
+						offer = em.find(CouponOfferDO.class, cNode.getCouponId());
+					offer.setMaxCoupons(cNode.getMaxCoupons());
+					offer.setOfferUnavailableDate(cNode.getUnavailableDate());
+					offer.setNodeUID(cNode.getUid());
+					em.persist(offer);
+					
+					cNode.associateCouponOffer(offer);
+					cNode.copyTo(cnl.getNode());
+				}
+				
 				em.persist(newCNL);
 				
 				node = cnl.getNode();

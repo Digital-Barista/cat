@@ -17,8 +17,10 @@ public class CouponResponseDO implements Serializable {
 
 	private Long primaryKey;
 	private Date responseDate;
-	private String responseType;
+	private String responseDetail;
 	private CouponOfferDO couponOffer;
+	private SubscriberDO subscriber;
+	private CampaignDO campaign;
 	private static final long serialVersionUID = 1L;
 
 	public CouponResponseDO() {
@@ -27,6 +29,7 @@ public class CouponResponseDO implements Serializable {
 	
 	@Id
 	@Column(name="coupon_response_id")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long getPrimaryKey() {
 		return this.primaryKey;
 	}
@@ -42,12 +45,12 @@ public class CouponResponseDO implements Serializable {
 		this.responseDate = responseDate;
 	}
 	
-	@Column(name="response_type")
-	public String getResponseType() {
-		return this.responseType;
+	@Column(name="response_detail")
+	public String getResponseDetail() {
+		return this.responseDetail;
 	}
-	public void setResponseType(String responseType) {
-		this.responseType = responseType;
+	public void setResponseDetail(String responseDetail) {
+		this.responseDetail = responseDetail;
 	}
 	
 	@ManyToOne
@@ -57,5 +60,23 @@ public class CouponResponseDO implements Serializable {
 	}
 	public void setCouponOffer(CouponOfferDO couponOffer) {
 		this.couponOffer = couponOffer;
+	}
+
+	@ManyToOne
+	@JoinColumn(name="subscriber_id")
+	public SubscriberDO getSubscriber() {
+		return subscriber;
+	}
+	public void setSubscriber(SubscriberDO subscriber) {
+		this.subscriber = subscriber;
+	}
+
+	@ManyToOne
+	@JoinColumn(name="campaign_id")
+	public CampaignDO getCampaign() {
+		return campaign;
+	}
+	public void setCampaign(CampaignDO campaign) {
+		this.campaign = campaign;
 	}
 }
