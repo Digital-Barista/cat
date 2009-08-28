@@ -420,9 +420,6 @@ package com.dbi.cat.business
 			modifiedCampaign = null;
 			publishedCampaign = null;
 			PopUpManager.removePopUp(editCommunicationPopup);
-			
-			// Repopulate clients to determine keywords that have been used
-			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
 		}
 		public function closeEditCampaign():void
 		{

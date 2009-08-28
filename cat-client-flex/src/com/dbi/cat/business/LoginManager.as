@@ -43,7 +43,7 @@ package com.dbi.cat.business
 			var token:AsyncToken = cs.login(username, password);
 			token.addResponder(new Responder(loginSuccess, loginFail));
 		}
-		private static var test:Boolean = true;
+
 		public function logout():void
 		{
 			// Kill the flex session

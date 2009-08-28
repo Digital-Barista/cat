@@ -10,6 +10,7 @@
 	title="{modifiedCampaign.name}">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.cat.event.ImportEvent;
 			import com.dbi.cat.common.vo.ConnectorVO;
 			import com.dbi.cat.common.vo.CampaignVO;
@@ -58,6 +59,9 @@
 				
 				// Remove the listener event
 				dispatchEvent(new CampaignEvent(CampaignEvent.CLOSE_COMMUNICATIONS));
+			
+				// Repopulate clients to determine keywords that have been used
+				dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
 			}
 			private function publish(e:CustomMessageEvent):void
 			{
