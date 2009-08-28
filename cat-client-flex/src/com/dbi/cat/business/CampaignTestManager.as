@@ -28,7 +28,7 @@ package com.dbi.cat.business
 		private var currentDate:Date;
 		private var startDate:Date;
 		private var uidMap:Object;
-		private var immediateConnectors:Object = new Object();
+		private var visitedImmediateConnectors:Object = new Object();
 		
 		public var currentNode:NodeVO;
 		public var testCampaign:CampaignVO;
@@ -301,20 +301,21 @@ package com.dbi.cat.business
 					{
 						if (connector is ImmediateConnectorVO)
 						{
-							if (immediateConnectors[connector.uid] != null)
+							if (visitedImmediateConnectors[connector.uid] != null)
 							{
 								out("", "LOOP DETECTED! CANNOT CONTINUE", COLOR_RED);
 							}
 							else
 							{
-								immediateConnectors[connector.uid] = connector.uid;
+								visitedImmediateConnectors[connector.uid] = connector.uid;
 								out("", "Following immediate connector", COLOR_BLUE);
 								followConnector(connector);
 							}
-							immediateConnectors = new Object();
+							
+							// Clear visited connectors
+							visitedImmediateConnectors = new Object();
 							break;
 						}
-						immediateConnectors = new Object();
 					}
 				}
 			}
