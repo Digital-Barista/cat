@@ -72,6 +72,12 @@ public class CouponManagerImpl implements CouponManager {
 		crit.add(Restrictions.eq("responseType", CouponResponseDO.Type.Issued));
 		CouponResponseDO cResp = (CouponResponseDO)crit.uniqueResult();
 		
+		// If the coupon doesn't match return an appropriate error
+		if (cResp == null)
+		{
+			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
+		}
+		
 		//First do security check!
 		
 		//Also . . . should we check to see if the campagin is active?

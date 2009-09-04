@@ -4,35 +4,22 @@ package com.dbi.cat.common.vo
 	
 	
 	[Bindable]
-	[RemoteClass(alias="com.digitalbarista.cat.business.CouponNode")]
-	public class CouponVO extends NodeVO
+	[RemoteClass(alias="com.digitalbarista.cat.business.Coupon")]
+	public class CouponVO 
 	{
-		public static const INFINITE_REDEMPTION_COUNT:Number = -1;
-		public static const INFINITE_COUPONS_COUNT:Number = -1;
-			
-		public static const START_COUPON_CODE:String = "{";
-		public static const END_COUPON_CODE:String = "}";
 		
-		public static const RANDOM_CODE_LENGTH:Number = 5;
-		
+		public var campaignName:String;
+		public var couponName:String;
+		public var maxCouponCount:Number;
+		public var maxRedemptions:Number;
+		public var unavailableDate:Date;
+		public var issuedCouponCount:Number;
+		public var totalRedemptionCount:Number;
+		public var averageRedemptionTime:Number;
+	
 		public function CouponVO()
 		{
 			super();
-		}
-		
-		public var couponId:Number;
-		public var availableMessage:String = START_COUPON_CODE + END_COUPON_CODE;
-		public var unavailableMessage:String;
-		public var maxCoupons:Number = INFINITE_COUPONS_COUNT;
-		public var maxRedemptions:Number = INFINITE_REDEMPTION_COUNT;
-		public var unavailableDate:Date;
-		public var couponCode:String;
-		
-		
-		override public function get valid():Boolean
-		{
-			return availableMessage != null &&
-				availableMessage.length > 0;
 		}
 	}
 }
