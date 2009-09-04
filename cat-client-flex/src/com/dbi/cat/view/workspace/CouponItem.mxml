@@ -14,7 +14,7 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.vo.CouponVO;
+			import com.dbi.cat.common.vo.CouponNodeVO;
 			import com.dbi.cat.common.constants.SMSConstants;
 			import mx.events.ChildExistenceChangedEvent;
 			import com.dbi.cat.common.vo.ClientVO;
@@ -24,11 +24,11 @@
 			
 			
 			[Bindable(event="nodeUpdate")]
-			public function get couponVO():CouponVO
+			public function get couponVO():CouponNodeVO
 			{
-				return editNodeVO as CouponVO;
+				return editNodeVO as CouponNodeVO;
 			}
-			public function set couponVO(c:CouponVO):void
+			public function set couponVO(c:CouponNodeVO):void
 			{
 				nodeVO = c;
 			}
@@ -105,14 +105,14 @@
 			private function setInfiniteRedemptions():void
 			{
 				if (InfiniteRedemptions.selected)
-					couponVO.maxRedemptions = CouponVO.INFINITE_REDEMPTION_COUNT;
+					couponVO.maxRedemptions = CouponNodeVO.INFINITE_REDEMPTION_COUNT;
 				else
 					couponVO.maxRedemptions = 0;
 			}
 			private function setInfiniteCoupons():void
 			{
 				if (InfiniteCoupons.selected)
-					couponVO.maxCoupons = CouponVO.INFINITE_COUPONS_COUNT;
+					couponVO.maxCoupons = CouponNodeVO.INFINITE_COUPONS_COUNT;
 				else
 					couponVO.maxCoupons = 0;
 			}
@@ -131,12 +131,12 @@
 			}
 			private function get couponCodeToken():String
 			{
-				var ret:String = CouponVO.START_COUPON_CODE;
+				var ret:String = CouponNodeVO.START_COUPON_CODE;
 				if (couponVO.couponCode == null)
-					ret += CouponVO.RANDOM_CODE_LENGTH + "_CHAR_CODE";
+					ret += CouponNodeVO.RANDOM_CODE_LENGTH + "_CHAR_CODE";
 				else
 					ret += StaticCodeValue.text;
-				ret += CouponVO.END_COUPON_CODE;
+				ret += CouponNodeVO.END_COUPON_CODE;
 				return ret;
 			}
 			
@@ -175,7 +175,7 @@
 						
 						// Add in length of merged coupons
 						if (couponVO.couponCode == null)
-							ret += (CouponVO.RANDOM_CODE_LENGTH * matchCount);
+							ret += (CouponNodeVO.RANDOM_CODE_LENGTH * matchCount);
 						else
 							ret += (couponVO.couponCode.length * matchCount);
 					}
@@ -204,11 +204,11 @@
 						restrict="[0-9]"
 						text="{couponVO.maxCoupons}"
 						change="{couponVO.maxCoupons = new Number(MaxCoupons.text)}"
-						visible="{couponVO.maxCoupons != CouponVO.INFINITE_COUPONS_COUNT}"
-						includeInLayout="{couponVO.maxCoupons != CouponVO.INFINITE_COUPONS_COUNT}" />
+						visible="{couponVO.maxCoupons != CouponNodeVO.INFINITE_COUPONS_COUNT}"
+						includeInLayout="{couponVO.maxCoupons != CouponNodeVO.INFINITE_COUPONS_COUNT}" />
 					<mx:CheckBox id="InfiniteCoupons"
 						label="Infinite"
-						selected="{couponVO.maxCoupons == CouponVO.INFINITE_COUPONS_COUNT}"
+						selected="{couponVO.maxCoupons == CouponNodeVO.INFINITE_COUPONS_COUNT}"
 						change="{setInfiniteCoupons()}" />
 				</mx:HBox>
 			</mx:FormItem>
@@ -218,11 +218,11 @@
 						restrict="[0-9]"
 						text="{couponVO.maxRedemptions}"
 						change="{couponVO.maxRedemptions = new Number(MaxRedemptions.text)}"
-						visible="{couponVO.maxRedemptions != CouponVO.INFINITE_REDEMPTION_COUNT}"
-						includeInLayout="{couponVO.maxRedemptions != CouponVO.INFINITE_REDEMPTION_COUNT}" />
+						visible="{couponVO.maxRedemptions != CouponNodeVO.INFINITE_REDEMPTION_COUNT}"
+						includeInLayout="{couponVO.maxRedemptions != CouponNodeVO.INFINITE_REDEMPTION_COUNT}" />
 					<mx:CheckBox id="InfiniteRedemptions"
 						label="Infinite"
-						selected="{couponVO.maxRedemptions == CouponVO.INFINITE_REDEMPTION_COUNT}"
+						selected="{couponVO.maxRedemptions == CouponNodeVO.INFINITE_REDEMPTION_COUNT}"
 						change="{setInfiniteRedemptions()}" />
 				</mx:HBox>
 			</mx:FormItem>

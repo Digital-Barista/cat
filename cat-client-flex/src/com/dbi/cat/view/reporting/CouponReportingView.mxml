@@ -5,7 +5,7 @@
 			import mx.collections.ArrayCollection;
 			
 			[Bindable]
-			public var couponReports:ArrayCollection;
+			public var coupons:ArrayCollection;
 		]]>
 	</mx:Script>
 	<mx:AdvancedDataGrid left="0" top="0" right="0" bottom="0">

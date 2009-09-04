@@ -3,7 +3,7 @@ package com.dbi.cat.view.workspace
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
-	import com.dbi.cat.common.vo.CouponVO;
+	import com.dbi.cat.common.vo.CouponNodeVO;
 	import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 	import com.dbi.cat.common.vo.EntryPointVO;
 	import com.dbi.cat.common.vo.ImmediateConnectorVO;
@@ -279,7 +279,7 @@ package com.dbi.cat.view.workspace
             }
             else if(type == WorkspaceItemType.COUPON)
             {
-            	var coupon:CouponVO = new CouponVO();
+            	var coupon:CouponNodeVO = new CouponNodeVO();
             	coupon.campaignUID = campaign.uid;
             	layout.UUID = coupon.uid;
             	coupon.layoutInfo = layout;
@@ -365,10 +365,10 @@ package com.dbi.cat.view.workspace
             	ep.entryPointVO = node as EntryPointVO;
 				newItem = ep;
             }
-            else if(node is CouponVO)
+            else if(node is CouponNodeVO)
             {
             	var c:CouponItem = new CouponItem();
-            	c.couponVO = node as CouponVO;
+            	c.couponVO = node as CouponNodeVO;
 				newItem = c;
             }
             addItemToWorkspace(newItem);

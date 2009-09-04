@@ -4,7 +4,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
-	import com.dbi.cat.common.vo.CouponVO;
+	import com.dbi.cat.common.vo.CouponNodeVO;
 	import com.dbi.cat.common.vo.EntryPointVO;
 	import com.dbi.cat.common.vo.ImmediateConnectorVO;
 	import com.dbi.cat.common.vo.IntervalConnectorVO;
@@ -241,9 +241,9 @@ package com.dbi.cat.business
 					}
 				}
 				// Handle coupon messages
-				else if (currentNode is CouponVO)
+				else if (currentNode is CouponNodeVO)
 				{
-					var coupon:CouponVO = currentNode as CouponVO;
+					var coupon:CouponNodeVO = currentNode as CouponNodeVO;
 				
 					// Make sure required fields are filled
 					if (coupon.valid)

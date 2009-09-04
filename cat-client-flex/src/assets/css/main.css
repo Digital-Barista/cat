@@ -33,3 +33,14 @@ List
 .filterBox
 {
 }
+
+.successMessage
+{
+	fontSize:24;
+	color:#00CC00;
+}
+.failMessage
+{
+	fontSize:24;
+	color:#CC0000;
+}
