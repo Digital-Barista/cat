@@ -22,6 +22,7 @@ import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
+import com.digitalbarista.cat.data.CouponResponseDO.Type;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
@@ -206,17 +207,18 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 						response.setResponseDate(now);
 						response.setResponseDetail(couponCode);
 						response.setSubscriber(s);
-						response.setCampaign(simpleNode.getCampaign());
+						response.setResponseType(Type.Issued);
+						response.setRedemptionCount(0);
 					} else {
 						offer.setRejectedResponseCount(offer.getRejectedResponseCount()+1);
 						actualMessage = cNode.getUnavailableMessage();
 						response = new CouponResponseDO();
 						response.setCouponOffer(offer);
 						response.setResponseDate(now);
-						response.setResponseDetail(offer.getIssuedCouponCount()<offer.getMaxCoupons()?"EXPIRED":"OVER_MAX");
+						response.setResponseType(offer.getIssuedCouponCount()<offer.getMaxCoupons()?Type.Expired:Type.OverMax);
 						response.setSubscriber(s);
-						response.setCampaign(simpleNode.getCampaign());
 					}
+					response.setActualMessage(actualMessage);
 					
 					getEntityManager().persist(response);
 					
@@ -285,18 +287,19 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 							response.setCouponOffer(offer);
 							response.setResponseDate(now);
 							response.setResponseDetail(couponCode);
+							response.setResponseType(Type.Issued);
+							response.setRedemptionCount(0);
 							response.setSubscriber(s);
-							response.setCampaign(simpleNode.getCampaign());
 						} else {
 							offer.setRejectedResponseCount(offer.getRejectedResponseCount()+1);
 							actualMessage = cNode.getUnavailableMessage();
 							response = new CouponResponseDO();
 							response.setCouponOffer(offer);
 							response.setResponseDate(now);
-							response.setResponseDetail(offer.getIssuedCouponCount()<offer.getMaxCoupons()?"EXPIRED":"OVER_MAX");
+							response.setResponseType(offer.getIssuedCouponCount()<offer.getMaxCoupons()?Type.Expired:Type.OverMax);
 							response.setSubscriber(s);
-							response.setCampaign(simpleNode.getCampaign());
 						}
+						response.setActualMessage(actualMessage);
 						
 						getEntityManager().persist(response);
 						

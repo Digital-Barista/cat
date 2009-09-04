@@ -2,12 +2,16 @@ package com.digitalbarista.cat.data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -16,15 +20,20 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="coupon_offers")
-public class CouponOfferDO implements Serializable {
+public class CouponOfferDO implements Serializable,DataObject {
 
 	private Long primaryKey;
 	private Long maxCoupons=0l;
 	private Long issuedCouponCount=0l;
 	private Long rejectedResponseCount=0l;
+	private Long maxRedemptions;
 	private Date couponExpirationDate;
 	private Date offerUnavailableDate;
+	private String couponName;
 	private String nodeUID;
+	private CampaignDO campaign;
+	private Set<CouponResponseDO> responses;
+	
 	private static final long serialVersionUID = 1L;
 
 	public CouponOfferDO() {
@@ -87,5 +96,41 @@ public class CouponOfferDO implements Serializable {
 	}
 	public void setNodeUID(String nodeUID) {
 		this.nodeUID = nodeUID;
+	}
+
+	@Column(name="max_redemptions")
+	public Long getMaxRedemptions() {
+		return maxRedemptions;
+	}
+
+	public void setMaxRedemptions(Long maxRedemptions) {
+		this.maxRedemptions = maxRedemptions;
+	}
+
+	@Column(name="coupon_name")
+	public String getCouponName() {
+		return couponName;
+	}
+
+	public void setCouponName(String couponName) {
+		this.couponName = couponName;
+	}
+	
+	@ManyToOne
+	@JoinColumn(name="campaign_id")
+	public CampaignDO getCampaign() {
+		return campaign;
+	}
+	public void setCampaign(CampaignDO campaign) {
+		this.campaign = campaign;
+	}
+
+	@OneToMany(targetEntity=CouponResponseDO.class,mappedBy="couponOffer")
+	public Set<CouponResponseDO> getResponses() {
+		return responses;
+	}
+
+	public void setResponses(Set<CouponResponseDO> responses) {
+		this.responses = responses;
 	}
 }

@@ -1,11 +1,20 @@
 package com.digitalbarista.cat.data;
 
-import com.digitalbarista.cat.data.CouponOfferDO;
 import java.io.Serializable;
-import java.lang.Long;
-import java.lang.String;
 import java.util.Date;
-import javax.persistence.*;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * Entity implementation class for Entity: CouponResponseDO
@@ -13,14 +22,24 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name="coupon_responses")
-public class CouponResponseDO implements Serializable {
+public class CouponResponseDO implements Serializable,DataObject {
 
+	public enum Type
+	{
+		Expired,
+		OverMax,
+		Issued
+	}
+	
 	private Long primaryKey;
 	private Date responseDate;
 	private String responseDetail;
 	private CouponOfferDO couponOffer;
 	private SubscriberDO subscriber;
-	private CampaignDO campaign;
+	private Type responseType;
+	private String actualMessage;
+	private Integer redemptionCount;
+	private Set<CouponRedemptionDO> redemptions;
 	private static final long serialVersionUID = 1L;
 
 	public CouponResponseDO() {
@@ -71,12 +90,40 @@ public class CouponResponseDO implements Serializable {
 		this.subscriber = subscriber;
 	}
 
-	@ManyToOne
-	@JoinColumn(name="campaign_id")
-	public CampaignDO getCampaign() {
-		return campaign;
+	@Column(name="response_type")
+	@Enumerated(EnumType.STRING)
+	public Type getResponseType() {
+		return responseType;
 	}
-	public void setCampaign(CampaignDO campaign) {
-		this.campaign = campaign;
+
+	public void setResponseType(Type responseType) {
+		this.responseType = responseType;
+	}
+
+	@Column(name="coupon_message")
+	public String getActualMessage() {
+		return actualMessage;
+	}
+
+	public void setActualMessage(String actualMessage) {
+		this.actualMessage = actualMessage;
+	}
+
+	@Column(name="redemption_count")
+	public Integer getRedemptionCount() {
+		return redemptionCount;
+	}
+
+	public void setRedemptionCount(Integer redemptionCount) {
+		this.redemptionCount = redemptionCount;
+	}
+
+	@OneToMany(targetEntity=CouponRedemptionDO.class,mappedBy="couponResponse")
+	public Set<CouponRedemptionDO> getRedemptions() {
+		return redemptions;
+	}
+
+	public void setRedemptions(Set<CouponRedemptionDO> redemptions) {
+		this.redemptions = redemptions;
 	}
 }

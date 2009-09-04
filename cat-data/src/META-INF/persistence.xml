@@ -28,6 +28,7 @@
 		<class>com.digitalbarista.cat.data.CouponCounterDO</class>
 		<class>com.digitalbarista.cat.data.CouponOfferDO</class>
 		<class>com.digitalbarista.cat.data.CouponResponseDO</class>
+		<class>com.digitalbarista.cat.data.CouponRedemptionDO</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
 		</properties>

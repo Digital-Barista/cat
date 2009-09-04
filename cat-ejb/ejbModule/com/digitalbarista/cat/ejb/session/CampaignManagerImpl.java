@@ -384,6 +384,9 @@ public class CampaignManagerImpl implements CampaignManager {
 					offer.setMaxCoupons(cNode.getMaxCoupons());
 					offer.setOfferUnavailableDate(cNode.getUnavailableDate());
 					offer.setNodeUID(cNode.getUid());
+					offer.setMaxRedemptions(cNode.getMaxRedemptions());
+					offer.setCouponName(cNode.getName());
+					offer.setCampaign(cnl.getCampaign());
 					em.persist(offer);
 					
 					cNode.associateCouponOffer(offer);
