@@ -70,7 +70,8 @@ public class IntervalConnector extends Connector implements Auditable {
 	public String auditString() {
 		StringBuffer ret = new StringBuffer();
 		ret.append("type:"+getType().toString());
-		ret.append(";intervalType:"+getIntervalType().toString());
+		if(getIntervalType()!=null)
+			ret.append(";intervalType:"+getIntervalType().toString());
 		ret.append(";interval:"+getInterval());
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());
