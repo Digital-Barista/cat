@@ -72,6 +72,8 @@ public class IntervalConnector extends Connector implements Auditable {
 		ret.append("type:"+getType().toString());
 		if(getIntervalType()!=null)
 			ret.append(";intervalType:"+getIntervalType().toString());
+		else
+			ret.append(";intervalType:null");
 		ret.append(";interval:"+getInterval());
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());

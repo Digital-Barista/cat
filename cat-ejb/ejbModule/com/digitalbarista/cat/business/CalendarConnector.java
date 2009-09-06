@@ -80,7 +80,10 @@ public class CalendarConnector extends Connector implements Auditable {
 	public String auditString() {
 		StringBuffer ret = new StringBuffer();
 		ret.append("type:"+getType().toString());
-		ret.append(";targetDate:"+new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(getTargetDate()));
+		if(getTargetDate()!=null)
+			ret.append(";targetDate:"+new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(getTargetDate()));
+		else
+			ret.append(";targetDate:null");
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());
 		ret.append(";source:"+getSourceNodeUID());

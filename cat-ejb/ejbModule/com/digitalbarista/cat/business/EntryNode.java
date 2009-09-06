@@ -80,7 +80,10 @@ public class EntryNode extends Node implements Auditable{
 		ret.append("type:"+getType().toString());
 		ret.append(";incomingAddress:"+getEntryPoint());
 		ret.append(";keyword:"+getKeyword());
-		ret.append(";addressType:"+getEntryType().toString());
+		if(getEntryType()!=null)
+			ret.append(";addressType:"+getEntryType().toString());
+		else
+			ret.append(";addressType:null");
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());
 		ret.append(";campaign:"+getCampaignUID());
