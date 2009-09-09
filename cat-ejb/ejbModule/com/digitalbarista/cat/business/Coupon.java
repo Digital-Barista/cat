@@ -36,7 +36,10 @@ public class Coupon implements
 				averageRedemptionTime+=(redemption.getRedemptionDate().getTime()-resp.getResponseDate().getTime());
 			}
 		}
-		averageRedemptionTime = averageRedemptionTime / totalRedemptionCount;
+		if(totalRedemptionCount>0)
+			averageRedemptionTime = averageRedemptionTime / totalRedemptionCount;
+		else
+			averageRedemptionTime = 0l;
 	}
 
 
