@@ -20,7 +20,8 @@ public class Coupon implements
 	
 	public void copyFrom(CouponOfferDO dataObject)
 	{
-		campaignName=dataObject.getCampaign().getName();
+		if (dataObject.getCampaign() != null)
+			campaignName=dataObject.getCampaign().getName();
 		couponName=dataObject.getCouponName();
 		maxCouponCount=dataObject.getMaxCoupons();
 		maxRedemptions=dataObject.getMaxRedemptions();
