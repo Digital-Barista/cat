@@ -445,7 +445,7 @@ public class CampaignManagerImpl implements CampaignManager {
 				tempNode=getSpecificNodeVersion(nodeUID,version-1);
 				q=em.createNamedQuery("subscription.count.for.node");
 				q.setParameter("nodeUID", nodeUID);
-				if(((Integer)q.getSingleResult())>0)
+				if(((Long)q.getSingleResult())>0)
 					throw new IllegalStateException("Can't delete node "+nodeUID+" since it would strand a subscriber.");
 			}
 
