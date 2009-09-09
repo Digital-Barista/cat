@@ -8,7 +8,8 @@
 			public var coupons:ArrayCollection;
 		]]>
 	</mx:Script>
-	<mx:AdvancedDataGrid left="0" top="0" right="0" bottom="0">
+	<mx:AdvancedDataGrid left="0" top="0" right="0" bottom="0"
+		dataProvider="{coupons}">
 		<mx:columns>
 			<mx:AdvancedDataGridColumn headerText="Campaign" />
 			<mx:AdvancedDataGridColumn headerText="Coupon" />
