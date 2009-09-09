@@ -103,9 +103,11 @@ public class CouponManagerImpl implements CouponManager {
 	@Override
 	public List<Coupon> couponSummaryByClient(Long clientID) {
 		Criteria crit = session.createCriteria(CouponOfferDO.class);
-		crit.createAlias("campaign", "campaign");
 		if(clientID!=null)
+		{
+			crit.createAlias("campaign", "campaign");
 			crit.add(Restrictions.eq("campaign.client.id", clientID));
+		}
 		List<Coupon> ret = new ArrayList<Coupon>();
 		Coupon temp;
 		for(CouponOfferDO offer : (List<CouponOfferDO>)crit.list())
