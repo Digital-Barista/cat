@@ -2,10 +2,20 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
 	<mx:Script>
 		<![CDATA[
+			import mx.formatters.DateFormatter;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import com.dbi.cat.common.vo.CouponVO;
 			import mx.collections.ArrayCollection;
 			
 			[Bindable]
 			public var coupons:ArrayCollection;
+			
+			private function formatDate(coupon:CouponVO, column:AdvancedDataGridColumn):String
+			{
+				var df:DateFormatter = new DateFormatter();
+				df.formatString = "MM/DD/YYY";
+				return df.format(coupon.unavailableDate);
+			}
 		]]>
 	</mx:Script>
 	<mx:AdvancedDataGrid left="0" top="0" right="0" bottom="0"
@@ -15,7 +25,8 @@
 			<mx:AdvancedDataGridColumn headerText="Coupon" dataField="couponName" />
 			<mx:AdvancedDataGridColumn headerText="Max Coupons" dataField="maxCouponCount" />
 			<mx:AdvancedDataGridColumn headerText="Max Redemptions" dataField="maxRedemptions" />
-			<mx:AdvancedDataGridColumn headerText="Unavailable Date" dataField="unavailableDate" />
+			<mx:AdvancedDataGridColumn headerText="Unavailable Date"
+				labelFunction="formatDate" />
 			<mx:AdvancedDataGridColumn headerText="Sent" dataField="issuedCouponCount" />
 			<mx:AdvancedDataGridColumn headerText="Redeemed" dataField="totalRedemptionCount" />
 			<mx:AdvancedDataGridColumn headerText="Avg. Time to Redeem" dataField="averageRedemptionTime" />

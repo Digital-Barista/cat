@@ -268,6 +268,9 @@ package com.dbi.cat.business
 				else
 					cur.moveNext();
 			}
+			
+			// Refresh client list to reflect keyword changes
+			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
 		}
 		public function deleteNode(node:NodeVO):void
 		{

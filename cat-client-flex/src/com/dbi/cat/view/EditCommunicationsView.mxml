@@ -57,11 +57,12 @@
 				ModifiedWorkspace.closeMenuItems();
 				CurrentWorkspace.closeMenuItems();
 				
+				// Repopulate clients to determine keywords that have been used
+				dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
+				
 				// Remove the listener event
 				dispatchEvent(new CampaignEvent(CampaignEvent.CLOSE_COMMUNICATIONS));
 			
-				// Repopulate clients to determine keywords that have been used
-				dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
 			}
 			private function publish(e:CustomMessageEvent):void
 			{
