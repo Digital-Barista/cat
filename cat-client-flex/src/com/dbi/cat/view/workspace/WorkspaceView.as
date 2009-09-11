@@ -59,6 +59,7 @@ package com.dbi.cat.view.workspace
 		}
 		
 		private var _campaign:CampaignVO;
+		[Bindable]
 		public function get campaign():CampaignVO
 		{
 			return _campaign;

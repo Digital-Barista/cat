@@ -14,8 +14,8 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.vo.CouponNodeVO;
-			import com.dbi.cat.common.constants.SMSConstants;
 			import mx.events.ChildExistenceChangedEvent;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.CampaignVO;
@@ -52,7 +52,7 @@
 			
 			private function get maxCharacters():Number
 			{
-				return SMSConstants.MAX_CHARACTERS;
+				return EntryPointType.getMaxCharacters(workspace.campaign.type);
 			}
 			
 			// Addin message of current campaign
@@ -74,6 +74,8 @@
 			private function init():void
 			{
 				updateAvailableMessage();
+				AvailableCharCount. visible = maxCharacters != Number.POSITIVE_INFINITY;
+				UnavailableCharCount. visible = maxCharacters != Number.POSITIVE_INFINITY;
 			}
 			
 			private function updateAvailableMessage():void
@@ -257,7 +259,7 @@
 						text="{couponVO.availableMessage}" 
 						change="updateAvailableMessage()"/>
 			</mx:FormItem>
-			<mx:FormItem>
+			<mx:FormItem id="AvailableCharCount">
 				<mx:Label text="{availableCharacterCount + '/' + maxCharacters + ' chars'}" />
 			</mx:FormItem>
 			<mx:FormItem label="Unavailable" >
@@ -265,7 +267,7 @@
 					text="{couponVO.unavailableMessage}"
 					change="updateUnavailableMessage()"  />
 			</mx:FormItem>
-			<mx:FormItem>
+			<mx:FormItem id="UnavailableCharCount">
 				<mx:Label text="{unavailableCharacterCount + '/' + maxCharacters + ' chars'}" />
 			</mx:FormItem>
 			<mx:FormItem label="Add In" visible="{showAddin}" includeInLayout="{showAddin}">

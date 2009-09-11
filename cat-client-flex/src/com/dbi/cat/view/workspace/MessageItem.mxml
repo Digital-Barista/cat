@@ -14,7 +14,7 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.constants.SMSConstants;
+			import com.dbi.cat.common.constants.EntryPointType;
 			import mx.events.ChildExistenceChangedEvent;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.CampaignVO;
@@ -57,7 +57,7 @@
 			}
 			private function get maxCharacters():Number
 			{
-				return SMSConstants.MAX_CHARACTERS;
+				return EntryPointType.getMaxCharacters(workspace.campaign.type);
 			}
 			
 			private function updateMessage():void
@@ -97,6 +97,7 @@
 			
 			private function init():void
 			{
+				CharCount. visible = maxCharacters != Number.POSITIVE_INFINITY;
 			}
 			
 		]]>
@@ -111,7 +112,7 @@
 			</mx:FormItem>
 			<mx:FormItem label="Message" required="true" width="100%" >
 					<mx:TextArea id="Message"  width="200" height="120"
-						maxChars="{SMSConstants.MAX_CHARACTERS}"
+						maxChars="{EntryPointType.getMaxCharacters(workspace.campaign.type)}"
 						text="{messageVO.message}" 
 						change="updateMessage()"/>
 			</mx:FormItem>
@@ -120,7 +121,7 @@
 					text="{addInMessage}"
 					editable="false" />
 			</mx:FormItem>
-			<mx:FormItem>
+			<mx:FormItem id="CharCount">
 				<mx:Label text="{characterCountMessage + '/' + maxCharacters + ' chars'}" />
 			</mx:FormItem>
 		</mx:Form>

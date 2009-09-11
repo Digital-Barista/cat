@@ -6,7 +6,7 @@
 	xmlns:vo="com.dbi.cat.vo.*">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.constants.SMSConstants;
+			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.view.workspace.MessageItem;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.event.ClientEvent;
@@ -46,12 +46,12 @@
 			</mx:FormItem>
 			<mx:FormItem label="Add In Message">
 				<mx:TextArea id="AddInMessage"  width="300"
-					 maxChars="{SMSConstants.MAX_CHARACTERS}"
+					 maxChars="{EntryPointType.SMS_MAX_CHARACTERS}"
 					text="{client.userAddInMessage}"
 					change="{client.userAddInMessage = AddInMessage.text}" />
 			</mx:FormItem>
 		<mx:FormItem>
-			<mx:Label text="{client.userAddInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
+			<mx:Label text="{client.userAddInMessage.length + '/' + EntryPointType.SMS_MAX_CHARACTERS + ' chars'}" />
 		</mx:FormItem>
 		</mx:Form>
 		<mx:ControlBar horizontalAlign="right">

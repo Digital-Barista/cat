@@ -9,7 +9,6 @@
 	title="{isNaN(campaign.primaryKey) ? 'Create Camapign' : 'Edit Campaign'}" >
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.constants.SMSConstants;
 			import com.dbi.cat.view.workspace.MessageItem;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
@@ -147,12 +146,13 @@
 		</mx:FormItem>
 		<mx:FormItem label="Add In Message">
 			<mx:TextArea id="AddInMessage"
-				width="245" height="60" maxChars="160"
+				width="245" height="60" 
+				maxChars="{EntryPointType.SMS_MAX_CHARACTERS}"
 				text="{campaign.addInMessage}"
 				change="{campaign.addInMessage = AddInMessage.text}" />
 		</mx:FormItem>
 		<mx:FormItem>
-			<mx:Label text="{campaign.addInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
+			<mx:Label text="{campaign.addInMessage.length + '/' + EntryPointType.SMS_MAX_CHARACTERS + ' chars'}" />
 		</mx:FormItem>
 	</mx:Form>
 	<mx:ControlBar x="0" y="142">
