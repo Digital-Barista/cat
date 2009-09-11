@@ -35,7 +35,7 @@
 				if (coupon.averageRedemptionTime <= 0)
 					return "N/A";
 					
-				var time:Number = coupon.averageRedemptionTime;
+				var time:Number = coupon.averageRedemptionTime / 1000;
 				var ret:String = "";
 				
 				var secMinutes:Number = 60;
