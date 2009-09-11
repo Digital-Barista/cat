@@ -1,6 +1,7 @@
 package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.CodedMessageVO;
+	import com.dbi.cat.common.vo.CouponVO;
 	
 	import mx.collections.ArrayCollection;
 	

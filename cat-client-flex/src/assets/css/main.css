@@ -36,11 +36,11 @@ List
 
 .successMessage
 {
-	fontSize:24;
+	fontSize:20;
 	color:#00CC00;
 }
 .failMessage
 {
-	fontSize:24;
+	fontSize:20;
 	color:#CC0000;
 }

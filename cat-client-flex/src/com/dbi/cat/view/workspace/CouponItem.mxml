@@ -247,6 +247,7 @@
 			</mx:FormItem>
 			<mx:FormItem label="Unavailable Date">
 				<mx:DateField id="UnavailableDate"
+					editable="true"
 					selectedDate="{couponVO.unavailableDate}"
 					change="{couponVO.unavailableDate = UnavailableDate.selectedDate}" />
 			</mx:FormItem>
