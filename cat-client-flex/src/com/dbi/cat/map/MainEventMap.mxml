@@ -55,6 +55,9 @@
 			method="showFault"
 			arguments="{event.fault}" />
 	</EventHandlers>
+	<EventHandlers type="{MouseEvent.MOUSE_MOVE}">
+		<EventAnnouncer type="{LoginEvent.UPDATE_LAST_ACTIVITY}" />
+	</EventHandlers>
 	
 	<!-- Login Events -->
 	<EventHandlers type="{LoginEvent.LOGIN}">
@@ -65,6 +68,10 @@
 	<EventHandlers type="{LoginEvent.LOGOUT}">
 		<MethodInvoker generator="{LoginManager}"
 			method="logout" />
+	</EventHandlers>
+	<EventHandlers type="{LoginEvent.UPDATE_LAST_ACTIVITY}">
+		<MethodInvoker generator="{LoginManager}"
+			method="updateLastActivity" />
 	</EventHandlers>
 	
 	<!-- Data Events -->

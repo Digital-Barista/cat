@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.constants.WorkspaceStatusMessage;
 			import com.dbi.cat.business.CampaignTestManager;
 			import com.dbi.cat.view.EditCommunicationsView;
 			import com.dbi.cat.business.AppManager;
@@ -42,27 +43,61 @@
 			method="closeEditCampaign" />
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.LOAD_MODIFIED_CAMPAIGN}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addWorkspaceStatusMessage"
+			arguments="{WorkspaceStatusMessage.LOADING_MODIFIED_CAMPAIGN}" />
 		<RemoteObjectInvoker destination="campaignManager"
 			method="getDetailedCampaign"
 			arguments="{event.campaign.uid}"
 			showBusyCursor="true">
 			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.LOADING_MODIFIED_CAMPAIGN}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="loadModifiedCampaign"
 					arguments="{resultObject}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.LOADING_MODIFIED_CAMPAIGN}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.LOAD_PUBLISHED_CAMPAIGN}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addWorkspaceStatusMessage"
+			arguments="{WorkspaceStatusMessage.LOADING_PUBLISHED_CAMPAIGN}" />
 		<RemoteObjectInvoker destination="campaignManager"
 			method="getLastPublishedCampaign"
 			arguments="{event.campaign.uid}"
 			showBusyCursor="true">
 			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.LOADING_PUBLISHED_CAMPAIGN}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="loadPublishedCampaign"
 					arguments="{resultObject}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.LOADING_PUBLISHED_CAMPAIGN}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.CLOSE_COMMUNICATIONS}">
@@ -84,15 +119,32 @@
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.PUBLISH_CAMPAIGN}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addWorkspaceStatusMessage"
+			arguments="{WorkspaceStatusMessage.PUBLISHING_CAMPAIGN}" />
 		<RemoteObjectInvoker destination="campaignManager"
 			showBusyCursor="true"
 			method="publish"
 			arguments="{event.campaign.uid}">
 			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.PUBLISHING_CAMPAIGN}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="publishCampaign"
 					arguments="{event.campaign}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.PUBLISHING_CAMPAIGN}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.DELETE_CAMPAIGN}">
@@ -110,15 +162,27 @@
 	
 	<!-- Node actions -->
 	<EventHandlers type="{CampaignEvent.SAVE_NODE}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addWorkspaceStatusMessage"
+			arguments="{WorkspaceStatusMessage.SAVING_NODE}" />
 		<RemoteObjectInvoker destination="campaignManager"
 			method="save"
 			arguments="{event.node}">
 			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.SAVING_NODE}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="saveNode"
 					arguments="{event.node}" />
 			</resultHandlers>
 			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.SAVING_NODE}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="campaignModificationFail"
 					arguments="{fault}" />
@@ -126,15 +190,27 @@
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.DELETE_NODE}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addWorkspaceStatusMessage"
+			arguments="{WorkspaceStatusMessage.DELETING_NODE}" />
 		<RemoteObjectInvoker destination="campaignManager"
 			method="delete"
 			arguments="{event.node}">
 			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.DELETING_NODE}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="deleteNode"
 					arguments="{event.node}" />
 			</resultHandlers>
 			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.DELETING_NODE}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="campaignModificationFail"
 					arguments="{fault}" />
@@ -144,15 +220,27 @@
 	
 	<!-- Connector actions -->
 	<EventHandlers type="{CampaignEvent.SAVE_CONNECTOR}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addWorkspaceStatusMessage"
+			arguments="{WorkspaceStatusMessage.SAVING_CONNECTION}" />
 		<RemoteObjectInvoker destination="campaignManager"
 			method="save"
 			arguments="{event.connector}">
 			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.SAVING_CONNECTION}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="saveConnector"
 					arguments="{event.connector}" />
 			</resultHandlers>
 			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.SAVING_CONNECTION}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="campaignModificationFail"
 					arguments="{fault}" />
@@ -160,15 +248,27 @@
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.DELETE_CONNECTOR}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addWorkspaceStatusMessage"
+			arguments="{WorkspaceStatusMessage.DELETING_CONNECTION}" />
 		<RemoteObjectInvoker destination="campaignManager"
 			method="delete"
 			arguments="{event.connector}">
 			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.DELETING_CONNECTION}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="deleteConnector"
 					arguments="{event.connector}" />
 			</resultHandlers>
 			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeWorkspaceStatusMessage"
+					arguments="{WorkspaceStatusMessage.DELETING_CONNECTION}" />
 				<MethodInvoker generator="{CampaignManager}"
 					method="campaignModificationFail"
 					arguments="{fault}" />

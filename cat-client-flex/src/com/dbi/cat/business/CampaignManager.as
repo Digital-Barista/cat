@@ -7,6 +7,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.ClientEvent;
 	import com.dbi.cat.event.LayoutInfoEvent;
+	import com.dbi.cat.event.LoginEvent;
 	import com.dbi.cat.view.EditCampaignView;
 	import com.dbi.cat.view.EditCommunicationsView;
 	import com.dbi.controls.CustomMessage;
@@ -236,12 +237,20 @@ package com.dbi.cat.business
 		//
 		public function campaignModificationFail(fault:Fault):void
 		{
-			CustomMessage.show(fault.message);
+		 	if (fault.faultCode == "Client.Authentication")
+		 	{
+		 		CustomMessage.show("Your session has ended.  Please login again");
+		 		dispatcher.dispatchEvent(new LoginEvent(LoginEvent.LOGOUT));
+		 	}
+		 	else
+		 	{
+				CustomMessage.show(fault.message);
 			
-			// Force modified campaign to be reinjected to reload the view
-			var temp:CampaignVO = modifiedCampaign;
-			modifiedCampaign = null;
-			modifiedCampaign = temp;
+				// Force modified campaign to be reinjected to reload the view
+				var temp:CampaignVO = modifiedCampaign;
+				modifiedCampaign = null;
+				modifiedCampaign = temp;
+		 	}
 		}
 		
 		//

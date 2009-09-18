@@ -10,6 +10,7 @@
 	title="{modifiedCampaign.name}">
 	<mx:Script>
 		<![CDATA[
+			import mx.effects.Fade;
 			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.cat.event.ImportEvent;
 			import com.dbi.cat.common.vo.ConnectorVO;
@@ -27,6 +28,7 @@
 			import com.dbi.cat.event.NavigationEvent;
 			import com.dbi.cat.event.WorkspaceEvent;
 			
+			
 			[Bindable]
 			public var publishedCampaign:CampaignVO;
 			
@@ -35,6 +37,17 @@
 			
 			[Bindable]
 			public var isTesting:Boolean;
+			
+			private var _statusMessage:String;
+			[Bindable]
+			public function get statusMessage():String
+			{
+				return _statusMessage;
+			}
+			public function set statusMessage(value:String):void
+			{
+				_statusMessage = value;
+			}
 			
 			private var _currentTestNode:NodeVO;
 			public function get currentTestNode():NodeVO
@@ -51,6 +64,7 @@
 						ModifiedWorkspace.selectWorkspaceItemByUID(currentTestNode.uid);
 				}
 			}
+			
 			
 			private function onClose():void
 			{
@@ -108,6 +122,10 @@
 			}
 		]]>
 	</mx:Script>
+	<mx:Fade id="fadeEffect" 
+		duration="800"
+		alphaFrom="0" alphaTo="1"
+		target="{StatusMessageBox}" />
 	<view:CommunicationComponentsView  left="0" top="0" bottom="0" width="100"/>
 	<mx:HBox right="0" left="100" top="0" bottom="0">
 		<mx:TabNavigator id="WorkspaceTabs"
@@ -148,4 +166,10 @@
 			visible="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}"
 			includeInLayout="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}" />
 	</mx:HBox>
+	<mx:Canvas id="StatusMessageBox"
+		visible="{statusMessage.length != 0}"
+		styleName="workspaceStatusMessage"
+		bottom="0" right="0">
+		<mx:Text text="{statusMessage}" />
+	</mx:Canvas>
 </mx:TitleWindow>

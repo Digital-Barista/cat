@@ -124,6 +124,10 @@
 			source="{CampaignTestManager}"
 			sourceKey="currentNode"
 			targetKey="currentTestNode" />
+		<PropertyInjector
+			source="{AppManager}"
+			sourceKey="workspaceStatusMessage"
+			targetKey="statusMessage" />
 	</Injectors>
 	<Injectors target="{LayoutInfoManager}">
 		<PropertyInjector

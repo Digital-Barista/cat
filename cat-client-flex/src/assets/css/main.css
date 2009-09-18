@@ -44,3 +44,10 @@ List
 	fontSize:20;
 	color:#CC0000;
 }
+.workspaceStatusMessage
+{
+	padding-left:5;
+	padding-right:5;
+	backgroundColor:#00AA00;
+	color:#FFFFFF;
+}
