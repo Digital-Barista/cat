@@ -49,7 +49,6 @@
 					
 				editUser.emailAddress = EmailAddress.text;
 				editUser.name = EmailAddress.text;
-				editUser.username = UserName.text;
 				editUser.isActive = IsActive.selected;
 				editUser.roles = currentUser.roles;
 				
@@ -58,10 +57,6 @@
 					editUser.password = Password.text;
 				}
 				
-				// Validate manually
-				if (UserName.text.length == 0)
-					errors.addItem("Username is required");
-					
 				if (isNewUser)
 				{
 					if (Password.text.length == 0 ||
@@ -162,8 +157,7 @@
 		
 		<mx:Form id="EditUser">
 			<mx:FormItem label="UserName" required="true">
-				<mx:TextInput id="UserName" 
-					text="{editUser.username}" width="332"/>
+				<mx:Label text="{editUser.username}"/>
 			</mx:FormItem >
 			<mx:FormItem label="Name" width="450">
 				<mx:TextInput id="Name" 
