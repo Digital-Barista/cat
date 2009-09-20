@@ -87,7 +87,7 @@ public class UserManagerImpl implements UserManager {
 
 	@RolesAllowed({"admin","account.manager"})
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	protected void createUser(User newUser) {
+	protected User createUser(User newUser) {
 		UserDO user = new UserDO();
 		newUser.copyTo(user);
 		RoleDO tempRole;
@@ -106,6 +106,10 @@ public class UserManagerImpl implements UserManager {
 		}
 		em.persist(user);
 		em.flush();
+		
+		User ret = new User();
+		ret.copyFrom(user);
+		return ret;
 	}
 
 	@RolesAllowed({"admin","account.manager"})
@@ -229,16 +233,21 @@ public class UserManagerImpl implements UserManager {
 
 	@RolesAllowed({"admin","account.manager"})
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public void save(User user) {
-		UserDO ret=getSimpleUserByPK(user.getPrimaryKey());
-		if(ret==null)
+	public User save(User user) {
+		UserDO current = getSimpleUserByPK(user.getPrimaryKey());
+		User ret = null;
+		
+		if(current==null)
 		{
-			createUser(user);
+			ret = createUser(user);
 		} else {
-			user.copyTo(ret);
+			user.copyTo(current);
 			if(user.getRoles()!=null)
 				syncRoles(user.getPrimaryKey(),new HashSet<Role>(user.getRoles()));
+			ret = new User();
+			ret.copyFrom(current);
 		}
+		return ret;
 	}
 
 	@RolesAllowed({"admin","account.manager"})

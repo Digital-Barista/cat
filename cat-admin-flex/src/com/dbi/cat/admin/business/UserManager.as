@@ -102,8 +102,16 @@ package com.dbi.cat.admin.business
 			userToEdit = null;
 			closeEditWindow();
 		}
-		public function deleteUser(userId:Number):void
+		public function deleteUser(user:UserVO):void
 		{
+			var cur:IViewCursor = userList.createCursor();
+			while (cur.current != null)
+			{
+				if (cur.current.primaryKey == user.primaryKey)
+					cur.remove();
+				else
+					cur.moveNext();
+			}
 		}
 		public function filterUsers(filterText:String):void
 		{

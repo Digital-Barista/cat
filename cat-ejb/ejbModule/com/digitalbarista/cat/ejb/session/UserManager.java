@@ -15,7 +15,7 @@ public interface UserManager {
 	public User getUserByPK(long pk);
 	public User getCurrentUser();
 	public List<User> getAllVisibleUsers();
-	public void save(User existingUser);
+	public User save(User existingUser);
 	public void addRole(Long userPK,Role roleToAdd);
 	public void addRoles(Long userPK,Set<Role> rolesToAdd);
 	public void removeRole(Long userPK,Role roleToRemove);
