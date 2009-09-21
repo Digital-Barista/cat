@@ -28,7 +28,7 @@ package com.dbi.cat.business
 		
 		public function showCouponRedemption(message:CodedMessageVO):void
 		{
-			redemptionMessage = message.message;
+			redemptionMessage = message.detailedMessage;
 			
 			if (message.code == CodedMessageVO.SUCCESS)
 				redemptionClass = "successMessage";

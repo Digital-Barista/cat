@@ -14,7 +14,7 @@ public class CodedMessage {
 	
 	public CodedMessage(int code, String message)
 	{
-		this(code,message,null);
+		this(code,message,message);
 	}
 	
 	public int getCode() {
