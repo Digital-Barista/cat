@@ -4,9 +4,6 @@
 		<![CDATA[
 			import com.dbi.cat.event.CouponEvent;
 			
-			[Bindable]
-	        [Embed("/assets/img/refresh.png")]
-	        private var refreshIcon:Class;
 			
 			private function refresh():void
 			{
@@ -30,7 +27,7 @@
 			<reporting:CouponReportingView label="Coupons" />
 			<reporting:CouponRedemptionView label="Redeem Coupon" />
 		</mx:TabNavigator>
-		<mx:Image source="{refreshIcon}"
+		<mx:Image source="@Embed(source='/assets/img/refresh.png')"
 			visible="{Tabs.selectedIndex == 0}"
 			top="3" right="200"
 			width="25" height="25"
