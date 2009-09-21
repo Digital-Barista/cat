@@ -170,7 +170,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					CouponOfferDO offer = getEntityManager().find(CouponOfferDO.class, cNode.getCouponId());
 					CouponResponseDO response;
 					
-					if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && offer.getIssuedCouponCount()<offer.getMaxCoupons())
+					if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && (offer.getMaxCoupons()<0 || offer.getIssuedCouponCount()<offer.getMaxCoupons()))
 					{
 						String couponCode=null;
 						
@@ -252,7 +252,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 						CouponOfferDO offer = getEntityManager().find(CouponOfferDO.class, cNode.getCouponId());
 						CouponResponseDO response;
 						
-						if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && offer.getIssuedCouponCount()<offer.getMaxCoupons())
+						if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && (offer.getMaxCoupons()<0 || offer.getIssuedCouponCount()<offer.getMaxCoupons()))
 						{
 							String couponCode=null;
 							
