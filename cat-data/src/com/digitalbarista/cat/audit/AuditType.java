@@ -8,5 +8,6 @@ public enum AuditType {
 	SaveCampaign,
 	DeleteCampaign,
 	PublishCampaign,
-	SaveClient
+	SaveClient,
+	RedeemCoupon
 }

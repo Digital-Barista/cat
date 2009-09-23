@@ -58,6 +58,10 @@
 		<workspace:CommunicationComponent
 			width="100%" height="65"
 			mouseDown="dragIt(event)"
+			type="{WorkspaceItemType.COUPON}"  />
+		<workspace:CommunicationComponent
+			width="100%" height="65"
+			mouseDown="dragIt(event)"
 			type="{WorkspaceItemType.IMMEDIATE_CONNECTOR}"  />
 		<workspace:CommunicationComponent
 			width="100%" height="65"

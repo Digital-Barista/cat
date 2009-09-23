@@ -18,7 +18,7 @@ public class Client implements
 	private String name;
 	private String adminAddInMessage;
 	private String userAddInMessage;
-	private Set<EntryPointDefinition> entryPoints;
+	private Set<EntryPointDefinition> entryPoints = new HashSet<EntryPointDefinition>();
 	
 	@Override
 	public void copyFrom(ClientDO dataObject) {
@@ -54,7 +54,11 @@ public class Client implements
 		ret.append(";AdminAddInMessage:"+getAdminAddInMessage());
 		ret.append(";UserAddInMessage:"+getUserAddInMessage());
 		ret.append(";entryPoints:{");
-		if(getEntryPoints()!=null)
+		if(getEntryPoints()==null)
+		{
+			ret.append("none");
+		}
+		else
 		{
 			for(EntryPointDefinition epd : getEntryPoints())
 				ret.append(epd.getType().toString()+"-"+epd.getValue()+",");

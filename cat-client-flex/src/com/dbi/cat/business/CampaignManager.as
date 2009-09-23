@@ -1,12 +1,13 @@
 package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.CampaignVO;
+	import com.dbi.cat.common.vo.ClientVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
-	import com.dbi.cat.common.vo.EntryPointVO;
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.ClientEvent;
 	import com.dbi.cat.event.LayoutInfoEvent;
+	import com.dbi.cat.event.LoginEvent;
 	import com.dbi.cat.view.EditCampaignView;
 	import com.dbi.cat.view.EditCommunicationsView;
 	import com.dbi.controls.CustomMessage;
@@ -34,6 +35,12 @@ package com.dbi.cat.business
 		public var campaignMap:Object = new Object();
 		public var publishedCampaign:CampaignVO;
 		public var modifiedCampaign:CampaignVO;
+		
+		// Addin message for the loaded campaign
+		public var campaignAddInMessage:String;
+		
+		// Client map for looking up clients by ID
+		public var clientMap:Object;
 		
 		private var editCommunicationPopup:IFlexDisplayObject;
 		private var editCampaignPopup:IFlexDisplayObject;
@@ -93,6 +100,19 @@ package com.dbi.cat.business
 		{
 			modifiedCampaign = campaign;
 			loadCampaign(campaign);
+			
+			// Setup the addin message for the loaded campaign
+			campaignAddInMessage = "";
+			var client:ClientVO = clientMap[campaign.clientPK];
+				
+			if (campaign.addInMessage != null &&
+				campaign.addInMessage.length > 0)
+				campaignAddInMessage += campaign.addInMessage;
+			else if (client.userAddInMessage != null)
+				campaignAddInMessage += client.userAddInMessage;
+				
+			if (client.adminAddInMessage != null)
+				campaignAddInMessage += client.adminAddInMessage;
 		}
 		public function loadPublishedCampaign(campaign:CampaignVO):void
 		{
@@ -217,12 +237,20 @@ package com.dbi.cat.business
 		//
 		public function campaignModificationFail(fault:Fault):void
 		{
-			CustomMessage.show(SAVE_ITEM_FAIL);
+		 	if (fault.faultCode == "Client.Authentication")
+		 	{
+		 		CustomMessage.show("Your session has ended.  Please login again");
+		 		dispatcher.dispatchEvent(new LoginEvent(LoginEvent.LOGOUT));
+		 	}
+		 	else
+		 	{
+				CustomMessage.show(fault.message);
 			
-			// Force modified campaign to be reinjected to reload the view
-			var temp:CampaignVO = modifiedCampaign;
-			modifiedCampaign = null;
-			modifiedCampaign = temp;
+				// Force modified campaign to be reinjected to reload the view
+				var temp:CampaignVO = modifiedCampaign;
+				modifiedCampaign = null;
+				modifiedCampaign = temp;
+		 	}
 		}
 		
 		//
@@ -249,6 +277,9 @@ package com.dbi.cat.business
 				else
 					cur.moveNext();
 			}
+			
+			// Refresh client list to reflect keyword changes
+			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
 		}
 		public function deleteNode(node:NodeVO):void
 		{
@@ -401,10 +432,6 @@ package com.dbi.cat.business
 			modifiedCampaign = null;
 			publishedCampaign = null;
 			PopUpManager.removePopUp(editCommunicationPopup);
-			
-			// If saved node was an entry point query for clients in case
-			// keyword assignments have changed
-			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
 		}
 		public function closeEditCampaign():void
 		{

@@ -238,7 +238,7 @@ package com.dbi.cat.view.workspace
 					global = fromDisplay.parent.localToGlobal(new Point(fromDisplay.x, fromDisplay.y));
 					local = globalToLocal(new Point(global.x, global.y));
 					xFrom = local.x + fromDisplay.width/2;
-					yFrom = local.y + fromNode.displayLoader.contentHeight/2;
+					yFrom = local.y + fromDisplay.height/2;
 					
 				}
 				// If no destination draw line straight up

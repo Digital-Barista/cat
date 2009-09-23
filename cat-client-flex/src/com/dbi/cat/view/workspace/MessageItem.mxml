@@ -14,35 +14,24 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.constants.SMSConstants;
+			import com.dbi.cat.common.constants.EntryPointType;
 			import mx.events.ChildExistenceChangedEvent;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.CampaignVO;
 			import com.dbi.cat.common.vo.MessageVO;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			
-			private var _campaignMap:Object;
+			// Add in message for current campaign and client
+			private var _addInMessage:String;
 			[Bindable]
-			public function get campaignMap():Object
+			public function get addInMessage():String
 			{
-				return _campaignMap;
+				return _addInMessage;
 			}
-			public function set campaignMap(c:Object):void
+			public function set addInMessage(value:String):void
 			{
-				_campaignMap = c;
-				setAddInMessage();
-			}
-			
-			private var _clientMap:Object;
-			[Bindable]
-			public function get clientMap():Object
-			{
-				return _clientMap;
-			}
-			public function set clientMap(c:Object):void
-			{
-				_clientMap = c;
-				setAddInMessage();
+				_addInMessage = value;
+				dispatchEvent(new Event("changeAddInMessage"));
 			}
 			
 			[Bindable(event="nodeUpdate")]
@@ -66,15 +55,17 @@
 			{
 				return messageVO.uid;
 			}
+			private function get maxCharacters():Number
+			{
+				return EntryPointType.getMaxCharacters(workspace.campaign.type);
+			}
+			
 			private function updateMessage():void
 			{
-				if (Message.text.length + addInMessage.length <= SMSConstants.MAX_CHARACTERS)
-					messageVO.message = Message.text;
-				else
-				{
-					messageVO.message = messageVO.message.substring(0, SMSConstants.MAX_CHARACTERS - addInMessage.length);
-					Message.text = messageVO.message;
-				}
+				messageVO.message = Message.text;
+				if (characterCountMessage > maxCharacters)
+					messageVO.message = messageVO.message.substring(0, maxCharacters - addInMessage.length);
+				dispatchEvent(new Event("changeMessage"));
 			}
 			
 			override public function get valid():Boolean
@@ -82,37 +73,33 @@
 				return messageVO != null && messageVO.valid;
 			}
 			
+			[Bindable(event="changeAddInMessage")]
 			private function get showAddin():Boolean
 			{
 				return addInMessage.length > 0;
 			}
 			
-			private function init():void
+			[Bindable(event="changeMessage")]
+			[Bindable(event="changeAddInMessage")]
+			private function get characterCountMessage():Number
 			{
+				var count:Number = 0;
+				
+				if (addInMessage != null)
+					count += addInMessage.length;
+					
+				if (messageVO != null &&
+					messageVO.message != null)
+					count += messageVO.message.length;
+				
+				return count;
 			}
 			
-			[Bindable]
-			private var addInMessage:String;
-			private function setAddInMessage():void
+			private function init():void
 			{
-				addInMessage = "";
-				if (messageVO != null &&
-					campaignMap != null &&
-					clientMap != null)
-				{
-					var campaign:CampaignVO = campaignMap[messageVO.campaignUID];
-					var client:ClientVO = clientMap[campaign.clientPK];
-						
-					if (campaign.addInMessage != null &&
-						campaign.addInMessage.length > 0)
-						addInMessage += campaign.addInMessage;
-					else if (client.userAddInMessage != null)
-						addInMessage += client.userAddInMessage;
-						
-					if (client.adminAddInMessage != null)
-						addInMessage += client.adminAddInMessage;
-				}
+				CharCount. visible = maxCharacters != Number.POSITIVE_INFINITY;
 			}
+			
 		]]>
 	</mx:Script>
 	<editContent>
@@ -125,7 +112,7 @@
 			</mx:FormItem>
 			<mx:FormItem label="Message" required="true" width="100%" >
 					<mx:TextArea id="Message"  width="200" height="120"
-						maxChars="{SMSConstants.MAX_CHARACTERS}"
+						maxChars="{EntryPointType.getMaxCharacters(workspace.campaign.type)}"
 						text="{messageVO.message}" 
 						change="updateMessage()"/>
 			</mx:FormItem>
@@ -134,8 +121,8 @@
 					text="{addInMessage}"
 					editable="false" />
 			</mx:FormItem>
-			<mx:FormItem>
-				<mx:Label text="{messageVO.message.length + AddIn.text.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
+			<mx:FormItem id="CharCount">
+				<mx:Label text="{characterCountMessage + '/' + maxCharacters + ' chars'}" />
 			</mx:FormItem>
 		</mx:Form>
 	</editContent>

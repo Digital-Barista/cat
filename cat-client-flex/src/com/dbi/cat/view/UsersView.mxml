@@ -27,7 +27,10 @@
 				tiSearch.text = "";
 				filterUsers();
 			}
-			
+			private function refresh():void
+			{
+				dispatchEvent(new UserEvent(UserEvent.GET_USER_LIST));
+			}
 		]]>	
 	</mx:Script>
 	<mx:Canvas
@@ -51,6 +54,10 @@
 			</mx:DataGrid>
 		</mx:TitleWindow>
 		<mx:HBox right="10" top="7" verticalAlign="middle">
+			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+				width="25" height="25"
+				toolTip="Refresh"
+				click="refresh()" />
 			<mx:Button id="bCreateUser" label="Create User" 
 				click="createUser()" 
 				verticalCenter="0" right="290"/>

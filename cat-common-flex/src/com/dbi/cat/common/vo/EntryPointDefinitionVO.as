@@ -24,10 +24,6 @@ package com.dbi.cat.common.vo
 		public var restrictionID:Number;
 		public var keywords:ArrayCollection;
 		
-		public function get children():ArrayCollection
-		{
-			return keywords;
-		}
 		public function get name():String
 		{
 			return value;

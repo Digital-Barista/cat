@@ -90,7 +90,10 @@ public class ResponseConnector extends Connector implements Auditable {
 		ret.append("type:"+getType().toString());
 		ret.append(";incomingAddress:"+getEntryPoint());
 		ret.append(";keyword:"+getKeyword());
-		ret.append(";addressType:"+getEntryPointType().toString());
+		if(getEntryPointType()!=null)
+			ret.append(";addressType:"+getEntryPointType().toString());
+		else
+			ret.append(";addressType:null");
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());
 		ret.append(";source:"+getSourceNodeUID());

@@ -7,6 +7,8 @@ package com.dbi.cat.event
 		public static const LOGIN:String = "loginAttempt";
 		public static const LOGOUT:String = "logout";
 		
+		public static const UPDATE_LAST_ACTIVITY:String = "updateLastActivityEvent";
+		
 		public var username:String;
 		public var password:String;
 		

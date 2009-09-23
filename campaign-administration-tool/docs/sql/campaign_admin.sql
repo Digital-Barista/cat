@@ -3,6 +3,7 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
 CREATE SCHEMA IF NOT EXISTS `campaign_admin` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci ;
+CREATE SCHEMA IF NOT EXISTS `campaign_admin_prod` ;
 USE `campaign_admin`;
 
 -- -----------------------------------------------------
@@ -662,6 +663,102 @@ CREATE INDEX `at_everything_idx` ON `campaign_admin`.`audit_generic` (`audit_typ
 CREATE INDEX `at_user_idx` ON `campaign_admin`.`audit_generic` (`audit_user` ASC) ;
 
 CREATE INDEX `at_user_activity_idx` ON `campaign_admin`.`audit_generic` (`audit_user` ASC, `audit_time` ASC) ;
+
+
+-- -----------------------------------------------------
+-- Table `campaign_admin`.`coupon_counters`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `campaign_admin`.`coupon_counters` ;
+
+CREATE  TABLE IF NOT EXISTS `campaign_admin`.`coupon_counters` (
+  `coupon_code_length` INT NOT NULL ,
+  `coupon_bit_scramble` BLOB NOT NULL ,
+  `coupon_next_number` BIGINT NOT NULL DEFAULT 1 ,
+  PRIMARY KEY (`coupon_code_length`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `campaign_admin`.`coupon_offers`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `campaign_admin`.`coupon_offers` ;
+
+CREATE  TABLE IF NOT EXISTS `campaign_admin`.`coupon_offers` (
+  `coupon_offer_id` BIGINT NOT NULL AUTO_INCREMENT ,
+  `max_coupons_issued` BIGINT NOT NULL ,
+  `coupon_issue_count` BIGINT NOT NULL DEFAULT 0 ,
+  `rejected_response_count` BIGINT NOT NULL DEFAULT 0 ,
+  `expiration_date` DATETIME NULL ,
+  `unavailable_date` DATETIME NULL ,
+  `node_uid` VARCHAR(36) NOT NULL ,
+  `max_redemptions` BIGINT NOT NULL ,
+  `coupon_name` VARCHAR(50) NULL ,
+  `campaign_id` INT NULL ,
+  PRIMARY KEY (`coupon_offer_id`) )
+ENGINE = InnoDB;
+
+CREATE INDEX `co_node_uid` ON `campaign_admin`.`coupon_offers` (`node_uid` ASC) ;
+
+
+-- -----------------------------------------------------
+-- Table `campaign_admin`.`coupon_responses`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `campaign_admin`.`coupon_responses` ;
+
+CREATE  TABLE IF NOT EXISTS `campaign_admin`.`coupon_responses` (
+  `coupon_response_id` BIGINT NOT NULL AUTO_INCREMENT ,
+  `response_date` DATETIME NOT NULL ,
+  `response_detail` VARCHAR(16) NULL ,
+  `coupon_offer_id` BIGINT NOT NULL ,
+  `subscriber_id` BIGINT NOT NULL ,
+  `response_type` VARCHAR(16) NOT NULL ,
+  `coupon_message` VARCHAR(256) NOT NULL ,
+  `redemption_count` INT NULL ,
+  PRIMARY KEY (`coupon_response_id`) ,
+  CONSTRAINT `cr_coupon_offer_fk`
+    FOREIGN KEY (`coupon_offer_id` )
+    REFERENCES `campaign_admin`.`coupon_offers` (`coupon_offer_id` )
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT,
+  CONSTRAINT `cr_subscriber_fk`
+    FOREIGN KEY (`subscriber_id` )
+    REFERENCES `campaign_admin`.`subscribers` (`subscriber_id` )
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT)
+ENGINE = InnoDB;
+
+CREATE INDEX `cr_coupon_offer_fk` ON `campaign_admin`.`coupon_responses` (`coupon_offer_id` ASC) ;
+
+CREATE INDEX `cr_subscriber_fk` ON `campaign_admin`.`coupon_responses` (`subscriber_id` ASC) ;
+
+CREATE INDEX `cr_response_date` ON `campaign_admin`.`coupon_responses` (`response_date` ASC) ;
+
+CREATE INDEX `cr_response_type` ON `campaign_admin`.`coupon_responses` (`response_type` ASC) ;
+
+CREATE INDEX `cr_response_detail` ON `campaign_admin`.`coupon_responses` (`response_detail` ASC) ;
+
+
+-- -----------------------------------------------------
+-- Table `campaign_admin`.`coupon_redemptions`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `campaign_admin`.`coupon_redemptions` ;
+
+CREATE  TABLE IF NOT EXISTS `campaign_admin`.`coupon_redemptions` (
+  `coupon_redemption_id` BIGINT NOT NULL AUTO_INCREMENT ,
+  `redemption_date` TIMESTAMP NOT NULL ,
+  `redeemed_by_username` VARCHAR(50) NOT NULL ,
+  `coupon_response_id` BIGINT NOT NULL ,
+  PRIMARY KEY (`coupon_redemption_id`) ,
+  CONSTRAINT `cred_response_fk`
+    FOREIGN KEY (`coupon_response_id` )
+    REFERENCES `campaign_admin`.`coupon_responses` (`coupon_response_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+CREATE INDEX `cred_date` ON `campaign_admin`.`coupon_redemptions` (`redemption_date` ASC) ;
+
+CREATE INDEX `cred_response_fk` ON `campaign_admin`.`coupon_redemptions` (`coupon_response_id` ASC) ;
 
 
 

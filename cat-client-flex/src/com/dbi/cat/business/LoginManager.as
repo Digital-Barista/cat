@@ -8,6 +8,10 @@ package com.dbi.cat.business
 	import com.dbi.cat.event.LoadDataEvent;
 	import com.dbi.cat.event.NavigationEvent;
 	import com.dbi.cat.event.UserEvent;
+	import com.dbi.controls.CustomMessage;
+	
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
 	import mx.controls.Alert;
 	import mx.messaging.ChannelSet;
@@ -20,6 +24,8 @@ package com.dbi.cat.business
 	[Bindable]
 	public class LoginManager
 	{
+		public static const TIMEOUT_MINUTES:Number = 20;
+		
 		public static const STATE_LOGIN:String = null;
 		public static const STATE_LOGIN_ATTEMPT:String = "LoginAttempt";
 		public static const STATE_LOGIN_FAIL:String = "LoginFail";
@@ -31,11 +37,41 @@ package com.dbi.cat.business
 		public var loginPassword:String;
 		public var currentUser:UserVO;
 		
+		private var lastActivity:Date;
+		private var activityTimer:Timer;
+		
 		public function LoginManager(dispatcher:IEventDispatcher)
 		{
 			this.dispatcher = dispatcher;
+			activityTimer = new Timer(5000);
+			activityTimer.addEventListener(TimerEvent.TIMER, checkLastActivity);
 		}
 
+		/**
+		 * Updates the last activity date to check against for session timeout
+		 */
+		public function updateLastActivity():void
+		{
+			lastActivity = new Date();
+		}
+		
+		private function checkLastActivity(e:TimerEvent):void
+		{
+			var now:Date = new Date();
+			var diff:Number = now.time - lastActivity.time;
+			if (diff > (TIMEOUT_MINUTES * 60 * 1000))
+			{
+				logout();
+				CustomMessage.show("You have been logged out after " + TIMEOUT_MINUTES + " minutes of inactivity");
+			}
+		}
+		
+		/**
+		 * Sends a request to authenticate the user
+		 * 
+		 * @param username Username of the user
+		 * @param password Password of the user
+		 */
 		public function login(username:String, password:String):void
 		{
 			loginState = STATE_LOGIN_ATTEMPT;
@@ -43,8 +79,16 @@ package com.dbi.cat.business
 			var token:AsyncToken = cs.login(username, password);
 			token.addResponder(new Responder(loginSuccess, loginFail));
 		}
+
+		/**
+		 * Ends the session for the user, closes all open popups and
+		 * returns the user to the login screen
+		 */
 		public function logout():void
 		{
+			// Stop activity timer
+			activityTimer.stop();
+			
 			// Kill the flex session
 			try
 			{
@@ -69,6 +113,11 @@ package com.dbi.cat.business
 			dispatcher.dispatchEvent(new UserEvent(UserEvent.CANCEL_EDIT));
 		}
 		
+		/**
+		 * Loads a user into the app as the current user
+		 * 
+		 * @param result Result object from the login service call
+		 */
 		public function loadCurrentUser(result:Object):void
 		{
 			// Load user
@@ -84,6 +133,10 @@ package com.dbi.cat.business
 		}
 		private function loginSuccess(result:ResultEvent):void
 		{
+			// Start activity timer
+			updateLastActivity();
+			activityTimer.start();
+			
 			// Load all data needed for initialization
 			dispatcher.dispatchEvent(new LoadDataEvent(LoadDataEvent.INITIALIZE_DATA));
 		}

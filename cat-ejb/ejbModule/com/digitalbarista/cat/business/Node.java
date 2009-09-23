@@ -75,6 +75,8 @@ public abstract class Node implements BusinessObject<NodeDO> {
 			return new MessageNode();
 		case Termination:
 			return new TerminationNode();
+		case Coupon:
+			return new CouponNode();
 		}
 		throw new IllegalArgumentException("Unknown node type specified.  Cannot create a NodeDO Business Object.");
 	}

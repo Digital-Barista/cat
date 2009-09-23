@@ -20,6 +20,9 @@ package com.dbi.cat.view.workspace
         [Embed("/assets/swf/envelope.swf")]
         public static const messageIcon:Class;
         
+        [Embed("/assets/swf/barcode.swf")]
+        public static const couponIcon:Class;
+        
         [Embed("/assets/swf/date_connector.swf")]
         public static const dateConnector:Class;
         

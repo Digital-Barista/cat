@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:view="com.dbi.cat.view.*" 
-	xmlns:workspace="com.dbi.cat.view.workspace.*" 
-	xmlns:mate="http://mate.asfusion.com/"
-	showCloseButton="true"
-	close="onClose()"
-	layout="absolute"
-	title="{modifiedCampaign.name}">
+	xmlns:workspace="com.dbi.cat.view.workspace.*" >
 	<mx:Script>
 		<![CDATA[
+			import mx.effects.Fade;
+			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.cat.event.ImportEvent;
 			import com.dbi.cat.common.vo.ConnectorVO;
 			import com.dbi.cat.common.vo.CampaignVO;
@@ -26,6 +23,7 @@
 			import com.dbi.cat.event.NavigationEvent;
 			import com.dbi.cat.event.WorkspaceEvent;
 			
+			
 			[Bindable]
 			public var publishedCampaign:CampaignVO;
 			
@@ -34,6 +32,17 @@
 			
 			[Bindable]
 			public var isTesting:Boolean;
+			
+			private var _statusMessage:String;
+			[Bindable]
+			public function get statusMessage():String
+			{
+				return _statusMessage;
+			}
+			public function set statusMessage(value:String):void
+			{
+				_statusMessage = value;
+			}
 			
 			private var _currentTestNode:NodeVO;
 			public function get currentTestNode():NodeVO
@@ -51,13 +60,18 @@
 				}
 			}
 			
+			
 			private function onClose():void
 			{
 				ModifiedWorkspace.closeMenuItems();
 				CurrentWorkspace.closeMenuItems();
 				
+				// Repopulate clients to determine keywords that have been used
+				dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
+				
 				// Remove the listener event
 				dispatchEvent(new CampaignEvent(CampaignEvent.CLOSE_COMMUNICATIONS));
+			
 			}
 			private function publish(e:CustomMessageEvent):void
 			{
@@ -101,46 +115,76 @@
 			{
 				dispatchEvent(new ImportEvent(ImportEvent.OPEN_IMPORT_WINDOW));
 			}
+			private function refresh():void
+			{
+				var event:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_MODIFIED_CAMPAIGN);
+				event.campaign = modifiedCampaign;
+				dispatchEvent(event);
+				
+				event = new CampaignEvent(CampaignEvent.LOAD_PUBLISHED_CAMPAIGN);
+				event.campaign = publishedCampaign;
+				dispatchEvent(event);
+			}
 		]]>
 	</mx:Script>
-	<view:CommunicationComponentsView  left="0" top="0" bottom="0" width="100"/>
-	<mx:HBox right="0" left="100" top="0" bottom="0">
-		<mx:TabNavigator id="WorkspaceTabs"
-			right="0" left="0" top="0" bottom="0"
-			paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" width="100%" height="100%">
-			<workspace:WorkspaceView id="ModifiedWorkspace" 
-				label="Modified Version" 
-				width="100%" height="100%"
-				campaign="{modifiedCampaign}"
-				readonly="{isTesting}" />
-			<workspace:WorkspaceView id="CurrentWorkspace" 
-				enabled="{!isTesting}"
-				label="Published Version" 
-				width="100%" height="100%"
-				readonly="true"
-				campaign="{publishedCampaign}" />
-		</mx:TabNavigator>
-		<view:TestCampaignView height="100%" width="275"
-			visible="{isTesting}"
-			includeInLayout="{isTesting}"  borderSides="top" borderStyle="solid" borderThickness="30" borderColor="#FFFFFF"/>
-	</mx:HBox>
-	<mx:HBox top="0" right="5" left="350"
-		verticalAlign="middle" 
-		horizontalAlign="right"
-		height="28">
-		<mx:Button label="Import"
-			toolTip="Import a list of addresses to enter into this campaign"
-			click="importAddresses()"
-			visible="{WorkspaceTabs.selectedIndex == 1}"
-			includeInLayout="{WorkspaceTabs.selectedIndex == 1}"
-			enabled="{publishedCampaign != null}" />
-		<mx:Button label="Test"
-			click="testCampaign()"
-			visible="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}"
-			includeInLayout="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}" />
-		<mx:Button label="Publish" 
-			click="confirmPublish()"
-			visible="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}"
-			includeInLayout="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}" />
-	</mx:HBox>
-</mx:TitleWindow>
+	<mx:TitleWindow
+		width="100%" height="100%"
+		showCloseButton="true"
+		close="onClose()"
+		layout="absolute"
+		title="{modifiedCampaign.name}">
+		<view:CommunicationComponentsView  left="0" top="0" bottom="0" width="100"/>
+		<mx:HBox right="0" left="100" top="0" bottom="0">
+			<mx:TabNavigator id="WorkspaceTabs"
+				right="0" left="0" top="0" bottom="0"
+				paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" width="100%" height="100%">
+				<workspace:WorkspaceView id="ModifiedWorkspace" 
+					label="Modified Version" 
+					width="100%" height="100%"
+					campaign="{modifiedCampaign}"
+					readonly="{isTesting}" />
+				<workspace:WorkspaceView id="CurrentWorkspace" 
+					enabled="{!isTesting}"
+					label="Published Version" 
+					width="100%" height="100%"
+					readonly="true"
+					campaign="{publishedCampaign}" />
+			</mx:TabNavigator>
+			<view:TestCampaignView height="100%" width="275"
+				visible="{isTesting}"
+				includeInLayout="{isTesting}"  borderSides="top" borderStyle="solid" borderThickness="30" borderColor="#FFFFFF"/>
+		</mx:HBox>
+		<mx:HBox top="0" right="5" left="350"
+			verticalAlign="middle" 
+			horizontalAlign="right"
+			height="28">
+			<mx:Button label="Import"
+				toolTip="Import a list of addresses to enter into this campaign"
+				click="importAddresses()"
+				visible="{WorkspaceTabs.selectedIndex == 1}"
+				includeInLayout="{WorkspaceTabs.selectedIndex == 1}"
+				enabled="{publishedCampaign != null}" />
+			<mx:Button label="Test"
+				click="testCampaign()"
+				visible="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}"
+				includeInLayout="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}" />
+			<mx:Button label="Publish" 
+				click="confirmPublish()"
+				visible="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}"
+				includeInLayout="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}" />
+		</mx:HBox>
+		<mx:Canvas id="StatusMessageBox"
+			visible="{statusMessage.length != 0}"
+			styleName="workspaceStatusMessage"
+			bottom="0" right="0">
+			<mx:Text text="{statusMessage}" />
+		</mx:Canvas>
+	</mx:TitleWindow>
+	<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+		top="5"
+		right="30"
+		width="25" height="25"
+		toolTip="Refresh"
+		click="refresh()" />
+	
+</mx:Canvas>

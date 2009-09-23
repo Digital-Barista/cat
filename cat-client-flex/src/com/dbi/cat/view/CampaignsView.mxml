@@ -26,6 +26,10 @@
 				Filter.text = "";
 				filterCampaigns();
 			}
+			private function refresh():void
+			{
+				dispatchEvent(new CampaignEvent(CampaignEvent.LIST_CAMPAIGNS));
+			}
 		]]>
 	</mx:Script>
 	<mx:Canvas
@@ -51,6 +55,10 @@
 			</mx:DataGrid>
 		</mx:TitleWindow>
 		<mx:HBox right="5" top="7" verticalAlign="middle">
+			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+				width="25" height="25"
+				toolTip="Refresh"
+				click="refresh()" />
 			<mx:Button label="Start New Campaign"
 				click="createCampaign()"  verticalCenter="0" right="290"/>
 			<mx:Label text="Filter" verticalCenter="0" right="250" />

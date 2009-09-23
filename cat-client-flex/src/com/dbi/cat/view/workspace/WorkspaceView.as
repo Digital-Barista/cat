@@ -3,6 +3,7 @@ package com.dbi.cat.view.workspace
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
+	import com.dbi.cat.common.vo.CouponNodeVO;
 	import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 	import com.dbi.cat.common.vo.EntryPointVO;
 	import com.dbi.cat.common.vo.ImmediateConnectorVO;
@@ -25,6 +26,8 @@ package com.dbi.cat.view.workspace
 	
 	import mx.binding.utils.BindingUtils;
 	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
+	import mx.collections.SortField;
 	import mx.containers.Canvas;
 	import mx.core.Application;
 	import mx.events.DragEvent;
@@ -56,6 +59,7 @@ package com.dbi.cat.view.workspace
 		}
 		
 		private var _campaign:CampaignVO;
+		[Bindable]
 		public function get campaign():CampaignVO
 		{
 			return _campaign;
@@ -94,9 +98,6 @@ package com.dbi.cat.view.workspace
 			_clientMap = value;
 			buildKeywordList();
 		}
-		
-		[Bindable]
-		public var campaignMap:Object;
 		
 		[Bindable]
 		public var campaignKeywords:ArrayCollection
@@ -145,6 +146,7 @@ package com.dbi.cat.view.workspace
 		private function buildKeywordList():void
 		{
 			campaignKeywords = new ArrayCollection();
+			
 			if (campaign != null &&
 				clientMap != null &&
 				clientMap[campaign.clientPK] != null)
@@ -158,6 +160,12 @@ package com.dbi.cat.view.workspace
 						break;
 					}
 				}
+				
+				// Sort keywords
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("keyword")];
+				campaignKeywords.sort = sort;
+				campaignKeywords.refresh();
 			}
 		}
 		
@@ -216,7 +224,10 @@ package com.dbi.cat.view.workspace
 			if (openWorkspaceItem != null &&
         		(e.target is WorkspaceView ||
         		e.target is PanZoomCanvas))
+        	{
 				openWorkspaceItem.closeEditWindow();
+				openWorkspaceItem = null;
+        	}
         }
         private function onMouseUp(e:MouseEvent):void
         {
@@ -266,6 +277,17 @@ package com.dbi.cat.view.workspace
             	saveEvent = new CampaignEvent(CampaignEvent.SAVE_NODE);
 				saveEvent.node = entryPoint;
 				addNodeToWorkspace(entryPoint);
+            }
+            else if(type == WorkspaceItemType.COUPON)
+            {
+            	var coupon:CouponNodeVO = new CouponNodeVO();
+            	coupon.campaignUID = campaign.uid;
+            	layout.UUID = coupon.uid;
+            	coupon.layoutInfo = layout;
+            	
+            	saveEvent = new CampaignEvent(CampaignEvent.SAVE_NODE);
+				saveEvent.node = coupon;
+				addNodeToWorkspace(coupon);
             }
             else if(type == WorkspaceItemType.IMMEDIATE_CONNECTOR)
             {
@@ -336,8 +358,6 @@ package com.dbi.cat.view.workspace
             {
             	var m:MessageItem = new MessageItem();
             	m.messageVO = node as MessageVO;
-            	m.clientMap = clientMap;
-            	m.campaignMap = campaignMap;
             	newItem = m;
             }
             else if(node is EntryPointVO)
@@ -345,6 +365,12 @@ package com.dbi.cat.view.workspace
             	var ep:EntryPointItem = new EntryPointItem();
             	ep.entryPointVO = node as EntryPointVO;
 				newItem = ep;
+            }
+            else if(node is CouponNodeVO)
+            {
+            	var c:CouponItem = new CouponItem();
+            	c.couponVO = node as CouponNodeVO;
+				newItem = c;
             }
             addItemToWorkspace(newItem);
 		}

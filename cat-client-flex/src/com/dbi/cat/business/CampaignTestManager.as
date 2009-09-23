@@ -4,6 +4,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
+	import com.dbi.cat.common.vo.CouponNodeVO;
 	import com.dbi.cat.common.vo.EntryPointVO;
 	import com.dbi.cat.common.vo.ImmediateConnectorVO;
 	import com.dbi.cat.common.vo.IntervalConnectorVO;
@@ -11,6 +12,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.common.vo.ResponseConnectorVO;
 	
+	import mx.collections.ArrayCollection;
 	import mx.formatters.DateFormatter;
 	
 	[Bindable]
@@ -26,6 +28,7 @@ package com.dbi.cat.business
 		private var currentDate:Date;
 		private var startDate:Date;
 		private var uidMap:Object;
+		private var visitedImmediateConnectors:Object = new Object();
 		
 		public var currentNode:NodeVO;
 		public var testCampaign:CampaignVO;
@@ -237,6 +240,30 @@ package com.dbi.cat.business
 						out("Invalid message: ", message.name, COLOR_RED);
 					}
 				}
+				// Handle coupon messages
+				else if (currentNode is CouponNodeVO)
+				{
+					var coupon:CouponNodeVO = currentNode as CouponNodeVO;
+				
+					// Make sure required fields are filled
+					if (coupon.valid)
+					{
+						// Determine message by unavailable date
+						if (coupon.unavailableDate != null &&
+							coupon.unavailableDate.time < adjustedDate.time)
+						{
+							out("Sending coupon unavailable message: ", coupon.unavailableMessage);
+						}
+						else
+						{
+							out("Sending coupon available message: ", coupon.availableMessage);
+						}
+					}
+					else
+					{
+						out("Invalid message: ", coupon.name, COLOR_RED);
+					}
+				}
 				nextStep();
 			}
 			else
@@ -274,8 +301,19 @@ package com.dbi.cat.business
 					{
 						if (connector is ImmediateConnectorVO)
 						{
-							out("", "Following immediate connector", COLOR_BLUE);
-							followConnector(connector);
+							if (visitedImmediateConnectors[connector.uid] != null)
+							{
+								out("", "LOOP DETECTED! CANNOT CONTINUE", COLOR_RED);
+							}
+							else
+							{
+								visitedImmediateConnectors[connector.uid] = connector.uid;
+								out("", "Following immediate connector", COLOR_BLUE);
+								followConnector(connector);
+							}
+							
+							// Clear visited connectors
+							visitedImmediateConnectors = new Object();
 							break;
 						}
 					}

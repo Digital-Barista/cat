@@ -32,6 +32,9 @@ package com.dbi.cat.view.workspace
 				case WorkspaceItemType.MESSAGE:
 					ret = messageIcon;
 					break;	
+				case WorkspaceItemType.COUPON:
+					ret = couponIcon;
+					break;	
 				case WorkspaceItemType.RESPONSE_CONNECTOR:
 					ret = responseConnector;
 					break;	

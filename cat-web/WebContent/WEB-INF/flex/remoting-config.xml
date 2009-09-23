@@ -43,6 +43,17 @@
 			</properties>
 	</destination>
 
+	<destination id="couponManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>ejb.CouponManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+
 	<destination id="layoutManager">
 			<security>
 				<security-constraint ref="valid-user"/>

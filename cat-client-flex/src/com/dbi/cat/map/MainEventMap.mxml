@@ -5,6 +5,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.business.CouponManager;
+			import com.dbi.cat.event.CouponEvent;
 			import com.asfusion.mate.events.UnhandledFaultEvent;
 			import com.dbi.cat.business.NavigationManager;
 			import com.dbi.cat.business.LayoutInfoManager;
@@ -53,6 +55,9 @@
 			method="showFault"
 			arguments="{event.fault}" />
 	</EventHandlers>
+	<EventHandlers type="{MouseEvent.MOUSE_MOVE}">
+		<EventAnnouncer type="{LoginEvent.UPDATE_LAST_ACTIVITY}" />
+	</EventHandlers>
 	
 	<!-- Login Events -->
 	<EventHandlers type="{LoginEvent.LOGIN}">
@@ -64,6 +69,10 @@
 		<MethodInvoker generator="{LoginManager}"
 			method="logout" />
 	</EventHandlers>
+	<EventHandlers type="{LoginEvent.UPDATE_LAST_ACTIVITY}">
+		<MethodInvoker generator="{LoginManager}"
+			method="updateLastActivity" />
+	</EventHandlers>
 	
 	<!-- Data Events -->
 	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
@@ -71,6 +80,7 @@
 		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
 		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />
+		<EventAnnouncer type="{CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT}" />
 	</EventHandlers>
 	
 </EventMap>
