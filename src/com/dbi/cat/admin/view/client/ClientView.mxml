@@ -70,8 +70,7 @@
 			<mx:AdvancedDataGrid id="ClientGrid"
 				top="0" bottom="0" left="0" right="0"
 				dataProvider="{clientsGrouped}"
-				dropEnabled="true" 
-				displayItemsExpanded="true">
+				dropEnabled="true" >
 				<mx:columns>
 					<mx:AdvancedDataGridColumn dataField="name" headerText="" />
 					<mx:AdvancedDataGridColumn dataField="type" headerText="Type" width="80"  />

@@ -39,7 +39,7 @@
 			<resultHandlers>
 				<MethodInvoker generator="{UserManager}"
 					method="saveUser"
-					arguments="{[event.user]}" />
+					arguments="{[resultObject]}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>

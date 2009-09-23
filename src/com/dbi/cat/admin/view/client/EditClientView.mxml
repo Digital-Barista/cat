@@ -5,12 +5,12 @@
 	close="onClose()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.vo.EntryPointVO;
 			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 			import mx.managers.DragManager;
 			import mx.events.DragEvent;
 			import mx.collections.ArrayCollection;
-			import com.dbi.cat.common.constants.SMSConstants;
 			import com.dbi.cat.admin.event.ClientEvent;
 			import com.dbi.cat.common.vo.ClientVO;
 			
@@ -44,10 +44,10 @@
 				text="{currentClient.adminAddInMessage}"
 				change="{currentClient.adminAddInMessage = AddInMessage.text}"
 				width="330"
-				maxChars="{SMSConstants.MAX_CHARACTERS}"/>
+				maxChars="{EntryPointType.SMS_MAX_CHARACTERS}"/>
 		</mx:FormItem>
 		<mx:FormItem>
-			<mx:Label text="{currentClient.adminAddInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
+			<mx:Label text="{currentClient.adminAddInMessage.length + '/' + EntryPointType.SMS_MAX_CHARACTERS + ' chars'}" />
 		</mx:FormItem>
 	</mx:Form>
 	<mx:ControlBar>
