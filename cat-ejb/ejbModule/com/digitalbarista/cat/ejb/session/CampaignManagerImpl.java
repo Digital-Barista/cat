@@ -515,6 +515,22 @@ public class CampaignManagerImpl implements CampaignManager {
 				}
 			}
 			
+			List<CampaignEntryPointDO> cepToDelete = new ArrayList<CampaignEntryPointDO>();
+			
+			for(CampaignEntryPointDO cep : camp.getEntryPoints())
+			{
+				if(cep.getQuantity().intValue()<=0)
+				{
+					cep.setPublished(false);
+					cepToDelete.add(cep);
+					em.remove(cep);
+				}else{
+					cep.setPublished(true);
+				}
+			}
+			
+			camp.getConnectors().removeAll(cepToDelete);
+
 			//Potentially could UPDATE connectors, too.
 			
 			camp.setCurrentVersion(version+1);
@@ -655,7 +671,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			if(cep.getCampaign()!=camp)
 				throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
 			cep.setQuantity(cep.getQuantity()-1);
-			if(cep.getQuantity()==0)
+			if(cep.getQuantity()==0 && !cep.isPublished())
 				em.remove(cep);
 			else if(cep.getQuantity()<0)
 				log.warn("more entry points removed than have been initially catalogued");
@@ -703,7 +719,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			if(cep.getCampaign()!=camp)
 				throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
 			cep.setQuantity(cep.getQuantity()-1);
-			if(cep.getQuantity()==0)
+			if(cep.getQuantity()==0 && !cep.isPublished())
 				em.remove(cep);
 			else if(cep.getQuantity()<0)
 				log.warn("more entry points removed than have been initially catalogued");
@@ -871,7 +887,7 @@ public class CampaignManagerImpl implements CampaignManager {
 				if(!cep.getCampaign().getUID().equals(node.getCampaignUID()))
 					throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
 				cep.setQuantity(cep.getQuantity()-1);
-				if(cep.getQuantity()==0)
+				if(cep.getQuantity()==0 && !cep.isPublished())
 					em.remove(cep);
 				else if(cep.getQuantity()<0)
 					log.warn("more entry points removed than have been initially catalogued");
@@ -932,7 +948,7 @@ public class CampaignManagerImpl implements CampaignManager {
 				if(!cep.getCampaign().getUID().equals(connector.getCampaignUID()))
 					throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
 				cep.setQuantity(cep.getQuantity()-1);
-				if(cep.getQuantity()==0)
+				if(cep.getQuantity()==0 && !cep.isPublished())
 					em.remove(cep);
 				else if(cep.getQuantity()<0)
 					log.warn("more entry points removed than have been initially catalogued");
