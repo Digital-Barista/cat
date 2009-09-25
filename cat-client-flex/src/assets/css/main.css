@@ -44,3 +44,22 @@ List
 	fontSize:20;
 	color:#CC0000;
 }
+.workspaceStatusMessage
+{
+	padding-left:5;
+	padding-right:5;
+	backgroundColor:#00AA00;
+	color:#FFFFFF;
+}
+.componentTree
+{
+	backgroundColor:#FFFFFF;
+	borderStyle:none;
+}
+.componentHeader
+{
+	color: #5a5c59;
+	fontSize:14;
+	fontWeight:bold;
+	backgroundColor:#CCCCCC;
+}

@@ -23,7 +23,7 @@
 			import com.dbi.cat.event.NavigationEvent;
 			import com.dbi.cat.event.WorkspaceEvent;
 			
-			
+        
 			[Bindable]
 			public var publishedCampaign:CampaignVO;
 			
@@ -121,9 +121,12 @@
 				event.campaign = modifiedCampaign;
 				dispatchEvent(event);
 				
-				event = new CampaignEvent(CampaignEvent.LOAD_PUBLISHED_CAMPAIGN);
-				event.campaign = publishedCampaign;
-				dispatchEvent(event);
+				if (publishedCampaign != null)
+				{
+					event = new CampaignEvent(CampaignEvent.LOAD_PUBLISHED_CAMPAIGN);
+					event.campaign = publishedCampaign;
+					dispatchEvent(event);
+				}
 			}
 		]]>
 	</mx:Script>
@@ -133,8 +136,9 @@
 		close="onClose()"
 		layout="absolute"
 		title="{modifiedCampaign.name}">
-		<view:CommunicationComponentsView  left="0" top="0" bottom="0" width="100"/>
-		<mx:HBox right="0" left="100" top="0" bottom="0">
+		<view:CommunicationComponentsView  
+			left="0" top="0" bottom="0" width="130"/>
+		<mx:HBox right="0" left="130" top="0" bottom="0">
 			<mx:TabNavigator id="WorkspaceTabs"
 				right="0" left="0" top="0" bottom="0"
 				paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" width="100%" height="100%">

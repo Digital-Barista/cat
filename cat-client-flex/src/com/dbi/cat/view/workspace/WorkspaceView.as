@@ -199,9 +199,9 @@ package com.dbi.cat.view.workspace
         	if (!readonly)
         	{
 	            // Get the swf loader that was dropped
-	            var item:CommunicationComponent = e.dragSource.dataForFormat("value") as CommunicationComponent;
+	            var type:String = e.dragSource.dataForFormat("value").toString();
 	            
-	            createWorkspaceItem(item.type);
+	            createWorkspaceItem(type);
 	        }
         }
         

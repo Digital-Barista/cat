@@ -4,76 +4,117 @@
 	backgroundColor="0xFFFFFF" 
 	horizontalScrollPolicy="off"
 	xmlns:vo="com.dbi.cat.vo.*" 
-	xmlns:workspace="com.dbi.cat.view.workspace.*">
+	xmlns:workspace="com.dbi.cat.view.workspace.*"
+	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ListEvent;
+			import mx.core.IUIComponent;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.DragEvent;
+			import mx.controls.treeClasses.TreeItemRenderer;
 			import com.dbi.cat.view.workspace.CommunicationComponent;
 			import mx.controls.SWFLoader;
 			import com.dbi.cat.constants.WorkspaceItemType;
 			import mx.core.DragSource;
 			import mx.managers.DragManager;
 			
+			import com.dbi.cat.view.workspace.IconItem;
+			
+			public static const DRAG_IMAGE_WIDTH:Number = 75;
+			public static const DRAG_IMAGE_HEIGHT:Number = 75;
+			
+			[Embed("/assets/swf/delete.swf")]
+	        public const deleteIcon:Class;
+	        
+	        [Embed("/assets/swf/house.swf")]
+	        public const entryPointIcon:Class;
+	        
+	        [Embed("/assets/swf/envelope.swf")]
+	        public const messageIcon:Class;
+	        
+	        [Embed("/assets/swf/barcode.swf")]
+	        public const couponIcon:Class;
+	        
+	        [Embed("/assets/swf/date_connector_workspace.swf")]
+	        public const dateConnector:Class;
+	        
+	        [Embed("/assets/swf/interval_connector_workspace.swf")]
+	        public const intervalConnector:Class;
+	        
+	        [Embed("/assets/swf/immediate_connector_workspace.swf")]
+	        public const immediateConnector:Class; 
+	        
+	        [Embed("/assets/swf/response_connector_workspace.swf")]
+	        public const responseConnector:Class;
 
-			private function dragIt(event:MouseEvent):void 
+			private function init():void
+			{
+				for (var i:int = 0; i < ComponentTree.dataProvider.length; i ++)
+				{
+					ComponentTree.expandChildrenOf(ComponentTree.dataProvider[i], true)
+				} 
+			}
+			
+           	private function onDragStart(event:DragEvent):void 
             {
+            	event.preventDefault();
+            	
                 // Get the drag initiator component from the event object.
-                var dragInitiator:CommunicationComponent = event.currentTarget as CommunicationComponent;
+                var dragInitiator:XML = ComponentTree.selectedItem as XML;
     
-                // Create a DragSource object.
-                var dragSource:DragSource = new DragSource();
-                dragSource.addData(event.currentTarget, "value");
-
-                // Create a copy of the coin image to use as a drag proxy.
-                var dragProxy:SWFLoader = new SWFLoader();
-                dragProxy.alpha = 0.3;
-                dragProxy.width = event.currentTarget.width;
-                dragProxy.height = event.currentTarget.height;
-                
-                // Set appropriate drage icon
-                if (event.currentTarget.workspaceIcon != null)
-                	dragProxy.source = event.currentTarget.workspaceIcon;
-                else
-                	dragProxy.source = event.currentTarget.componentIcon;
-    
-                // Call the DragManager doDrag() method to start the drag. 
-                DragManager.doDrag(dragInitiator, dragSource, event, dragProxy);
-            }
-
+    			if (dragInitiator.children().length() == 0)
+    			{
+	                // Create a DragSource object.
+	                var dragSource:DragSource = new DragSource();
+	                dragSource.addData(dragInitiator.@label, "value");
+	
+	                // Create a copy of the image to use as a drag proxy.
+	                var dragProxy:SWFLoader = new SWFLoader();
+	                dragProxy.alpha = 0.3;
+	                dragProxy.width = DRAG_IMAGE_WIDTH;
+	                dragProxy.height = DRAG_IMAGE_HEIGHT;
+	                
+	                // Set appropriate drage icon
+	                dragProxy.source = this[dragInitiator.@icon];
+	    
+	    			// Align image with mouse pointer
+	    			var offsetX:Number = -mouseX + DRAG_IMAGE_WIDTH/2;
+	    			var offsetY:Number = -mouseY + DRAG_IMAGE_HEIGHT/2;
+	    			
+	                // Call the DragManager doDrag() method to start the drag. 
+	                DragManager.doDrag(this, dragSource, event, dragProxy, offsetX, offsetY);     
+       			}        
+           	}
 		]]>
 	</mx:Script>
-	<mx:VBox id="ComponentContainer"
-		width="100%"
-		top="10" bottom="30"
-		horizontalAlign="center"
-		backgroundColor="0xFFFFFF"
-		horizontalScrollPolicy="off" verticalGap="20">
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.ENTRY_POINT}" />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.MESSAGE}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.COUPON}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.IMMEDIATE_CONNECTOR}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.DATE_CONNECTOR}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.INTERVAL_CONNECTOR}"  />
-		<workspace:CommunicationComponent
-			width="100%" height="65"
-			mouseDown="dragIt(event)"
-			type="{WorkspaceItemType.RESPONSE_CONNECTOR}"  />
-	</mx:VBox>
+	<mx:XMLList id="components">
+		<node label="Nodes">
+			<node label="{WorkspaceItemType.ENTRY_POINT}" icon="entryPointIcon" />
+			<node label="{WorkspaceItemType.MESSAGE}" icon="messageIcon" />
+			<node label="{WorkspaceItemType.COUPON}" icon="couponIcon" />
+		</node>
+		<node label="Connectors">
+			<node label="{WorkspaceItemType.IMMEDIATE_CONNECTOR}" icon="immediateConnector" />
+			<node label="{WorkspaceItemType.RESPONSE_CONNECTOR}" icon="responseConnector" />
+			<node label="{WorkspaceItemType.DATE_CONNECTOR}" icon="dateConnector" />
+			<node label="{WorkspaceItemType.INTERVAL_CONNECTOR}" icon="intervalConnector" />
+		</node>
+	</mx:XMLList>
+	<mx:Canvas
+		width="100%" height="30"
+		styleName="componentHeader">
+		<mx:Label horizontalCenter="0" verticalCenter="0"
+			text="Components" />
+	</mx:Canvas>
+	<mx:Tree id="ComponentTree"
+		styleName="componentTree"
+		width="100%" top="35" bottom="0"
+		dragEnabled="true"
+		indentation="0"
+		iconField="@icon"
+		labelField="@label"
+		dragStart="onDragStart(event)"
+		itemRenderer="com.dbi.cat.view.components.ResizeableIconTreeItemRenderer"
+		dataProvider="{components}" />
 </mx:Canvas>
