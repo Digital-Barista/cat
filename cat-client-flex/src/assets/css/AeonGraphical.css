@@ -20,7 +20,6 @@ global{
 */
 AccordionHeader
 {
-
 	disabledSkin: Embed(source="AeonGraphical.swf", symbol="AccordionHeader_disabledSkin");
 	downSkin: Embed(source="AeonGraphical.swf", symbol="AccordionHeader_downSkin");
 	overSkin: Embed(source="AeonGraphical.swf", symbol="AccordionHeader_overSkin");
@@ -29,7 +28,6 @@ AccordionHeader
 	selectedOverSkin: Embed(source="AeonGraphical.swf", symbol="AccordionHeader_overSkin");
 	selectedUpSkin: Embed(source="AeonGraphical.swf", symbol="AccordionHeader_upSkin");
 	upSkin: Embed(source="AeonGraphical.swf", symbol="AccordionHeader_upSkin");
-
 }
 
 /*
