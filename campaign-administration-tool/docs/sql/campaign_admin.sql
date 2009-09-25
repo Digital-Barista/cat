@@ -462,6 +462,7 @@ CREATE  TABLE IF NOT EXISTS `campaign_admin`.`campaign_entry_points` (
   `entry_point` VARCHAR(128) NOT NULL ,
   `keyword` VARCHAR(64) NULL ,
   `entry_point_qty` INT NOT NULL DEFAULT 0 ,
+  `published` TINYINT NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`campaign_entry_point_id`) ,
   CONSTRAINT `cep_fk_campaign`
     FOREIGN KEY (`campaign_id` )
