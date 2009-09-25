@@ -44,7 +44,7 @@ public class EntryNode extends Node implements Auditable{
 		Map<String,NodeInfoDO> nodes = new HashMap<String,NodeInfoDO>();
 		for(NodeInfoDO ni : dataObject.getNodeInfo())
 		{
-			if(!ni.equals(version))
+			if(!ni.getVersion().equals(version))
 				continue;
 			nodes.put(ni.getName(), ni);
 		}
@@ -59,7 +59,7 @@ public class EntryNode extends Node implements Auditable{
 		
 		if(entryPoint!=null)
 		{
-			if(nodes.containsValue(INFO_PROPERTY_ENTRY_POINT))
+			if(nodes.containsKey(INFO_PROPERTY_ENTRY_POINT))
 				nodes.get(INFO_PROPERTY_ENTRY_POINT).setValue(entryPoint);
 			else
 				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_ENTRY_POINT, entryPoint, version);
@@ -67,7 +67,7 @@ public class EntryNode extends Node implements Auditable{
 		
 		if(keyword!=null)
 		{
-			if(nodes.containsValue(INFO_PROPERTY_KEYWORD))
+			if(nodes.containsKey(INFO_PROPERTY_KEYWORD))
 				nodes.get(INFO_PROPERTY_KEYWORD).setValue(keyword);
 			else
 				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_KEYWORD, keyword, version);

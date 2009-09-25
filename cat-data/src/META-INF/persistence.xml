@@ -13,10 +13,6 @@
 		<class>com.digitalbarista.cat.data.LayoutInfoDO</class>
 		<class>com.digitalbarista.cat.data.KeywordDO</class>
 		<class>com.digitalbarista.cat.data.EntryPointDO</class>
-		<class>com.digitalbarista.cat.data.CouponResponseDO</class>
-		<class>com.digitalbarista.cat.data.CouponRedemptionDO</class>
-		<class>com.digitalbarista.cat.data.CouponOfferDO</class>
-		<class>com.digitalbarista.cat.data.CouponCounterDO</class>
 		<class>com.digitalbarista.cat.data.ConnectorInfoDO</class>
 		<class>com.digitalbarista.cat.data.ConnectorDO</class>
 		<class>com.digitalbarista.cat.data.ClientDO</class>
