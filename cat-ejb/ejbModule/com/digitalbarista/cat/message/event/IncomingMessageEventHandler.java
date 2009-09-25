@@ -141,13 +141,13 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		//  that there's at least one non-whitespace letter, because of
 		//  the previous .trim() length check.
 		String[] splitInput = input.split("\\s");
-		String keyword=splitInput[0]; //By definition keyword is the first word in the message.
+		String possibleGlobalStop=splitInput[0];
 		
 		//First, double-check that the keyword isn't an unsubscribe request.
 		try
 		{
 			//If this isn't an unsubscribe keyword, we'll exception out and move on.
-			GlobalUnsubscribeKeywords.valueOf(keyword.toUpperCase());
+			GlobalUnsubscribeKeywords.valueOf(possibleGlobalStop.toUpperCase());
 			
 			//But, since it is, we'll unsubscribe from EVERY campaign that
 			// has this incoming address.
@@ -183,30 +183,43 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			return;
 		}
 		
+		//Since we're matching potentially keyPHRASES, we'll have to put the phrase back together.
+		String keyphrase="";
+		for(String word : splitInput)
+		{
+			if(word==null)
+				continue;
+			if(keyphrase.length()>0)
+				keyphrase+=" "+word;
+			else
+				keyphrase+=word;
+		}
+		keyphrase.toUpperCase();
+		
 		//Now we go through the entry points 'til we find the right keyword.
-		CampaignEntryPointDO possibleEntry=null;
+		CampaignEntryPointDO mostLikelyEntry=null;
+		int longestMatch=0;
 		for(CampaignEntryPointDO entry : entries)
 		{
-			if(keyword.equalsIgnoreCase(entry.getKeyword()))
+			if(keyphrase.startsWith(entry.getKeyword().toUpperCase()))
 			{
-				if(possibleEntry!=null)
+				if(longestMatch<entry.getKeyword().length())
 				{
-					log.error("Unable to determine correct entry point based on submitted message.");
-					return;
+					mostLikelyEntry = entry;
+					longestMatch=entry.getKeyword().length();
 				}
-				possibleEntry = entry;
 			}
 		}
 
 		//If we didn't find it, they sent us a bad keyword.
-		if(possibleEntry==null)
+		if(mostLikelyEntry==null)
 			return;
 		
 		//If they are not subscribed, we check for an entry point.
-		if(!sub.getSubscriptions().containsKey(possibleEntry.getCampaign()))
+		if(!sub.getSubscriptions().containsKey(mostLikelyEntry.getCampaign()))
 		{
 			EntryNode en=null;
-			Campaign camp = getCampaignManager().getLastPublishedCampaign(possibleEntry.getCampaign().getUID());
+			Campaign camp = getCampaignManager().getLastPublishedCampaign(mostLikelyEntry.getCampaign().getUID());
 			if(camp==null)
 				return;
 			
@@ -215,9 +228,9 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			{
 				if(node.getType().equals(NodeType.Entry))
 				{
-					if(!((EntryNode)node).getKeyword().equals(possibleEntry.getKeyword())) continue;
-					if(!((EntryNode)node).getEntryPoint().equals(possibleEntry.getEntryPoint())) continue;
-					if(!((EntryNode)node).getEntryType().equals(possibleEntry.getType())) continue;
+					if(!((EntryNode)node).getKeyword().equals(mostLikelyEntry.getKeyword())) continue;
+					if(!((EntryNode)node).getEntryPoint().equals(mostLikelyEntry.getEntryPoint())) continue;
+					if(!((EntryNode)node).getEntryType().equals(mostLikelyEntry.getType())) continue;
 					en=(EntryNode)node;
 					break;
 				}
@@ -232,8 +245,8 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			//First . . . clear the blacklist.
 			q = getEntityManager().createNamedQuery("blacklist.entry");
 			q.setParameter("subID", sub.getPrimaryKey());
-			q.setParameter("address", possibleEntry.getEntryPoint());
-			q.setParameter("type", possibleEntry.getType());
+			q.setParameter("address", mostLikelyEntry.getEntryPoint());
+			q.setParameter("type", mostLikelyEntry.getType());
 			try
 			{
 				getEntityManager().remove(q.getSingleResult());
@@ -241,7 +254,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			
 			//Now . . . get that guy subscribed.
 			CampaignSubscriberLinkDO csl = new CampaignSubscriberLinkDO();
-			csl.setCampaign(possibleEntry.getCampaign());
+			csl.setCampaign(mostLikelyEntry.getCampaign());
 			csl.setSubscriber(sub);
 			csl.setLastHitNode(getCampaignManager().getSimpleNode(en.getUid()));
 			getEntityManager().persist(csl);
@@ -250,7 +263,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		} else {
 			//since they're subscribed, we're going to assume we're triggering a response
 			// connector.  Otherwise we ignore it.
-			CampaignSubscriberLinkDO csl = sub.getSubscriptions().get(possibleEntry.getCampaign());
+			CampaignSubscriberLinkDO csl = sub.getSubscriptions().get(mostLikelyEntry.getCampaign());
 			Integer publishedVersion = csl.getCampaign().getCurrentVersion()-1;
 			Node node = getCampaignManager().getSpecificNodeVersion(csl.getLastHitNode().getUID(), publishedVersion);
 			Connector conn;
@@ -260,7 +273,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				if(conn.getType().equals(ConnectorType.Response))
 				{
 					ResponseConnector rConn = (ResponseConnector)conn;
-					if(!keyword.equalsIgnoreCase(rConn.getKeyword()))
+					if(!keyphrase.equalsIgnoreCase(rConn.getKeyword()))
 						continue;
 					switch(e.getSourceType())
 					{
