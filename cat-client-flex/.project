@@ -28,9 +28,14 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>[source path] src</name>
+			<name>[source path] cat-common-flex-src</name>
 			<type>2</type>
 			<locationURI>DOCUMENTS/cat/cat-common-flex/src</locationURI>
+		</link>
+		<link>
+			<name>[source path] flex-common-lib-src</name>
+			<type>2</type>
+			<locationURI>DOCUMENTS/cat/flex-common-lib/src</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
