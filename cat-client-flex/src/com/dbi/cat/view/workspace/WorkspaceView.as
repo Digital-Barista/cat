@@ -162,10 +162,10 @@ package com.dbi.cat.view.workspace
 				}
 				
 				// Sort keywords
-				var sort:Sort = new Sort();
-				sort.fields = [new SortField("keyword")];
-				campaignKeywords.sort = sort;
-				campaignKeywords.refresh();
+//				var sort:Sort = new Sort();
+//				sort.fields = [new SortField("keyword")];
+//				campaignKeywords.sort = sort;
+//				campaignKeywords.refresh();
 			}
 		}
 		
