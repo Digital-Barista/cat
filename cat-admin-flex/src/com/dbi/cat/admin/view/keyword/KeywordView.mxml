@@ -15,6 +15,10 @@
 				event.keyword = new KeywordVO();
 				dispatchEvent(event);
 			}
+			private function refresh():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.LIST_KEYWORDS));
+			}
 		]]>
 	</mx:Script>
 	<mx:Canvas
@@ -40,6 +44,10 @@
 			</mx:DataGrid>
 		</mx:TitleWindow>
 		<mx:HBox top="5" right="10">
+			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+				width="25" height="25"
+				toolTip="Refresh"
+				click="refresh()" />
 			<mx:Button label="New Keyword"  width="120"
 				click="addKeyword()"  />
 		</mx:HBox>
