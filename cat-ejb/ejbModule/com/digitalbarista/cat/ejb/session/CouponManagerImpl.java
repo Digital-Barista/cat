@@ -78,7 +78,8 @@ public class CouponManagerImpl implements CouponManager {
 			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
 		}
 		
-		//First do security check!
+		if(!ctx.isCallerInRole("admin") && !userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), cResp.getCouponOffer().getCampaign().getClient().getPrimaryKey()))
+			throw new SecurityException("Current user is not allowed to redeem the specified coupon.");
 		
 		//Also . . . should we check to see if the campagin is active?
 		
@@ -101,12 +102,17 @@ public class CouponManagerImpl implements CouponManager {
 	}
 
 	@Override
+    @RolesAllowed({"client","admin","account.manager"})
 	public List<Coupon> couponSummaryByClient(Long clientID) {
 		Criteria crit = session.createCriteria(CouponOfferDO.class);
 		if(clientID!=null)
 		{
 			crit.createAlias("campaign", "campaign");
 			crit.add(Restrictions.eq("campaign.client.id", clientID));
+		} else if (!ctx.isCallerInRole("admin"))
+		{
+			crit.createAlias("campaign", "campaign");
+			crit.add(Restrictions.in("campaign.client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
 		}
 		List<Coupon> ret = new ArrayList<Coupon>();
 		Coupon temp;
