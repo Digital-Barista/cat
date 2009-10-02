@@ -12,7 +12,6 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.common.vo.ResponseConnectorVO;
 	
-	import mx.collections.ArrayCollection;
 	import mx.formatters.DateFormatter;
 	
 	[Bindable]
@@ -87,7 +86,7 @@ package com.dbi.cat.business
 					{
 						var entry:EntryPointVO = node as EntryPointVO;
 						if (entry.valid &&
-							entry.keyword.toLowerCase() == response.toLowerCase())
+							matchKeyword(response, entry.keyword) )
 						{
 							match = true;
 							currentNode = entry;
@@ -113,8 +112,9 @@ package com.dbi.cat.business
 					if (connector is ResponseConnectorVO)
 					{
 						var rConnector:ResponseConnectorVO = connector as ResponseConnectorVO;
+						
 						if (rConnector.valid &&
-							rConnector.keyword.toLowerCase() == response.toLowerCase())
+							matchKeyword(response, rConnector.keyword) )
 						{
 							match = true;
 							out("Response: ", response);
@@ -134,6 +134,15 @@ package com.dbi.cat.business
 			}
 			nextStep();
 		}
+		private function matchKeyword(input:String, keyword:String):Boolean
+		{
+			// Strip all white space to a single space and ignore case for compare
+			var reg:RegExp = /\s+/g;
+			var responseText:String = input.replace(reg, " ").toLowerCase();
+			var keywordText:String = keyword.replace(reg, " ").toLowerCase();
+			return responseText == keywordText;
+		}
+		
 		public function followNextTimeConnector():void
 		{
 			if (currentNode == null)

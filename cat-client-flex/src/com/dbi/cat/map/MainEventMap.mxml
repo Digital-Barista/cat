@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.CampaignTemplateEvent;
 			import com.dbi.cat.business.CouponManager;
 			import com.dbi.cat.event.CouponEvent;
 			import com.asfusion.mate.events.UnhandledFaultEvent;
@@ -77,6 +78,7 @@
 	<!-- Data Events -->
 	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
 		<EventAnnouncer type="{CampaignEvent.LIST_CAMPAIGNS}" />
+		<EventAnnouncer type="{CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES}" />
 		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
 		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />

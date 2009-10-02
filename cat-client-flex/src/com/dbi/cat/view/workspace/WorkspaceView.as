@@ -26,8 +26,6 @@ package com.dbi.cat.view.workspace
 	
 	import mx.binding.utils.BindingUtils;
 	import mx.collections.ArrayCollection;
-	import mx.collections.Sort;
-	import mx.collections.SortField;
 	import mx.containers.Canvas;
 	import mx.core.Application;
 	import mx.events.DragEvent;
@@ -171,7 +169,7 @@ package com.dbi.cat.view.workspace
 			}
 		}
 		
-		public function fitContent():void
+		public function fitContent(e:LayoutInfoEvent=null):void
 		{
 			zoomContainer.fitComponents();
 		}

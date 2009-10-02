@@ -2,6 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.CampaignTestEvent;
 			import com.dbi.cat.event.CampaignTemplateEvent;
 			import com.dbi.cat.common.vo.CampaignVO;
 			import com.dbi.cat.event.CampaignEvent;
@@ -28,6 +29,11 @@
 				Filter.text = "";
 				filterCampaigns();
 			}
+			
+			private function refresh():void
+			{
+				dispatchEvent(new CampaignTemplateEvent(CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES));
+			}
 		]]>
 	</mx:Script>
 	<mx:TitleWindow 
@@ -48,6 +54,11 @@
 		</mx:DataGrid>
 	</mx:TitleWindow>
 	<mx:HBox right="5" top="7" verticalAlign="middle">
+		<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+			top="3" right="200"
+			width="25" height="25"
+			toolTip="Refresh"
+			click="refresh()" />
 		<mx:Button label="Start New Template"
 			click="createCampaign()"  verticalCenter="0" right="290"/>
 		<mx:Label text="Filter" verticalCenter="0" right="250" />

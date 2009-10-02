@@ -3,6 +3,7 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.LayoutInfoEvent;
 			import com.dbi.cat.view.reporting.CouponReportingView;
 			import com.dbi.cat.business.CouponManager;
 			import com.dbi.cat.view.reporting.CouponRedemptionView;
@@ -190,6 +191,9 @@
 			source="{ClientManager}"
 			sourceKey="clientMap"
 			targetKey="clientMap" />
+		<ListenerInjector 
+			eventType="{LayoutInfoEvent.LAYOUT_LOADED}"
+			method="fitContent" />
 	</Injectors>
 	<Injectors target="{ImportView}">
 		<PropertyInjector
