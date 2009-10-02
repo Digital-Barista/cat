@@ -54,6 +54,17 @@ package com.dbi.cat.view.components
 			
 			var startx:Number = data ? TreeListData(listData).indent : 0;
 		
+			if (data != null &&
+				data is XML &&
+				XML(data).children().length() > 0)
+			{
+				label.styleName = "treeFolder";
+			}
+			else
+			{
+				label.styleName = "";
+			}
+					
 			if (disclosureIcon)
 			{
 				startx = disclosureIcon.x + disclosureIcon.width;
