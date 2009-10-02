@@ -21,5 +21,6 @@ package com.dbi.cat.common.vo
 		public var type:String;
 		public var defaultFromAddress:String;
 		public var addInMessage:String;
+		public var isTemplate:Boolean = false;
 	}
 }

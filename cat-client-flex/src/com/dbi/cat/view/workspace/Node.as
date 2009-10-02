@@ -14,6 +14,11 @@ package com.dbi.cat.view.workspace
 	{
 		protected var statisticsComponent:StatisticsComponent;
 		
+		/**
+		 * Flag to determine if statistics icon should show
+		 */
+		 public var showStatistics:Boolean = true;
+		 
 		public function Node()
 		{
 			super();
@@ -99,7 +104,8 @@ package com.dbi.cat.view.workspace
 		{
 			super.childrenCreated();
 			
-			addChild(statisticsComponent);
+			if (showStatistics)
+				addChild(statisticsComponent);
 		}
 	}
 }

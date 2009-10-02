@@ -118,6 +118,18 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.SAVE_CAMPAIGN_FROM_TEMPLATE}">
+		<RemoteObjectInvoker destination="campaignManager"
+			showBusyCursor="true"
+			method="createFromTemplate"
+			arguments="{[event.campaign, event.campaignTemplateUID]}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="saveCampaign"
+					arguments="{event.campaign}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.PUBLISH_CAMPAIGN}">
 		<MethodInvoker
 			generator="{AppManager}"

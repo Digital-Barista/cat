@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="532" height="380"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="506" height="270"
 	layout="absolute" showCloseButton="true"
 	close="cancel()"
 	title="{isNewUser ? 'Create User' : 'Edit User'}" xmlns:vo="com.dbi.cat.vo.*">

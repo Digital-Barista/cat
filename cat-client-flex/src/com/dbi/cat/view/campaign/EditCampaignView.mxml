@@ -9,6 +9,7 @@
 	title="{isNaN(campaign.primaryKey) ? 'Create Camapign' : 'Edit Campaign'}" >
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.SMSConstants;
 			import com.dbi.cat.view.workspace.MessageItem;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
@@ -47,6 +48,25 @@
 			[Bindable]
 			private var entryPhoneNumbers:ArrayCollection;
 			
+			private var _campaignTemplates:ArrayCollection;
+			[Bindable]
+			public function get campaignTemplates():ArrayCollection
+			{
+				// Add a campaign with a null UID to identify not using a template
+				var ret:ArrayCollection = new ArrayCollection();
+				if (_campaignTemplates != null)
+					ret = new ArrayCollection(_campaignTemplates.toArray().slice());
+				var temp:CampaignVO = new CampaignVO();
+				temp.name = "(No Template)";
+				ret.addItemAt(temp, 0);
+				
+				return ret;
+			}
+			public function set campaignTemplates(templates:ArrayCollection):void
+			{
+				_campaignTemplates = templates;
+			}
+			
 			private function onClose():void
 			{
 				dispatchEvent(new CampaignEvent(CampaignEvent.CLOSE_EDIT_CAMPAIGN));
@@ -84,7 +104,20 @@
 					campaign.defaultFromAddress = EntryPhoneNumber.selectedItem.value;
 					
 				// Save campaign
-				var event:CampaignEvent = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN);
+				var event:CampaignEvent;
+				
+				// No template selected, create a blank campaign
+				if (isNaN(UseTemplate.selectedItem.primaryKey))
+				{
+					event = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN);
+				}
+				// Create a campaign from the selected template
+				else
+				{
+					event = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN_FROM_TEMPLATE);
+					event.campaignTemplateUID = UseTemplate.selectedItem.uid;
+				}
+				
 				event.campaign = campaign;
 				event.campaign.clientPK = Client.selectedItem.clientId;
 				dispatchEvent(event);
@@ -144,15 +177,19 @@
 				labelField="value"
 				change="{campaign.defaultFromAddress = EntryPhoneNumber.selectedItem.value}" />
 		</mx:FormItem>
+		<mx:FormItem label="Use Template">
+			<mx:ComboBox id="UseTemplate"
+				labelField="name"
+				dataProvider="{campaignTemplates}" />
+		</mx:FormItem>
 		<mx:FormItem label="Add In Message">
 			<mx:TextArea id="AddInMessage"
-				width="245" height="60" 
-				maxChars="{EntryPointType.SMS_MAX_CHARACTERS}"
+				width="245" height="60" maxChars="160"
 				text="{campaign.addInMessage}"
 				change="{campaign.addInMessage = AddInMessage.text}" />
 		</mx:FormItem>
 		<mx:FormItem>
-			<mx:Label text="{campaign.addInMessage.length + '/' + EntryPointType.SMS_MAX_CHARACTERS + ' chars'}" />
+			<mx:Label text="{campaign.addInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
 		</mx:FormItem>
 	</mx:Form>
 	<mx:ControlBar x="0" y="142">

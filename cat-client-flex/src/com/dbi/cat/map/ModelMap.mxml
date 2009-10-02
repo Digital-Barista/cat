@@ -3,9 +3,15 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.business.CouponManager;
 			import com.dbi.cat.view.reporting.CouponReportingView;
+			import com.dbi.cat.business.CouponManager;
 			import com.dbi.cat.view.reporting.CouponRedemptionView;
+			import com.dbi.cat.view.EditTemplateCommunicationsView;
+			import com.dbi.cat.business.CampaignTemplateManager;
+			import com.dbi.cat.view.campaign.EditCampaignView;
+			import com.dbi.cat.view.campaign.TemplateCampaignsView;
+			import com.dbi.cat.view.campaign.WorkingCampaignsView;
+			import com.dbi.cat.view.campaign.CampaignsView;
 			import com.dbi.cat.view.workspace.CouponItem;
 			import com.dbi.cat.view.workspace.MessageItem;
 			import com.dbi.cat.business.ImportManager;
@@ -17,10 +23,8 @@
 			import com.dbi.cat.business.LayoutInfoManager;
 			import mx.managers.LayoutManager;
 			import com.dbi.cat.business.ClientManager;
-			import com.dbi.cat.view.EditCampaignView;
 			import com.dbi.cat.business.AppManager;
 			import com.dbi.cat.business.CampaignManager;
-			import com.dbi.cat.view.CampaignsView;
 			import com.dbi.cat.view.EditUserView;
 			import com.dbi.cat.view.LoginView;
 			import com.dbi.cat.business.LoginManager;
@@ -95,17 +99,27 @@
 			sourceKey="currentUser"
 			targetKey="currentUser" />
 	</Injectors>
-	<Injectors target="{CampaignsView}">
+	<Injectors target="{WorkingCampaignsView}">
 		<PropertyInjector
 			source="{CampaignManager}"
 			sourceKey="modifiedCampaignList"
 			targetKey="campaignList" />
+	</Injectors>
+	<Injectors target="{TemplateCampaignsView}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="modifiedCampaignList"
+			targetKey="campaignTemplateList" />
 	</Injectors>
 	<Injectors target="{EditCampaignView}">
 		<PropertyInjector
 			source="{ClientManager}"
 			sourceKey="clients"
 			targetKey="clients" />
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="modifiedCampaignList"
+			targetKey="campaignTemplates" />
 	</Injectors>
 	<Injectors target="{EditCommunicationsView}">
 		<PropertyInjector
@@ -124,6 +138,16 @@
 			source="{CampaignTestManager}"
 			sourceKey="currentNode"
 			targetKey="currentTestNode" />
+		<PropertyInjector
+			source="{AppManager}"
+			sourceKey="workspaceStatusMessage"
+			targetKey="statusMessage" />
+	</Injectors>
+	<Injectors target="{EditTemplateCommunicationsView}">
+		<PropertyInjector
+			source="{CampaignTemplateManager}"
+			sourceKey="campaignTemplate"
+			targetKey="templateCampaign" />
 		<PropertyInjector
 			source="{AppManager}"
 			sourceKey="workspaceStatusMessage"

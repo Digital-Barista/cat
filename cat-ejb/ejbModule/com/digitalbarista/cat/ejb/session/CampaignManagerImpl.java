@@ -568,6 +568,15 @@ public class CampaignManagerImpl implements CampaignManager {
 		em.persist(camp);
 	}
 
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	@RolesAllowed({"client","admin","account.manager"})
+	@AuditEvent(AuditType.SaveCampaign)
+	public void createFromTemplate(Campaign campaign, String campaignTemplateUUID)
+	{
+		
+	}
+	
 	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	protected CampaignEntryPointDO getSpecificEntryPoint(String entryPoint, EntryPointType type, String keyword)
 	{

@@ -2,10 +2,33 @@
 <persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
 	<persistence-unit name="cat-data">
 		<jta-data-source>java:/jdbc/campaignAdminDS</jta-data-source>
-		<class>com.digitalbarista.cat.data.CouponCounterDO</class>
-		<class>com.digitalbarista.cat.data.CouponOfferDO</class>
-		<class>com.digitalbarista.cat.data.CouponRedemptionDO</class>
+		<class>com.digitalbarista.cat.data.UserDO</class>
+		<class>com.digitalbarista.cat.data.SubscriberDO</class>
+		<class>com.digitalbarista.cat.data.SubscriberBlacklistDO</class>
+		<class>com.digitalbarista.cat.data.ScheduledTaskDO</class>
+		<class>com.digitalbarista.cat.data.RoleDO</class>
+		<class>com.digitalbarista.cat.data.NodeInfoDO</class>
+		<class>com.digitalbarista.cat.data.NodeDO</class>
+		<class>com.digitalbarista.cat.data.NodeConnectorLinkDO</class>
+		<class>com.digitalbarista.cat.data.LayoutInfoDO</class>
+		<class>com.digitalbarista.cat.data.KeywordDO</class>
+		<class>com.digitalbarista.cat.data.EntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CouponResponseDO</class>
+		<class>com.digitalbarista.cat.data.CouponRedemptionDO</class>
+		<class>com.digitalbarista.cat.data.CouponOfferDO</class>
+		<class>com.digitalbarista.cat.data.CouponCounterDO</class>
+		<class>com.digitalbarista.cat.data.ConnectorInfoDO</class>
+		<class>com.digitalbarista.cat.data.ConnectorDO</class>
+		<class>com.digitalbarista.cat.data.ClientDO</class>
+		<class>com.digitalbarista.cat.data.CampaignVersionDO</class>
+		<class>com.digitalbarista.cat.data.CampaignSubscriberLinkDO</class>
+		<class>com.digitalbarista.cat.data.CampaignNodeLinkDO</class>
+		<class>com.digitalbarista.cat.data.CampaignEntryPointDO</class>
+		<class>com.digitalbarista.cat.data.CampaignDO</class>
+		<class>com.digitalbarista.cat.data.CampaignConnectorLinkDO</class>
+		<class>com.digitalbarista.cat.audit.OutgoingMessageEntryDO</class>
+		<class>com.digitalbarista.cat.audit.IncomingMessageEntryDO</class>
+		<class>com.digitalbarista.cat.audit.AuditDO</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
 		</properties>

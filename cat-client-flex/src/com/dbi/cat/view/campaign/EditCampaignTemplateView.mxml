@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="330" height="164"
+	showCloseButton="true"
+	close="onClose()" layout="absolute" 
+	horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+	xmlns:vo="com.dbi.cat.vo.*" 
+	xmlns:controls="com.dbi.controls.*"
+	title="{isNaN(campaign.primaryKey) ? 'Create Template' : 'Edit Template'}" >
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.event.CampaignTemplateEvent;
+			import com.dbi.cat.common.constants.SMSConstants;
+			import com.dbi.cat.view.workspace.MessageItem;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.CampaignVO;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.event.CampaignEvent;
+			
+			[Bindable]
+			public var campaign:CampaignVO;
+			
+			private function onClose():void
+			{
+				dispatchEvent(new CampaignEvent(CampaignTemplateEvent.CLOSE_EDIT_CAMPAIGN_TEMPLATE));
+			}
+			private function saveCampaign():void
+			{
+				// Save campaign
+			}
+		]]>
+	</mx:Script>
+	<mx:ArrayCollection id="EntryPointTypes">
+		<mx:Object label="{EntryPointType.SMS}" value="{EntryPointType.SMS}" />
+		<mx:Object label="{EntryPointType.EMAIL}" value="{EntryPointType.EMAIL}" />
+	</mx:ArrayCollection>
+	<mx:Form right="0" left="0" top="0" bottom="0">
+		<mx:FormItem label="Name">
+			<mx:TextInput id="Name"
+				width="245" 
+				text="{campaign.name}"
+				change="{campaign.name = Name.text}" />
+		</mx:FormItem>
+		<mx:FormItem label="Type">
+			<controls:AdvancedComboBox id="CampaignTypeMenu"
+				dataProvider="{EntryPointTypes}"
+				selectedBindingProperty="value"
+				selectedBindingValue="{campaign.type}"
+				change="{campaign.type = CampaignTypeMenu.selectedItem.value}" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar x="0" y="142">
+		<mx:Button label="Save"
+			click="saveCampaign()"/>
+	</mx:ControlBar>
+</mx:TitleWindow>

@@ -19,6 +19,7 @@ public interface CampaignManager {
 	public Campaign getSpecificCampaignVersion(String campaignUUID, int version);
 	public Campaign getLastPublishedCampaign(String campaignUUID);
 	public void save(Campaign campaign);
+	public void createFromTemplate(Campaign campaign, String campaignTemplateUUID);
 	public void delete(Campaign campaign);
 	public List<Campaign> getAllCampaigns();
 	

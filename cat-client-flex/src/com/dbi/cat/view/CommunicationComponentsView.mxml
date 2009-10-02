@@ -5,7 +5,9 @@
 	horizontalScrollPolicy="off"
 	xmlns:vo="com.dbi.cat.vo.*" 
 	xmlns:workspace="com.dbi.cat.view.workspace.*"
-	creationComplete="init()">
+	creationComplete="init()"
+	borderSides="right"
+	borderStyle="solid">
 	<mx:Script>
 		<![CDATA[
 			import mx.events.ListEvent;

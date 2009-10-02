@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:view="com.dbi.cat.view.*" xmlns:reporting="com.dbi.cat.view.reporting.*">
+	xmlns:view="com.dbi.cat.view.*" 
+	xmlns:reporting="com.dbi.cat.view.reporting.*" xmlns:campaign="com.dbi.cat.view.campaign.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.event.NavigationEvent;
@@ -29,7 +30,7 @@
 		left="0" right="0" top="5" bottom="0"
 		horizontalAlign="right" paddingTop="0"
 		change="tabClick(event)">
-		<view:CampaignsView label="Campaigns" />
+		<campaign:CampaignsView label="Campaigns" />
 		<reporting:ReportingView label="Reporting" />
 		<view:UsersView label="Users" />
 		<view:ProfileView label="Profile" />

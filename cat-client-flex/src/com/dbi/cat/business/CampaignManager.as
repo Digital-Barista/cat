@@ -8,8 +8,8 @@ package com.dbi.cat.business
 	import com.dbi.cat.event.ClientEvent;
 	import com.dbi.cat.event.LayoutInfoEvent;
 	import com.dbi.cat.event.LoginEvent;
-	import com.dbi.cat.view.EditCampaignView;
 	import com.dbi.cat.view.EditCommunicationsView;
+	import com.dbi.cat.view.campaign.EditCampaignView;
 	import com.dbi.controls.CustomMessage;
 	
 	import flash.display.DisplayObject;
@@ -77,47 +77,42 @@ package com.dbi.cat.business
 				var layout:LayoutInfoEvent = new LayoutInfoEvent(LayoutInfoEvent.LOAD_CAMPAIGN_LAYOUT_INFO);
 				layout.campaign = campaign;
 				dispatcher.dispatchEvent(layout);
-				
-				// Fire event to load subscriber statistics
-				var statistics:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_SUBSCRIBER_STATISTICS);
-				statistics.campaign = campaign;
-				dispatcher.dispatchEvent(statistics);
-			}
 			
-			// Move to communication screen if not open
-			if (editCommunicationPopup == null)
-			{
-				editCommunicationPopup = new EditCommunicationsView();
-				editCommunicationPopup.width = Application.application.width;
-				editCommunicationPopup.height = Application.application.height;
+				// Setup the addin message for the loaded campaign
+				campaignAddInMessage = "";
+				var client:ClientVO = clientMap[campaign.clientPK];
+					
+				if (campaign.addInMessage != null &&
+					campaign.addInMessage.length > 0)
+					campaignAddInMessage += campaign.addInMessage;
+				else if (client.userAddInMessage != null)
+					campaignAddInMessage += client.userAddInMessage;
+					
+				if (client.adminAddInMessage != null)
+					campaignAddInMessage += client.adminAddInMessage;
 			}
-			PopUpManager.removePopUp(editCommunicationPopup);
-			PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
-			PopUpManager.centerPopUp(editCommunicationPopup);
-			
 		}
 		public function loadModifiedCampaign(campaign:CampaignVO):void
 		{
 			modifiedCampaign = campaign;
 			loadCampaign(campaign);
 			
-			// Setup the addin message for the loaded campaign
-			campaignAddInMessage = "";
-			var client:ClientVO = clientMap[campaign.clientPK];
+			// Load statistics
+			getSubcriberStatistics(campaign);
 				
-			if (campaign.addInMessage != null &&
-				campaign.addInMessage.length > 0)
-				campaignAddInMessage += campaign.addInMessage;
-			else if (client.userAddInMessage != null)
-				campaignAddInMessage += client.userAddInMessage;
-				
-			if (client.adminAddInMessage != null)
-				campaignAddInMessage += client.adminAddInMessage;
+			// Open edit window
+			openLoadedCampaign();
 		}
 		public function loadPublishedCampaign(campaign:CampaignVO):void
 		{
 			publishedCampaign = campaign;
 			loadCampaign(campaign);
+			
+			// Load statistics
+			getSubcriberStatistics(campaign);
+			
+			// Open edit window
+			openLoadedCampaign();
 		}
 		public function loadSubscriberStatistics(stats:Object):void
 		{
@@ -141,6 +136,29 @@ package com.dbi.cat.business
 					if (statistics.hasOwnProperty(node.uid))
 						node.subscriberCount = statistics[node.uid];
 				}
+			}
+		}
+		private function openLoadedCampaign():void
+		{
+			// Move to communication screen if not open
+			if (editCommunicationPopup == null)
+				editCommunicationPopup = new EditCommunicationsView();
+
+			editCommunicationPopup.width = Application.application.width;
+			editCommunicationPopup.height = Application.application.height;
+				
+			PopUpManager.removePopUp(editCommunicationPopup);
+			PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
+			PopUpManager.centerPopUp(editCommunicationPopup);
+		}
+		private function getSubcriberStatistics(campaign:CampaignVO):void
+		{
+			if (campaign != null)
+			{
+				// Fire event to load subscriber statistics
+				var statistics:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_SUBSCRIBER_STATISTICS);
+				statistics.campaign = campaign;
+				dispatcher.dispatchEvent(statistics);
 			}
 		}
 		
@@ -244,13 +262,13 @@ package com.dbi.cat.business
 		 	}
 		 	else
 		 	{
-				CustomMessage.show(fault.message);
-			
-				// Force modified campaign to be reinjected to reload the view
-				var temp:CampaignVO = modifiedCampaign;
-				modifiedCampaign = null;
-				modifiedCampaign = temp;
+		 		CustomMessage.show(fault.toString());
 		 	}
+			
+			// Force modified campaign to be reinjected to reload the view
+			var temp:CampaignVO = modifiedCampaign;
+			modifiedCampaign = null;
+			modifiedCampaign = temp;
 		}
 		
 		//
@@ -437,6 +455,5 @@ package com.dbi.cat.business
 		{
 			PopUpManager.removePopUp(editCampaignPopup);
 		}
-		
 	}
 }
