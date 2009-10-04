@@ -6,6 +6,7 @@ public enum AuditType {
 	SaveConnection,
 	DeleteConnection,
 	SaveCampaign,
+	CreateCampaignFromTemplate,
 	DeleteCampaign,
 	PublishCampaign,
 	SaveClient,

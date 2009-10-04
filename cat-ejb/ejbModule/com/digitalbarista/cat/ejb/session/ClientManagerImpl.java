@@ -115,7 +115,7 @@ public class ClientManagerImpl implements ClientManager {
     
     private void fillInEntryPointKeywordData(EntryPointDefinition epd)
     {
-		Query q=em.createQuery("select cep from CampaignEntryPointDO cep where cep.entryPoint=:epName and cep.type=:epType");
+		Query q=em.createQuery("select cep from CampaignEntryPointDO cep where cep.entryPoint=:epName and cep.type=:epType order by cep.keyword");
 		q.setParameter("epName", epd.getValue());
 		q.setParameter("epType", epd.getType());
 		List<CampaignEntryPointDO> result = q.getResultList();

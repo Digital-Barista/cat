@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -39,12 +40,15 @@ import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.EntryNode;
+import com.digitalbarista.cat.business.ImmediateConnector;
 import com.digitalbarista.cat.business.IntervalConnector;
+import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
 import com.digitalbarista.cat.data.CampaignConnectorLinkDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
+import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignNodeLinkDO;
 import com.digitalbarista.cat.data.CampaignStatus;
 import com.digitalbarista.cat.data.ClientDO;
@@ -102,6 +106,30 @@ public class CampaignManagerImpl implements CampaignManager {
 		Campaign c;
 		Criteria crit = session.createCriteria(CampaignDO.class);
 		crit.add(Restrictions.eq("status", CampaignStatus.Active));
+		crit.add(Restrictions.eq("mode", CampaignMode.Normal));
+		
+		if(!ctx.isCallerInRole("admin"))
+			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+		
+		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
+		{
+			c = new Campaign();
+			c.copyFrom(cmp);
+			ret.add(c);
+		}
+		
+		return ret;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	@PermitAll
+	public List<Campaign> getAllTemplates() {
+		List<Campaign> ret = new ArrayList<Campaign>();
+		Campaign c;
+		Criteria crit = session.createCriteria(CampaignDO.class);
+		crit.add(Restrictions.eq("status", CampaignStatus.Active));
+		crit.add(Restrictions.eq("mode", CampaignMode.Template));
 		
 		if(!ctx.isCallerInRole("admin"))
 			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
@@ -287,6 +315,9 @@ public class CampaignManagerImpl implements CampaignManager {
 			CampaignDO camp = getSimpleCampaign(campaignUUID);
 			if(camp==null)
 				throw new IllegalArgumentException("Campaign '"+campaignUUID+"' could not be found.");
+			if(camp.getMode().equals(CampaignMode.Template))
+				throw new IllegalArgumentException("Cannot publish a campaign template!");
+			
 			Integer version = camp.getCurrentVersion();
 			
 			ConnectorDO conn;
@@ -563,6 +594,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			camp.setClient(em.find(ClientDO.class, campaign.getClientPK()));
 			camp.setUID(campaign.getUid());
 			camp.setCampaignType(campaign.getType());
+			camp.setMode(campaign.getMode());
 		}
 		campaign.copyTo(camp);
 		em.persist(camp);
@@ -571,10 +603,134 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
-	@AuditEvent(AuditType.SaveCampaign)
+	@AuditEvent(AuditType.CreateCampaignFromTemplate)
 	public void createFromTemplate(Campaign campaign, String campaignTemplateUUID)
 	{
+		Campaign template = getDetailedCampaign(campaignTemplateUUID);
+		if(template==null)
+			throw new IllegalArgumentException("Template '"+campaignTemplateUUID+"' could not be found.");
+		if(template.getMode().equals(CampaignMode.Normal))
+			throw new IllegalArgumentException("Specified UUID is not a template!");
 		
+		Map<String,String> oldNewNodeMap = new HashMap<String,String>();
+		
+		save(campaign);
+		Node newNode;
+		for(Node oldNode : template.getNodes())
+		{
+			newNode = copyNode(oldNode);
+			newNode.setCampaignUID(campaign.getUid());
+			save(newNode);
+			oldNewNodeMap.put(oldNode.getUid(), newNode.getUid());
+		}
+		
+		Connector newConnector;
+		for(Connector oldConnector : template.getConnectors())
+		{
+			newConnector = copyConnector(oldConnector);
+			newConnector.setCampaignUID(campaign.getUid());
+			newConnector.setDestinationUID(oldNewNodeMap.get(oldConnector.getDestinationUID()));
+			newConnector.setSourceNodeUID(oldNewNodeMap.get(oldConnector.getSourceNodeUID()));
+			save(newConnector);
+		}
+	}
+
+	private Connector copyConnector(Connector from)
+	{
+		switch(from.getType())
+		{
+			case Calendar:
+			{
+				CalendarConnector ret = new CalendarConnector();
+				CalendarConnector source = (CalendarConnector)from;
+				ret.setName(source.getName());
+				ret.setTargetDate(source.getTargetDate());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+			
+			case Immediate:
+			{
+				ImmediateConnector ret = new ImmediateConnector();
+				ImmediateConnector source = (ImmediateConnector)from;
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+			
+			case Interval:
+			{
+				IntervalConnector ret = new IntervalConnector();
+				IntervalConnector source = (IntervalConnector)from;
+				ret.setInterval(source.getInterval());
+				ret.setIntervalType(source.getIntervalType());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+			
+			case Response:
+			{
+				ResponseConnector ret = new ResponseConnector();
+				ResponseConnector source = (ResponseConnector)from;
+				ret.setEntryPoint(source.getEntryPoint());
+				ret.setEntryPointType(source.getEntryPointType());
+				ret.setKeyword(source.getKeyword());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+			
+			default:
+				throw new IllegalStateException("Cannot copy campaign, since one of the connector types cannot be copied.");
+		}
+	}
+	
+	private Node copyNode(Node from)
+	{
+		switch(from.getType())
+		{
+			case Coupon:
+			{
+				CouponNode ret = new CouponNode();
+				CouponNode source = (CouponNode)from;
+				ret.setAvailableMessage(source.getAvailableMessage());
+				ret.setCouponCode(source.getCouponCode());
+				ret.setMaxCoupons(source.getMaxCoupons());
+				ret.setMaxRedemptions(source.getMaxRedemptions());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				ret.setUnavailableDate(source.getUnavailableDate());
+				ret.setUnavailableMessage(source.getUnavailableMessage());
+				return ret;
+			}
+			
+			case Entry:
+			{
+				EntryNode ret = new EntryNode();
+				EntryNode source = (EntryNode)from;
+				ret.setEntryPoint(source.getEntryPoint());
+				ret.setEntryType(source.getEntryType());
+				ret.setKeyword(source.getKeyword());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+			
+			case Message:
+			{
+				MessageNode ret = new MessageNode();
+				MessageNode source = new MessageNode();
+				ret.setMessage(source.getMessage());
+				ret.setMessageType(source.getMessageType());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+			
+			default:
+				throw new IllegalStateException("Cannot copy campaign, since one of the node types cannot be copied.");
+		}
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.MANDATORY)

@@ -22,6 +22,7 @@ public interface CampaignManager {
 	public void createFromTemplate(Campaign campaign, String campaignTemplateUUID);
 	public void delete(Campaign campaign);
 	public List<Campaign> getAllCampaigns();
+	public List<Campaign> getAllTemplates();
 	
 	public Node getNode(String nodeUUID);
 	public Node getSpecificNodeVersion(String nodeUUID,Integer version);

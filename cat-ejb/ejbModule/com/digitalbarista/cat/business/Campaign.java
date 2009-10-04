@@ -7,6 +7,7 @@ import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.EntryPointType;
 
 public class Campaign implements BusinessObject<CampaignDO>,Auditable {
@@ -25,6 +26,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	private Long clientPK;
 	private EntryPointType type;
 	private String defaultFromAddress;
+	private CampaignMode mode;
 	
 	public void copyFrom(CampaignDO dataObject, Integer version) {
 		primaryKey=dataObject.getPrimaryKey();
@@ -34,6 +36,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		type = dataObject.getCampaignType();
 		addInMessage = dataObject.getAddInMessage();
 		defaultFromAddress = dataObject.getDefaultFrom();
+		mode = dataObject.getMode();
 		if(dataObject.getClient()!=null)
 		{
 			clientPK = dataObject.getClient().getPrimaryKey();
@@ -143,5 +146,13 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 
 	public void setDefaultFromAddress(String defaultFromAddress) {
 		this.defaultFromAddress = defaultFromAddress;
+	}
+
+	public CampaignMode getMode() {
+		return mode;
+	}
+
+	public void setMode(CampaignMode mode) {
+		this.mode = mode;
 	}
 }

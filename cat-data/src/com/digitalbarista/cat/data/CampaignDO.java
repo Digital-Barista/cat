@@ -48,6 +48,7 @@ public class CampaignDO implements Serializable,DataObject {
 	private Set<CampaignEntryPointDO> entryPoints = new HashSet<CampaignEntryPointDO>();
 	private EntryPointType campaignType;
 	private String defaultFrom;
+	private CampaignMode mode;
 	
 	public CampaignDO() {
 		super();
@@ -199,5 +200,15 @@ public class CampaignDO implements Serializable,DataObject {
 
 	public void setDefaultFrom(String defaultFrom) {
 		this.defaultFrom = defaultFrom;
+	}
+
+	@Column(name="mode")
+	@Enumerated(EnumType.STRING)
+	public CampaignMode getMode() {
+		return mode;
+	}
+
+	public void setMode(CampaignMode mode) {
+		this.mode = mode;
 	}
 }

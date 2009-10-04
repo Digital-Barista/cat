@@ -132,6 +132,7 @@ CREATE  TABLE IF NOT EXISTS `campaign_admin`.`campaigns` (
   `type` VARCHAR(32) NOT NULL ,
   `from_address` VARCHAR(256) NOT NULL ,
   `add_in_message` VARCHAR(160) NULL ,
+  `mode` VARCHAR(32) NOT NULL ,
   PRIMARY KEY (`campaign_id`) )
 ENGINE = InnoDB;
 
