@@ -42,6 +42,7 @@ import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.ImmediateConnector;
 import com.digitalbarista.cat.business.IntervalConnector;
+import com.digitalbarista.cat.business.LayoutInfo;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
@@ -97,6 +98,9 @@ public class CampaignManagerImpl implements CampaignManager {
 	
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
+	
+	@EJB(name="ejb/cat/LayoutManager")
+	LayoutManager layoutManager;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -612,7 +616,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		if(template.getMode().equals(CampaignMode.Normal))
 			throw new IllegalArgumentException("Specified UUID is not a template!");
 		
-		Map<String,String> oldNewNodeMap = new HashMap<String,String>();
+		Map<String,String> oldNewUIDMap = new HashMap<String,String>();
 		
 		save(campaign);
 		Node newNode;
@@ -621,7 +625,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			newNode = copyNode(oldNode);
 			newNode.setCampaignUID(campaign.getUid());
 			save(newNode);
-			oldNewNodeMap.put(oldNode.getUid(), newNode.getUid());
+			oldNewUIDMap.put(oldNode.getUid(), newNode.getUid());
 		}
 		
 		Connector newConnector;
@@ -629,10 +633,24 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			newConnector = copyConnector(oldConnector);
 			newConnector.setCampaignUID(campaign.getUid());
-			newConnector.setDestinationUID(oldNewNodeMap.get(oldConnector.getDestinationUID()));
-			newConnector.setSourceNodeUID(oldNewNodeMap.get(oldConnector.getSourceNodeUID()));
+			newConnector.setDestinationUID(oldNewUIDMap.get(oldConnector.getDestinationUID()));
+			newConnector.setSourceNodeUID(oldNewUIDMap.get(oldConnector.getSourceNodeUID()));
 			save(newConnector);
+			oldNewUIDMap.put(oldConnector.getUid(), newConnector.getUid());
 		}
+		
+		LayoutInfo newLO;
+		for(LayoutInfo info : layoutManager.getLayoutsByCampaign(campaignTemplateUUID))
+		{
+			newLO = new LayoutInfo();
+			newLO.setCampaignUUID(campaign.getUid());
+			newLO.setUUID(oldNewUIDMap.get(info.getUUID()));
+			newLO.setX(info.getX());
+			newLO.setY(info.getY());
+			newLO.setVersion(1);
+			layoutManager.save(newLO);
+		}
+		
 	}
 
 	private Connector copyConnector(Connector from)
