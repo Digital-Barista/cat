@@ -46,7 +46,39 @@ package com.dbi.cat.business
 			PopUpManager.addPopUp(editCampaignTemplateCommunicationPopup, UIComponent(Application.application), true);	
 			PopUpManager.centerPopUp(editCampaignTemplateCommunicationPopup);
 		}
+		public function loadCampaignTemplates(campaignTemplates:ArrayCollection):void
+		{
+			campaignTemplateList = campaignTemplates;
+		}
 		
+		public function saveCampaignTemplate(campaign:CampaignVO):void
+		{
+			// Update campaign template lists
+			if (campaign != null)
+			{
+				// Replace a modified campaign in the stored list with this one
+				var found:Boolean = false;
+				for (var i:Number = 0; i < campaignTemplateList.length; i++)
+				{
+					// Replace the campaign in the list with the newest version
+					if (campaignTemplateList[i].uid == campaign.uid)
+					{
+						found = true;
+						if (campaignTemplateList[i].currentVersion <= campaign.currentVersion)
+						{
+							campaignTemplateList[i] = campaign;
+							break;
+						}
+					}
+				}
+				// If no version of this campaign UID is found it must be new so add it
+				if (!found)
+					campaignTemplateList.addItem(campaign);
+			}
+							
+			// Close popup
+			closeEditCampaignTemplate();
+		}
 		public function editCampaignTemplate(campaign:CampaignVO):void
 		{
 			// Create view

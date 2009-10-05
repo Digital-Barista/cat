@@ -3,6 +3,7 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.campaign.EditCampaignTemplateView;
 			import com.dbi.cat.event.LayoutInfoEvent;
 			import com.dbi.cat.view.reporting.CouponReportingView;
 			import com.dbi.cat.business.CouponManager;
@@ -108,8 +109,8 @@
 	</Injectors>
 	<Injectors target="{TemplateCampaignsView}">
 		<PropertyInjector
-			source="{CampaignManager}"
-			sourceKey="modifiedCampaignList"
+			source="{CampaignTemplateManager}"
+			sourceKey="campaignTemplateList"
 			targetKey="campaignTemplateList" />
 	</Injectors>
 	<Injectors target="{EditCampaignView}">
@@ -118,9 +119,15 @@
 			sourceKey="clients"
 			targetKey="clients" />
 		<PropertyInjector
-			source="{CampaignManager}"
-			sourceKey="modifiedCampaignList"
+			source="{CampaignTemplateManager}"
+			sourceKey="campaignTemplateList"
 			targetKey="campaignTemplates" />
+	</Injectors>
+	<Injectors target="{EditCampaignTemplateView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
 	</Injectors>
 	<Injectors target="{EditCommunicationsView}">
 		<PropertyInjector

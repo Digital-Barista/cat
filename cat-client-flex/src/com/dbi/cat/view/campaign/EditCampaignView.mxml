@@ -107,7 +107,8 @@
 				var event:CampaignEvent;
 				
 				// No template selected, create a blank campaign
-				if (isNaN(UseTemplate.selectedItem.primaryKey))
+				if (!isNaN(campaign.primaryKey) ||
+					isNaN(UseTemplate.selectedItem.primaryKey))
 				{
 					event = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN);
 				}
@@ -177,7 +178,9 @@
 				labelField="value"
 				change="{campaign.defaultFromAddress = EntryPhoneNumber.selectedItem.value}" />
 		</mx:FormItem>
-		<mx:FormItem label="Use Template">
+		<mx:FormItem label="Use Template"
+			visible="{isNaN(campaign.primaryKey)}"
+			includeInLayout="{isNaN(campaign.primaryKey)}">
 			<mx:ComboBox id="UseTemplate"
 				labelField="name"
 				dataProvider="{campaignTemplates}" />

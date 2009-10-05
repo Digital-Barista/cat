@@ -9,6 +9,7 @@
 	title="{isNaN(campaign.primaryKey) ? 'Create Template' : 'Edit Template'}" >
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.event.CampaignTemplateEvent;
 			import com.dbi.cat.common.constants.SMSConstants;
 			import com.dbi.cat.view.workspace.MessageItem;
@@ -22,6 +23,9 @@
 			[Bindable]
 			public var campaign:CampaignVO;
 			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
 			private function onClose():void
 			{
 				dispatchEvent(new CampaignEvent(CampaignTemplateEvent.CLOSE_EDIT_CAMPAIGN_TEMPLATE));
@@ -29,6 +33,13 @@
 			private function saveCampaign():void
 			{
 				// Save campaign
+				var event:CampaignEvent;
+				event = new CampaignEvent(CampaignTemplateEvent.SAVE_CAMPAIGN_TEMPLATE);
+				event.campaign = campaign;
+				event.campaign.defaultFromAddress = "";
+				event.campaign.clientPK = Client.selectedItem.clientId;
+				event.campaign.mode = CampaignMode.TEMPLATE;
+				dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>
@@ -49,6 +60,15 @@
 				selectedBindingProperty="value"
 				selectedBindingValue="{campaign.type}"
 				change="{campaign.type = CampaignTypeMenu.selectedItem.value}" />
+		</mx:FormItem>
+		<mx:FormItem label="Client">
+			<controls:AdvancedComboBox 
+				id="Client"
+				dataProvider="{clients}"
+				selectedBindingProperty="clientId"
+				selectedBindingValue="{campaign.clientPK}"
+				labelField="name" 
+				y="249" horizontalCenter="250"  />
 		</mx:FormItem>
 	</mx:Form>
 	<mx:ControlBar x="0" y="142">

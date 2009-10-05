@@ -1,7 +1,6 @@
 package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.CodedMessageVO;
-	import com.dbi.cat.common.vo.CouponVO;
 	
 	import mx.collections.ArrayCollection;
 	
@@ -28,18 +27,12 @@ package com.dbi.cat.business
 		
 		public function showCouponRedemption(message:CodedMessageVO):void
 		{
+			redemptionMessage = message.message;
 			
 			if (message.code == CodedMessageVO.SUCCESS)
-			{
-				redemptionMessage = "Valid coupon redeemed: ";
 				redemptionClass = "successMessage";
-			}
 			else
-			{
-				redemptionMessage = "Invalid coupon: ";
 				redemptionClass = "failMessage";
-			}
-			redemptionMessage += message.detailedMessage;
 		}
 	}
 }
