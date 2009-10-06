@@ -35,9 +35,6 @@ public class LayoutManagerImpl implements LayoutManager {
 	@Resource
 	private SessionContext ctx; //Used to flag rollbacks.
 	
-	@EJB(name="ejb/cat/CampaignManager")
-	CampaignManager campMan;
-	
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
 	
@@ -127,7 +124,7 @@ public class LayoutManagerImpl implements LayoutManager {
 		//Find the persistent campaign for the one that got passed in.
 		CampaignDO c=null;
 		if(layout.getCampaignUUID()!=null)
-			c=campMan.getSimpleCampaign(layout.getCampaignUUID());
+			c=((CampaignManager)ctx.lookup("ejb/cat/CampaignManager")).getSimpleCampaign(layout.getCampaignUUID());
 
 		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), c.getClient().getPrimaryKey()))
 			throw new SecurityException("Current user is not allowed to create or alter layout info entries for this campaign.");
@@ -162,7 +159,7 @@ public class LayoutManagerImpl implements LayoutManager {
 	@Override
 	@PermitAll
 	public List<LayoutInfo> getLayoutsByCampaignAndVersion(String uid,Integer version) {
-		CampaignDO c = campMan.getSimpleCampaign(uid);
+		CampaignDO c = ((CampaignManager)ctx.lookup("ejb/cat/CampaignManager")).getSimpleCampaign(uid);
 		
 		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), c.getClient().getPrimaryKey()))
 			throw new SecurityException("Current user is not allowed to view layout info for the specified campaign.");
