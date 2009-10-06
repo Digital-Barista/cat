@@ -56,7 +56,7 @@
 			}
 			
 			// Addin message of current campaign
-			private var _addInMessage:String;
+			private var _addInMessage:String = "";
 			[Bindable]
 			public function get addInMessage():String
 			{
@@ -146,7 +146,7 @@
 			[Bindable(event="unavailableCharacterUpdate")]
 			private function get unavailableCharacterCount():Number
 			{
-				var ret:Number = addInMessage.length;
+				var ret:Number = addInMessage == null ? 0 : addInMessage.length;
 				if (couponVO != null &&
 					couponVO.unavailableMessage != null)
 				{
@@ -159,7 +159,7 @@
 			[Bindable(event="availableCharacterUpdate")]
 			private function get availableCharacterCount():Number
 			{
-				var ret:Number = addInMessage.length;
+				var ret:Number = addInMessage == null ? 0 : addInMessage.length;
 				if (couponVO != null &&
 					couponVO.availableMessage != null)
 				{

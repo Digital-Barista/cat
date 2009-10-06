@@ -1,10 +1,12 @@
 package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.CampaignVO;
+	import com.dbi.cat.event.LayoutInfoEvent;
 	import com.dbi.cat.view.EditTemplateCommunicationsView;
 	import com.dbi.cat.view.campaign.EditCampaignTemplateView;
 	
 	import flash.display.DisplayObject;
+	import flash.events.IEventDispatcher;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.Application;
@@ -24,8 +26,11 @@ package com.dbi.cat.business
 		private var editCampaignTemplatePopup:IFlexDisplayObject;
 		private var editCampaignTemplateCommunicationPopup:IFlexDisplayObject;
 		
-		public function CampaignTemplateManager()
+		private var dispatcher:IEventDispatcher;
+		
+		public function CampaignTemplateManager(dispatcher:IEventDispatcher)
 		{
+			this.dispatcher = dispatcher;
 		}
 		
 		//
@@ -35,6 +40,14 @@ package com.dbi.cat.business
 		{
 			campaignTemplate = campaign;
 			
+			// Update local copy
+			updateCampaignTemplate(campaignTemplate);
+			
+			// Fire event to load layout data
+			var layout:LayoutInfoEvent = new LayoutInfoEvent(LayoutInfoEvent.LOAD_CAMPAIGN_LAYOUT_INFO);
+			layout.campaign = campaign;
+			dispatcher.dispatchEvent(layout);
+				
 			// Move to communication screen if not open
 			if (editCampaignTemplateCommunicationPopup == null)
 			{
@@ -49,6 +62,30 @@ package com.dbi.cat.business
 		public function loadCampaignTemplates(campaignTemplates:ArrayCollection):void
 		{
 			campaignTemplateList = campaignTemplates;
+		}
+		public function updateCampaignTemplate(campaign:CampaignVO):void
+		{
+			if (campaign != null)
+			{
+				// Replace a campaign template in the stored list with this one
+				var found:Boolean = false;
+				for (var i:Number = 0; i < campaignTemplateList.length; i++)
+				{
+					// Replace the campaign in the list with the newest version
+					if (campaignTemplateList[i].uid == campaign.uid)
+					{
+						found = true;
+						if (campaignTemplateList[i].currentVersion <= campaign.currentVersion)
+						{
+							campaignTemplateList[i] = campaign;
+							break;
+						}
+					}
+				}
+				// If no version of this campaign UID is found it must be new so add it
+				if (!found)
+					campaignTemplateList.addItem(campaign);
+			}
 		}
 		
 		public function saveCampaignTemplate(campaign:CampaignVO):void

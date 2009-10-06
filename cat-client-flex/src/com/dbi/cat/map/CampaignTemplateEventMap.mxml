@@ -64,9 +64,6 @@
 			arguments="{event.campaign.uid}"
 			showBusyCursor="true">
 			<resultHandlers>
-				<MethodInvoker generator="{CampaignManager}"
-					method="loadCampaign"
-					arguments="{resultObject}" />
 				<MethodInvoker generator="{CampaignTemplateManager}"
 					method="loadCampaignTemplate"
 					arguments="{resultObject}" />

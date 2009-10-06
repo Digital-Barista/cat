@@ -166,6 +166,10 @@
 			source="{CampaignManager}"
 			sourceKey="allCampaignList"
 			targetKey="campaignList" />
+		<PropertyInjector
+			source="{CampaignTemplateManager}"
+			sourceKey="campaignTemplateList"
+			targetKey="campaignTemplateList" />
 	</Injectors>
 	<Injectors target="{ProfileView}">
 		<PropertyInjector
