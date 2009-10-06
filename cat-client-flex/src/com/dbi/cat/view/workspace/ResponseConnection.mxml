@@ -4,8 +4,6 @@
 	xmlns:components="com.dbi.cat.view.components.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	width="400" height="300"
-	editWindowHeight="140"
-	editWindowWidth="320"
 	displayIcon="{responseConnectorWorkspace}"
 	workspaceIcon="{responseConnector}"
 	x="{connectorVO.layoutInfo.x}"
@@ -13,6 +11,7 @@
 	label="Response Connector">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.vo.KeywordVO;
 			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.vo.ResponseConnectorVO;
@@ -58,7 +57,8 @@
 		<mx:Object label="{EntryPointType.EMAIL}" value="{EntryPointType.EMAIL}" />
 	</mx:ArrayCollection>
 	<editContent>
-		<mx:Form right="0" left="0" top="0" bottom="0"   
+		<mx:Form id="ContentForm"
+			right="0" left="0" top="0" bottom="0"   
 			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
 			<mx:FormItem label="Title">
 				<mx:TextInput id="Title"
@@ -66,11 +66,11 @@
 					change="{responseConnectorVO.name = Title.text}" />
 			</mx:FormItem>
 			<mx:FormItem label="{entryPointLabel}" required="true"
-				visible="{!workspace.campaign.isTemplate}">
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:Label text="{responseConnectorVO.entryPoint}" />
 			</mx:FormItem>
 			<mx:FormItem label="Keyword" required="true"
-				visible="{!workspace.campaign.isTemplate}">
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<components:KeywordComboBox id="SubscribeKeyword"
 					labelField="keyword"
 					dataProvider="{workspace.campaignKeywords}"

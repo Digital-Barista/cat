@@ -14,6 +14,7 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.EntryPointType;
 			import mx.events.ChildExistenceChangedEvent;
 			import com.dbi.cat.common.vo.ClientVO;
@@ -76,7 +77,8 @@
 			[Bindable(event="changeAddInMessage")]
 			private function get showAddin():Boolean
 			{
-				return addInMessage.length > 0;
+				return addInMessage != null &&
+					addInMessage.length > 0;
 			}
 			
 			[Bindable(event="changeMessage")]
@@ -110,13 +112,15 @@
 					text="{messageVO.name}"
 					change="{messageVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="Message" required="true" width="100%" >
+			<mx:FormItem label="Message" required="true" width="100%" 
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 					<mx:TextArea id="Message"  width="200" height="120"
 						maxChars="{EntryPointType.getMaxCharacters(workspace.campaign.type)}"
 						text="{messageVO.message}" 
 						change="updateMessage()"/>
 			</mx:FormItem>
-			<mx:FormItem label="Add In" visible="{showAddin}" includeInLayout="{showAddin}">
+			<mx:FormItem label="Add In" visible="{showAddin}" includeInLayout="{showAddin}"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:TextArea id="AddIn" width="200" height="70"
 					text="{addInMessage}"
 					editable="false" />

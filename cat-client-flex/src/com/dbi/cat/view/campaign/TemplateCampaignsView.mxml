@@ -15,7 +15,6 @@
 			{
 				var event:CampaignEvent = new CampaignEvent(CampaignTemplateEvent.EDIT_CAMPAIGN_TEMPLATE);
 				event.campaign = new CampaignVO();
-				event.campaign.isTemplate = true;
 				dispatchEvent(event);
 			}
 			private function filterCampaigns():void

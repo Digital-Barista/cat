@@ -1,5 +1,6 @@
 package com.dbi.cat.view.workspace
 {
+	import com.dbi.cat.common.constants.CampaignMode;
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
@@ -374,8 +375,8 @@ package com.dbi.cat.view.workspace
             }
             
             // Hide some icons for template campaigns
-            newItem.showInvalidWarning = !campaign.isTemplate;
-            newItem.showStatistics = !campaign.isTemplate;
+            newItem.showInvalidWarning = campaign.mode != CampaignMode.TEMPLATE;
+            newItem.showStatistics = campaign.mode != CampaignMode.TEMPLATE;
             
             addItemToWorkspace(newItem);
 		}
@@ -409,7 +410,7 @@ package com.dbi.cat.view.workspace
             }
             
             // Hide some icons for template campaigns
-            newItem.showInvalidWarning = !campaign.isTemplate;
+            newItem.showInvalidWarning = campaign.mode != CampaignMode.TEMPLATE;
             
             // Associate connected nodes
             if (connector.sourceNodeUID != null)
@@ -445,6 +446,7 @@ package com.dbi.cat.view.workspace
 			// Bind readonly flag to items
 			item.readonly = readonly;
 			changeWatcherMap[item.uid] = BindingUtils.bindProperty(item, "readonly", this, "readonly");
+			
 			
 			// Size item
 			item.width = WORKSPACE_ITEM_WIDTH;

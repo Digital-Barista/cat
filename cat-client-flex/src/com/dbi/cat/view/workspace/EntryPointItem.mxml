@@ -9,6 +9,7 @@
 	label="Entry Point" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 			import com.dbi.cat.common.vo.KeywordVO;
 			import mx.collections.ArrayCollection;
@@ -55,11 +56,11 @@
 					change="{entryPointVO.name = Title.text}" />
 			</mx:FormItem>
 			<mx:FormItem label="{entryPointVO.entryType}" required="true"
-				visible="{!workspace.campaign.isTemplate}">
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:Label text="{entryPointVO.entryPoint}" />
 			</mx:FormItem>
 			<mx:FormItem label="Keyword" required="true"
-				visible="{!workspace.campaign.isTemplate}" >
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}" >
 				<components:KeywordComboBox id="SubscribeKeyword"
 					labelField="keyword"
 					dataProvider="{workspace.campaignKeywords}"

@@ -12,6 +12,7 @@
 	label="Interval Connector">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.IntervalType;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			import com.dbi.cat.common.vo.IntervalConnectorVO;
@@ -56,7 +57,8 @@
 					text="{intervalConnectorVO.name}"
 					change="{intervalConnectorVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="Interval" required="true">
+			<mx:FormItem label="Interval" required="true"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:Canvas width="100%">
 					<mx:TextInput id="IntervalNumber" width="40"
 						restrict="[0-9]"
