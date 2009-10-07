@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,6 +16,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.OrderBy;
 
 /**
  * Entity implementation class for Entity: EntryPointDO
@@ -89,7 +92,7 @@ public class EntryPointDO implements DataObject,Serializable {
 		this.restriction = restriction;
 	}
 
-	@ManyToMany(targetEntity=ClientDO.class)
+	@ManyToMany(targetEntity=ClientDO.class,fetch=FetchType.LAZY)
 	@JoinTable(
 		name="client_entry_point_link",
 		joinColumns=@JoinColumn(name="entry_point_id"),

@@ -1,7 +1,9 @@
 package com.digitalbarista.cat.business;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
@@ -18,7 +20,25 @@ public class Client implements
 	private String name;
 	private String adminAddInMessage;
 	private String userAddInMessage;
-	private Set<EntryPointDefinition> entryPoints = new HashSet<EntryPointDefinition>();
+	private Set<EntryPointDefinition> entryPoints = new TreeSet<EntryPointDefinition>(
+			new Comparator<EntryPointDefinition>()
+			{
+				@Override
+				public int compare(EntryPointDefinition arg0,
+						EntryPointDefinition arg1) {
+					if(arg0==null && arg1==null)
+						return 0;
+					if(arg1==null)
+						return 1;
+					if(arg0==null)
+						return -1;
+					if(arg0.getValue()==null && arg1.getValue()==null)
+						return 0;
+					if(arg0.getValue()==null)
+						return -1;
+					return arg0.getValue().compareToIgnoreCase(arg1.getValue());
+				}
+			});
 	
 	@Override
 	public void copyFrom(ClientDO dataObject) {
