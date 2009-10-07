@@ -194,7 +194,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			else
 				keyphrase+=word;
 		}
-		keyphrase.toUpperCase();
+		keyphrase = keyphrase.toUpperCase();
 		
 		//Now we go through the entry points 'til we find the right keyword.
 		CampaignEntryPointDO mostLikelyEntry=null;
