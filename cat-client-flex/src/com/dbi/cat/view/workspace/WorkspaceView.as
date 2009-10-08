@@ -74,7 +74,6 @@ package com.dbi.cat.view.workspace
 				loadCampaign(c);
 			}	
 			_campaign = c;
-			buildKeywordList();
 		}
 	
 		// Workspace item properties
@@ -97,11 +96,7 @@ package com.dbi.cat.view.workspace
 		public function set clientMap(value:Object):void
 		{
 			_clientMap = value;
-			buildKeywordList();
 		}
-		
-		[Bindable]
-		public var campaignKeywords:ArrayCollection
 		
 		public function WorkspaceView()
 		{
@@ -144,30 +139,39 @@ package com.dbi.cat.view.workspace
 		}
 		
 		
-		private function buildKeywordList():void
+		
+		//
+		// Entry point methods
+		//
+		public function getClientEntryPoints(entryPointType:String):ArrayCollection
 		{
-			campaignKeywords = new ArrayCollection();
-			
+			var ret:ArrayCollection = new ArrayCollection();
 			if (campaign != null &&
 				clientMap != null &&
 				clientMap[campaign.clientPK] != null)
 			{
 				for each (var e:EntryPointDefinitionVO in clientMap[campaign.clientPK].entryPoints)
 				{
-					if (e.type == campaign.type &&
-						e.value == campaign.defaultFromAddress)
+					if (e.type == entryPointType)
 					{
-						campaignKeywords = e.keywords;
-						break;
+						ret.addItem(e);
 					}
 				}
-				
-				// Sort keywords
-//				var sort:Sort = new Sort();
-//				sort.fields = [new SortField("keyword")];
-//				campaignKeywords.sort = sort;
-//				campaignKeywords.refresh();
 			}
+			return ret;
+		}
+		public function getClientKeywords(entryPointType:String, address:String):ArrayCollection
+		{
+			var ret:ArrayCollection = new ArrayCollection();
+			for each (var e:EntryPointDefinitionVO in getClientEntryPoints(entryPointType))
+			{
+				if (e.value == address)
+				{
+					ret = new ArrayCollection(e.keywords.toArray().slice());
+					break;
+				}
+			}
+			return ret;
 		}
 		
 		public function fitContent(e:LayoutInfoEvent=null):void
@@ -270,8 +274,6 @@ package com.dbi.cat.view.workspace
             {
             	var entryPoint:EntryPointVO = new EntryPointVO();
             	entryPoint.campaignUID = campaign.uid;
-            	entryPoint.entryType = campaign.type;
-            	entryPoint.entryPoint = campaign.defaultFromAddress;
             	layout.UUID = entryPoint.uid;
             	entryPoint.layoutInfo = layout;
             	

@@ -1,6 +1,7 @@
 package com.dbi.cat.common.vo
 {
 	import com.dbi.cat.common.constants.CampaignMode;
+	import com.dbi.cat.common.constants.EntryPointType;
 	
 	import mx.collections.ArrayCollection;
 	import mx.utils.UIDUtil;
@@ -21,8 +22,8 @@ package com.dbi.cat.common.vo
 		public var nodes:ArrayCollection;
 		public var connectors:ArrayCollection;
 		public var clientPK:Number;
-		public var type:String;
-		public var defaultFromAddress:String;
+		public var type:String = EntryPointType.SMS;
+		public var defaultFromAddress:String = "";
 		public var addInMessage:String;
 	}
 }

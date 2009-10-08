@@ -27,12 +27,17 @@ package com.dbi.cat.business
 		
 		public function showCouponRedemption(message:CodedMessageVO):void
 		{
-			redemptionMessage = message.message;
-			
 			if (message.code == CodedMessageVO.SUCCESS)
+			{
+				redemptionMessage = "Valid coupon redeemed: ";
 				redemptionClass = "successMessage";
+			}
 			else
+			{
+				redemptionMessage = "Invalid coupon: ";
 				redemptionClass = "failMessage";
+			}
+			redemptionMessage += message.detailedMessage;
 		}
 	}
 }

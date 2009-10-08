@@ -73,7 +73,6 @@
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<components:KeywordComboBox id="SubscribeKeyword"
 					labelField="keyword"
-					dataProvider="{workspace.campaignKeywords}"
 					selectedBindingProperty="keyword"
 					selectedBindingValue="{responseConnectorVO.keyword}"
 					change="{responseConnectorVO.keyword = SubscribeKeyword.selectedItem.keyword}" />

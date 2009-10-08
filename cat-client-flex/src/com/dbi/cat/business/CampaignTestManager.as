@@ -85,14 +85,21 @@ package com.dbi.cat.business
 					if (node is EntryPointVO)
 					{
 						var entry:EntryPointVO = node as EntryPointVO;
-						if (entry.valid &&
-							matchKeyword(response, entry.keyword) )
+						if (entry.valid)
 						{
-							match = true;
-							currentNode = entry;
-							out("Response: ", response);
-							out("Matched entry point with keyword: ", entry.keyword);
-							break;
+							for each (var keyword:String in entry.keywords)
+							{
+								if (matchKeyword(response, keyword) )
+								{
+									match = true;
+									currentNode = entry;
+									out("Response: ", response);
+									out("Matched entry point with keyword: ", keyword);
+									break;
+								}
+							}
+							if (match)
+								break;
 						}
 					}
 				}

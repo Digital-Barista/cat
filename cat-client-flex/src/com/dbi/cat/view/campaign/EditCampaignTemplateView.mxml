@@ -43,23 +43,12 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:ArrayCollection id="EntryPointTypes">
-		<mx:Object label="{EntryPointType.SMS}" value="{EntryPointType.SMS}" />
-		<mx:Object label="{EntryPointType.EMAIL}" value="{EntryPointType.EMAIL}" />
-	</mx:ArrayCollection>
 	<mx:Form right="0" left="0" top="0" bottom="0">
 		<mx:FormItem label="Name">
 			<mx:TextInput id="Name"
 				width="245" 
 				text="{campaign.name}"
 				change="{campaign.name = Name.text}" />
-		</mx:FormItem>
-		<mx:FormItem label="Type">
-			<controls:AdvancedComboBox id="CampaignTypeMenu"
-				dataProvider="{EntryPointTypes}"
-				selectedBindingProperty="value"
-				selectedBindingValue="{campaign.type}"
-				change="{campaign.type = CampaignTypeMenu.selectedItem.value}" />
 		</mx:FormItem>
 		<mx:FormItem label="Client">
 			<controls:AdvancedComboBox 

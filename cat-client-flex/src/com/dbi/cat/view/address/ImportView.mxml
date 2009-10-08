@@ -108,6 +108,7 @@
 			}
 			private function getEntryPointLabel(entry:EntryPointVO):String
 			{
+				return "fix this";
 				return entry.entryPoint + " - " + entry.keyword;
 			}
 			private function loadAllClientAddresses():void

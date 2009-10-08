@@ -10,18 +10,18 @@ package com.dbi.cat.common.vo
 			super();
 		}
 		
-		public var entryPoint:String;
-		public var entryType:String;
-		public var keyword:String;
+		public var entryPoints:Array = new Array();
+		public var entryTypes:Array = new Array();
+		public var keywords:Array = new Array();
 		
 		override public function get valid():Boolean
 		{
-			return entryPoint != null &&
-				entryPoint.length > 0 &&
-				entryType != null &&
-				entryType.length > 0 &&
-				keyword != null &&
-				keyword.length > 0;
+			return entryPoints != null &&
+				entryPoints.length > 0 &&
+				entryTypes != null &&
+				entryTypes.length > 0 &&
+				keywords != null &&
+				keywords.length > 0;
 		}
 	}
 }

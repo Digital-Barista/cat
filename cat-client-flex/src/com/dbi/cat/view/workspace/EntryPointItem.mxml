@@ -4,6 +4,8 @@
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	displayIcon="{entryPointIcon}"
 	workspaceIcon="{entryPointIcon}"
+	editWindowWidth="500"
+	editWindowHeight="170"
 	x="{nodeVO.layoutInfo.x}"
 	y="{nodeVO.layoutInfo.y}" xmlns:controls="com.dbi.controls.*"
 	label="Entry Point" xmlns:components="com.dbi.cat.view.components.*">
@@ -27,6 +29,7 @@
 			public function set entryPointVO(ep:EntryPointVO):void
 			{
 				nodeVO = ep;
+				dispatchEvent(new Event("entryPointLoaded"));
 			}
 			public function get layoutInfo():LayoutInfoVO
 			{
@@ -45,6 +48,106 @@
 			{
 				return entryPointVO != null && entryPointVO.valid;
 			}
+			
+			// Retrieve methods
+			[Bindable(event="entryPointLoaded")]
+			private function getKeyword(entryPointType:String):String
+			{
+				var index:int = entryPointVO.entryTypes.indexOf(entryPointType);
+				if (index > -1)
+					return entryPointVO.keywords[index];
+				return null;
+			}
+			[Bindable(event="entryPointLoaded")]
+			private function getEntryPoint(entryPointType:String):String
+			{
+				var index:int = entryPointVO.entryTypes.indexOf(entryPointType);
+				if (index > -1)
+					return entryPointVO.entryPoints[index];
+				return null;
+			}
+			
+			// EntryPoint lists
+			private function get smsEntryPoints():ArrayCollection
+			{
+				return workspace.getClientEntryPoints(EntryPointType.SMS);
+			}
+			private function get emailEntryPoints():ArrayCollection
+			{
+				return workspace.getClientEntryPoints(EntryPointType.EMAIL);
+			}
+			private function get twitterEntryPoints():ArrayCollection
+			{
+				return workspace.getClientEntryPoints(EntryPointType.TWITTER);
+			}
+			
+			// Keyword lists
+			[Bindable(event="updateSMSKeywords")]
+			private function get smsKeywords():ArrayCollection
+			{
+				return workspace.getClientKeywords(EntryPointType.SMS, SMS.selectedItem.name);
+			}
+			[Bindable(event="updateEmailKeywords")]
+			private function get emailKeywords():ArrayCollection
+			{
+				return workspace.getClientKeywords(EntryPointType.EMAIL, Email.selectedItem.name);
+			}
+			[Bindable(event="updateTwitterKeywords")]
+			private function get twitterKeywords():ArrayCollection
+			{
+				return workspace.getClientKeywords(EntryPointType.TWITTER, Twitter.selectedItem.name);
+			}
+			
+			// Update entry point methods
+			private function changeSMSEntryPoint(entryPoint:String):void
+			{
+				dispatchEvent(new Event("updateSMSKeywords"));
+				changeEntryPoint(entryPoint, EntryPointType.SMS);
+			}
+			private function changeEmailEntryPoint(entryPoint:String):void
+			{
+				dispatchEvent(new Event("updateEmailKeywords"));
+				changeEntryPoint(entryPoint, EntryPointType.EMAIL);
+			}
+			private function changeTwitterEntryPoint(entryPoint:String):void
+			{
+				dispatchEvent(new Event("updateTwitterKeywords"));
+				changeEntryPoint(entryPoint, EntryPointType.TWITTER);
+			}
+			
+			private function changeEntryPoint(entryPoint:String, entryPointType:String):void
+			{
+				for (var i:Number = 0; i < entryPointVO.entryTypes.length; i++)
+				{
+					if (entryPointVO.entryTypes[i] == entryPointType)
+					{
+						if (entryPointVO.entryPoints[i] != entryPoint)
+						{
+							entryPointVO.entryPoints[i] = entryPoint;
+							entryPointVO.keywords[i] = null;
+						}
+						return;
+					}
+				}
+				
+				// If this type wasn't found add it
+				entryPointVO.entryPoints.push(entryPoint);
+				entryPointVO.entryTypes[entryPointVO.entryPoints.indexOf(entryPoint)] = entryPointType;
+			}
+			
+			// Update keyword methods
+			private function changeKeyword(keyword:String, entryPointType:String):void
+			{
+				for (var i:Number = 0; i < entryPointVO.entryTypes.length; i++)
+				{
+					if (entryPointVO.entryTypes[i] == entryPointType)
+					{
+						entryPointVO.keywords[i] = keyword;
+						return;
+					}
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	<editContent>
@@ -55,18 +158,63 @@
 					text="{entryPointVO.name}"
 					change="{entryPointVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="{entryPointVO.entryType}" required="true"
+			<mx:FormItem label="SMS"
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:Label text="{entryPointVO.entryPoint}" />
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:CheckBox id="UseSMS" />
+					<controls:AdvancedComboBox id="SMS"
+						width="150"
+						labelField="name"
+						selectedBindingProperty="name"
+						selectedBindingValue="{getEntryPoint(EntryPointType.SMS)}"
+						bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_EMPTY}"
+						dataProvider="{smsEntryPoints}"
+						change="{changeSMSEntryPoint(SMS.selectedItem.name)}" />
+					<mx:Label text="Keyword" />
+					<components:KeywordComboBox id="SMSKeywords"
+						width="150"
+						labelField="keyword"
+						selectedBindingProperty="keyword"
+						selectedBindingValue="{getKeyword(EntryPointType.SMS)}"
+						dataProvider="{smsKeywords}"
+						change="{changeKeyword(SMSKeywords.selectedItem.keyword, EntryPointType.SMS)}" />
+				</mx:HBox>
 			</mx:FormItem>
-			<mx:FormItem label="Keyword" required="true"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}" >
-				<components:KeywordComboBox id="SubscribeKeyword"
-					labelField="keyword"
-					dataProvider="{workspace.campaignKeywords}"
-					selectedBindingProperty="keyword"
-					selectedBindingValue="{entryPointVO.keyword}"
-					change="{entryPointVO.keyword = SubscribeKeyword.selectedItem.keyword}" />
+			<mx:FormItem label="Email"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:CheckBox id="UseEmail" />
+					<controls:AdvancedComboBox id="Email"
+						width="150"
+						bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_EMPTY}"
+						labelField="name"
+						dataProvider="{emailEntryPoints}"
+						change="{changeEmailEntryPoint(Email.selectedItem.name)}" />
+					<mx:Label text="Keyword" />
+					<components:KeywordComboBox id="EmailKeywords"
+						width="150"
+						labelField="keyword"
+						dataProvider="{emailKeywords}"
+						change="{changeKeyword(EmailKeywords.selectedItem.keyword, EntryPointType.EMAIL)}" />
+				</mx:HBox>
+			</mx:FormItem>
+			<mx:FormItem label="Twitter"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+				<mx:HBox width="100%" verticalAlign="middle">
+					<mx:CheckBox id="UseTwitter" />
+					<controls:AdvancedComboBox id="Twitter"
+						width="150"
+						bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_EMPTY}"
+						labelField="name"
+						dataProvider="{twitterEntryPoints}"
+						change="{changeTwitterEntryPoint(Twitter.selectedItem.name)}" />
+					<mx:Label text="Keyword" />
+					<components:KeywordComboBox id="TwitterKeyword"
+						width="150"
+						labelField="keyword"
+						dataProvider="{twitterKeywords}"
+						change="{changeKeyword(TwitterKeyword.selectedItem.keyword, EntryPointType.TWITTER)}" />
+				</mx:HBox>
 			</mx:FormItem>
 		</mx:Form>
 	</editContent>

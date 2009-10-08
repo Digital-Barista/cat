@@ -39,6 +39,7 @@
 					<mx:ArrayCollection>
 						<mx:Object label="{EntryPointType.EMAIL}" value="{EntryPointType.EMAIL}" />
 						<mx:Object label="{EntryPointType.SMS}" value="{EntryPointType.SMS}" />
+						<mx:Object label="{EntryPointType.TWITTER}" value="{EntryPointType.TWITTER}" />
 					</mx:ArrayCollection>
 				</controls:dataProvider>
 			</controls:AdvancedComboBox>
