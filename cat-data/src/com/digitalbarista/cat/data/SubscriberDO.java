@@ -26,6 +26,7 @@ import javax.persistence.Table;
 @NamedQueries({
 	@NamedQuery(name="subscriber.by.email",query="select s from SubscriberDO s where s.email=:endpoint"),
 	@NamedQuery(name="subscriber.by.phone",query="select s from SubscriberDO s where s.phoneNumber=:endpoint"),
+	@NamedQuery(name="subscriber.by.twitter",query="select s from SubscriberDO s where s.twitterUsername=:endpoint"),
 	@NamedQuery(name="all.subscribers.on.node",query="select s from CampaignSubscriberLinkDO l join l.subscriber s join l.lastHitNode n where n.UID=:nodeUID")
 })
 public class SubscriberDO implements Serializable,DataObject {
@@ -33,6 +34,7 @@ public class SubscriberDO implements Serializable,DataObject {
 	private Long primaryKey;
 	private String email;
 	private String phoneNumber;
+	private String twitterUsername;
 	private static final long serialVersionUID = 1L;
 	private Map<CampaignDO,CampaignSubscriberLinkDO> subscriptions = new HashMap<CampaignDO,CampaignSubscriberLinkDO>();
 
@@ -77,6 +79,15 @@ public class SubscriberDO implements Serializable,DataObject {
 
 	public void setSubscriptions(Map<CampaignDO,CampaignSubscriberLinkDO> subscriptions) {
 		this.subscriptions = subscriptions;
+	}
+
+	@Column(name="twitter_name")
+	public String getTwitterUsername() {
+		return twitterUsername;
+	}
+
+	public void setTwitterUsername(String twitterUsername) {
+		this.twitterUsername = twitterUsername;
 	}
  
 }

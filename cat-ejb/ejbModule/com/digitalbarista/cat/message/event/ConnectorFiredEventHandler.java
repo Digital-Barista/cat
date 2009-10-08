@@ -109,6 +109,10 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, mNode.getName(),mNode.getUid(),version);
 							break;
 							
+						case Twitter:
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getTwitterUsername(), actualMessage, mNode.getName(),mNode.getUid(),version);
+							break;
+							
 						default:
 							throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
 					}
@@ -142,6 +146,9 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 							
 							case SMS:
 								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, mNode.getName(), mNode.getUid(), version);
+						
+							case Twitter:
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getTwitterUsername(), actualMessage, mNode.getName(), mNode.getUid(), version);
 						
 							default:
 								throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
@@ -233,6 +240,10 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, cNode.getName(),cNode.getUid(),version);
 							break;
 							
+						case Twitter:
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getTwitterUsername(), actualMessage, cNode.getName(),cNode.getUid(),version);
+							break;
+							
 						default:
 							throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
 					}
@@ -311,6 +322,9 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 							
 							case SMS:
 								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, cNode.getName(), cNode.getUid(), version);
+						
+							case Twitter:
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getTwitterUsername(), actualMessage, cNode.getName(), cNode.getUid(), version);
 						
 							default:
 								throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");

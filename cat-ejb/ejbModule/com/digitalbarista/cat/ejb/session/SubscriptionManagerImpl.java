@@ -87,6 +87,12 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					sub.getPhoneNumber().length() > 0)
 					ret.add(sub.getPhoneNumber());
 			}
+			else if (type == EntryPointType.Twitter)
+			{
+				if (sub.getTwitterUsername() != null &&
+					sub.getTwitterUsername().length() > 0)
+					ret.add(sub.getTwitterUsername());
+			}
 		}
 		return ret;
 	}
@@ -126,6 +132,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			blacklistCrit.add(Restrictions.in("sub.email",addresses));
 		else if(type.equals(EntryPointType.SMS))
 			blacklistCrit.add(Restrictions.in("sub.phoneNumber", addresses));
+		else if(type.equals(EntryPointType.Twitter))
+			blacklistCrit.add(Restrictions.in("sub.twitterUsername", addresses));
 		List<SubscriberBlacklistDO> blacklisted = blacklistCrit.list();
 		for(SubscriberBlacklistDO subToRemove : blacklisted)
 		{
@@ -133,6 +141,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				addresses.remove(subToRemove.getSubscriber().getEmail());
 			else if(type.equals(EntryPointType.SMS))
 				addresses.remove(subToRemove.getSubscriber().getPhoneNumber());
+			else if(type.equals(EntryPointType.Twitter))
+				addresses.remove(subToRemove.getSubscriber().getTwitterUsername());
 		}
 		
 		if(addresses.size()==0)
@@ -147,6 +157,10 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				
 			case SMS:
 				crit.add(Restrictions.in("phoneNumber", addresses));
+				break;
+				
+			case Twitter:
+				crit.add(Restrictions.in("twitterUsername", addresses));
 				break;
 		}
 		
@@ -167,6 +181,10 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				case SMS:
 					addresses.remove(sub.getPhoneNumber());
 					break;
+					
+				case Twitter:
+					addresses.remove(sub.getTwitterUsername());
+					break;
 			}
 		}
 		
@@ -183,6 +201,10 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					
 				case SMS:
 					subTemp.setPhoneNumber(address);
+					break;
+					
+				case Twitter:
+					subTemp.setTwitterUsername(address);
 					break;
 			}
 			em.persist(subTemp);

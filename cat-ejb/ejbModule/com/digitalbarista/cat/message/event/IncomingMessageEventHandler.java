@@ -63,6 +63,11 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			input = e.getArgs().get("message");
 			auditEntry.setIncomingType(EntryPointType.SMS);
 		}
+		else if (e.getSourceType().equals(CATEventSource.TwitterEndpoint))
+		{
+			input = e.getArgs().get("message");
+			auditEntry.setIncomingType(EntryPointType.Twitter);
+		}
 		
 		//Finish setting up the audit entry.  And save it.
 		//  The only way this WON'T save is if we roll back the transaction.
@@ -90,6 +95,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			case SMSEndpoint:
 				q=getEntityManager().createNamedQuery("subscriber.by.phone");
 				break;
+			
+			case TwitterEndpoint:
+				q=getEntityManager().createNamedQuery("subscriber.by.twitter");
+				break;
 				
 			default:
 				throw new IllegalArgumentException("Invalid endpoint type specified.");
@@ -115,6 +124,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				case SMSEndpoint:
 					sub.setPhoneNumber(e.getTarget());
 					break;
+					
+				case TwitterEndpoint:
+					sub.setTwitterUsername(e.getTarget());
+					break;
 			}
 			getEntityManager().persist(sub);
 		}
@@ -132,6 +145,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				
 			case SMSEndpoint:
 				q.setParameter("type", EntryPointType.SMS);
+				break;
+				
+			case TwitterEndpoint:
+				q.setParameter("type", EntryPointType.Twitter);
 				break;
 		}
 		q.setParameter("entryPoint", e.getSource());
@@ -165,6 +182,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 					
 				case SMSEndpoint:
 					newBL.setType(EntryPointType.SMS);
+					break;
+					
+				case TwitterEndpoint:
+					newBL.setType(EntryPointType.Twitter);
 					break;
 			}
 			newBL.setSubscriber(sub);
@@ -282,6 +303,9 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 						break;
 					case SMSEndpoint:
 						if(!rConn.getEntryPointType().equals(EntryPointType.SMS)) continue;
+						break;
+					case TwitterEndpoint:
+						if(!rConn.getEntryPointType().equals(EntryPointType.Twitter)) continue;
 						break;
 					default:
 						continue;

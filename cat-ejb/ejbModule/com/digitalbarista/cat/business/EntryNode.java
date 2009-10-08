@@ -1,8 +1,14 @@
 package com.digitalbarista.cat.business;
 
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.EntryPointType;
@@ -16,9 +22,9 @@ public class EntryNode extends Node implements Auditable{
 	public static final String INFO_PROPERTY_ENTRY_POINT="EntryPointDO";
 	public static final String INFO_PROPERTY_KEYWORD="EntryKeyword";
 	
-	private EntryPointType entryType;
-	private String entryPoint;
-	private String keyword;
+	private List<EntryPointType> entryTypes = new ArrayList<EntryPointType>();
+	private List<String> entryPoints = new ArrayList<String>();
+	private List<String> keywords = new ArrayList<String>();
 	
 	@Override
 	public void copyFrom(NodeDO dataObject, Integer version) {
@@ -27,16 +33,50 @@ public class EntryNode extends Node implements Auditable{
 		{
 			if(!ni.getVersion().equals(version))
 				continue;
-			
+						
 			if(ni.getName().equals(INFO_PROPERTY_ENTRY_POINT))
-				entryPoint = ni.getValue();
+			{
+				entryPoints.clear();
+				entryPoints.add(ni.getValue());
+			}
 			else if(ni.getName().equals(INFO_PROPERTY_ENTRY_TYPE))
-				entryType = EntryPointType.valueOf(ni.getValue());
+			{
+				entryTypes.clear();
+				entryTypes.add(EntryPointType.valueOf(ni.getValue()));
+			}
 			else if(ni.getName().equals(INFO_PROPERTY_KEYWORD))
-				keyword = ni.getValue();
+			{
+				keywords.clear();
+				keywords.add(ni.getValue());
+			}
+			else if(ni.getName().startsWith(INFO_PROPERTY_ENTRY_POINT+"["))
+			{
+				Matcher r = Pattern.compile(INFO_PROPERTY_ENTRY_POINT+"\\[([\\d]+)\\]").matcher(ni.getName());
+				r.matches();
+				fillListAndSet(entryPoints,new Integer(r.group(1)), ni.getValue());
+			}
+			else if(ni.getName().startsWith(INFO_PROPERTY_ENTRY_TYPE+"["))
+			{
+				Matcher r = Pattern.compile(INFO_PROPERTY_ENTRY_TYPE+"\\[([\\d]+)\\]").matcher(ni.getName());
+				r.matches();
+				fillListAndSet(entryTypes,new Integer(r.group(1)), EntryPointType.valueOf(ni.getValue()));
+			}
+			else if(ni.getName().startsWith(INFO_PROPERTY_KEYWORD+"["))
+			{
+				Matcher r = Pattern.compile(INFO_PROPERTY_KEYWORD+"\\[([\\d]+)\\]").matcher(ni.getName());
+				r.matches();
+				fillListAndSet(keywords,new Integer(r.group(1)), ni.getValue());
+			}
 		}
 	}
 
+	private <T> void fillListAndSet(List<T> theList, int pos, T value)
+	{
+		while(theList.size()<pos+1)
+			theList.add(null);
+		theList.set(pos, value);
+	}
+	
 	@Override
 	public void copyTo(NodeDO dataObject) {
 		super.copyTo(dataObject);
@@ -49,29 +89,53 @@ public class EntryNode extends Node implements Auditable{
 			nodes.put(ni.getName(), ni);
 		}
 		
-		if(entryType!=null)
+		Set<NodeInfoDO> finalNodes = new HashSet<NodeInfoDO>();
+		for(int loop=0; loop<entryTypes.size(); loop++)
 		{
-			if(nodes.containsKey(INFO_PROPERTY_ENTRY_TYPE))
-				nodes.get(INFO_PROPERTY_ENTRY_TYPE).setValue(entryType.toString());
+			if(entryTypes.get(loop)==null)
+				continue;
+			if(nodes.containsKey(INFO_PROPERTY_ENTRY_TYPE+"["+loop+"]"))
+			{
+				nodes.get(INFO_PROPERTY_ENTRY_TYPE+"["+loop+"]").setValue(entryTypes.get(loop).toString());
+				finalNodes.add(nodes.get(INFO_PROPERTY_ENTRY_TYPE+"["+loop+"]"));
+			}
 			else
-				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_ENTRY_TYPE, entryType.toString(), version);
+			{
+				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_ENTRY_TYPE+"["+loop+"]", entryTypes.get(loop).toString(), version);
+			}
 		}
-		
-		if(entryPoint!=null)
+		for(int loop=0; loop<entryPoints.size(); loop++)
 		{
-			if(nodes.containsKey(INFO_PROPERTY_ENTRY_POINT))
-				nodes.get(INFO_PROPERTY_ENTRY_POINT).setValue(entryPoint);
+			if(entryPoints.get(loop)==null)
+				continue;
+			if(nodes.containsKey(INFO_PROPERTY_ENTRY_POINT+"["+loop+"]"))
+			{
+				nodes.get(INFO_PROPERTY_ENTRY_POINT+"["+loop+"]").setValue(entryPoints.get(loop));
+				finalNodes.add(nodes.get(INFO_PROPERTY_ENTRY_POINT+"["+loop+"]"));
+			}
 			else
-				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_ENTRY_POINT, entryPoint, version);
+			{
+				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_ENTRY_POINT+"["+loop+"]", entryPoints.get(loop), version);
+			}
 		}
-		
-		if(keyword!=null)
+		for(int loop=0; loop<keywords.size(); loop++)
 		{
-			if(nodes.containsKey(INFO_PROPERTY_KEYWORD))
-				nodes.get(INFO_PROPERTY_KEYWORD).setValue(keyword);
+			if(keywords.get(loop)==null)
+				continue;
+			if(nodes.containsKey(INFO_PROPERTY_KEYWORD+"["+loop+"]"))
+			{
+				nodes.get(INFO_PROPERTY_KEYWORD+"["+loop+"]").setValue(keywords.get(loop));
+				finalNodes.add(nodes.get(INFO_PROPERTY_KEYWORD+"["+loop+"]"));
+			}
 			else
-				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_KEYWORD, keyword, version);
+			{
+				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_KEYWORD+"["+loop+"]", keywords.get(loop), version);
+			}
 		}
+		Set<NodeInfoDO> removeNodes = new HashSet<NodeInfoDO>();
+		removeNodes.addAll(nodes.values());
+		removeNodes.removeAll(finalNodes);
+		dataObject.getNodeInfo().removeAll(removeNodes);
 	}
 
 	@Override
@@ -96,27 +160,68 @@ public class EntryNode extends Node implements Auditable{
 	}
 
 	public EntryPointType getEntryType() {
-		return entryType;
+		if(entryTypes!=null && entryTypes.size()==1)
+			return entryTypes.get(0);
+		return null;
 	}
 
 	public void setEntryType(EntryPointType entryType) {
-		this.entryType = entryType;
+		entryTypes.clear();
+		entryTypes.add(entryType);
 	}
 
 	public String getEntryPoint() {
-		return entryPoint;
+		if(entryPoints!=null && entryPoints.size()==1)
+			return entryPoints.get(0);
+		return null;
 	}
 
 	public void setEntryPoint(String entryPoint) {
-		this.entryPoint = entryPoint;
+		entryPoints.clear();
+		entryPoints.add(entryPoint);
 	}
 
 	public String getKeyword() {
-		return keyword;
+		if(keywords!=null && keywords.size()==1)
+			return keywords.get(0);
+		return null;
 	}
 
 	public void setKeyword(String keyword) {
-		this.keyword = keyword;
+		keywords.clear();
+		keywords.add(keyword);
+	}
+
+	public String[] getKeywords() {
+		return keywords.toArray(new String[keywords.size()]);
+	}
+
+	public void setKeywords(String[] keywords) {
+		this.keywords = new ArrayList<String>();
+		for(String item : keywords)
+			this.keywords.add(item);
+	}
+
+
+	public EntryPointType[] getEntryTypes() {
+		return entryTypes.toArray(new EntryPointType[entryTypes.size()]);
+	}
+
+	public void setEntryTypes(EntryPointType[] entryTypes) {
+		this.entryTypes = new ArrayList<EntryPointType>();
+		for(EntryPointType item : entryTypes)
+			this.entryTypes.add(item);
+	}
+
+
+	public String[] getEntryPoints() {
+		return entryPoints.toArray(new String[entryPoints.size()]);
+	}
+
+	public void setEntryPoints(String[] entryPoints) {
+		this.entryPoints = new ArrayList<String>();
+		for(String item : entryPoints)
+			this.entryPoints.add(item);
 	}
 
 }

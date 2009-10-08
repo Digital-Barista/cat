@@ -226,7 +226,7 @@ DROP TABLE IF EXISTS `campaign_admin`.`node_info` ;
 
 CREATE  TABLE IF NOT EXISTS `campaign_admin`.`node_info` (
   `node_info_id` BIGINT NOT NULL AUTO_INCREMENT ,
-  `name` VARCHAR(16) NOT NULL ,
+  `name` VARCHAR(64) NOT NULL ,
   `value` VARCHAR(256) NOT NULL ,
   `node_id` BIGINT NOT NULL ,
   `version` INT NOT NULL ,
@@ -274,7 +274,7 @@ DROP TABLE IF EXISTS `campaign_admin`.`connector_info` ;
 
 CREATE  TABLE IF NOT EXISTS `campaign_admin`.`connector_info` (
   `connector_info_id` BIGINT NOT NULL AUTO_INCREMENT ,
-  `name` VARCHAR(16) NOT NULL ,
+  `name` VARCHAR(64) NOT NULL ,
   `value` VARCHAR(256) NOT NULL ,
   `connector_id` BIGINT NOT NULL ,
   `version` INT NOT NULL ,
@@ -408,6 +408,7 @@ CREATE  TABLE IF NOT EXISTS `campaign_admin`.`subscribers` (
   `subscriber_id` BIGINT NOT NULL AUTO_INCREMENT ,
   `email` VARCHAR(128) NULL ,
   `phone_number` VARCHAR(16) NULL ,
+  `twitter_name` VARCHAR(64) NULL ,
   PRIMARY KEY (`subscriber_id`) )
 ENGINE = InnoDB;
 
@@ -508,6 +509,7 @@ CREATE  TABLE IF NOT EXISTS `campaign_admin`.`entry_points` (
   `entry_type` VARCHAR(32) NOT NULL ,
   `restriction_type` VARCHAR(32) NOT NULL ,
   `restriction_id` BIGINT NULL ,
+  `credentials` VARCHAR(64) NULL ,
   PRIMARY KEY (`entry_point_id`) )
 ENGINE = InnoDB;
 

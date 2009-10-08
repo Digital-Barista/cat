@@ -47,6 +47,9 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 			case SMSEndpoint:
 				outAudit.setMessageType(EntryPointType.SMS);
 				break;
+			case TwitterEndpoint:
+				outAudit.setMessageType(EntryPointType.Twitter);
+				break;
 		}
 		getEntityManager().persist(outAudit);
 		if(e.getSourceType().equals(CATEventSource.EmailEndpoint))
@@ -95,6 +98,10 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 			{
 				method.releaseConnection();
 			}
+		} else if(e.getSourceType().equals(CATEventSource.TwitterEndpoint)){
+			outAudit.setMessageType(EntryPointType.Twitter);
+			outAudit.setSubjectOrMessage(e.getArgs().get("message"));
+			throw new UnsupportedOperationException("Twitter messaging not implemented.");
 		} else {
 			throw new IllegalArgumentException("Cannot process the specified message type.");
 		}
