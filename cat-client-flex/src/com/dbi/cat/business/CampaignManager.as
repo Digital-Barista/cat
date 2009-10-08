@@ -328,10 +328,6 @@ package com.dbi.cat.business
 					}
 				}
 			}
-			else
-			{
-				throw new Error("There is no current campaign to remove the node from");
-			}
 		}
 		public function deleteConnector(connector:ConnectorVO):void
 		{
@@ -360,10 +356,6 @@ package com.dbi.cat.business
 							node.upstreamConnections.getItemIndex(connector.uid));
 					}
 				}
-			}
-			else
-			{
-				throw new Error("There is no current campaign to remove the connector from");
 			}
 		}
 		

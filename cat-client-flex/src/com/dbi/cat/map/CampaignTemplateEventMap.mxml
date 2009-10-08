@@ -46,6 +46,18 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	<EventHandlers type="{CampaignTemplateEvent.DELETE_CAMPAIGN_TEMPLATE}">
+		<RemoteObjectInvoker destination="campaignManager"
+			showBusyCursor="true"
+			method="delete"
+			arguments="{event.campaign}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignTemplateManager}"
+					method="deleteCampaignTemplate"
+					arguments="{event.campaign}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 	
 	<EventHandlers type="{CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES}">
 		<RemoteObjectInvoker destination="campaignManager"

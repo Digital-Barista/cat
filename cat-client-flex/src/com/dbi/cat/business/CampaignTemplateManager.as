@@ -9,6 +9,7 @@ package com.dbi.cat.business
 	import flash.events.IEventDispatcher;
 	
 	import mx.collections.ArrayCollection;
+	import mx.collections.IViewCursor;
 	import mx.core.Application;
 	import mx.core.IFlexDisplayObject;
 	import mx.core.UIComponent;
@@ -134,7 +135,19 @@ package com.dbi.cat.business
 			PopUpManager.addPopUp(editCampaignTemplatePopup, DisplayObject(Application.application), true);
 			PopUpManager.centerPopUp(editCampaignTemplatePopup);
 		}
-
+		public function deleteCampaignTemplate(campaign:CampaignVO):void
+		{
+			// Delete from modified campaigns
+			var cur:IViewCursor = campaignTemplateList.createCursor();
+			while (cur.current != null)
+			{
+				if (cur.current.uid == campaign.uid)
+					cur.remove();
+				else
+					cur.moveNext();
+			}
+		}
+		
 		//
 		// Close popup methods
 		//
