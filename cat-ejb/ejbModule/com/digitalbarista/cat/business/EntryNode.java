@@ -203,16 +203,31 @@ public class EntryNode extends Node implements Auditable{
 	}
 
 
-	public EntryPointType[] getEntryTypes() {
+	public EntryPointType[] getEntryTypeEnums() {
 		return entryTypes.toArray(new EntryPointType[entryTypes.size()]);
 	}
 
-	public void setEntryTypes(EntryPointType[] entryTypes) {
+	public void setEntryTypeEnums(EntryPointType[] entryTypes) {
 		this.entryTypes = new ArrayList<EntryPointType>();
 		for(EntryPointType item : entryTypes)
 			this.entryTypes.add(item);
 	}
 
+	
+	public String[] getEntryTypes()
+	{
+		String[] ret = new String[entryTypes.size()];
+		for(int loop=0; loop<entryTypes.size(); loop++)
+			ret[loop]=entryTypes.get(loop).toString();
+		return ret;
+	}
+	
+	public void setEntryTypes(String[] entryTypes)
+	{
+		this.entryTypes = new ArrayList<EntryPointType>();
+		for(String type : entryTypes)
+			this.entryTypes.add(EntryPointType.valueOf(type));
+	}
 
 	public String[] getEntryPoints() {
 		return entryPoints.toArray(new String[entryPoints.size()]);

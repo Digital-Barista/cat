@@ -67,6 +67,7 @@ import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
+import com.digitalbarista.cat.util.MultiValueMap;
 
 /**
  * Session Bean implementation class CampaignManagerImpl
@@ -834,94 +835,171 @@ public class CampaignManagerImpl implements CampaignManager {
 		EntryNode eNode = (EntryNode)node;
 		EntryNode oldNode = (EntryNode)getNode(eNode.getUid());
 		
-		if(oldNode!=null &&
-		   eNode.getEntryPoint().equals(oldNode.getEntryPoint()) &&
-		   eNode.getEntryType().equals(oldNode.getEntryType()) &&
-		   ((eNode.getKeyword() == null && oldNode.getKeyword() == null) || 
-		   eNode.getKeyword().equals(oldNode.getKeyword()) ) )
-		{
-			return;
-		}
-		
-		if(!isEntryPointValid(camp.getUID(),eNode.getEntryPoint(),eNode.getEntryType(),eNode.getKeyword()))
-			throw new IllegalArgumentException("Entry point is already in use by another campaign.");
+		MultiValueMap<EntryPointType,String,String> oldEntries = new MultiValueMap<EntryPointType,String,String>();
+		MultiValueMap<EntryPointType,String,String> newEntries = new MultiValueMap<EntryPointType,String,String>();
 
-		CampaignEntryPointDO cep = getSpecificEntryPoint(oldNode.getEntryPoint(),oldNode.getEntryType(),oldNode.getKeyword());
-		if(cep==null)
-		{
-			log.warn("entry point modified without an appropriate CampaignEntryPointDO entry already existing.");
-		} else {
-			if(cep.getCampaign()!=camp)
-				throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
-			cep.setQuantity(cep.getQuantity()-1);
-			if(cep.getQuantity()==0 && !cep.isPublished())
-				em.remove(cep);
-			else if(cep.getQuantity()<0)
-				log.warn("more entry points removed than have been initially catalogued");
-		}
+		int maxSize = eNode.getEntryTypeEnums().length;
+		maxSize = eNode.getEntryPoints().length < maxSize ? eNode.getEntryPoints().length : maxSize;
+		maxSize = eNode.getKeywords().length < maxSize ? eNode.getKeywords().length : maxSize;
+		for(int loop=0; loop<maxSize; loop++)
+			newEntries.put(eNode.getEntryTypeEnums()[loop], eNode.getEntryPoints()[loop], eNode.getKeywords()[loop]);
 
-		cep = getSpecificEntryPoint(eNode.getEntryPoint(),eNode.getEntryType(),eNode.getKeyword());
-		if(cep==null && isEntryPointDefinable(eNode.getEntryPoint(),eNode.getKeyword(),eNode.getEntryType()))
+		maxSize = oldNode.getEntryTypeEnums().length;
+		maxSize = oldNode.getEntryPoints().length < maxSize ? oldNode.getEntryPoints().length : maxSize;
+		maxSize = oldNode.getKeywords().length < maxSize ? oldNode.getKeywords().length : maxSize;
+		for(int loop=0; loop<maxSize; loop++)
+			oldEntries.put(oldNode.getEntryTypeEnums()[loop], oldNode.getEntryPoints()[loop], oldNode.getKeywords()[loop]);
+
+		for(EntryPointType type : newEntries.keySet())
 		{
-			cep = new CampaignEntryPointDO();
-			cep.setCampaign(camp);
-			cep.setEntryPoint(eNode.getEntryPoint());
-			cep.setType(eNode.getEntryType());
-			cep.setKeyword(eNode.getKeyword());
-		}
-		if(cep!=null)
-		{
-			cep.setQuantity(cep.getQuantity()+1);
-			em.persist(cep);
+			if(type==null)
+				continue;
+			if(oldNode!=null &&
+			   ((newEntries.getValue1(type)==null && oldEntries.getValue1(type)==null)
+			   || newEntries.getValue1(type).equals(oldEntries.getValue1(type))) &&
+			   ((newEntries.getValue2(type)==null && oldEntries.getValue2(type)==null)
+			   || newEntries.getValue2(type).equals(oldEntries.getValue2(type))))
+			{
+				oldEntries.remove(type);
+				continue;
+			}
+			
+			if(!isEntryPointValid(camp.getUID(),newEntries.getValue1(type),type,newEntries.getValue2(type)))
+				throw new IllegalArgumentException("Entry point is already in use by another campaign.");
+	
+			CampaignEntryPointDO cep = getSpecificEntryPoint(oldEntries.getValue1(type),type,oldEntries.getValue2(type));
+			if(cep==null)
+			{
+				log.warn("entry point modified without an appropriate CampaignEntryPointDO entry already existing.");
+			} else {
+				if(cep.getCampaign()!=camp)
+					throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
+				cep.setQuantity(cep.getQuantity()-1);
+				if(cep.getQuantity()==0 && !cep.isPublished())
+					em.remove(cep);
+				else if(cep.getQuantity()<0)
+					log.warn("more entry points removed than have been initially catalogued");
+			}
+	
+			cep = getSpecificEntryPoint(newEntries.getValue1(type),type,newEntries.getValue2(type));
+			if(cep==null && isEntryPointDefinable(newEntries.getValue1(type),newEntries.getValue2(type),type))
+			{
+				cep = new CampaignEntryPointDO();
+				cep.setCampaign(camp);
+				cep.setEntryPoint(newEntries.getValue1(type));
+				cep.setType(type);
+				cep.setKeyword(newEntries.getValue2(type));
+			}
+			if(cep!=null)
+			{
+				cep.setQuantity(cep.getQuantity()+1);
+				em.persist(cep);
+			}
+			oldEntries.remove(type);
 		}		
+		
+		for(EntryPointType type : oldEntries.keySet())
+		{
+			CampaignEntryPointDO cep = getSpecificEntryPoint(oldEntries.getValue1(type),type,oldEntries.getValue2(type));
+			if(cep==null)
+			{
+				log.warn("entry point removed without an appropriate CampaignEntryPointDO entry already existing.");
+			} else {
+				if(cep.getCampaign()!=camp)
+					throw new IllegalStateException("Trying to remove the entry point belonging to a different campaign.");
+				cep.setQuantity(cep.getQuantity()-1);
+				if(cep.getQuantity()==0 && !cep.isPublished())
+					em.remove(cep);
+				else if(cep.getQuantity()<0)
+					log.warn("more entry points removed than have been initially catalogued");
+			}
+		}
 	}
 	
 	private void recordEntryPointChanges(Connector conn, CampaignDO camp)
 	{
 		ResponseConnector rConn = (ResponseConnector)conn;
-		ResponseConnector oldConn = (ResponseConnector)getConnector(conn.getUid());
+		ResponseConnector oldConn = (ResponseConnector)getConnector(rConn.getUid());
 		
-		if(oldConn!=null &&
-			rConn.getEntryPoint().equals(oldConn.getEntryPoint()) &&
-			rConn.getEntryPointType().equals(oldConn.getEntryPointType()) &&
+		MultiValueMap<EntryPointType,String,String> oldEntries = new MultiValueMap<EntryPointType,String,String>();
+		MultiValueMap<EntryPointType,String,String> newEntries = new MultiValueMap<EntryPointType,String,String>();
+
+		int maxSize = rConn.getEntryTypes().length;
+		maxSize = rConn.getEntryPoints().length < maxSize ? rConn.getEntryPoints().length : maxSize;
+		maxSize = rConn.getKeywords().length < maxSize ? rConn.getKeywords().length : maxSize;
+		for(int loop=0; loop<maxSize; loop++)
+			newEntries.put(rConn.getEntryTypes()[loop], rConn.getEntryPoints()[loop], rConn.getKeywords()[loop]);
+
+		maxSize = oldConn.getEntryTypes().length;
+		maxSize = oldConn.getEntryPoints().length < maxSize ? oldConn.getEntryPoints().length : maxSize;
+		maxSize = oldConn.getKeywords().length < maxSize ? oldConn.getKeywords().length : maxSize;
+		for(int loop=0; loop<maxSize; loop++)
+			oldEntries.put(oldConn.getEntryTypes()[loop], oldConn.getEntryPoints()[loop], oldConn.getKeywords()[loop]);
+
+		for(EntryPointType type : newEntries.keySet())
+		{
+			if(type==null)
+				continue;
+			if(oldConn!=null &&
+			   ((newEntries.getValue1(type)==null && oldEntries.getValue1(type)==null)
+			   || newEntries.getValue1(type).equals(oldEntries.getValue1(type))) &&
+			   ((newEntries.getValue2(type)==null && oldEntries.getValue2(type)==null)
+			   || newEntries.getValue2(type).equals(oldEntries.getValue2(type))))
+			{
+				oldEntries.remove(type);
+				continue;
+			}
 			
-			((rConn.getKeyword() == null && oldConn.getKeyword() == null) ||
-			rConn.getKeyword().equals(oldConn.getKeyword()) ) )
-		{
-			return;
-		}
-		
-		if(!isEntryPointValid(camp.getUID(),rConn.getEntryPoint(),rConn.getEntryPointType(),rConn.getKeyword()))
-			throw new IllegalArgumentException("Entry point is already in use by another campaign.");
-
-		CampaignEntryPointDO cep = getSpecificEntryPoint(oldConn.getEntryPoint(),oldConn.getEntryPointType(),oldConn.getKeyword());
-		if(cep==null)
-		{
-			log.warn("entry point modified without an appropriate CampaignEntryPointDO entry already existing.");
-		} else {
-			if(cep.getCampaign()!=camp)
-				throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
-			cep.setQuantity(cep.getQuantity()-1);
-			if(cep.getQuantity()==0 && !cep.isPublished())
-				em.remove(cep);
-			else if(cep.getQuantity()<0)
-				log.warn("more entry points removed than have been initially catalogued");
-		}
-
-		cep = getSpecificEntryPoint(rConn.getEntryPoint(),rConn.getEntryPointType(),rConn.getKeyword());
-		if(cep==null && isEntryPointDefinable(rConn.getEntryPoint(),rConn.getKeyword(),rConn.getEntryPointType()))
-		{
-			cep = new CampaignEntryPointDO();
-			cep.setCampaign(camp);
-			cep.setEntryPoint(rConn.getEntryPoint());
-			cep.setType(rConn.getEntryPointType());
-			cep.setKeyword(rConn.getKeyword());
-		}
-		if(cep!=null)
-		{
-			cep.setQuantity(cep.getQuantity()+1);
-			em.persist(cep);
+			if(!isEntryPointValid(camp.getUID(),newEntries.getValue1(type),type,newEntries.getValue2(type)))
+				throw new IllegalArgumentException("Entry point is already in use by another campaign.");
+	
+			CampaignEntryPointDO cep = getSpecificEntryPoint(oldEntries.getValue1(type),type,oldEntries.getValue2(type));
+			if(cep==null)
+			{
+				log.warn("response connector modified without an appropriate CampaignEntryPointDO entry already existing.");
+			} else {
+				if(cep.getCampaign()!=camp)
+					throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
+				cep.setQuantity(cep.getQuantity()-1);
+				if(cep.getQuantity()==0 && !cep.isPublished())
+					em.remove(cep);
+				else if(cep.getQuantity()<0)
+					log.warn("more entry points removed than have been initially catalogued");
+			}
+	
+			cep = getSpecificEntryPoint(newEntries.getValue1(type),type,newEntries.getValue2(type));
+			if(cep==null && isEntryPointDefinable(newEntries.getValue1(type),newEntries.getValue2(type),type))
+			{
+				cep = new CampaignEntryPointDO();
+				cep.setCampaign(camp);
+				cep.setEntryPoint(newEntries.getValue1(type));
+				cep.setType(type);
+				cep.setKeyword(newEntries.getValue2(type));
+			}
+			if(cep!=null)
+			{
+				cep.setQuantity(cep.getQuantity()+1);
+				em.persist(cep);
+			}
+			oldEntries.remove(type);
 		}		
+		
+		for(EntryPointType type : oldEntries.keySet())
+		{
+			CampaignEntryPointDO cep = getSpecificEntryPoint(oldEntries.getValue1(type),type,oldEntries.getValue2(type));
+			if(cep==null)
+			{
+				log.warn("entry point removed without an appropriate CampaignEntryPointDO entry already existing.");
+			} else {
+				if(cep.getCampaign()!=camp)
+					throw new IllegalStateException("Trying to remove the entry point belonging to a different campaign.");
+				cep.setQuantity(cep.getQuantity()-1);
+				if(cep.getQuantity()==0 && !cep.isPublished())
+					em.remove(cep);
+				else if(cep.getQuantity()<0)
+					log.warn("more entry points removed than have been initially catalogued");
+			}
+		}
 	}
 
 	@Override
