@@ -5,12 +5,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
 
+@XmlRootElement
 public class Client implements
 		BusinessObject<ClientDO>,Auditable {
 
@@ -87,6 +93,7 @@ public class Client implements
 		return ret.toString();
 	}
 
+	@XmlAttribute
 	public Long getClientId() {
 		return clientId;
 	}
@@ -95,6 +102,7 @@ public class Client implements
 		this.clientId = clientId;
 	}
 
+	@XmlAttribute
 	public String getName() {
 		return name;
 	}
@@ -102,6 +110,8 @@ public class Client implements
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@XmlAttribute
 	public String getAdminAddInMessage() {
 		return adminAddInMessage;
 	}
@@ -110,6 +120,7 @@ public class Client implements
 		this.adminAddInMessage = adminAddInMessage;
 	}
 
+	@XmlAttribute
 	public String getUserAddInMessage() {
 		return userAddInMessage;
 	}
@@ -118,6 +129,7 @@ public class Client implements
 		this.userAddInMessage = userAddInMessage;
 	}
 	
+	@Wrapped(element="EntryPoints")
 	public Set<EntryPointDefinition> getEntryPoints() {
 		return entryPoints;
 	}

@@ -3,13 +3,19 @@ package com.digitalbarista.cat.business;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignMode;
-import com.digitalbarista.cat.data.EntryPointType;
 
+@XmlRootElement
 public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 
 	private Long primaryKey;
@@ -24,8 +30,6 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	
 	@PrimaryDescriminator
 	private Long clientPK;
-	private EntryPointType type;
-	private String defaultFromAddress;
 	private CampaignMode mode;
 	
 	public void copyFrom(CampaignDO dataObject, Integer version) {
@@ -33,9 +37,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		name=dataObject.getName();
 		currentVersion=dataObject.getCurrentVersion();
 		uid = dataObject.getUID();
-		type = dataObject.getCampaignType();
 		addInMessage = dataObject.getAddInMessage();
-		defaultFromAddress = dataObject.getDefaultFrom();
 		mode = dataObject.getMode();
 		if(dataObject.getClient()!=null)
 		{
@@ -51,15 +53,12 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	@Override
 	public void copyTo(CampaignDO dataObject) {
 		dataObject.setName(name);
-		dataObject.setDefaultFrom(defaultFromAddress);
 		dataObject.setAddInMessage(addInMessage);
 	}
 
 	@Override
 	public String auditString() {
 		StringBuffer ret = new StringBuffer();
-		ret.append("type:"+getType().toString());
-		ret.append(";fromAddress:"+getDefaultFromAddress());
 		ret.append(";uid:"+getUid());
 		ret.append(";currentVersion:"+getCurrentVersion());
 		ret.append(";clientID:"+getClientPK());
@@ -68,6 +67,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		return ret.toString();
 	}
 
+	@XmlAttribute(name="id")
 	public Long getPrimaryKey() {
 		return primaryKey;
 	}
@@ -76,6 +76,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.primaryKey = primaryKey;
 	}
 
+	@XmlAttribute
 	public String getName() {
 		return name;
 	}
@@ -84,6 +85,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.name = name;
 	}
 
+	@XmlAttribute
 	public int getCurrentVersion() {
 		return currentVersion;
 	}
@@ -92,6 +94,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.currentVersion = currentVersion;
 	}
 	
+	@XmlElement
 	public String getAddInMessage() {
 		return addInMessage;
 	}
@@ -100,6 +103,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.addInMessage = addInMessage;
 	}
 	
+	@XmlAttribute
 	public String getUid() {
 		return uid;
 	}
@@ -108,6 +112,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.uid = uid;
 	}
 
+	@Wrapped(element="Nodes")
 	public Set<Node> getNodes() {
 		return nodes;
 	}
@@ -116,6 +121,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.nodes = nodes;
 	}
 
+	@Wrapped(element="Connectors")
 	public Set<Connector> getConnectors() {
 		return connectors;
 	}
@@ -124,6 +130,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.connectors = connectors;
 	}
 
+	@XmlAttribute(name="clientid")
 	public Long getClientPK() {
 		return clientPK;
 	}
@@ -132,22 +139,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.clientPK = clientPK;
 	}
 
-	public EntryPointType getType() {
-		return type;
-	}
-
-	public void setType(EntryPointType type) {
-		this.type = type;
-	}
-
-	public String getDefaultFromAddress() {
-		return defaultFromAddress;
-	}
-
-	public void setDefaultFromAddress(String defaultFromAddress) {
-		this.defaultFromAddress = defaultFromAddress;
-	}
-
+	@XmlAttribute
 	public CampaignMode getMode() {
 		return mode;
 	}

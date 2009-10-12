@@ -6,9 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.ConnectorDO;
@@ -16,6 +20,7 @@ import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.EntryPointType;
 
+@XmlRootElement
 public class ResponseConnector extends Connector implements Auditable {
 
 	public static final String INFO_PROPERTY_ENTRY_POINT="EntryPointDO";
@@ -194,6 +199,7 @@ public class ResponseConnector extends Connector implements Auditable {
 		keywords.add(keyword);
 	}
 
+	@Wrapped(element="Keywords")
 	public String[] getKeywords() {
 		return keywords.toArray(new String[keywords.size()]);
 	}
@@ -205,6 +211,7 @@ public class ResponseConnector extends Connector implements Auditable {
 	}
 
 
+	@Wrapped(element="EntryPointTypes")
 	public EntryPointType[] getEntryTypes() {
 		return entryTypes.toArray(new EntryPointType[entryTypes.size()]);
 	}
@@ -216,6 +223,7 @@ public class ResponseConnector extends Connector implements Auditable {
 	}
 
 
+	@Wrapped(element="EntryPoints")
 	public String[] getEntryPoints() {
 		return entryPoints.toArray(new String[entryPoints.size()]);
 	}

@@ -46,8 +46,6 @@ public class CampaignDO implements Serializable,DataObject {
 	private CampaignStatus status=CampaignStatus.Active;
 	private Set<CampaignSubscriberLinkDO> subscribers = new HashSet<CampaignSubscriberLinkDO>();
 	private Set<CampaignEntryPointDO> entryPoints = new HashSet<CampaignEntryPointDO>();
-	private EntryPointType campaignType;
-	private String defaultFrom;
 	private CampaignMode mode;
 	
 	public CampaignDO() {
@@ -181,25 +179,6 @@ public class CampaignDO implements Serializable,DataObject {
 	public int hashCode() {
 		if(UID==null) return 0;
 		return UID.hashCode();
-	}
-
-	@Column(name="type")
-	@Enumerated(EnumType.STRING)
-	public EntryPointType getCampaignType() {
-		return campaignType;
-	}
-
-	public void setCampaignType(EntryPointType campaignType) {
-		this.campaignType = campaignType;
-	}
-
-	@Column(name="from_address")
-	public String getDefaultFrom() {
-		return defaultFrom;
-	}
-
-	public void setDefaultFrom(String defaultFrom) {
-		this.defaultFrom = defaultFrom;
 	}
 
 	@Column(name="mode")

@@ -101,7 +101,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
-	public void subscribeToEntryPoint(Set<String> addresses, String entryPointUID) {
+	public void subscribeToEntryPoint(Set<String> addresses, String entryPointUID, EntryPointType subscriptionType) {
 		//Get the campaign and entry node
 		Node entryNode = campaignManager.getNode(entryPointUID);
 		CampaignDO camp = campaignManager.getSimpleCampaign(entryNode.getCampaignUID());
@@ -121,27 +121,35 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		//Get the raw node.
 		NodeDO nodeDO = campaignManager.getSimpleNode(entryPointUID);
 		Criteria crit = session.createCriteria(SubscriberDO.class);
-		EntryPointType type = ((EntryNode)entryNode).getEntryType();
+		int entryPointIndex=-1;
+		for(int loop=0; loop<((EntryNode)entryNode).getEntryTypeEnums().length; loop++)
+		{
+			if(((EntryNode)entryNode).getEntryTypeEnums()[loop].equals(subscriptionType))
+			{
+				entryPointIndex=loop;
+				break;
+			}
+		}
 		
 		//Double-check blacklist and remove blacklisted addresses
 		Criteria blacklistCrit = session.createCriteria(SubscriberBlacklistDO.class);
-		blacklistCrit.add(Restrictions.eq("type", type));
-		blacklistCrit.add(Restrictions.eq("incomingAddress", ((EntryNode)entryNode).getEntryPoint()));
+		blacklistCrit.add(Restrictions.eq("type", subscriptionType));
+		blacklistCrit.add(Restrictions.eq("incomingAddress", ((EntryNode)entryNode).getEntryPoints()[entryPointIndex]));
 		blacklistCrit.createAlias("subscriber", "sub");
-		if(type.equals(EntryPointType.Email))
+		if(subscriptionType.equals(EntryPointType.Email))
 			blacklistCrit.add(Restrictions.in("sub.email",addresses));
-		else if(type.equals(EntryPointType.SMS))
+		else if(subscriptionType.equals(EntryPointType.SMS))
 			blacklistCrit.add(Restrictions.in("sub.phoneNumber", addresses));
-		else if(type.equals(EntryPointType.Twitter))
+		else if(subscriptionType.equals(EntryPointType.Twitter))
 			blacklistCrit.add(Restrictions.in("sub.twitterUsername", addresses));
 		List<SubscriberBlacklistDO> blacklisted = blacklistCrit.list();
 		for(SubscriberBlacklistDO subToRemove : blacklisted)
 		{
-			if(type.equals(EntryPointType.Email))
+			if(subscriptionType.equals(EntryPointType.Email))
 				addresses.remove(subToRemove.getSubscriber().getEmail());
-			else if(type.equals(EntryPointType.SMS))
+			else if(subscriptionType.equals(EntryPointType.SMS))
 				addresses.remove(subToRemove.getSubscriber().getPhoneNumber());
-			else if(type.equals(EntryPointType.Twitter))
+			else if(subscriptionType.equals(EntryPointType.Twitter))
 				addresses.remove(subToRemove.getSubscriber().getTwitterUsername());
 		}
 		
@@ -149,7 +157,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			return;
 		
 		//Now that we've removed blacklisted addresses, get all the subscribers that match the list.
-		switch(type)
+		switch(subscriptionType)
 		{
 			case Email:
 				crit.add(Restrictions.in("email", addresses));
@@ -172,7 +180,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		//  from scratch.
 		for(SubscriberDO sub : subscribers)
 		{
-			switch(type)
+			switch(subscriptionType)
 			{
 				case Email:
 					addresses.remove(sub.getEmail());
@@ -193,7 +201,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		for(String address : addresses)
 		{
 			subTemp = new SubscriberDO();
-			switch(type)
+			switch(subscriptionType)
 			{
 				case Email:
 					subTemp.setEmail(address);
@@ -225,6 +233,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			link.setCampaign(camp);
 			link.setSubscriber(sub);
 			link.setLastHitNode(nodeDO);
+			link.setLastHitEntryType(subscriptionType);
+			link.setLastHitEntryPoint(((EntryNode)entryNode).getEntryPoints()[entryPointIndex]);
 			em.persist(link);
 			CATEvent nodeCompleted = CATEvent.buildNodeOperationCompletedEvent(nodeDO.getUID(), sub.getPrimaryKey().toString());
 			eventManager.queueEvent(nodeCompleted);

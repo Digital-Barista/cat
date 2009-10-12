@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -29,6 +31,8 @@ public class CampaignSubscriberLinkDO implements Serializable {
 	private CampaignDO campaign;
 	private SubscriberDO subscriber;
 	private NodeDO lastHitNode;
+	private String lastHitEntryPoint;
+	private EntryPointType lastHitEntryType;
 	private static final long serialVersionUID = 1L;
 
 	public CampaignSubscriberLinkDO() {
@@ -74,6 +78,25 @@ public class CampaignSubscriberLinkDO implements Serializable {
 
 	public void setLastHitNode(NodeDO lastHitNode) {
 		this.lastHitNode = lastHitNode;
+	}
+
+	@Column(name="last_used_entry_point")
+	public String getLastHitEntryPoint() {
+		return lastHitEntryPoint;
+	}
+
+	public void setLastHitEntryPoint(String lastHitEntryPoint) {
+		this.lastHitEntryPoint = lastHitEntryPoint;
+	}
+
+	@Column(name="last_used_entry_point_type")
+	@Enumerated(EnumType.STRING)
+	public EntryPointType getLastHitEntryType() {
+		return lastHitEntryType;
+	}
+
+	public void setLastHitEntryType(EntryPointType lastHitEntryType) {
+		this.lastHitEntryType = lastHitEntryType;
 	}
    
 }

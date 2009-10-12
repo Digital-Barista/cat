@@ -1,14 +1,17 @@
 package com.digitalbarista.cat.business;
 
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
 
+@XmlRootElement
 public class IntervalConnector extends Connector implements Auditable {
 
 	public static final String INFO_PROPERTY_INTERVAL="Interval";
@@ -88,6 +91,7 @@ public class IntervalConnector extends Connector implements Auditable {
 		return ConnectorType.Interval;
 	}
 
+	@XmlAttribute
 	public Long getInterval() {
 		return interval;
 	}
@@ -96,6 +100,7 @@ public class IntervalConnector extends Connector implements Auditable {
 		this.interval = interval;
 	}
 
+	@XmlAttribute
 	public IntervalType getIntervalType() {
 		return intervalType;
 	}

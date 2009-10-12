@@ -6,12 +6,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.EntryRestrictionType;
 import com.digitalbarista.cat.data.KeywordDO;
 
+@XmlRootElement
 public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serializable {
 	
 	private Long primaryKey;
@@ -92,6 +99,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		super();
 	}
 	
+	@XmlAttribute(name="id")
 	public Long getPrimaryKey() {
 		return this.primaryKey;
 	}
@@ -100,6 +108,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.primaryKey = primaryKey;
 	}
 	
+	@XmlAttribute
 	public String getDescription() {
 		return this.description;
 	}
@@ -108,6 +117,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.description = description;
 	}
 	
+	@XmlAttribute
 	public String getValue() {
 		return this.value;
 	}
@@ -116,6 +126,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.value = value;
 	}
 	
+	@XmlAttribute
 	public EntryPointType getType() {
 		return this.type;
 	}
@@ -124,6 +135,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.type = type;
 	}
 	
+	@XmlAttribute
 	public EntryRestrictionType getRestriction() {
 		return this.restriction;
 	}
@@ -132,6 +144,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.restriction = restriction;
 	}
 
+	@Wrapped(element="ClientIDs")
 	public Set<Integer> getClientIDs() {
 		return clientIDs;
 	}
@@ -140,6 +153,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.clientIDs = clientIDs;
 	}
 
+	@XmlAttribute
 	public Long getRestrictionID() {
 		return restrictionID;
 	}
@@ -148,6 +162,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.restrictionID = restrictionID;
 	}
 
+	@XmlElement
 	public Set<Keyword> getKeywords() {
 		return keywords;
 	}

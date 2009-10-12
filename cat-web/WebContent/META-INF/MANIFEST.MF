@@ -14,5 +14,12 @@ Class-Path: cat-ejb.jar
  td-data.jar 
  cfgatewayadapter.jar 
  cat-utils.jar 
- cat-data.jar
+ cat-data.jar 
+ lib/resteasy-jaxb-provider-1.1.GA.jar 
+ lib/resteasy-jaxrs-1.1.GA.jar 
+ lib/jaxb-api-2.1.jar 
+ lib/jaxb-impl-2.1.10.jar 
+ lib/scannotation-1.0.2.jar 
+ lib/slf4j-api-1.5.8.jar 
+ lib/slf4j-simple-1.5.8.jar
 

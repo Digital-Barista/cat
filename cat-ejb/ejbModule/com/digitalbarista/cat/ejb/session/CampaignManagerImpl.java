@@ -31,6 +31,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
+import org.jboss.resteasy.annotations.providers.jaxb.WrappedMap;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
@@ -588,8 +589,6 @@ public class CampaignManagerImpl implements CampaignManager {
 			throw new IllegalArgumentException("Cannot create a new campaign without a valid client PK.");
 		if(camp!=null && !camp.getClient().getPrimaryKey().equals(campaign.getClientPK()))
 			throw new IllegalArgumentException("Cannot change the client ID associated with the campaign.");
-		if(camp!=null && !camp.getCampaignType().equals(campaign.getType()))
-			throw new IllegalArgumentException("Cannot change the campaign type.");
 		if(camp==null)
 		{
 			if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), campaign.getClientPK()))
@@ -598,7 +597,6 @@ public class CampaignManagerImpl implements CampaignManager {
 			camp = new CampaignDO();
 			camp.setClient(em.find(ClientDO.class, campaign.getClientPK()));
 			camp.setUID(campaign.getUid());
-			camp.setCampaignType(campaign.getType());
 			camp.setMode(campaign.getMode());
 		}
 		campaign.copyTo(camp);
@@ -1270,6 +1268,7 @@ public class CampaignManagerImpl implements CampaignManager {
 
 	@Override
 	@PermitAll
+	@WrappedMap
 	public Map<String, Long> getNodeSubscriberCount(String campaignUUID) {
 		getSimpleCampaign(campaignUUID); // Do nothing with this except invoke security checks.
 		

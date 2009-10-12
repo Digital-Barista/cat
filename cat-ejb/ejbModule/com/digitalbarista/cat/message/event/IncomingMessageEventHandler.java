@@ -278,6 +278,8 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			csl.setCampaign(mostLikelyEntry.getCampaign());
 			csl.setSubscriber(sub);
 			csl.setLastHitNode(getCampaignManager().getSimpleNode(en.getUid()));
+			csl.setLastHitEntryType(mostLikelyEntry.getType());
+			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
 			getEntityManager().persist(csl);
 			CATEvent fireImmediateConnectorsEvent = CATEvent.buildNodeOperationCompletedEvent(en.getUid(), sub.getPrimaryKey().toString());
 			getEventManager().queueEvent(fireImmediateConnectorsEvent);
@@ -285,6 +287,8 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			//since they're subscribed, we're going to assume we're triggering a response
 			// connector.  Otherwise we ignore it.
 			CampaignSubscriberLinkDO csl = sub.getSubscriptions().get(mostLikelyEntry.getCampaign());
+			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
+			csl.setLastHitEntryType(mostLikelyEntry.getType());
 			Integer publishedVersion = csl.getCampaign().getCurrentVersion()-1;
 			Node node = getCampaignManager().getSpecificNodeVersion(csl.getLastHitNode().getUID(), publishedVersion);
 			Connector conn;

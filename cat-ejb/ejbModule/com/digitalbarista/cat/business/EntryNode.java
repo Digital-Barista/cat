@@ -6,9 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.EntryPointType;
@@ -16,6 +18,7 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
+@XmlRootElement
 public class EntryNode extends Node implements Auditable{
 
 	public static final String INFO_PROPERTY_ENTRY_TYPE="EntryType";
@@ -158,7 +161,7 @@ public class EntryNode extends Node implements Auditable{
 	public NodeType getType() {
 		return NodeType.Entry;
 	}
-
+	
 	public EntryPointType getEntryType() {
 		if(entryTypes!=null && entryTypes.size()==1)
 			return entryTypes.get(0);
@@ -192,6 +195,7 @@ public class EntryNode extends Node implements Auditable{
 		keywords.add(keyword);
 	}
 
+	@XmlElement(name="keyword")
 	public String[] getKeywords() {
 		return keywords.toArray(new String[keywords.size()]);
 	}
@@ -201,7 +205,6 @@ public class EntryNode extends Node implements Auditable{
 		for(String item : keywords)
 			this.keywords.add(item);
 	}
-
 
 	public EntryPointType[] getEntryTypeEnums() {
 		return entryTypes.toArray(new EntryPointType[entryTypes.size()]);
@@ -213,7 +216,7 @@ public class EntryNode extends Node implements Auditable{
 			this.entryTypes.add(item);
 	}
 
-	
+	@XmlElement(name="entryType")
 	public String[] getEntryTypes()
 	{
 		String[] ret = new String[entryTypes.size()];
@@ -229,6 +232,7 @@ public class EntryNode extends Node implements Auditable{
 			this.entryTypes.add(EntryPointType.valueOf(type));
 	}
 
+	@XmlElement(name="entryPoint")
 	public String[] getEntryPoints() {
 		return entryPoints.toArray(new String[entryPoints.size()]);
 	}

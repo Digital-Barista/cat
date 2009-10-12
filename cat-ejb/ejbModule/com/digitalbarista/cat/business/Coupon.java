@@ -2,10 +2,14 @@ package com.digitalbarista.cat.business;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
 
+@XmlRootElement
 public class Coupon implements
 		BusinessObject<CouponOfferDO> {
 
@@ -49,6 +53,7 @@ public class Coupon implements
 		throw new UnsupportedOperationException("Cannot save 'Coupon' business objects, as they are merely summaries.");
 	}
 	
+	@XmlAttribute
 	public String getCampaignName() {
 		return campaignName;
 	}
@@ -57,6 +62,7 @@ public class Coupon implements
 		this.campaignName = campaignName;
 	}
 
+	@XmlAttribute
 	public String getCouponName() {
 		return couponName;
 	}
@@ -65,6 +71,7 @@ public class Coupon implements
 		this.couponName = couponName;
 	}
 
+	@XmlAttribute
 	public Long getMaxCouponCount() {
 		return maxCouponCount;
 	}
@@ -73,6 +80,7 @@ public class Coupon implements
 		this.maxCouponCount = maxCouponCount;
 	}
 
+	@XmlAttribute
 	public Long getMaxRedemptions() {
 		return maxRedemptions;
 	}
@@ -81,6 +89,7 @@ public class Coupon implements
 		this.maxRedemptions = maxRedemptions;
 	}
 
+	@XmlAttribute
 	public Date getUnavailableDate() {
 		return unavailableDate;
 	}
@@ -89,6 +98,7 @@ public class Coupon implements
 		this.unavailableDate = unavailableDate;
 	}
 
+	@XmlAttribute
 	public Long getIssuedCouponCount() {
 		return issuedCouponCount;
 	}
@@ -97,6 +107,7 @@ public class Coupon implements
 		this.issuedCouponCount = issuedCouponCount;
 	}
 
+	@XmlAttribute
 	public Long getTotalRedemptionCount() {
 		return totalRedemptionCount;
 	}
@@ -105,6 +116,7 @@ public class Coupon implements
 		this.totalRedemptionCount = totalRedemptionCount;
 	}
 
+	@XmlAttribute
 	public Long getAverageRedemptionTime() {
 		return averageRedemptionTime;
 	}

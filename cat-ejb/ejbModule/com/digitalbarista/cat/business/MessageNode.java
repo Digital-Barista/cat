@@ -3,12 +3,16 @@ package com.digitalbarista.cat.business;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
+@XmlRootElement
 public class MessageNode extends Node implements Auditable {
 
 	public static final String INFO_PROPERTY_MESSAGE="MessageText";
@@ -80,6 +84,7 @@ public class MessageNode extends Node implements Auditable {
 		return NodeType.Message;
 	}
 
+	@XmlAttribute
 	public String getMessage() {
 		return message;
 	}
@@ -88,6 +93,7 @@ public class MessageNode extends Node implements Auditable {
 		this.message = message;
 	}
 
+	@XmlAttribute
 	public EntryPointType getMessageType() {
 		return messageType;
 	}

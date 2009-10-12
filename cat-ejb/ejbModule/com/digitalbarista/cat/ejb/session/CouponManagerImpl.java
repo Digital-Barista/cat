@@ -22,9 +22,7 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
-import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
-import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.Coupon;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
@@ -103,7 +101,7 @@ public class CouponManagerImpl implements CouponManager {
 
 	@Override
     @RolesAllowed({"client","admin","account.manager"})
-	public List<Coupon> couponSummaryByClient(Long clientID) {
+    public List<Coupon> couponSummaryByClient(Long clientID) {
 		Criteria crit = session.createCriteria(CouponOfferDO.class);
 		if(clientID!=null)
 		{

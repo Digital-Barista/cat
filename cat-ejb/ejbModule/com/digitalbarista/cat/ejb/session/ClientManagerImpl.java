@@ -81,7 +81,7 @@ public class ClientManagerImpl implements ClientManager {
     
     @SuppressWarnings("unchecked")
 	@RolesAllowed("admin")
-    public List<EntryPointDefinition> getEntryPointDefinitions() {
+	public List<EntryPointDefinition> getEntryPointDefinitions() {
     	List<EntryPointDefinition> ret = new ArrayList<EntryPointDefinition>();
     	Query q = em.createQuery("select e from EntryPointDO e");
     	for(EntryPointDO entry : (List<EntryPointDO>)q.getResultList())
