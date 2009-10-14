@@ -1,5 +1,7 @@
 package com.dbi.cat.common.vo
 {
+	import mx.collections.ArrayCollection;
+	
 	
 	[Bindable]
 	[RemoteClass(alias="com.digitalbarista.cat.business.EntryNode")]
@@ -10,18 +12,21 @@ package com.dbi.cat.common.vo
 			super();
 		}
 		
-		public var entryPoints:Array = new Array();
-		public var entryTypes:Array = new Array();
-		public var keywords:Array = new Array();
+		public var entryData:ArrayCollection = new ArrayCollection();
+//		public var entryPoints:ArrayCollection = new ArrayCollection();
+//		public var entryTypes:ArrayCollection = new ArrayCollection();
+//		public var keywords:ArrayCollection = new ArrayCollection();
 		
 		override public function get valid():Boolean
 		{
-			return entryPoints != null &&
-				entryPoints.length > 0 &&
-				entryTypes != null &&
-				entryTypes.length > 0 &&
-				keywords != null &&
-				keywords.length > 0;
+			return entryData != null &&
+				entryData.length > 0;
+//			return entryPoints != null &&
+//				entryPoints.length > 0 &&
+//				entryTypes != null &&
+//				entryTypes.length > 0 &&
+//				keywords != null &&
+//				keywords.length > 0;
 		}
 	}
 }

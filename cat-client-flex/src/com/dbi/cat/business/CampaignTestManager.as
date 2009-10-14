@@ -87,17 +87,18 @@ package com.dbi.cat.business
 						var entry:EntryPointVO = node as EntryPointVO;
 						if (entry.valid)
 						{
-							for each (var keyword:String in entry.keywords)
-							{
-								if (matchKeyword(response, keyword) )
-								{
-									match = true;
-									currentNode = entry;
-									out("Response: ", response);
-									out("Matched entry point with keyword: ", keyword);
-									break;
-								}
-							}
+							throw new Error("FIX THIS: you broke it adding twitter stuff");
+//							for each (var keyword:String in entry.keywords)
+//							{
+//								if (matchKeyword(response, keyword) )
+//								{
+//									match = true;
+//									currentNode = entry;
+//									out("Response: ", response);
+//									out("Matched entry point with keyword: ", keyword);
+//									break;
+//								}
+//							}
 							if (match)
 								break;
 						}
