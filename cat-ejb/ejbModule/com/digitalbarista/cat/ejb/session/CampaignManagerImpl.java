@@ -928,17 +928,23 @@ public class CampaignManagerImpl implements CampaignManager {
 		MultiValueMap<EntryPointType,String,String> oldEntries = new MultiValueMap<EntryPointType,String,String>();
 		MultiValueMap<EntryPointType,String,String> newEntries = new MultiValueMap<EntryPointType,String,String>();
 
-		int maxSize = rConn.getEntryTypes().length;
-		maxSize = rConn.getEntryPoints().length < maxSize ? rConn.getEntryPoints().length : maxSize;
-		maxSize = rConn.getKeywords().length < maxSize ? rConn.getKeywords().length : maxSize;
-		for(int loop=0; loop<maxSize; loop++)
-			newEntries.put(rConn.getEntryTypes()[loop], rConn.getEntryPoints()[loop], rConn.getKeywords()[loop]);
+		for(int loop=0; loop<rConn.getEntryData().length; loop++)
+		{
+			if(rConn.getEntryData()[loop].getEntryPoint()==null ||
+					rConn.getEntryData()[loop].getEntryType()==null ||
+					rConn.getEntryData()[loop].getKeyword()==null)
+				continue;
+			newEntries.put(rConn.getEntryData()[loop].getEntryType(), rConn.getEntryData()[loop].getEntryPoint(), rConn.getEntryData()[loop].getKeyword());
+		}
 
-		maxSize = oldConn.getEntryTypes().length;
-		maxSize = oldConn.getEntryPoints().length < maxSize ? oldConn.getEntryPoints().length : maxSize;
-		maxSize = oldConn.getKeywords().length < maxSize ? oldConn.getKeywords().length : maxSize;
-		for(int loop=0; loop<maxSize; loop++)
-			oldEntries.put(oldConn.getEntryTypes()[loop], oldConn.getEntryPoints()[loop], oldConn.getKeywords()[loop]);
+		for(int loop=0; loop<oldConn.getEntryData().length; loop++)
+		{
+			if(oldConn.getEntryData()[loop].getEntryPoint()==null ||
+					oldConn.getEntryData()[loop].getEntryType()==null ||
+					oldConn.getEntryData()[loop].getKeyword()==null)
+				continue;
+			oldEntries.put(oldConn.getEntryData()[loop].getEntryType(), oldConn.getEntryData()[loop].getEntryPoint(), oldConn.getEntryData()[loop].getKeyword());
+		}
 
 		for(EntryPointType type : newEntries.keySet())
 		{

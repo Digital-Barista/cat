@@ -198,40 +198,33 @@ public class ResponseConnector extends Connector implements Auditable {
 		keywords.clear();
 		keywords.add(keyword);
 	}
-
-	@Wrapped(element="Keywords")
-	public String[] getKeywords() {
-		return keywords.toArray(new String[keywords.size()]);
+	
+	public EntryData[] getEntryData()
+	{
+		int maxSize = entryTypes.size();
+		maxSize = entryPoints.size() > maxSize ? entryPoints.size() : maxSize;
+		maxSize = keywords.size() > maxSize ? keywords.size() : maxSize;
+		EntryData[] ret = new EntryData[maxSize];
+		for(int loop=0; loop<maxSize; loop++)
+		{
+			ret[loop]=new EntryData();
+			ret[loop].setEntryType(entryTypes.size()>loop?entryTypes.get(loop):null);
+			ret[loop].setEntryPoint(entryPoints.size()>loop?entryPoints.get(loop):null);
+			ret[loop].setKeyword(keywords.size()>loop?keywords.get(loop):null);
+		}
+		return ret;
 	}
-
-	public void setKeywords(String[] keywords) {
-		this.keywords = new ArrayList<String>();
-		for(String item : keywords)
-			this.keywords.add(item);
+	
+	public void setEntryData(EntryData[] entries)
+	{
+		entryTypes.clear();
+		entryPoints.clear();
+		keywords.clear();
+		for(EntryData data : entries)
+		{
+			entryTypes.add(data.getEntryType());
+			entryPoints.add(data.getEntryPoint());
+			keywords.add(data.getKeyword());
+		}
 	}
-
-
-	@Wrapped(element="EntryPointTypes")
-	public EntryPointType[] getEntryTypes() {
-		return entryTypes.toArray(new EntryPointType[entryTypes.size()]);
-	}
-
-	public void setEntryTypes(EntryPointType[] entryTypes) {
-		this.entryTypes = new ArrayList<EntryPointType>();
-		for(EntryPointType item : entryTypes)
-			this.entryTypes.add(item);
-	}
-
-
-	@Wrapped(element="EntryPoints")
-	public String[] getEntryPoints() {
-		return entryPoints.toArray(new String[entryPoints.size()]);
-	}
-
-	public void setEntryPoints(String[] entryPoints) {
-		this.entryPoints = new ArrayList<String>();
-		for(String item : entryPoints)
-			this.entryPoints.add(item);
-	}
-
 }
