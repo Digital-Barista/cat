@@ -9,10 +9,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import com.digitalbarista.cat.business.Client;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
+import com.digitalbarista.cat.data.EntryPointType;
 
 @Local
 @Path("/clients")
@@ -27,6 +29,9 @@ public interface ClientManager {
 	@GET
 	@Path("/entryPoints")
 	public List<EntryPointDefinition> getEntryPointDefinitions();
+	@GET
+	@Path("/entryPoints")
+	public EntryPointDefinition getEntryPointDefinition(@QueryParam("type") EntryPointType type, @QueryParam("account") String account);
 	@POST
 	public Client save(Client client);
 	@POST

@@ -37,6 +37,7 @@ import com.digitalbarista.cat.business.Keyword;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
+import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.KeywordDO;
 
 /**
@@ -88,10 +89,32 @@ public class ClientManagerImpl implements ClientManager {
     	{
         	EntryPointDefinition epd = new EntryPointDefinition();
     		epd.copyFrom(entry);
+        	if(ctx.isCallerInRole("admin"))
+        		epd.setCredentials(entry.getCredentials());
     		ret.add(epd);
     	}
+
     	for(EntryPointDefinition epd : ret)
     		fillInEntryPointKeywordData(epd);
+    	
+    	return ret;
+    }
+    
+    @SuppressWarnings("unchecked")
+	@RolesAllowed("admin")
+	public EntryPointDefinition getEntryPointDefinition(EntryPointType type, String account) {
+    	EntryPointDefinition ret = new EntryPointDefinition();
+    	Criteria crit = session.createCriteria(EntryPointDO.class);
+    	crit.add(Restrictions.eq("type", type));
+    	crit.add(Restrictions.eq("value", account));
+
+    	EntryPointDO result = (EntryPointDO)crit.uniqueResult();
+    	ret.copyFrom(result);
+    	
+    	if(ctx.isCallerInRole("admin"))
+    		ret.setCredentials(result.getCredentials());
+    	
+		fillInEntryPointKeywordData(ret);
 
     	return ret;
     }

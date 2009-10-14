@@ -24,6 +24,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 	private Long primaryKey;
 	private String description;
 	private String value;
+	private String credentials;
 	private EntryPointType type;
 	private EntryRestrictionType restriction;
 	private Set<Integer> clientIDs;
@@ -169,5 +170,13 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 
 	public void setKeywords(Set<Keyword> keywords) {
 		this.keywords = keywords;
+	}
+
+	public String getCredentials() {
+		return credentials;
+	}
+
+	public void setCredentials(String credentials) {
+		this.credentials = credentials;
 	}
 }

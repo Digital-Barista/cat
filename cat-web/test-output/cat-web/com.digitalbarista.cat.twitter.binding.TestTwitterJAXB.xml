@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.digitalbarista.cat.twitter.binding.TestTwitterJAXB" failures="0" tests="2" time="6.624" errors="0">
+  <properties/>
+  <testcase name="testDirectMessageClass" time="4.757" classname="com.digitalbarista.cat.twitter.binding.TestTwitterJAXB"/>
+  <testcase name="testTweeterClass" time="1.775" classname="com.digitalbarista.cat.twitter.binding.TestTwitterJAXB"/>
+</testsuite>

@@ -9,8 +9,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.EntryPointType;
@@ -20,7 +21,7 @@ import com.digitalbarista.cat.data.NodeType;
 
 @XmlRootElement
 public class EntryNode extends Node implements Auditable{
-
+	
 	public static final String INFO_PROPERTY_ENTRY_TYPE="EntryType";
 	public static final String INFO_PROPERTY_ENTRY_POINT="EntryPointDO";
 	public static final String INFO_PROPERTY_KEYWORD="EntryKeyword";
@@ -195,52 +196,32 @@ public class EntryNode extends Node implements Auditable{
 		keywords.add(keyword);
 	}
 
-	@XmlElement(name="keyword")
-	public String[] getKeywords() {
-		return keywords.toArray(new String[keywords.size()]);
-	}
-
-	public void setKeywords(String[] keywords) {
-		this.keywords = new ArrayList<String>();
-		for(String item : keywords)
-			this.keywords.add(item);
-	}
-
-	public EntryPointType[] getEntryTypeEnums() {
-		return entryTypes.toArray(new EntryPointType[entryTypes.size()]);
-	}
-
-	public void setEntryTypeEnums(EntryPointType[] entryTypes) {
-		this.entryTypes = new ArrayList<EntryPointType>();
-		for(EntryPointType item : entryTypes)
-			this.entryTypes.add(item);
-	}
-
-	@XmlElement(name="entryType")
-	public String[] getEntryTypes()
+	public EntryData[] getEntryData()
 	{
-		String[] ret = new String[entryTypes.size()];
-		for(int loop=0; loop<entryTypes.size(); loop++)
-			ret[loop]=entryTypes.get(loop).toString();
+		int maxSize = entryTypes.size();
+		maxSize = entryPoints.size() > maxSize ? entryPoints.size() : maxSize;
+		maxSize = keywords.size() > maxSize ? keywords.size() : maxSize;
+		EntryData[] ret = new EntryData[maxSize];
+		for(int loop=0; loop<maxSize; loop++)
+		{
+			ret[loop]=new EntryData();
+			ret[loop].setEntryType(entryTypes.size()>loop?entryTypes.get(loop):null);
+			ret[loop].setEntryPoint(entryPoints.size()>loop?entryPoints.get(loop):null);
+			ret[loop].setKeyword(keywords.size()>loop?keywords.get(loop):null);
+		}
 		return ret;
 	}
 	
-	public void setEntryTypes(String[] entryTypes)
+	public void setEntryData(EntryData[] entries)
 	{
-		this.entryTypes = new ArrayList<EntryPointType>();
-		for(String type : entryTypes)
-			this.entryTypes.add(EntryPointType.valueOf(type));
+		entryTypes.clear();
+		entryPoints.clear();
+		keywords.clear();
+		for(EntryData data : entries)
+		{
+			entryTypes.add(data.getEntryType());
+			entryPoints.add(data.getEntryPoint());
+			keywords.add(data.getKeyword());
+		}
 	}
-
-	@XmlElement(name="entryPoint")
-	public String[] getEntryPoints() {
-		return entryPoints.toArray(new String[entryPoints.size()]);
-	}
-
-	public void setEntryPoints(String[] entryPoints) {
-		this.entryPoints = new ArrayList<String>();
-		for(String item : entryPoints)
-			this.entryPoints.add(item);
-	}
-
 }

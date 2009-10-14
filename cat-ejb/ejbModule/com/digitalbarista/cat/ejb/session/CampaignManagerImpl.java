@@ -836,17 +836,23 @@ public class CampaignManagerImpl implements CampaignManager {
 		MultiValueMap<EntryPointType,String,String> oldEntries = new MultiValueMap<EntryPointType,String,String>();
 		MultiValueMap<EntryPointType,String,String> newEntries = new MultiValueMap<EntryPointType,String,String>();
 
-		int maxSize = eNode.getEntryTypeEnums().length;
-		maxSize = eNode.getEntryPoints().length < maxSize ? eNode.getEntryPoints().length : maxSize;
-		maxSize = eNode.getKeywords().length < maxSize ? eNode.getKeywords().length : maxSize;
-		for(int loop=0; loop<maxSize; loop++)
-			newEntries.put(eNode.getEntryTypeEnums()[loop], eNode.getEntryPoints()[loop], eNode.getKeywords()[loop]);
+		for(int loop=0; loop<eNode.getEntryData().length; loop++)
+		{
+			if(eNode.getEntryData()[loop].getEntryPoint()==null ||
+			   eNode.getEntryData()[loop].getEntryType()==null ||
+			   eNode.getEntryData()[loop].getKeyword()==null)
+				continue;
+			newEntries.put(eNode.getEntryData()[loop].getEntryType(), eNode.getEntryData()[loop].getEntryPoint(), eNode.getEntryData()[loop].getKeyword());
+		}
 
-		maxSize = oldNode.getEntryTypeEnums().length;
-		maxSize = oldNode.getEntryPoints().length < maxSize ? oldNode.getEntryPoints().length : maxSize;
-		maxSize = oldNode.getKeywords().length < maxSize ? oldNode.getKeywords().length : maxSize;
-		for(int loop=0; loop<maxSize; loop++)
-			oldEntries.put(oldNode.getEntryTypeEnums()[loop], oldNode.getEntryPoints()[loop], oldNode.getKeywords()[loop]);
+		for(int loop=0; loop<oldNode.getEntryData().length; loop++)
+		{
+			if(oldNode.getEntryData()[loop].getEntryPoint()==null ||
+				oldNode.getEntryData()[loop].getEntryType()==null ||
+				oldNode.getEntryData()[loop].getKeyword()==null)
+				continue;
+			oldEntries.put(oldNode.getEntryData()[loop].getEntryType(), oldNode.getEntryData()[loop].getEntryPoint(), oldNode.getEntryData()[loop].getKeyword());
+		}
 
 		for(EntryPointType type : newEntries.keySet())
 		{

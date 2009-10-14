@@ -16,6 +16,10 @@
 		<property name="jndiName" value="ejb/cat/ClientManager"/>
 	</bean>
 
+	<bean id="non.request.ejb.ClientManager" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="ejb/cat/ClientManager"/>
+	</bean>
+
 	<bean id="ejb.CouponManager" class="org.springframework.jndi.JndiObjectFactoryBean" scope="request">
 		<property name="jndiName" value="ejb/cat/CouponManager"/>
 	</bean>
