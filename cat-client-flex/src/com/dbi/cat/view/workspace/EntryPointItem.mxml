@@ -71,23 +71,22 @@
 					if (ed != null)
 					{
 						// Set checkbox
-						EntryPointType[i].selected = true;
+						EntryPointTypes[i].selected = true;
 						
 						// Set entry point
-						for (var index:Number = 0; i < EntryPoints[i].dataProvider.length; i++)
+						for (var index:Number = 0; index < EntryPoints[i].dataProvider.length; index++)
 						{
 							if (EntryPoints[i].dataProvider[index].name == ed.entryPoint)
 							{
 								EntryPoints[i].selectedIndex = index;
+								Keywords[i].dataProvider = getKeywords(ed.entryType, ed.entryPoint);
+								Keywords[i].selectedIndex = -1;
 								break;
 							}
 						}
 						
-						// Update keywords using selected entrypoint
-						updateKeywordLists();
-						
 						// Set keyword
-						for (index = 0; i < Keywords[i].dataProvider.length; i++)
+						for (index = 0; index < Keywords[i].dataProvider.length; index++)
 						{
 							if (Keywords[i].dataProvider[index].keyword == ed.keyword)
 							{
