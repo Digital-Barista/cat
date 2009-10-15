@@ -3,7 +3,8 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:components="com.dbi.cat.view.components.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
-	width="400" height="300"
+	editWindowWidth="500"
+	editWindowHeight="170"
 	displayIcon="{responseConnectorWorkspace}"
 	workspaceIcon="{responseConnector}"
 	x="{connectorVO.layoutInfo.x}"
@@ -19,10 +20,17 @@
 			
 			
 			[Bindable(event="connectorUpdate")]
+			[Bindable(event="connectorLoaded")]
 			public function get responseConnectorVO():ResponseConnectorVO
 			{
 				return editConnectorVO as ResponseConnectorVO;
 			}
+			public function set responseConnectorVO(rc:ResponseConnectorVO):void
+			{
+				connectorVO = rc;
+				dispatchEvent(new Event("connectorLoaded"));
+			}
+			
 			public function get layoutInfo():LayoutInfoVO
 			{
 				return connectorVO.layoutInfo;
@@ -31,6 +39,7 @@
 			{
 				connectorVO.layoutInfo = info;
 			}
+			
 			public function get voUID():String
 			{
 				return connectorVO.uid;
@@ -40,43 +49,27 @@
 			{
 				return responseConnectorVO != null && responseConnectorVO.valid;
 			}
-			private function get entryPointLabel():String
-			{
-				if (responseConnectorVO.entryPointType== EntryPointType.EMAIL)
-					return "Email";
-					
-				if (responseConnectorVO.entryPointType == EntryPointType.SMS)
-					return "Phone Number";
-				return "";
-			}
 			
 		]]>
 	</mx:Script>
-	<mx:ArrayCollection id="CampaignTypes">
-		<mx:Object label="{EntryPointType.SMS}" value="{EntryPointType.SMS}" />
-		<mx:Object label="{EntryPointType.EMAIL}" value="{EntryPointType.EMAIL}" />
-	</mx:ArrayCollection>
 	<editContent>
 		<mx:Form id="ContentForm"
-			right="0" left="0" top="0" bottom="0"   
+			width="100%" 
+			labelWidth="70"
 			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
-			<mx:FormItem label="Title">
+			<mx:FormItem label="Title"
+			width="100%" >
 				<mx:TextInput id="Title"
+					width="100%" 
 					text="{responseConnectorVO.name}"
 					change="{responseConnectorVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="{entryPointLabel}" required="true"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:Label text="{responseConnectorVO.entryPoint}" />
-			</mx:FormItem>
-			<mx:FormItem label="Keyword" required="true"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<components:KeywordComboBox id="SubscribeKeyword"
-					labelField="keyword"
-					selectedBindingProperty="keyword"
-					selectedBindingValue="{responseConnectorVO.keyword}"
-					change="{responseConnectorVO.keyword = SubscribeKeyword.selectedItem.keyword}" />
-			</mx:FormItem>
 		</mx:Form>
+		<AddressSelection
+			labelWidth="70"
+			workspace="{workspace}"
+			entryData="{responseConnectorVO.entryData}"
+			right="0" left="0" top="0" bottom="0"   
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5" />
 	</editContent>
 </Connection>

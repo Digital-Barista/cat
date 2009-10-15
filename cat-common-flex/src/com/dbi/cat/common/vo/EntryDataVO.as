@@ -14,5 +14,19 @@ package com.dbi.cat.common.vo
 			super();
 		}
 		
+		public function get valid():Boolean
+		{
+			if (entryType != null &&
+				entryType.length > 0 &&
+				entryPoint != null &&
+				entryPoint.length > 0 &&
+				keyword != null &&
+				keyword.length > 0)
+			{
+				return true;
+			}
+			return false;
+		}
+		
 	}
 }

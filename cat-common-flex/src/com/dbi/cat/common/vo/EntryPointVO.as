@@ -16,8 +16,15 @@ package com.dbi.cat.common.vo
 		
 		override public function get valid():Boolean
 		{
-			return entryData != null &&
-				entryData.length > 0;
+			if (entryData != null)
+			{
+				for each (var ed:EntryDataVO in entryData)
+				{
+					if (ed.valid)
+						return true;
+				}
+			}
+			return false;
 		}
 	}
 }

@@ -198,24 +198,25 @@ public class ResponseConnector extends Connector implements Auditable {
 		keywords.clear();
 		keywords.add(keyword);
 	}
-	
-	public EntryData[] getEntryData()
+
+	public List<EntryData> getEntryData()
 	{
 		int maxSize = entryTypes.size();
 		maxSize = entryPoints.size() > maxSize ? entryPoints.size() : maxSize;
 		maxSize = keywords.size() > maxSize ? keywords.size() : maxSize;
-		EntryData[] ret = new EntryData[maxSize];
+		List<EntryData> ret = new ArrayList<EntryData>();
 		for(int loop=0; loop<maxSize; loop++)
 		{
-			ret[loop]=new EntryData();
-			ret[loop].setEntryType(entryTypes.size()>loop?entryTypes.get(loop):null);
-			ret[loop].setEntryPoint(entryPoints.size()>loop?entryPoints.get(loop):null);
-			ret[loop].setKeyword(keywords.size()>loop?keywords.get(loop):null);
+			EntryData ed = new EntryData();
+			ed.setEntryType(entryTypes.size()>loop?entryTypes.get(loop):null);
+			ed.setEntryPoint(entryPoints.size()>loop?entryPoints.get(loop):null);
+			ed.setKeyword(keywords.size()>loop?keywords.get(loop):null);
+			ret.add(ed);
 		}
 		return ret;
 	}
 	
-	public void setEntryData(EntryData[] entries)
+	public void setEntryData(List<EntryData> entries)
 	{
 		entryTypes.clear();
 		entryPoints.clear();

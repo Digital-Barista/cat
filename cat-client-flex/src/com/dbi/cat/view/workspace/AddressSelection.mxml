@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Form xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.EntryDataVO;
+			import mx.collections.ArrayCollection;
+			
+			private var _workspace:WorkspaceView;
+			public function get workspace():WorkspaceView
+			{
+				return _workspace;
+			}
+			[Bindable(event="workspaceLoaded")]
+			public function set workspace(value:WorkspaceView):void
+			{
+				_workspace = value;
+				dispatchEvent(new Event("workspaceLoaded"));
+			}
+			
+			
+			private var _entryData:ArrayCollection;
+			[Bindable(event="entryDataLoaded")]
+			public function get entryData():ArrayCollection
+			{
+				return _entryData;
+			}
+			public function set entryData(value:ArrayCollection):void
+			{
+				_entryData = value;
+				dispatchEvent(new Event("entryDataLoaded"));
+				init();
+			}
+			
+			// List of entry points that are being shown
+			[Bindable]
+			private var allowedEntryPointTypes:Array = [
+				EntryPointType.SMS, 
+				EntryPointType.EMAIL, 
+				EntryPointType.TWITTER];
+			
+			private function init():void
+			{
+				populateCurrent();
+				updateEnabled();
+			}
+			
+			private function populateCurrent():void
+			{
+				for (var i:Number = 0; i < allowedEntryPointTypes.length; i++)
+				{
+					EntryPoints[i].selectedIndex = -1;
+					Keywords[i].selectedIndex = -1;
+					
+					var ed:EntryDataVO = getEntryData(allowedEntryPointTypes[i]);
+					if (ed != null)
+					{
+						// Set checkbox
+						EntryPointTypes[i].selected = true;
+						
+						// Set entry point
+						for (var index:Number = 0; index < EntryPoints[i].dataProvider.length; index++)
+						{
+							if (EntryPoints[i].dataProvider[index].name == ed.entryPoint)
+							{
+								EntryPoints[i].selectedIndex = index;
+								Keywords[i].dataProvider = getKeywords(ed.entryType, ed.entryPoint);
+								Keywords[i].selectedIndex = -1;
+								break;
+							}
+						}
+						
+						// Set keyword
+						for (index = 0; index < Keywords[i].dataProvider.length; index++)
+						{
+							if (Keywords[i].dataProvider[index].keyword == ed.keyword)
+							{
+								Keywords[i].selectedIndex = index;
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			
+			// Retrieve methods
+			[Bindable(event="entryPointLoaded")]
+			[Bindable(event="entryPointTypeChanged")]
+			private function getEntryData(entryPointType:String):EntryDataVO
+			{
+				for each (var ed:EntryDataVO in entryData)
+				{
+					if (ed.entryType == entryPointType)
+						return ed;
+				}
+				return null;
+			}
+			
+			// Keyword list
+			[Bindable(event="workspaceLoaded")]
+			private function getKeywords(entryPointType:String, address:String):ArrayCollection
+			{
+				return workspace.getClientKeywords(entryPointType, address);
+			}
+			
+			// EntryPoint list
+			[Bindable(event="workspaceLoaded")]
+			private function getEntryPoints(entryPointType:String):ArrayCollection
+			{
+				return workspace.getClientEntryPoints(entryPointType);
+			}
+			
+			// Update entry point data with all drop downs
+			private function changeType():void
+			{
+				for (var i:Number = 0; i < allowedEntryPointTypes.length; i++)
+				{
+					// If item is found update or remove it
+					var ed:EntryDataVO = getEntryData(allowedEntryPointTypes[i]);
+					if (ed != null)
+					{
+						if (EntryPointTypes[i].selected)
+						{
+							var newEntryPoint:String = EntryPoints[i].selectedItem != null ? EntryPoints[i].selectedItem.name : null;
+							if (ed.entryPoint != newEntryPoint)
+							{
+								ed.entryPoint = newEntryPoint;
+								Keywords[i].dataProvider = getKeywords(ed.entryType, ed.entryPoint);
+								Keywords[i].selectedIndex = -1;
+							}
+							ed.keyword = Keywords[i].selectedItem != null ? Keywords[i].selectedItem.keyword : null;
+						}
+						else
+						{
+							entryData.removeItemAt(entryData.getItemIndex(ed));
+						}
+					}
+					// If item is not found and selected add it
+					else if (EntryPointTypes[i].selected)
+					{
+						var newEd:EntryDataVO = new EntryDataVO();
+						newEd.entryType = allowedEntryPointTypes[i];
+						entryData.addItem(newEd);
+					}
+				}
+				updateEnabled();
+			}
+			private function updateEnabled():void
+			{
+				// Modify enabled state of drop downs
+				for (var i:Number = 0; i < allowedEntryPointTypes.length; i++)
+				{
+					var selected:Boolean = EntryPointTypes[i].selected;
+					EntryPoints[i].enabled = selected;
+					Keywords[i].enabled = selected;
+					
+					if (!selected)
+					{
+						EntryPoints[i].selectedIndex = -1;
+						Keywords[i].selectedIndex = -1;
+					}
+				}
+			}
+			
+			private function updateKeywordLists():void
+			{
+				for (var i:Number = 0; i < Keywords.length; i++)
+				{
+					var address:String = EntryPoints[i].selectedItem != null ? EntryPoints[i].selectedItem.name : "";
+					
+					Keywords[i].dataProvider = getKeywords(EntryPointFormItem[i].label, address);
+					Keywords[i].selectedIndex = -1;
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Repeater id="EntryPointRepeater"
+		dataProvider="{allowedEntryPointTypes}">
+		<mx:FormItem id="EntryPointFormItem"
+			label="{EntryPointRepeater.currentItem}"
+			labelWidth="70" width="100%"
+			enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+			<mx:HBox width="100%" verticalAlign="middle">
+				<mx:CheckBox id="EntryPointTypes"
+					change="changeType()"  />
+				<mx:ComboBox id="EntryPoints"
+					width="150"
+					labelField="name"
+					dataProvider="{getEntryPoints(EntryPointRepeater.currentItem.toString())}"
+					change="{changeType()}" />
+				<mx:Label text="Keyword" />
+				<mx:ComboBox id="Keywords"
+					width="150"
+					labelField="keyword"
+					change="{changeType()}" />
+			</mx:HBox>
+		</mx:FormItem>
+	</mx:Repeater>
+</mx:Form>

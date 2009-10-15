@@ -329,8 +329,6 @@ package com.dbi.cat.view.workspace
             {
             	var response:ResponseConnectorVO = new ResponseConnectorVO();
             	response.campaignUID = campaign.uid;
-            	response.entryPointType = campaign.type;
-            	response.entryPoint = campaign.defaultFromAddress;
             	layout.UUID = response.uid;
             	response.layoutInfo = layout;
             	
@@ -407,7 +405,7 @@ package com.dbi.cat.view.workspace
             else if (connector is ResponseConnectorVO)
             {
             	var rc:ResponseConnection = new ResponseConnection();
-            	rc.connectorVO = connector as ResponseConnectorVO;
+            	rc.responseConnectorVO = connector as ResponseConnectorVO;
             	newItem = rc;
             }
             

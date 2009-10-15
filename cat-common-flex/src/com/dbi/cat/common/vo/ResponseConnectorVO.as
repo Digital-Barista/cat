@@ -1,5 +1,7 @@
 package com.dbi.cat.common.vo
 {
+	import mx.collections.ArrayCollection;
+	
 	[Bindable]
 	[RemoteClass(alias="com.digitalbarista.cat.business.ResponseConnector")]
 	public class ResponseConnectorVO extends ConnectorVO
@@ -9,18 +11,19 @@ package com.dbi.cat.common.vo
 			super();
 		}
 		
-		public var entryPoint:String;
-		public var entryPointType:String;
-		public var keyword:String;
+		public var entryData:ArrayCollection = new ArrayCollection();
 		
-			override public function get valid():Boolean
+		override public function get valid():Boolean
+		{
+			if (entryData != null)
 			{
-				return entryPoint != null &&
-					entryPoint.length > 0 &&
-					entryPointType != null &&
-					entryPointType.length > 0 &&
-					keyword != null &&
-					keyword.length > 0;
+				for each (var ed:EntryDataVO in entryData)
+				{
+					if (ed.valid)
+						return true;
+				}
 			}
+			return false;
+		}
 	}
 }
