@@ -122,9 +122,9 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		NodeDO nodeDO = campaignManager.getSimpleNode(entryPointUID);
 		Criteria crit = session.createCriteria(SubscriberDO.class);
 		int entryPointIndex=-1;
-		for(int loop=0; loop<((EntryNode)entryNode).getEntryData().length; loop++)
+		for(int loop=0; loop<((EntryNode)entryNode).getEntryData().size(); loop++)
 		{
-			if(((EntryNode)entryNode).getEntryData()[loop].getEntryType().equals(subscriptionType))
+			if(((EntryNode)entryNode).getEntryData().get(loop).getEntryType().equals(subscriptionType))
 			{
 				entryPointIndex=loop;
 				break;
@@ -134,7 +134,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		//Double-check blacklist and remove blacklisted addresses
 		Criteria blacklistCrit = session.createCriteria(SubscriberBlacklistDO.class);
 		blacklistCrit.add(Restrictions.eq("type", subscriptionType));
-		blacklistCrit.add(Restrictions.eq("incomingAddress", ((EntryNode)entryNode).getEntryData()[entryPointIndex].getEntryPoint()));
+		blacklistCrit.add(Restrictions.eq("incomingAddress", ((EntryNode)entryNode).getEntryData().get(entryPointIndex).getEntryPoint()));
 		blacklistCrit.createAlias("subscriber", "sub");
 		if(subscriptionType.equals(EntryPointType.Email))
 			blacklistCrit.add(Restrictions.in("sub.email",addresses));
@@ -234,7 +234,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			link.setSubscriber(sub);
 			link.setLastHitNode(nodeDO);
 			link.setLastHitEntryType(subscriptionType);
-			link.setLastHitEntryPoint(((EntryNode)entryNode).getEntryData()[entryPointIndex].getEntryPoint());
+			link.setLastHitEntryPoint(((EntryNode)entryNode).getEntryData().get(entryPointIndex).getEntryPoint());
 			em.persist(link);
 			CATEvent nodeCompleted = CATEvent.buildNodeOperationCompletedEvent(nodeDO.getUID(), sub.getPrimaryKey().toString());
 			eventManager.queueEvent(nodeCompleted);

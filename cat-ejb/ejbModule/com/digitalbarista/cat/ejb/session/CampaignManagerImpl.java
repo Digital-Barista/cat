@@ -836,22 +836,22 @@ public class CampaignManagerImpl implements CampaignManager {
 		MultiValueMap<EntryPointType,String,String> oldEntries = new MultiValueMap<EntryPointType,String,String>();
 		MultiValueMap<EntryPointType,String,String> newEntries = new MultiValueMap<EntryPointType,String,String>();
 
-		for(int loop=0; loop<eNode.getEntryData().length; loop++)
+		for(int loop=0; loop<eNode.getEntryData().size(); loop++)
 		{
-			if(eNode.getEntryData()[loop].getEntryPoint()==null ||
-			   eNode.getEntryData()[loop].getEntryType()==null ||
-			   eNode.getEntryData()[loop].getKeyword()==null)
+			if(eNode.getEntryData().get(loop).getEntryPoint()==null ||
+			   eNode.getEntryData().get(loop).getEntryType()==null ||
+			   eNode.getEntryData().get(loop).getKeyword()==null)
 				continue;
-			newEntries.put(eNode.getEntryData()[loop].getEntryType(), eNode.getEntryData()[loop].getEntryPoint(), eNode.getEntryData()[loop].getKeyword());
+			newEntries.put(eNode.getEntryData().get(loop).getEntryType(), eNode.getEntryData().get(loop).getEntryPoint(), eNode.getEntryData().get(loop).getKeyword());
 		}
 
-		for(int loop=0; loop<oldNode.getEntryData().length; loop++)
+		for(int loop=0; loop<oldNode.getEntryData().size(); loop++)
 		{
-			if(oldNode.getEntryData()[loop].getEntryPoint()==null ||
-				oldNode.getEntryData()[loop].getEntryType()==null ||
-				oldNode.getEntryData()[loop].getKeyword()==null)
+			if(oldNode.getEntryData().get(loop).getEntryPoint()==null ||
+				oldNode.getEntryData().get(loop).getEntryType()==null ||
+				oldNode.getEntryData().get(loop).getKeyword()==null)
 				continue;
-			oldEntries.put(oldNode.getEntryData()[loop].getEntryType(), oldNode.getEntryData()[loop].getEntryPoint(), oldNode.getEntryData()[loop].getKeyword());
+			oldEntries.put(oldNode.getEntryData().get(loop).getEntryType(), oldNode.getEntryData().get(loop).getEntryPoint(), oldNode.getEntryData().get(loop).getKeyword());
 		}
 
 		for(EntryPointType type : newEntries.keySet())
