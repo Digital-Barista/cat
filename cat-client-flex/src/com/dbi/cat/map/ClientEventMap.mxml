@@ -29,6 +29,7 @@
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.SAVE_CLIENT}">
 		<RemoteObjectInvoker destination="clientManager"
+			showBusyCursor="true"
 			method="save"
 			arguments="{event.client}">
 			<resultHandlers>
@@ -51,5 +52,51 @@
 	<EventHandlers type="{ClientEvent.CANCEL_EDIT}">
 		<MethodInvoker generator="{ClientManager}"
 			method="closeEdit" />
+	</EventHandlers>
+	
+	<!-- Keyword events -->
+	<EventHandlers type="{ClientEvent.SAVE_KEYWORD}">
+		<RemoteObjectInvoker destination="clientManager"
+			showBusyCursor="true"
+			method="save"
+			arguments="{event.keyword}">
+			<resultHandlers>
+				<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
+				<MethodInvoker generator="{ClientManager}"
+					method="saveKeyword"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.EDIT_KEYWORD}">
+		<MethodInvoker generator="{ClientManager}"
+			method="editKeyword"
+			arguments="{[event.keyword, event.entryPoint, event.client]}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.DELETE_KEYWORD}">
+		<RemoteObjectInvoker destination="clientManager"
+			showBusyCursor="true"
+			method="delete"
+			arguments="{event.keyword}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="deleteKeyword"
+					arguments="{event.keyword}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_EDIT_KEYWORD}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeEditKeyword" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.LIST_KEYWORDS}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="getAllKeywords">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadKeywords"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
 	</EventHandlers>
 </EventMap>

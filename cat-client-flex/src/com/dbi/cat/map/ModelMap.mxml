@@ -3,6 +3,8 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.profile.EditKeywordView;
+			import com.dbi.cat.view.profile.KeywordView;
 			import com.dbi.cat.view.campaign.EditCampaignTemplateView;
 			import com.dbi.cat.event.LayoutInfoEvent;
 			import com.dbi.cat.view.reporting.CouponReportingView;
@@ -221,6 +223,22 @@
 			source="{ClientManager}"
 			sourceKey="clientMap"
 			targetKey="clientMap" />
+	</Injectors>
+	<Injectors target="{KeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="keywords"
+			targetKey="keywords" />
+	</Injectors>
+	<Injectors target="{EditKeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentKeyword"
+			targetKey="currentKeyword" />
 	</Injectors>
 	
 	<!-- 

@@ -13,7 +13,15 @@ package com.dbi.cat.event
 		public static const CANCEL_EDIT:String = "cancelEditClientEvent";
 		public static const SAVE_CLIENT:String = "saveClientEvent";
 		
+		public static const SAVE_KEYWORD:String = "saveKeywordEvent";
+		public static const EDIT_KEYWORD:String = "editKeywordEvent";
+		public static const DELETE_KEYWORD:String = "deleteKeywordEvent";
+		public static const CLOSE_EDIT_KEYWORD:String = "closeEditKeywordEvent";
+		public static const LIST_KEYWORDS:String = "listKeywordsEvent";
+		public static const CHECK_KEYWORD_AVAILABILITY:String = "checkKeywordAvailabilityEvent";
+		
 		public var client:ClientVO;
+		public var keyword:KeywordVO;
 		
 		public function ClientEvent(type:String)
 		{
