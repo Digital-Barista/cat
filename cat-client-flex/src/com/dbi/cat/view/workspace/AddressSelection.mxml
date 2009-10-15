@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Form xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="100%" height="100%">
+	width="100%" height="100%" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.CampaignMode;
@@ -192,7 +192,7 @@
 					dataProvider="{getEntryPoints(EntryPointRepeater.currentItem.toString())}"
 					change="{changeType()}" />
 				<mx:Label text="Keyword" />
-				<mx:ComboBox id="Keywords"
+				<components:KeywordComboBox id="Keywords"
 					width="150"
 					labelField="keyword"
 					change="{changeType()}" />
