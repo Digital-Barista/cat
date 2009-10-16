@@ -8,7 +8,8 @@
 			<mx:TextInput id="Username"  width="100%"/>
 		</mx:FormItem>
 		<mx:FormItem label="Password" width="100%" labelWidth="100">
-			<mx:TextInput id="Password"  width="100%"/>
+			<mx:TextInput id="Password"  width="100%"
+				 displayAsPassword="true"/>
 		</mx:FormItem>
 		<mx:FormItem label="Server Type" width="100%" labelWidth="100">
 			<mx:HBox>

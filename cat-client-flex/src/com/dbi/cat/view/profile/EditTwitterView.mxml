@@ -5,7 +5,8 @@
 			<mx:TextInput id="AccountName"  width="100%"/>
 		</mx:FormItem>
 		<mx:FormItem label="Password" width="100%" labelWidth="100">
-			<mx:TextInput id="Password"  width="100%"/>
+			<mx:TextInput id="Password"  width="100%"
+				 displayAsPassword="true"/>
 		</mx:FormItem>
 	</mx:Form>
 </mx:Canvas>
