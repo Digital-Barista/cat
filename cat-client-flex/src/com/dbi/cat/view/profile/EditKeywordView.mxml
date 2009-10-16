@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-	width="392" height="178"
+	width="392" height="200"
 	showCloseButton="true"
 	close="onClose()"
-	title="Create Keyword">
+	title="Create Keyword"
+	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.event.ClientEvent;
@@ -18,6 +19,28 @@
 			[Bindable]
 			public var currentKeyword:KeywordVO;
 			
+			[Bindable]
+			public var keywords:ArrayCollection;
+			
+			
+			[Bindable(event="changeAddress")]
+			private function get usedCount():Number
+			{
+				var count:Number = 0;
+				for each (var k:KeywordVO in keywords)
+				{
+					if (k.clientId == Client.selectedItem.clientId &&
+					    k.entryPointId == Address.selectedItem.primaryKey)
+						count++;
+				}
+				return count;
+			}
+			
+			
+			private function init():void
+			{
+				dispatchEvent(new Event("changeAddress"));
+			}
 			private function onClose():void
 			{
 				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_KEYWORD));
@@ -34,25 +57,38 @@
 			{
 				
 			}
+			private function changeAddress():void
+			{
+				currentKeyword.entryPointId = Address.selectedItem.primaryKey;
+				dispatchEvent(new Event("changeAddress"));
+			}
+			private function changeClient():void
+			{
+				currentKeyword.clientId = Client.selectedItem.clientId
+				dispatchEvent(new Event("changeAddress"));
+			}
 		]]>
 	</mx:Script>
 	<mx:Form>
 		<mx:FormItem label="Client">
 			<mx:ComboBox id="Client"
 				dataProvider="{clients}"
-				change="{currentKeyword.clientId = Client.selectedItem.clientId}"
+				change="{changeClient()}"
 				labelField="name" />
 		</mx:FormItem>
 		<mx:FormItem label="Address">
 			<mx:ComboBox id="Address"
 				dataProvider="{Client.selectedItem.entryPoints}"
-				change="{currentKeyword.entryPointId = Address.selectedItem.primaryKey}"
+				change="{changeAddress()}"
 				labelField="value" />
 		</mx:FormItem>
 		<mx:FormItem label="Keyword">
 			<mx:TextInput id="Keyword"
 				text="{currentKeyword.keyword}"
 				change="{currentKeyword.keyword = Keyword.text;}" />
+		</mx:FormItem>
+		<mx:FormItem>
+			<mx:Label text="{'Using ' + usedCount + ' of 5 Available'}" />
 		</mx:FormItem>
 	</mx:Form>
 	<mx:Button id="Check" label="Check Availability"

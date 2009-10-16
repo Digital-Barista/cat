@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var entryPointDefinitions:ArrayCollection;
+			
+			private function addEntryPoint():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_ENTRY_POINT);
+				event.entryPointDefinition = new EntryPointDefinitionVO();
+				dispatchEvent(event);
+			}
+			private function refresh():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.LIST_ENTRY_POINT_DEFINITIONS));
+			}
+		]]>
+	</mx:Script>
+	<mx:TitleWindow
+		width="100%" height="100%"
+		layout="absolute"
+		title="Accounts">
+		<mx:DataGrid id="EntryPointDefinitionGrid"
+			top="0" bottom="0" left="0" right="0"
+			dataProvider="{entryPointDefinitions}"
+			dragEnabled="true">
+			<mx:columns>
+				<mx:DataGridColumn dataField="value" headerText="Address" />
+				<mx:DataGridColumn dataField="type" headerText="Type" width="80"  />
+				<mx:DataGridColumn dataField="description" headerText="Description" />
+				<mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.EntryPointDefinitionActionsRenderer" editable="false" width="60" />
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:TitleWindow>
+	<mx:HBox top="5" right="10">
+		<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+			width="25" height="25"
+			toolTip="Refresh"
+			click="refresh()" />
+		<mx:Button label="New Account"  width="120" click="addEntryPoint()" />
+	</mx:HBox>
+</mx:Canvas>

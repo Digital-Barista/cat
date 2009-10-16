@@ -13,7 +13,7 @@
 	</mx:Script>
 	
 	<services:Services id="services" />
-	
+	 
 	<Debugger level="{Debugger.ALL}" />
 	
 	<!-- Client Events -->
@@ -71,7 +71,7 @@
 	<EventHandlers type="{ClientEvent.EDIT_KEYWORD}">
 		<MethodInvoker generator="{ClientManager}"
 			method="editKeyword"
-			arguments="{[event.keyword, event.entryPoint, event.client]}" />
+			arguments="{event.keyword}" />
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.DELETE_KEYWORD}">
 		<RemoteObjectInvoker destination="clientManager"
@@ -98,5 +98,42 @@
 					arguments="{resultObject}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<!-- Entry point events -->
+	<EventHandlers type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="getEntryPointDefinitions">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadEntryPoints"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="save"
+			arguments="{event.entryPoint}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="saveEntryPoint"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.EDIT_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="editEntryPoint"
+			arguments="{event.entryPointDefinition}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.DELETE_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="deleteEntryPoint"
+			arguments="{event.entryPointDefinition}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_EDIT_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeEditEntryPoint" />
 	</EventHandlers>
 </EventMap>

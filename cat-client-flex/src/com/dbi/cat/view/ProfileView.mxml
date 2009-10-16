@@ -33,7 +33,7 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Panel width="400" layout="absolute" title="User" horizontalCenter="-208" y="10">
+	<mx:Panel width="400" layout="absolute" title="User" horizontalCenter="-208" y="10" height="225">
 		<ns1:UserInformationView 
 			id="UserInfo"
 			user="{currentUser}"
@@ -44,7 +44,7 @@
 				click="editUser()" />
 		</mx:ControlBar>
 	</mx:Panel>
-	<mx:Panel width="400" layout="absolute" horizontalCenter="-208" title="Client" top="210">
+	<mx:Panel width="400" layout="absolute" horizontalCenter="200" title="Client" top="10" height="225">
 		<ns1:ClientInformationView
 			id="ClientInfo"
 			client="{currentClient}"
@@ -55,6 +55,7 @@
 				click="editClient()" />
 		</mx:ControlBar>
 	</mx:Panel>
-	<ns1:KeywordView  width="400" horizontalCenter="200" height="413" y="10"/>
+	<ns1:KeywordView  width="400" horizontalCenter="200" top="243" bottom="10"/>
+	<ns1:EntryPointDefinitionView  top="243" horizontalCenter="-208" bottom="10" width="400"/>
 	
 </mx:Canvas>

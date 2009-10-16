@@ -3,6 +3,8 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.profile.EntryPointDefinitionView;
+			import com.dbi.cat.view.profile.EditEntryPointView;
 			import com.dbi.cat.view.profile.EditKeywordView;
 			import com.dbi.cat.view.profile.KeywordView;
 			import com.dbi.cat.view.campaign.EditCampaignTemplateView;
@@ -239,6 +241,26 @@
 			source="{ClientManager}"
 			sourceKey="currentKeyword"
 			targetKey="currentKeyword" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="keywords"
+			targetKey="keywords" />
+	</Injectors>
+	<Injectors target="{EditEntryPointView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentEntryPointDefinition"
+			targetKey="currentEntryPointDefinition" />
+	</Injectors>
+	<Injectors target="{EntryPointDefinitionView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="entryPointDefinitions"
+			targetKey="entryPointDefinitions" />
 	</Injectors>
 	
 	<!-- 

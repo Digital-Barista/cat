@@ -80,6 +80,7 @@
 	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
 		<EventAnnouncer type="{CampaignEvent.LIST_CAMPAIGNS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_KEYWORDS}" />
+		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />
 		<EventAnnouncer type="{CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES}" />
 		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />

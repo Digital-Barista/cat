@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:profile="com.dbi.cat.view.profile.*" 
+	layout="absolute" 
+	width="400" height="350"
+	showCloseButton="true"
+	close="onClose()" xmlns:controls="com.dbi.controls.*"
+	title="{isNaN(currentEntryPointDefinition.primaryKey) ? 'Create Entry Point' : 'Edit Entry Point'}" >
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.common.constants.EntryRestrictionType;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.vo.EntryPointVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+			private var _currentEntryPointDefinition:EntryPointDefinitionVO;
+			[Bindable]
+			public function get currentEntryPointDefinition():EntryPointDefinitionVO
+			{
+				return _currentEntryPointDefinition;
+			}
+			public function set currentEntryPointDefinition(value:EntryPointDefinitionVO):void
+			{
+				_currentEntryPointDefinition = value;
+				setCorrectView();
+			}
+			
+			
+			[Bindable]
+			public var entryPointTypes:Array = [
+				EntryPointType.SMS,
+				EntryPointType.EMAIL,
+				EntryPointType.TWITTER];
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_ENTRY_POINT));
+			}
+			private function save():void
+			{
+				throw new Error("Not implemented yet");
+//				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_ENTRY_POINT);
+//				event.entryPointDefinition = currentEntryPointDefinition;
+//				dispatchEvent(event);
+			}
+			private function changeView():void
+			{
+				currentEntryPointDefinition.type = EntryPointCombo.selectedItem != null ? EntryPointCombo.selectedItem.toString() : null;
+				setCorrectView();
+			}
+			
+			private function setCorrectView():void
+			{
+				switch (currentEntryPointDefinition.type)
+				{
+					case EntryPointType.SMS:
+						AccountViews.selectedChild = SMSView;
+						break;
+					case EntryPointType.EMAIL:
+						AccountViews.selectedChild = EmailView;
+						break;
+					case EntryPointType.TWITTER:
+						AccountViews.selectedChild = TwitterView;
+						break;
+					default:
+						AccountViews.selectedChild = NoView;
+						break;
+				}
+			}
+		]]>
+	</mx:Script>
+	<controls:AdvancedComboBox id="EntryPointCombo"
+		enabled="{isNaN(currentEntryPointDefinition.primaryKey)}"
+		dataProvider="{entryPointTypes}"
+		change="changeView()"
+		selectedBindingValue="{currentEntryPointDefinition.type}"  x="110" y="10"/>
+	<mx:ViewStack id="AccountViews"
+		top="40" bottom="0" right="0" left="0">
+		<profile:EditSMSView id="SMSView" />
+		<profile:EditEmailView id="EmailView"  />
+		<profile:EditTwitterView id="TwitterView" />
+		<profile:NoTypeView id="NoView" />
+	</mx:ViewStack>
+	<mx:Label x="24" y="12" text="Account Type"/>
+	<mx:ControlBar>
+		<mx:Button id="Save" label="Save"
+			click="save()" />
+	</mx:ControlBar>
+</mx:TitleWindow>
