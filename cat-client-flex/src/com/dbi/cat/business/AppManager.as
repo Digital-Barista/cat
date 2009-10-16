@@ -4,7 +4,6 @@ package com.dbi.cat.business
 	import com.dbi.controls.CustomMessage;
 	
 	import flash.events.IEventDispatcher;
-	import flash.events.MouseEvent;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.IViewCursor;
@@ -17,14 +16,18 @@ package com.dbi.cat.business
 		
 		public var currentVersion:String;
 		public var workspaceStatusMessage:String;
+		public var generalStatusMessage:String;
 		
 		private var workspaceStatusMessageList:ArrayCollection;
+		private var generalStatusMessageList:ArrayCollection;
+		
 		private var dispatcher:IEventDispatcher;
 		
 		public function AppManager(dispatcher:IEventDispatcher)
 		{
 			this.dispatcher = dispatcher;
 			workspaceStatusMessageList = new ArrayCollection();
+			generalStatusMessageList = new ArrayCollection();
 		}
 		
 		/**
@@ -74,6 +77,45 @@ package com.dbi.cat.business
 				workspaceStatusMessage = workspaceStatusMessageList[workspaceStatusMessageList.length - 1] + "...";
 			else
 				workspaceStatusMessage = "";
+		}
+		/**
+		 * Adds a status message to the queue that will display everywhere
+		 * in the application
+		 * 
+		 * @param message Message string to add
+		 */
+		public function addGeneralStatusMessage(message:String):void
+		{
+			generalStatusMessageList.addItem(message);
+			updateGeneralStatusMessage();
+		}
+		
+		/**
+		 * Removes a single status message that has been added with 
+		 * matching text
+		 * 
+		 * @param message Status message to remove
+		 */
+		public function removeGeneralStatusMessage(message:String):void
+		{
+			var cur:IViewCursor = generalStatusMessageList.createCursor();
+			while (cur.current != null)
+			{
+				if (cur.current == message)
+				{
+					cur.remove();
+					break;
+				}
+				cur.moveNext();
+			}
+			updateGeneralStatusMessage();
+		}
+		private function updateGeneralStatusMessage():void
+		{
+			if (generalStatusMessageList.length > 0)
+				generalStatusMessage = generalStatusMessageList[generalStatusMessageList.length - 1] + "...";
+			else
+				generalStatusMessage = "";
 		}
 		
 		/**

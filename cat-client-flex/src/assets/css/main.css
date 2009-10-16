@@ -51,6 +51,13 @@ List
 	backgroundColor:#00AA00;
 	color:#FFFFFF;
 }
+.generalStatusMessage
+{
+	padding-left:5;
+	padding-right:5;
+	backgroundColor:#00AA00;
+	color:#FFFFFF;
+}
 .componentTree
 {
 	backgroundColor:#FFFFFF;

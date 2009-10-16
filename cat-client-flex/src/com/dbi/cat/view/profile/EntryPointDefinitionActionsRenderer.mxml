@@ -13,7 +13,7 @@
 			import com.dbi.controls.CustomMessage;
 			
 			[Bindable]
-			[Embed("/assets/swf/edit.swf")]
+			[Embed("/assets/swf/plus.swf")]
 			private var editIcon:Class;
 			
 			[Bindable]

@@ -18,7 +18,7 @@ package com.dbi.cat.common.vo
 		public var primaryKey:Number;
 		public var description:String;
 		public var value:String;
-		public var type:String = EntryPointType.SMS;
+		public var type:String;
 		public var restriction:String = EntryRestrictionType.SHARED;
 		public var clientIDs:ArrayCollection;
 		public var restrictionID:Number;

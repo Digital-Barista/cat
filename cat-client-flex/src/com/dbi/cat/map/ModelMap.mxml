@@ -62,6 +62,10 @@
 			source="{NavigationManager}"
 			sourceKey="mainCurrentView"
 			targetKey="currentView" />
+		<PropertyInjector
+			source="{AppManager}"
+			sourceKey="generalStatusMessage"
+			targetKey="statusMessage" />
 	</Injectors>
 	<Injectors target="{NavigationView}">
 		<PropertyInjector 

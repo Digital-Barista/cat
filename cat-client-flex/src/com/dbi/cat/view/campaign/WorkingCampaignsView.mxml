@@ -39,8 +39,6 @@
 			dataProvider="{campaignList}">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name" />
-				<mx:DataGridColumn headerText="Type" dataField="type"
-					width="60" />
 				<mx:DataGridColumn headerText="Create Date"
 					width="150" />
 				<mx:DataGridColumn sortable="false"

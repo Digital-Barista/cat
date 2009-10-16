@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.constants.ServiceStatusMessage;
 			import com.dbi.cat.business.CampaignManager;
 			import com.dbi.cat.business.CampaignTemplateManager;
 			import com.dbi.cat.event.CampaignTemplateEvent;
@@ -60,6 +61,9 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_TEMPLATES}" />
 		<RemoteObjectInvoker destination="campaignManager"
 			method="getAllTemplates"
 			showBusyCursor="true">
@@ -67,7 +71,20 @@
 				<MethodInvoker generator="{CampaignTemplateManager}"
 					method="loadCampaignTemplates"
 					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_TEMPLATES}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_TEMPLATES}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignTemplateEvent.LOAD_CAMPAIGN_TEMPLATE}">

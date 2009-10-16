@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.constants.ServiceStatusMessage;
 			import mx.controls.Alert;
 			import com.dbi.cat.business.AppManager;
 			import com.dbi.cat.business.ClientManager;
@@ -18,13 +19,28 @@
 	
 	<!-- Client Events -->
 	<EventHandlers type="{ClientEvent.LIST_CLIENTS}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_CLIENTS}" />
 		<RemoteObjectInvoker destination="clientManager"
 			method="getVisibleClients">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadClients"
 					arguments="{resultObject}" />
+				<MethodInvoker generator="{AppManager}" 
+					method="removeGeneralStatusMessage" 
+					arguments="{ServiceStatusMessage.LOADING_CLIENTS}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_CLIENTS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.SAVE_CLIENT}">
@@ -90,25 +106,57 @@
 			method="closeEditKeyword" />
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.LIST_KEYWORDS}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_KEYWORDS}" />
 		<RemoteObjectInvoker destination="clientManager"
 			method="getAllKeywords">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadKeywords"
 					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_KEYWORDS}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_KEYWORDS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	
 	<!-- Entry point events -->
 	<EventHandlers type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
 		<RemoteObjectInvoker destination="clientManager"
 			method="getEntryPointDefinitions">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadEntryPoints"
 					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">

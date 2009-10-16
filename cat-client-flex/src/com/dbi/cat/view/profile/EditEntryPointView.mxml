@@ -80,15 +80,16 @@
 		enabled="{isNaN(currentEntryPointDefinition.primaryKey)}"
 		dataProvider="{entryPointTypes}"
 		change="changeView()"
-		selectedBindingValue="{currentEntryPointDefinition.type}"  x="110" y="10"/>
+		selectedBindingValue="{currentEntryPointDefinition.type}" y="8" x="130"/>
 	<mx:ViewStack id="AccountViews"
 		top="40" bottom="0" right="0" left="0">
-		<profile:EditSMSView id="SMSView" />
 		<profile:EditEmailView id="EmailView"  />
+		<profile:EditSMSView id="SMSView" />
 		<profile:EditTwitterView id="TwitterView" />
 		<profile:NoTypeView id="NoView" />
 	</mx:ViewStack>
-	<mx:Label x="24" y="12" text="Account Type"/>
+	<mx:Label y="10" text="Account Type" width="100" textAlign="right" fontWeight="bold" x="16"/>
+	<mx:HRule right="10" left="10" top="38"/>
 	<mx:ControlBar>
 		<mx:Button id="Save" label="Save"
 			click="save()" />

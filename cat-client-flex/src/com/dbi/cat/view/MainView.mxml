@@ -12,6 +12,9 @@
 			[Bindable]
 			public var currentView:Number = 0;
 			
+			[Bindable]
+			public var statusMessage:String;
+			
 			private function tabClick(e:IndexChangedEvent):void
 			{
 				if (e.newIndex == 0)
@@ -35,4 +38,10 @@
 		<view:UsersView label="Users" />
 		<view:ProfileView label="Profile" />
 	</mx:TabNavigator>
+	<mx:Canvas id="StatusMessageBox"
+		visible="{statusMessage.length != 0}"
+		styleName="generalStatusMessage"
+		bottom="0" right="0">
+		<mx:Text text="{statusMessage}" />
+	</mx:Canvas>
 </mx:Canvas>

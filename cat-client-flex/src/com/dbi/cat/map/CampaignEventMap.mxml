@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.constants.ServiceStatusMessage;
 			import com.dbi.cat.constants.WorkspaceStatusMessage;
 			import com.dbi.cat.business.CampaignTestManager;
 			import com.dbi.cat.view.EditCommunicationsView;
@@ -17,6 +18,9 @@
 	<Debugger level="{Debugger.ALL}" />
 	
 	<EventHandlers type="{CampaignEvent.LIST_CAMPAIGNS}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_CAMPAIGNS}" />
 		<RemoteObjectInvoker 
 			destination="campaignManager"
 			method="getAllCampaigns"
@@ -25,7 +29,20 @@
 				<MethodInvoker generator="{CampaignManager}"
 					method="loadCampaigns"
 					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_CAMPAIGNS}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_CAMPAIGNS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.FILTER_CAMPAIGNS}">
