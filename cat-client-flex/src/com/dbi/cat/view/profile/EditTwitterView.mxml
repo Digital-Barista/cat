@@ -8,5 +8,8 @@
 			<mx:TextInput id="Password"  width="100%"
 				 displayAsPassword="true"/>
 		</mx:FormItem>
+		<mx:FormItem width="100%" labelWidth="100">
+			<mx:Button id="TestOutgoing" label="Test Connection" />
+		</mx:FormItem>
 	</mx:Form>
 </mx:Canvas>

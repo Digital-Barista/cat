@@ -3,6 +3,8 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.profile.ProfileDetailsView;
+			import com.dbi.cat.view.profile.ProfileView;
 			import com.dbi.cat.view.profile.EntryPointDefinitionView;
 			import com.dbi.cat.view.profile.EditEntryPointView;
 			import com.dbi.cat.view.profile.EditKeywordView;
@@ -25,7 +27,6 @@
 			import com.dbi.cat.view.TestCampaignView;
 			import com.dbi.cat.business.CampaignTestManager;
 			import com.dbi.cat.view.profile.ClientInformationView;
-			import com.dbi.cat.view.ProfileView;
 			import com.dbi.cat.business.LayoutInfoManager;
 			import mx.managers.LayoutManager;
 			import com.dbi.cat.business.ClientManager;
@@ -179,7 +180,7 @@
 			sourceKey="campaignTemplateList"
 			targetKey="campaignTemplateList" />
 	</Injectors>
-	<Injectors target="{ProfileView}">
+	<Injectors target="{ProfileDetailsView}">
 		<PropertyInjector
 			source="{LoginManager}"
 			sourceKey="currentUser"

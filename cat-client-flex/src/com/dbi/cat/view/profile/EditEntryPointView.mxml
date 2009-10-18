@@ -2,10 +2,10 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:profile="com.dbi.cat.view.profile.*" 
 	layout="absolute" 
-	width="400" height="350"
+	width="400" height="470"
 	showCloseButton="true"
 	close="onClose()" xmlns:controls="com.dbi.controls.*"
-	title="{isNaN(currentEntryPointDefinition.primaryKey) ? 'Create Entry Point' : 'Edit Entry Point'}" >
+	title="{isNaN(currentEntryPointDefinition.primaryKey) ? 'Create Account' : 'Edit Account'}" >
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;

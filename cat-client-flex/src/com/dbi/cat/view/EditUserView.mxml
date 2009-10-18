@@ -32,8 +32,10 @@
 			{
 				_editUser = user;
 				filterAvailableRoles();
+				dispatchEvent(new Event("userLoaded"));
 			}
 			
+			[Bindable(event="userLoaded")]
 			private function get isNewUser():Boolean
 			{
 				return editUser == null || isNaN(editUser.primaryKey);
@@ -47,6 +49,8 @@
 			{
 				var errors:ArrayCollection = new ArrayCollection();
 					
+				if (isNewUser)
+					editUser.username = Username.text;
 				editUser.emailAddress = EmailAddress.text;
 				editUser.name = EmailAddress.text;
 				editUser.isActive = IsActive.selected;
@@ -156,8 +160,16 @@
 		
 		
 		<mx:Form id="EditUser">
-			<mx:FormItem label="UserName" required="true">
+			<mx:FormItem label="UserName"
+				visible="{!isNewUser}"
+				includeInLayout="{!isNewUser}">
 				<mx:Label text="{editUser.username}"/>
+			</mx:FormItem >
+			<mx:FormItem label="UserName" required="true"
+				visible="{isNewUser}"
+				includeInLayout="{isNewUser}">
+				<mx:TextInput id="Username" 
+					text="{editUser.username}" width="332"/>
 			</mx:FormItem >
 			<mx:FormItem label="Name" width="450">
 				<mx:TextInput id="Name" 
