@@ -220,6 +220,7 @@ public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, Appl
 			if(!messageList.hasMoreElements())
 				return "No messages to send";
 			MapMessage msg = (MapMessage)messageList.nextElement();
+			msg.acknowledge();
 			browser.close();
 			
 			producer = sess.createProducer(dest);
