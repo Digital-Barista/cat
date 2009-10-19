@@ -17,9 +17,8 @@ import java.util.Map;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.MapMessage;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -215,13 +214,13 @@ public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, Appl
     		Destination dest = (Destination)ic.lookup(twitterSendDestName);
 			conn = cf.createConnection();
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-			QueueBrowser browser = sess.createBrowser((Queue)dest);
-			Enumeration messageList = browser.getEnumeration();
-			if(!messageList.hasMoreElements())
+			MessageConsumer consumer = sess.createConsumer(dest);
+			conn.start();
+			MapMessage msg = (MapMessage)consumer.receiveNoWait();
+			if(msg==null)
 				return "No messages to send";
-			MapMessage msg = (MapMessage)messageList.nextElement();
 			msg.acknowledge();
-			browser.close();
+			consumer.close();
 			
 			producer = sess.createProducer(dest);
 
