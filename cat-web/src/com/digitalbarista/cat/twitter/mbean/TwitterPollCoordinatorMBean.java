@@ -20,7 +20,7 @@ public interface TwitterPollCoordinatorMBean {
 	
 	public int checkMessages(String account);
 	
-	public void deleteMesage(int id);
+	public void deleteMesage(String account, long id);
 	
-	public void sendMessage(String account, String to, String message);
+	public String sendMessage();
 }

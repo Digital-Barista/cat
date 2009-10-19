@@ -10,6 +10,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.digitalbarista.cat.twitter.bindings.DirectMessage;
+import com.digitalbarista.cat.twitter.bindings.DirectMessageCollection;
 import com.digitalbarista.cat.twitter.bindings.Tweeter;
 
 public class TestTwitterJAXB {
@@ -39,6 +40,24 @@ public class TestTwitterJAXB {
 		verifyDM(dm);
 		verifySender(dm.getSender());
 		verifyReceiver(dm.getRecipient());
+	}
+	
+	
+	@Test
+	public void testDirectMessagesClass() throws JAXBException
+	{
+		InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("com/digitalbarista/cat/twitter/binding/simpleDirectMessages.xml");
+
+		JAXBContext context = JAXBContext.newInstance(DirectMessageCollection.class,DirectMessage.class,Tweeter.class);
+		Unmarshaller decoder = context.createUnmarshaller();
+		
+		DirectMessageCollection dmc = (DirectMessageCollection)decoder.unmarshal(stream);
+		assert dmc!=null : "DMC is null";
+		assert dmc.getDirectMessages()!=null : "Direct message collection is null.";
+		assert dmc.getDirectMessages().size()==1 : "Direct message collection has the wrong number of elements.";
+		verifyDM(dmc.getDirectMessages().get(0));
+		verifySender(dmc.getDirectMessages().get(0).getSender());
+		verifyReceiver(dmc.getDirectMessages().get(0).getRecipient());
 	}
 	
 	private void verifyDM(DirectMessage dm)

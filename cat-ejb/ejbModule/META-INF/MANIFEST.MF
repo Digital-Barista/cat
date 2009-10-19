@@ -2,7 +2,6 @@ Manifest-Version: 1.0
 Class-Path: cat-data.jar 
  lib/commons-httpclient-3.0.1.jar 
  cat-utils.jar 
- lib/jaxb-api-2.1.jar 
  lib/resteasy-jaxrs-1.1.GA.jar 
  lib/jaxrs-api-1.1.GA.jar 
  lib/resteasy-jaxb-provider-1.1.GA.jar

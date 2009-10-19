@@ -1,3 +1,4 @@
+<direct-messages>
 <direct_message>
 <id>88619848</id>
 <sender_id>1401881</sender_id>
@@ -61,3 +62,4 @@
 <verified>true</verified>
 </recipient>
 </direct_message>
+</direct-messages>

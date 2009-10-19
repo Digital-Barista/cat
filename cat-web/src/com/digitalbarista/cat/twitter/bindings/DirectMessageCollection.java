@@ -5,12 +5,12 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="direct_message")
+@XmlRootElement(name="direct-messages")
 public class DirectMessageCollection {
 
 	private List<DirectMessage> directMessages;
 
-	@XmlElement
+	@XmlElement(name="direct_message")
 	public List<DirectMessage> getDirectMessages() {
 		return directMessages;
 	}
