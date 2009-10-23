@@ -53,7 +53,7 @@
 			
 			private function get maxCharacters():Number
 			{
-				return EntryPointType.getMaxCharacters(workspace.campaign.type);
+				return EntryPointType.TWITTER_MAX_CHARACTERS;
 			}
 			
 			// Addin message of current campaign

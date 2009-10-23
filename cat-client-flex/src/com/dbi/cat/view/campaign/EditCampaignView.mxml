@@ -6,7 +6,7 @@
 	horizontalScrollPolicy="off" verticalScrollPolicy="off" 
 	xmlns:vo="com.dbi.cat.vo.*" 
 	xmlns:controls="com.dbi.controls.*"
-	title="{isNaN(campaign.primaryKey) ? 'Create Camapign' : 'Edit Campaign'}" >
+	title="{isNaN(campaign.primaryKey) ? 'Create Camapign' : 'Edit Campaign'}" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.CampaignMode;
@@ -100,7 +100,7 @@
 				change="{campaign.name = Name.text}" />
 		</mx:FormItem>
 		<mx:FormItem label="Client">
-			<controls:AdvancedComboBox 
+			<components:FormattedComboBox
 				id="Client"
 				dataProvider="{clients}"
 				selectedBindingProperty="clientId"

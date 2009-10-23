@@ -9,6 +9,12 @@ List
 	dropIndicatorSkin:ClassReference("com.dbi.skins.BlankSkin");
 }
 
+FormattedComboBox
+{
+	disabledSkin:ClassReference("com.dbi.skins.BlankSkin");
+	disabledColor:#000000;
+}
+
 .navBar
 {
 }

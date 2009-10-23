@@ -115,7 +115,6 @@
 			{
 				var event:ImportEvent = new ImportEvent(ImportEvent.LOAD_ALL_CLIENT_ADDRESSES);
 				event.clientId = publishedCampaign.clientPK;
-				event.entryPointType = publishedCampaign.type;
 				dispatchEvent(event);
 			}
 		]]>

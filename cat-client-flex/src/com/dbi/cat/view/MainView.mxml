@@ -20,8 +20,10 @@
 				if (e.newIndex == 0)
 					dispatchEvent(new NavigationEvent(NavigationEvent.CAMPAIGNS));
 				else if (e.newIndex == 1)
-					dispatchEvent(new NavigationEvent(NavigationEvent.USERS));
+					dispatchEvent(new NavigationEvent(NavigationEvent.REPORTING));
 				else if (e.newIndex == 2)
+					dispatchEvent(new NavigationEvent(NavigationEvent.USERS));
+				else if (e.newIndex == 3)
 					dispatchEvent(new NavigationEvent(NavigationEvent.PROFILE));
 			}
 		]]>

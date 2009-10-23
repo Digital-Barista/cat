@@ -58,7 +58,7 @@
 			}
 			private function get maxCharacters():Number
 			{
-				return EntryPointType.getMaxCharacters(workspace.campaign.type);
+				return EntryPointType.TWITTER_MAX_CHARACTERS;
 			}
 			
 			private function updateMessage():void
@@ -115,7 +115,7 @@
 			<mx:FormItem label="Message" required="true" width="100%" 
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 					<mx:TextArea id="Message"  width="200" height="120"
-						maxChars="{EntryPointType.getMaxCharacters(workspace.campaign.type)}"
+						maxChars="{maxCharacters}"
 						text="{messageVO.message}" 
 						change="updateMessage()"/>
 			</mx:FormItem>

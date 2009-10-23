@@ -36,7 +36,6 @@
 				var event:CampaignEvent;
 				event = new CampaignEvent(CampaignTemplateEvent.SAVE_CAMPAIGN_TEMPLATE);
 				event.campaign = campaign;
-				event.campaign.defaultFromAddress = "";
 				event.campaign.clientPK = Client.selectedItem.clientId;
 				event.campaign.mode = CampaignMode.TEMPLATE;
 				dispatchEvent(event);
