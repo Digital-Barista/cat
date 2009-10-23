@@ -1,0 +1,10 @@
+<id_list>
+	<ids>
+		<id>1234567</id>
+		<id>2345678</id>
+		<id>3456789</id>
+		<id>4567890</id>
+	</ids>
+	<next_cursor>11112222333344445555</next_cursor>
+	<previous_cursor>55554444333322221111</previous_cursor>
+</id_list>

@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.twitter.binding;
 
 import java.io.InputStream;
+import java.math.BigInteger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -11,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.digitalbarista.cat.twitter.bindings.DirectMessage;
 import com.digitalbarista.cat.twitter.bindings.DirectMessageCollection;
+import com.digitalbarista.cat.twitter.bindings.IdList;
 import com.digitalbarista.cat.twitter.bindings.Tweeter;
 
 public class TestTwitterJAXB {
@@ -58,6 +60,26 @@ public class TestTwitterJAXB {
 		verifyDM(dmc.getDirectMessages().get(0));
 		verifySender(dmc.getDirectMessages().get(0).getSender());
 		verifyReceiver(dmc.getDirectMessages().get(0).getRecipient());
+	}
+	
+	@Test
+	public void testIDListClass() throws JAXBException
+	{
+		InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("com/digitalbarista/cat/twitter/binding/idList.xml");
+
+		JAXBContext context = JAXBContext.newInstance(IdList.class);
+		Unmarshaller decoder = context.createUnmarshaller();
+
+		IdList idList = (IdList)decoder.unmarshal(stream);
+		assert idList!=null : "ID List is null";
+		assert idList.getIds()!=null : "No IDs in list";
+		Assert.assertEquals(idList.getIds().size(),4,"wrong number of IDs returned");
+		Assert.assertEquals(idList.getIds().get(0), new Long(1234567),"id[0] incorrect");
+		Assert.assertEquals(idList.getIds().get(1), new Long(2345678),"id[1] incorrect");
+		Assert.assertEquals(idList.getIds().get(2), new Long(3456789),"id[2] incorrect");
+		Assert.assertEquals(idList.getIds().get(3), new Long(4567890),"id[3] incorrect");
+		Assert.assertEquals(idList.getNextCursor(), new BigInteger("11112222333344445555"),"Incorrect next cursor.");
+		Assert.assertEquals(idList.getPreviousCursor(), new BigInteger("55554444333322221111"),"Incorrect previous cursor.");
 	}
 	
 	private void verifyDM(DirectMessage dm)

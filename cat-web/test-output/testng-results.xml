@@ -6,9 +6,13 @@
     </groups>
     <test name="com.digitalbarista.cat.twitter.binding.TestTwitterJAXB">
       <class name="com.digitalbarista.cat.twitter.binding.TestTwitterJAXB">
-        <test-method status="PASS" signature="testDirectMessageClass()" name="testDirectMessageClass" duration-ms="4757" started-at="2009-10-13T11:45:22Z" finished-at="2009-10-13T11:45:27Z">
+        <test-method status="PASS" signature="testDirectMessagesClass()" name="testDirectMessagesClass" duration-ms="49" started-at="2009-10-22T07:47:59Z" finished-at="2009-10-22T07:47:59Z">
         </test-method>
-        <test-method status="PASS" signature="testTweeterClass()" name="testTweeterClass" duration-ms="1775" started-at="2009-10-13T11:45:27Z" finished-at="2009-10-13T11:45:29Z">
+        <test-method status="PASS" signature="testIDListClass()" name="testIDListClass" duration-ms="33272" started-at="2009-10-22T07:47:26Z" finished-at="2009-10-22T07:47:59Z">
+        </test-method>
+        <test-method status="PASS" signature="testTweeterClass()" name="testTweeterClass" duration-ms="29" started-at="2009-10-22T07:47:59Z" finished-at="2009-10-22T07:48:00Z">
+        </test-method>
+        <test-method status="PASS" signature="testDirectMessageClass()" name="testDirectMessageClass" duration-ms="214" started-at="2009-10-22T07:47:59Z" finished-at="2009-10-22T07:47:59Z">
         </test-method>
       </class>
     </test>
