@@ -1,6 +1,7 @@
 package com.dbi.cat.view.workspace
 {
 	import com.dbi.cat.common.vo.ConnectorVO;
+	import com.dbi.cat.common.vo.LayoutInfoVO;
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.WorkspaceEvent;
 	
@@ -16,7 +17,7 @@ package com.dbi.cat.view.workspace
 	import mx.events.FlexEvent;
 	import mx.utils.ObjectUtil;
 
-	public class Connection extends WorkspaceItem
+	public class Connection extends WorkspaceItem implements ILayoutInfoItem
 	{
 		public static const MODE_CONNECT_ENDS:String = "connectEnds";
 		public static const MODE_CONNECT_SOURCE:String = "connectSource";
@@ -26,6 +27,21 @@ package com.dbi.cat.view.workspace
 		public static const ARROW_LENGTH:Number = 20;
 		public static const ARROW_WIDTH:Number = 5;
 		
+		
+		public function get layoutInfo():LayoutInfoVO
+		{
+			return connectorVO.layoutInfo;
+		}
+		public function set layoutInfo(info:LayoutInfoVO):void
+		{
+			connectorVO.layoutInfo = info;
+		}
+			
+		public function get voUID():String
+		{
+			return connectorVO.uid;
+		}
+			
 		private var _mode:String = MODE_CONNECT_ENDS;
 		public function get mode():String
 		{

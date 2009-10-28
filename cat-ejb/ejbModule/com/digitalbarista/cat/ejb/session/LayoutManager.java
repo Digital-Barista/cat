@@ -23,11 +23,11 @@ public interface LayoutManager {
 	public List<LayoutInfo> getLayoutInfo(List<String> uidList);
 	@GET
 	@Path("/{uid}")
-	public LayoutInfo getLayoutInfo(@PathParam("uid") String uid);
-	public LayoutInfoDO getSimpleLayoutInfo(String uuid);
+	public LayoutInfo getLayoutInfo(@PathParam("uid") String uid, Integer version);
+	public LayoutInfoDO getSimpleLayoutInfo(String uuid, Integer version);
 	@DELETE
 	@Path("/{uid}")
-	public void delete(@PathParam("uid") String uid);
+	public void delete(@PathParam("uid") String uid, Integer version);
 	@GET
 	public List<LayoutInfo> getLayoutsByCampaign(@QueryParam("campaignid") String uid);
 	@GET

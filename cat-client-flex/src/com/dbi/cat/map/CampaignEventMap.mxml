@@ -41,7 +41,7 @@
 					arguments="{ServiceStatusMessage.LOADING_CAMPAIGNS}" />
 				<MethodInvoker generator="{AppManager}"
 					method="showFault"
-					arguments="{event.fault}" />
+					arguments="{fault}" />
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
@@ -84,7 +84,7 @@
 					arguments="{WorkspaceStatusMessage.LOADING_MODIFIED_CAMPAIGN}" />
 				<MethodInvoker generator="{AppManager}"
 					method="showFault"
-					arguments="{event.fault}" />
+					arguments="{fault}" />
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
@@ -113,7 +113,7 @@
 					arguments="{WorkspaceStatusMessage.LOADING_PUBLISHED_CAMPAIGN}" />
 				<MethodInvoker generator="{AppManager}"
 					method="showFault"
-					arguments="{event.fault}" />
+					arguments="{fault}" />
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
@@ -172,7 +172,7 @@
 					arguments="{WorkspaceStatusMessage.PUBLISHING_CAMPAIGN}" />
 				<MethodInvoker generator="{AppManager}"
 					method="showFault"
-					arguments="{event.fault}" />
+					arguments="{fault}" />
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>

@@ -31,20 +31,6 @@
 				dispatchEvent(new Event("connectorLoaded"));
 			}
 			
-			public function get layoutInfo():LayoutInfoVO
-			{
-				return connectorVO.layoutInfo;
-			}
-			public function set layoutInfo(info:LayoutInfoVO):void
-			{
-				connectorVO.layoutInfo = info;
-			}
-			
-			public function get voUID():String
-			{
-				return connectorVO.uid;
-			}
-			
 			override public function get valid():Boolean
 			{
 				return responseConnectorVO != null && responseConnectorVO.valid;

@@ -346,6 +346,7 @@ package com.dbi.cat.view.workspace
 			
 			// Dispatch event to add layout info
 			var event:LayoutInfoEvent = new LayoutInfoEvent(LayoutInfoEvent.SAVE_LAYOUT_INFO);
+			layout.version = campaign.currentVersion;
 			event.layoutInfo = layout;
 			dispatchEvent(event);
 			

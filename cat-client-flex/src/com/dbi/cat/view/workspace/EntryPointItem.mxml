@@ -36,18 +36,6 @@
 				nodeVO = ep;
 				dispatchEvent(new Event("entryPointLoaded"));
 			}
-			public function get layoutInfo():LayoutInfoVO
-			{
-				return entryPointVO.layoutInfo;
-			}
-			public function set layoutInfo(info:LayoutInfoVO):void
-			{
-				entryPointVO.layoutInfo = info;
-			}
-			public function get voUID():String
-			{
-				return entryPointVO.uid;
-			}
 			
 			override public function get valid():Boolean
 			{

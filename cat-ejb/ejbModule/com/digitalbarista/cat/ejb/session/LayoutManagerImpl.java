@@ -46,12 +46,13 @@ public class LayoutManagerImpl implements LayoutManager {
 	
 	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	@PermitAll
-	public LayoutInfoDO getSimpleLayoutInfo(String uuid)
+	public LayoutInfoDO getSimpleLayoutInfo(String uuid, Integer version)
 	{
 		try
 		{
 			Criteria crit = session.createCriteria(LayoutInfoDO.class);
 			crit.add(Restrictions.eq("UID", uuid));
+			crit.add(Restrictions.eq("version", version));
 			LayoutInfoDO ret = (LayoutInfoDO)crit.uniqueResult();
 			
 			if(ret==null)
@@ -94,12 +95,12 @@ public class LayoutManagerImpl implements LayoutManager {
 
 	@Override
 	@PermitAll
-	public LayoutInfo getLayoutInfo(String uid) {
+	public LayoutInfo getLayoutInfo(String uid, Integer version) {
 		if(uid==null)
 			return null;
 		
 		LayoutInfo ret = new LayoutInfo();
-		ret.copyFrom(getSimpleLayoutInfo(uid));
+		ret.copyFrom(getSimpleLayoutInfo(uid, version));
 		return ret;
 	}
 
@@ -114,7 +115,7 @@ public class LayoutManagerImpl implements LayoutManager {
 			throw new IllegalArgumentException("No UUID assigned to this layout.");
 
 		//Grab the live info object.
-		LayoutInfoDO info = getSimpleLayoutInfo(layout.getUUID());
+		LayoutInfoDO info = getSimpleLayoutInfo(layout.getUUID(), layout.getVersion());
 		
 		//Gotta ACTUALLY set a campaign if this is a new object.
 		if(info==null && layout.getCampaignUUID()==null)
@@ -189,11 +190,11 @@ public class LayoutManagerImpl implements LayoutManager {
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
-	public void delete(String uid) {
+	public void delete(String uid, Integer version) {
 		if(uid==null)
 			throw new IllegalArgumentException("Cannot delete an unspecified layout.");
 		
-		LayoutInfoDO li = getSimpleLayoutInfo(uid);
+		LayoutInfoDO li = getSimpleLayoutInfo(uid, version);
 		if(li==null)
 			return;
 		

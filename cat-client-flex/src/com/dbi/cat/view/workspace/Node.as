@@ -1,5 +1,6 @@
 package com.dbi.cat.view.workspace
 {
+	import com.dbi.cat.common.vo.LayoutInfoVO;
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.WorkspaceEvent;
@@ -14,6 +15,23 @@ package com.dbi.cat.view.workspace
 	{
 		protected var statisticsComponent:StatisticsComponent;
 		
+		/**
+		 * Returns the layout infor from the NodeVO
+		 */
+		public function get layoutInfo():LayoutInfoVO
+		{
+			return nodeVO.layoutInfo;
+		}
+		public function set layoutInfo(info:LayoutInfoVO):void
+		{
+			nodeVO.layoutInfo = info;
+		}
+		
+		public function get voUID():String
+		{
+			return nodeVO.uid;
+		}
+			
 		/**
 		 * Flag to determine if statistics icon should show
 		 */

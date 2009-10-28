@@ -33,18 +33,6 @@
 			{
 				nodeVO = c;
 			}
-			public function get layoutInfo():LayoutInfoVO
-			{
-				return couponVO.layoutInfo;
-			}
-			public function set layoutInfo(info:LayoutInfoVO):void
-			{
-				couponVO.layoutInfo = info;
-			}
-			public function get voUID():String
-			{
-				return couponVO.uid;
-			}
 			
 			override public function get valid():Boolean
 			{

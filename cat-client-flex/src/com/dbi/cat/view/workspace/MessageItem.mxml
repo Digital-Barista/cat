@@ -44,18 +44,6 @@
 			{
 				nodeVO = m;
 			}
-			public function get layoutInfo():LayoutInfoVO
-			{
-				return messageVO.layoutInfo;
-			}
-			public function set layoutInfo(info:LayoutInfoVO):void
-			{
-				messageVO.layoutInfo = info;
-			}
-			public function get voUID():String
-			{
-				return messageVO.uid;
-			}
 			private function get maxCharacters():Number
 			{
 				return EntryPointType.TWITTER_MAX_CHARACTERS;

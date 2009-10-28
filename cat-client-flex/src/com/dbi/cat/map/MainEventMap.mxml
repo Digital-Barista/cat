@@ -55,7 +55,7 @@
 	<EventHandlers type="{UnhandledFaultEvent.FAULT}">
 		<MethodInvoker generator="{AppManager}"
 			method="showFault"
-			arguments="{event.fault}" />
+			arguments="{event}" />
 	</EventHandlers>
 	<EventHandlers type="{MouseEvent.MOUSE_MOVE}">
 		<EventAnnouncer type="{LoginEvent.UPDATE_LAST_ACTIVITY}" />
