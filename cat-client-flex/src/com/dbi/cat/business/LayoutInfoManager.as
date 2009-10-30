@@ -93,7 +93,7 @@ package com.dbi.cat.business
 				for each (var node:NodeVO in campaign.nodes)
 				{
 					var key:String = node.uid + ":" + campaign.currentVersion;
-					if (node.layoutInfo == null)
+//					if (node.layoutInfo == null)
 						node.layoutInfo = layoutMap[key];
 				}
 			}
@@ -103,7 +103,7 @@ package com.dbi.cat.business
 				for each (var connector:ConnectorVO in campaign.connectors)
 				{
 					key = connector.uid + ":" + campaign.currentVersion;
-					if (connector.layoutInfo == null)
+//					if (connector.layoutInfo == null)
 						connector.layoutInfo = layoutMap[key];
 				}
 			}

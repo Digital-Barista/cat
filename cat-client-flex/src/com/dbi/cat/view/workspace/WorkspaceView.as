@@ -65,15 +65,8 @@ package com.dbi.cat.view.workspace
 		}
 		public function set campaign(c:CampaignVO):void
 		{
-			if (campaign == null ||
-				c == null ||
-				campaign.uid != c.uid ||
-				campaign.currentVersion != c.currentVersion )
-			{
-				_campaign = c;
-				loadCampaign(c);
-			}	
 			_campaign = c;
+			loadCampaign(campaign);
 		}
 	
 		// Workspace item properties

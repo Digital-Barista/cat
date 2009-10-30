@@ -8,6 +8,7 @@ package com.dbi.cat.view.workspace
 	import flash.events.Event;
 	
 	import mx.binding.utils.BindingUtils;
+	import mx.binding.utils.ChangeWatcher;
 	import mx.collections.ArrayCollection;
 	import mx.utils.ObjectUtil;
 	
@@ -100,6 +101,7 @@ package com.dbi.cat.view.workspace
 			editNodeVO = ObjectUtil.copy(nodeVO) as NodeVO;
 			BindingUtils.bindProperty(this, "title", editNodeVO, "name");
 			BindingUtils.bindProperty(statisticsComponent, "data", nodeVO, "subscriberCount");
+			BindingUtils.bindSetter(onLayoutInfoChanged, nodeVO, "layoutInfo");
 			dispatchEvent(new Event("checkValidState"));
 			dispatchEvent(new Event("nodeUpdate"));
 		}

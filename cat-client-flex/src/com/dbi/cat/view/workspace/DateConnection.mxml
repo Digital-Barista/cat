@@ -7,8 +7,6 @@
 	editWindowWidth="300"
 	displayIcon="{dateConnectorWorkspace}"
 	workspaceIcon="{dateConnector}"
-	x="{connectorVO.layoutInfo.x}"
-	y="{connectorVO.layoutInfo.y}"
 	label="Calendar Connector" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[

@@ -81,6 +81,9 @@
 					var event:CampaignEvent = new CampaignEvent(CampaignEvent.PUBLISH_CAMPAIGN);
 					event.campaign = modifiedCampaign;
 					dispatchEvent(event);
+					
+					// Switch to published tab
+					WorkspaceTabs.selectedChild = CurrentWorkspace;
 				}
 			}
 			private function confirmPublish():void

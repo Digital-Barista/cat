@@ -7,8 +7,7 @@
 	editWindowWidth="290"
 	displayIcon="{intervalConnectorWorkspace}"
 	workspaceIcon="{intervalConnector}"
-	x="{connectorVO.layoutInfo.x}"
-	y="{connectorVO.layoutInfo.y}" xmlns:controls="com.dbi.controls.*"
+	xmlns:controls="com.dbi.controls.*"
 	label="Interval Connector">
 	<mx:Script>
 		<![CDATA[

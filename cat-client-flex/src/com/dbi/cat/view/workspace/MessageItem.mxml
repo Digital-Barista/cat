@@ -8,8 +8,6 @@
 	editWindowWidth="300"
 	displayIcon="{messageIcon}"
 	workspaceIcon="{messageIcon}"
-	x="{nodeVO.layoutInfo.x}"
-	y="{nodeVO.layoutInfo.y}"
 	label="Message"
 	creationComplete="init()">
 	<mx:Script>

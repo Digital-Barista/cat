@@ -2,13 +2,12 @@
 <Connection xmlns="com.dbi.cat.view.workspace.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:components="com.dbi.cat.view.components.*"
+	xmlns:controls="com.dbi.controls.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	editWindowWidth="500"
 	editWindowHeight="170"
 	displayIcon="{responseConnectorWorkspace}"
 	workspaceIcon="{responseConnector}"
-	x="{connectorVO.layoutInfo.x}"
-	y="{connectorVO.layoutInfo.y}" xmlns:controls="com.dbi.controls.*"
 	label="Response Connector">
 	<mx:Script>
 		<![CDATA[

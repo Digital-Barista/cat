@@ -6,8 +6,6 @@
 	workspaceIcon="{entryPointIcon}"
 	editWindowWidth="500"
 	editWindowHeight="170"
-	x="{nodeVO.layoutInfo.x}"
-	y="{nodeVO.layoutInfo.y}" 
 	xmlns:controls="com.dbi.controls.*"
 	label="Entry Point" 
 	xmlns:components="com.dbi.cat.view.components.*">

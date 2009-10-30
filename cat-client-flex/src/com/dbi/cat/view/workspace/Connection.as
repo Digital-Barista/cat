@@ -35,6 +35,8 @@ package com.dbi.cat.view.workspace
 		public function set layoutInfo(info:LayoutInfoVO):void
 		{
 			connectorVO.layoutInfo = info;
+			x = info.x;
+			y = info.y;
 		}
 			
 		public function get voUID():String
@@ -119,6 +121,7 @@ package com.dbi.cat.view.workspace
 			_connectorVO = value;
 			editConnectorVO = ObjectUtil.copy(connectorVO) as ConnectorVO;
 			BindingUtils.bindProperty(this, "title", editConnectorVO, "name");
+			BindingUtils.bindSetter(onLayoutInfoChanged, connectorVO, "layoutInfo");
 			dispatchEvent(new Event("checkValidState"));
 			dispatchEvent(new Event("connectorUpdate"));
 		}

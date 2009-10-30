@@ -7,8 +7,6 @@
 	editWindowWidth="250"
 	displayIcon="{immediateConnectorWorkspace}"
 	workspaceIcon="{immediateConnector}"
-	x="{connectorVO.layoutInfo.x}"
-	y="{connectorVO.layoutInfo.y}"
 	label="Immediate Connector">
 	<mx:Script>
 		<![CDATA[

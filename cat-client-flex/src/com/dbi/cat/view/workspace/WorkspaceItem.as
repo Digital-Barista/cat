@@ -1,5 +1,6 @@
 package com.dbi.cat.view.workspace
 {
+	import com.dbi.cat.common.vo.LayoutInfoVO;
 	import com.dbi.controls.CustomMessage;
 	import com.dbi.event.CustomMessageEvent;
 	
@@ -201,6 +202,21 @@ package com.dbi.cat.view.workspace
 			
 			// Set title of edit window
 			editWindow.title = label;
+		}
+		
+		/**
+		 * Update the x, y position of this item when the layout
+		 * info is changed
+		 * 
+		 * @param info LayoutInfoVO containing x, y positions
+		 */
+		protected function onLayoutInfoChanged(info:LayoutInfoVO):void
+		{
+			if (info != null)
+			{
+				x = info.x;
+				y = info.y;
+			}
 		}
 		
 		private function onMouseDown(e:MouseEvent):void

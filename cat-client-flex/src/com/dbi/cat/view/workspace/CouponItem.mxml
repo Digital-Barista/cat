@@ -8,8 +8,6 @@
 	editWindowWidth="380"
 	displayIcon="{couponIcon}"
 	workspaceIcon="{couponIcon}"
-	x="{nodeVO.layoutInfo.x}"
-	y="{nodeVO.layoutInfo.y}"
 	label="Coupon"
 	creationComplete="init()">
 	<mx:Script>
