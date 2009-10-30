@@ -4,7 +4,7 @@
 	showCloseButton="true"
 	close="onClose()"
 	title="Create Keyword"
-	creationComplete="init()">
+	creationComplete="init()" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.event.ClientEvent;
@@ -71,7 +71,7 @@
 	</mx:Script>
 	<mx:Form>
 		<mx:FormItem label="Client">
-			<mx:ComboBox id="Client"
+			<components:FormattedComboBox id="Client"
 				dataProvider="{clients}"
 				change="{changeClient()}"
 				labelField="name" />

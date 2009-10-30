@@ -27,7 +27,7 @@
 			private function loadCampaign():void
 			{
 				fireEvent(CampaignEvent.LOAD_MODIFIED_CAMPAIGN);
-				fireEvent(CampaignEvent.LOAD_PUBLISHED_CAMPAIGN);
+//				fireEvent(CampaignEvent.LOAD_PUBLISHED_CAMPAIGN);
 			}
 		]]>
 	</mx:Script>
