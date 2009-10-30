@@ -142,13 +142,14 @@ package com.dbi.cat.business
 		{
 			// Move to communication screen if not open
 			if (editCommunicationPopup == null)
+			{
 				editCommunicationPopup = new EditCommunicationsView();
-
+				PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
+			}
+			
 			editCommunicationPopup.width = Application.application.width;
 			editCommunicationPopup.height = Application.application.height;
 				
-			PopUpManager.removePopUp(editCommunicationPopup);
-			PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
 			PopUpManager.centerPopUp(editCommunicationPopup);
 		}
 		private function getSubcriberStatistics(campaign:CampaignVO):void
@@ -424,6 +425,8 @@ package com.dbi.cat.business
 		}
 		public function publishCampaign(campaign:CampaignVO):void
 		{
+			CustomMessage.show("The campaign was published successfully");
+			
 			// After publish reload modified and published campaigns
 			var event:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_MODIFIED_CAMPAIGN);
 			event.campaign = campaign;

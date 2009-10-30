@@ -7,6 +7,7 @@
 	title="Import Addresses">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.CampaignEvent;
 			import com.dbi.cat.common.vo.EntryDataVO;
 			import com.dbi.cat.common.vo.EntryPointVO;
 			import com.dbi.cat.common.vo.NodeVO;
@@ -84,6 +85,12 @@
 			}
 			private function onClose():void
 			{
+				// Reload statistics for the current campaign to reflect import
+				var event:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_SUBSCRIBER_STATISTICS);
+				event.campaign = publishedCampaign;
+				dispatchEvent(event);
+				
+				// Close the popup
 				dispatchEvent(new ImportEvent(ImportEvent.CLOSE_IMPORT_WINDOW));
 			}
 			private function loadFile():void
