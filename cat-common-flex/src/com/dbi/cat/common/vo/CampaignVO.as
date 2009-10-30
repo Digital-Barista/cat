@@ -22,8 +22,6 @@ package com.dbi.cat.common.vo
 		public var nodes:ArrayCollection;
 		public var connectors:ArrayCollection;
 		public var clientPK:Number;
-		public var type:String = EntryPointType.SMS;
-		public var defaultFromAddress:String = "";
 		public var addInMessage:String;
 	}
 }
