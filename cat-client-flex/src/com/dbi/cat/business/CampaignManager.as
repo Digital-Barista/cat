@@ -144,12 +144,14 @@ package com.dbi.cat.business
 			if (editCommunicationPopup == null)
 			{
 				editCommunicationPopup = new EditCommunicationsView();
-				PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
 			}
 			
 			editCommunicationPopup.width = Application.application.width;
 			editCommunicationPopup.height = Application.application.height;
 				
+			// Add the popup if it currently has no parent
+			if (editCommunicationPopup.parent == null)
+				PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
 			PopUpManager.centerPopUp(editCommunicationPopup);
 		}
 		private function getSubcriberStatistics(campaign:CampaignVO):void
