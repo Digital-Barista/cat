@@ -7,22 +7,17 @@ import java.util.List;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.MapMessage;
-import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.transaction.UserTransaction;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.springframework.context.ApplicationContext;
 
 import com.digitalbarista.cat.message.event.CATEvent;
@@ -33,11 +28,8 @@ import com.digitalbarista.cat.twitter.bindings.extras.DMComparator;
 
 public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 
-	private String account;
-	
-	public DirectMessageCheckWorker(ApplicationContext ctx, String account) {
-		super(ctx);
-		this.account = account;
+	public DirectMessageCheckWorker(ApplicationContext ctx, TwitterAccountPollManager pollManager) {
+		super(ctx,pollManager);
 	}
 
 	public Integer call()
@@ -47,25 +39,25 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 		
 		try
 		{
-			String credentials=getCredentials(account);
-			
 			JAXBContext context = JAXBContext.newInstance(DirectMessageCollection.class,DirectMessage.class,Tweeter.class);
 			Unmarshaller decoder = context.createUnmarshaller();
 			
-			PollStats ps = getPollStats(account);
+			TwitterAccountPollManager ps = getAccountPollManager();
 			
 			client = new HttpClient();
 			get = new GetMethod("http://www.twitter.com/direct_messages.xml");
 			get.setQueryString("since_id="+ps.getLowestReadMessage());
 			client.getParams().setAuthenticationPreemptive(true);
-			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(account,credentials));
+			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
 			
 			client.executeMethod(get);
 
 			updateRateLimitInfo(get, ps);
 			
 			DirectMessageCollection dmc = (DirectMessageCollection)decoder.unmarshal(get.getResponseBodyAsStream());
-			deleteMessages(account,registerMessages(dmc,ps),ps);
+			deleteMessages(registerMessages(dmc,ps),ps);
+			
+			getAccountPollManager().directMessageCheckSucceeded();
 			
 			if(dmc.getDirectMessages()==null)
 				return 0;
@@ -75,6 +67,7 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 		catch(Exception e)
 		{
 			log.error("Failed to retrieve messages.",e);
+			getAccountPollManager().directMessageCheckFailed();
 			return -1;
 		}
 		finally
@@ -83,7 +76,7 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 		}		
 	}
 	
-	private Long[] registerMessages(DirectMessageCollection messages,PollStats stats)
+	private Long[] registerMessages(DirectMessageCollection messages,TwitterAccountPollManager stats)
 	{
 		List<Long> msgIDsToDelete = new ArrayList<Long>();
 		if(messages.getDirectMessages()==null)
@@ -123,18 +116,16 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
     	return msgIDsToDelete.toArray(new Long[msgIDsToDelete.size()]);
 	}
 	
-	public void deleteMessages(String account, Long[] ids, PollStats ps) {
+	public void deleteMessages(Long[] ids, TwitterAccountPollManager ps) {
 		try
 		{
-			String credentials = getCredentials(account);
-			
 			HttpClient client = new HttpClient();
 			
 			for(long id : ids)
 			{
 				DeleteMethod delete = new DeleteMethod("http://www.twitter.com/direct_messages/destroy/"+id+".xml");
 				client.getParams().setAuthenticationPreemptive(true);
-				client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(account,credentials));
+				client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(getAccountPollManager().getAccount(),getAccountPollManager().getCredentials()));
 				
 				try
 				{
@@ -148,7 +139,7 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 				if(delete.getStatusCode()==200)
 					ps.setHighestDeletedMessage(id);
 			}
-		} catch (OperationFailedException e) {
+		} catch (Exception e) {
 			log.error("Failed to delete a direct message.",e);
 		}
 		finally{}

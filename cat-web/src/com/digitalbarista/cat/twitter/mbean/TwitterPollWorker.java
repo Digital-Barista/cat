@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -19,7 +17,7 @@ import org.springframework.context.ApplicationContext;
 
 public abstract class TwitterPollWorker<T> implements Callable<T> {
 
-	private static Map<String,PollStats> accountPollStats = new ConcurrentHashMap<String,PollStats>();
+	private TwitterAccountPollManager pollManager;
 	protected static final String cfName = "java:/JmsXA";
 	protected static final String destName = "cat/messaging/Events";
 	protected static final String twitterSendDestName = "cat/messaging/TwitterOutgoing";
@@ -70,18 +68,12 @@ public abstract class TwitterPollWorker<T> implements Callable<T> {
 		}
 	}
 	
-	protected PollStats getPollStats(String account)
+	protected TwitterAccountPollManager getAccountPollManager()
 	{
-		PollStats ret = accountPollStats.get(account);
-		if(ret==null)
-		{
-			ret = new PollStats();
-			accountPollStats.put(account, ret);
-		}
-		return ret;
+		return pollManager;
 	}
 	
-	protected void updateRateLimitInfo(HttpMethodBase method, PollStats ps)
+	protected void updateRateLimitInfo(HttpMethodBase method, TwitterAccountPollManager ps)
 	{
 		ps.setLastPollTime(new Date());
 		Integer maxQueries = null;
@@ -107,9 +99,10 @@ public abstract class TwitterPollWorker<T> implements Callable<T> {
 
 	}
 	
-	protected TwitterPollWorker(ApplicationContext ctx)
+	protected TwitterPollWorker(ApplicationContext ctx, TwitterAccountPollManager pm)
 	{
 		this.ctx = ctx;
+		this.pollManager = pm;
 	}
 	
 	protected ApplicationContext getAppContext()

@@ -12,15 +12,12 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.springframework.context.ApplicationContext;
 
-import com.digitalbarista.cat.twitter.bindings.IdList;
+import com.digitalbarista.cat.twitter.bindings.IdListNoCursor;
 
 public class FriendCheckWorker extends TwitterPollWorker<Set<Long>> {
 
-	private String account;
-	
-	public FriendCheckWorker(ApplicationContext ctx,String account) {
-		super(ctx);
-		this.account = account;
+	public FriendCheckWorker(ApplicationContext ctx,TwitterAccountPollManager pollManager) {
+		super(ctx,pollManager);
 	}
 
 	@Override
@@ -30,33 +27,32 @@ public class FriendCheckWorker extends TwitterPollWorker<Set<Long>> {
 		
 		try
 		{
-			String credentials = getCredentials(account);
-						
-			JAXBContext context = JAXBContext.newInstance(IdList.class);
+			JAXBContext context = JAXBContext.newInstance(IdListNoCursor.class);
 			Unmarshaller decoder = context.createUnmarshaller();
 			
-			PollStats ps = getPollStats(account);
+			TwitterAccountPollManager ps = getAccountPollManager();
 			
 			client = new HttpClient();
 			
 			get = new GetMethod("http://www.twitter.com/friends/ids.xml");
-			get.setQueryString("screen_name="+account);
+			get.setQueryString("screen_name="+ps.getAccount());
 			client.getParams().setAuthenticationPreemptive(true);
-			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(account,credentials));
+			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
 			
 			client.executeMethod(get);
 
 			updateRateLimitInfo(get, ps);
 			
-			IdList idList = (IdList)decoder.unmarshal(get.getResponseBodyAsStream());
+			IdListNoCursor idList = (IdListNoCursor)decoder.unmarshal(get.getResponseBodyAsStream());
 			Set<Long> ret = new HashSet<Long>();
 			if(idList.getIds()!=null)
 				ret.addAll(idList.getIds());
+			ps.registerFriendsList(ret);
 			return ret;
 		}
 		catch(Exception e)
 		{
-			log.error("Can't get friend list for account "+account,e);
+			log.error("Can't get friend list for account "+getAccountPollManager().getAccount(),e);
 			return null;
 		}
 		finally

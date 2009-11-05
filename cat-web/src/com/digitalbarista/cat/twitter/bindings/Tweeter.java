@@ -8,7 +8,7 @@ import java.util.TimeZone;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="tweeter")
+@XmlRootElement(name="user")
 public class Tweeter {
 	private static SimpleDateFormat df;
 	static

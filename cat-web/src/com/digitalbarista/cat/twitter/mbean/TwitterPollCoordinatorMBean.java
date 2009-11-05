@@ -22,5 +22,9 @@ public interface TwitterPollCoordinatorMBean {
 	
 	public void deleteMesage(String account, long id);
 	
-	public String sendMessage();
+	public String sendMessage(String account);
+	
+	public boolean stopAllPolling(String account);
+	
+	public boolean startPolling(String account);
 }

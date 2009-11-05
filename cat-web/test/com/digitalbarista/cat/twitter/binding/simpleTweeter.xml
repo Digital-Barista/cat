@@ -1,4 +1,4 @@
-<tweeter>
+<user>
 <id>1401881</id>
 <name>Doug Williams</name>
 <screen_name>dougw</screen_name>
@@ -24,4 +24,4 @@
 <notifications>false</notifications>
 <following>false</following>
 <verified>true</verified>
-</tweeter>
+</user>

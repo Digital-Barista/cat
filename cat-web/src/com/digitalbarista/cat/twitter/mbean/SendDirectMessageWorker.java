@@ -20,8 +20,8 @@ import org.springframework.context.ApplicationContext;
 
 public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 
-	public SendDirectMessageWorker(ApplicationContext ctx) {
-		super(ctx);
+	public SendDirectMessageWorker(ApplicationContext ctx,TwitterAccountPollManager pm) {
+		super(ctx,pm);
 	}
 	
 	@Override
@@ -31,28 +31,31 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
     	UserTransaction tx=null;
     	MessageProducer producer=null;
     	try {
+    		TwitterAccountPollManager pm=getAccountPollManager();
+    		
     		tx = (UserTransaction)getInitialContext().lookup("java:comp/UserTransaction");
     		tx.begin();
     		ConnectionFactory cf = (ConnectionFactory)getInitialContext().lookup(cfName);
     		Destination dest = (Destination)getInitialContext().lookup(twitterSendDestName);
 			conn = cf.createConnection();
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-			MessageConsumer consumer = sess.createConsumer(dest);
+			MessageConsumer consumer = sess.createConsumer(dest, "source='"+pm.getAccount()+"'");
 			conn.start();
 			MapMessage msg = (MapMessage)consumer.receiveNoWait();
 			if(msg==null)
+			{
+				getAccountPollManager().directMessageSendSucceeded();
 				return "No messages to send";
+			}
 			msg.acknowledge();
 			consumer.close();
 			
 			producer = sess.createProducer(dest);
 
-			String credentials = getCredentials(msg.getString("source"));
-
 			HttpClient client = new HttpClient();
 			PostMethod post = new PostMethod("http://www.twitter.com/direct_messages/new.xml");
 			client.getParams().setAuthenticationPreemptive(true);
-			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(msg.getString("source"),credentials));
+			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(pm.getAccount(),pm.getCredentials()));
 			
 			post.setQueryString(new NameValuePair[]{new NameValuePair("screen_name",msg.getString("target")),new NameValuePair("text",msg.getString("message"))});
 			int status = -1;			
@@ -61,7 +64,10 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			{
 				status = client.executeMethod(post);
 				if(status==200)
+				{
+					getAccountPollManager().directMessageSendSucceeded();
 					return "Success - "+msg.getString("source")+" : "+msg.getString("message");	
+				}
 			} catch (HttpException ex) {
 				ex.printStackTrace();
 			} catch (IOException ex) {
@@ -69,6 +75,8 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			}
 			
 			producer.send(msg);
+
+			getAccountPollManager().directMessageSendFailed();
 			
 			return "Failure - status:"+status+" "+msg.getString("source")+" : "+msg.getString("message")+" -- requeued";
 			

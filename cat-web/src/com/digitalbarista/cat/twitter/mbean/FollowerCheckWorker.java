@@ -12,15 +12,12 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.springframework.context.ApplicationContext;
 
-import com.digitalbarista.cat.twitter.bindings.IdList;
+import com.digitalbarista.cat.twitter.bindings.IdListNoCursor;
 
 public class FollowerCheckWorker extends TwitterPollWorker<Set<Long>> {
 
-	private String account;
-	
-	public FollowerCheckWorker(ApplicationContext ctx,String account) {
-		super(ctx);
-		this.account = account;
+	public FollowerCheckWorker(ApplicationContext ctx,TwitterAccountPollManager pollManager) {
+		super(ctx,pollManager);
 	}
 
 	@Override
@@ -29,34 +26,35 @@ public class FollowerCheckWorker extends TwitterPollWorker<Set<Long>> {
 		GetMethod get = null;
 		
 		try
-		{
-			String credentials = getCredentials(account);
-						
-			JAXBContext context = JAXBContext.newInstance(IdList.class);
+		{						
+			JAXBContext context = JAXBContext.newInstance(IdListNoCursor.class);
 			Unmarshaller decoder = context.createUnmarshaller();
 			
-			PollStats ps = getPollStats(account);
+			TwitterAccountPollManager ps = getAccountPollManager();
 			
 			client = new HttpClient();
 			
 			get = new GetMethod("http://www.twitter.com/followers/ids.xml");
-			get.setQueryString("screen_name="+account);
+			get.setQueryString("screen_name="+ps.getAccount());
 			client.getParams().setAuthenticationPreemptive(true);
-			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(account,credentials));
+			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
 			
-			client.executeMethod(get);
+			if(client.executeMethod(get)!=200)
+				ps.followerCheckFailed();
 
 			updateRateLimitInfo(get, ps);
 			
-			IdList idList = (IdList)decoder.unmarshal(get.getResponseBodyAsStream());
+			IdListNoCursor idList = (IdListNoCursor)decoder.unmarshal(get.getResponseBodyAsStream());
 			Set<Long> ret = new HashSet<Long>();
 			if(idList.getIds()!=null)
 				ret.addAll(idList.getIds());
+			ps.registerFollowerList(ret);			
 			return ret;
 		}
 		catch(Exception e)
 		{
-			log.error("Can't get friend list for account "+account,e);
+			log.error("Can't get friend list for account "+getAccountPollManager().getAccount(),e);
+			getAccountPollManager().followerCheckFailed();
 			return null;
 		}
 		finally

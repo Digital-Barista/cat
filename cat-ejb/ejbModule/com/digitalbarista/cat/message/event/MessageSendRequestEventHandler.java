@@ -120,6 +120,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				MessageProducer producer = sess.createProducer(dest);
 				MapMessage message = sess.createMapMessage();
 				message.setString("source", e.getSource());
+				message.setStringProperty("source", e.getSource());
 				message.setString("target", e.getTarget());
 				message.setString("message", e.getArgs().get("message"));
 				producer.send(message);
