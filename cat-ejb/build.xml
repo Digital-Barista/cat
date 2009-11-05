@@ -41,7 +41,8 @@
 	</target>
 	
 	<target name="build" depends="clean">
-		<javac classpathref="ear.classpath" srcdir="${src.home}" destdir="${build.dir}"/>
+		<javac classpathref="ear.classpath" srcdir="${src.home}" destdir="${build.dir}"
+			debug="true" debuglevel="lines,vars,source"/>
 	</target>
 	
 	<target name="make-jar" depends="build">
