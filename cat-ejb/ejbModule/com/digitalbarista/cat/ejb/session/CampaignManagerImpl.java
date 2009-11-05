@@ -40,6 +40,7 @@ import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.CouponNode;
+import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.ImmediateConnector;
 import com.digitalbarista.cat.business.IntervalConnector;
@@ -726,9 +727,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			{
 				EntryNode ret = new EntryNode();
 				EntryNode source = (EntryNode)from;
-				ret.setEntryPoint(source.getEntryPoint());
-				ret.setEntryType(source.getEntryType());
-				ret.setKeyword(source.getKeyword());
+				ret.setEntryData(source.getEntryData());
 				ret.setName(source.getName());
 				ret.setUid(UUID.randomUUID().toString());
 				return ret;
@@ -1154,18 +1153,22 @@ public class CampaignManagerImpl implements CampaignManager {
 		if(node.getType().equals(NodeType.Entry))
 		{
 			EntryNode eNode = (EntryNode)node;
-			CampaignEntryPointDO cep = getSpecificEntryPoint(eNode.getEntryPoint(),eNode.getEntryType(),eNode.getKeyword());
-			if(cep==null)
+			CampaignEntryPointDO cep;
+			for(EntryData data : eNode.getEntryData())
 			{
-				log.warn("entry point modified without an appropriate CampaignEntryPointDO entry already existing.");
-			} else {
-				if(!cep.getCampaign().getUID().equals(node.getCampaignUID()))
-					throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
-				cep.setQuantity(cep.getQuantity()-1);
-				if(cep.getQuantity()==0 && !cep.isPublished())
-					em.remove(cep);
-				else if(cep.getQuantity()<0)
-					log.warn("more entry points removed than have been initially catalogued");
+				cep = getSpecificEntryPoint(data.getEntryPoint(),data.getEntryType(),data.getKeyword());
+				if(cep==null)
+				{
+					log.warn("entry point modified without an appropriate CampaignEntryPointDO entry already existing.");
+				} else {
+					if(!cep.getCampaign().getUID().equals(node.getCampaignUID()))
+						throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
+					cep.setQuantity(cep.getQuantity()-1);
+					if(cep.getQuantity()==0 && !cep.isPublished())
+						em.remove(cep);
+					else if(cep.getQuantity()<0)
+						log.warn("more entry points removed than have been initially catalogued");
+				}
 			}
 		}
 		

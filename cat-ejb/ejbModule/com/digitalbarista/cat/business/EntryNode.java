@@ -146,12 +146,15 @@ public class EntryNode extends Node implements Auditable{
 	public String auditString() {
 		StringBuffer ret = new StringBuffer();
 		ret.append("type:"+getType().toString());
-		ret.append(";incomingAddress:"+getEntryPoint());
-		ret.append(";keyword:"+getKeyword());
-		if(getEntryType()!=null)
-			ret.append(";addressType:"+getEntryType().toString());
-		else
-			ret.append(";addressType:null");
+		if(entryTypes!=null)
+			for(int loop=0; loop<entryTypes.size(); loop++)
+				ret.append(";addressType["+loop+"]:"+entryTypes.get(loop));
+		if(entryPoints!=null)
+			for(int loop=0; loop<entryPoints.size(); loop++)
+				ret.append(";incomingAddress["+loop+"]:"+entryPoints.get(loop));
+		if(keywords!=null)
+			for(int loop=0; loop<keywords.size(); loop++)
+				ret.append(";keyword["+loop+"]:"+keywords.get(loop));
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());
 		ret.append(";campaign:"+getCampaignUID());

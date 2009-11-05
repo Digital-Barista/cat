@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.digitalbarista.cat.audit.IncomingMessageEntryDO;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
@@ -249,11 +250,14 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			{
 				if(node.getType().equals(NodeType.Entry))
 				{
-					if(!((EntryNode)node).getKeyword().equals(mostLikelyEntry.getKeyword())) continue;
-					if(!((EntryNode)node).getEntryPoint().equals(mostLikelyEntry.getEntryPoint())) continue;
-					if(!((EntryNode)node).getEntryType().equals(mostLikelyEntry.getType())) continue;
-					en=(EntryNode)node;
-					break;
+					for(EntryData data : ((EntryNode)node).getEntryData())
+					{
+						if(!data.getKeyword().equals(mostLikelyEntry.getKeyword())) continue;
+						if(!data.getEntryPoint().equals(mostLikelyEntry.getEntryPoint())) continue;
+						if(!data.getEntryType().equals(mostLikelyEntry.getType())) continue;
+						en=(EntryNode)node;
+					}
+					if(en!=null) break;
 				}
 			}
 
