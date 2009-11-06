@@ -147,12 +147,15 @@ public class ResponseConnector extends Connector implements Auditable {
 	public String auditString() {
 		StringBuffer ret = new StringBuffer();
 		ret.append("type:"+getType().toString());
-		ret.append(";incomingAddress:"+getEntryPoint());
-		ret.append(";keyword:"+getKeyword());
-		if(getEntryPointType()!=null)
-			ret.append(";addressType:"+getEntryPointType().toString());
-		else
-			ret.append(";addressType:null");
+		if(entryTypes!=null)
+			for(int loop=0; loop<entryTypes.size(); loop++)
+				ret.append(";addressType["+loop+"]:"+entryTypes.get(loop));
+		if(entryPoints!=null)
+			for(int loop=0; loop<entryPoints.size(); loop++)
+				ret.append(";incomingAddress["+loop+"]:"+entryPoints.get(loop));
+		if(keywords!=null)
+			for(int loop=0; loop<keywords.size(); loop++)
+				ret.append(";keyword["+loop+"]:"+keywords.get(loop));
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());
 		ret.append(";source:"+getSourceNodeUID());
@@ -166,39 +169,39 @@ public class ResponseConnector extends Connector implements Auditable {
 		return ConnectorType.Response;
 	}
 
-	public EntryPointType getEntryPointType() {
-		if(entryTypes!=null && entryTypes.size()==1)
-			return entryTypes.get(0);
-		return null;
-	}
-
-	public void setEntryPointType(EntryPointType entryType) {
-		entryTypes.clear();
-		entryTypes.add(entryType);
-	}
-
-	public String getEntryPoint() {
-		if(entryPoints!=null && entryPoints.size()==1)
-			return entryPoints.get(0);
-		return null;
-	}
-
-	public void setEntryPoint(String entryPoint) {
-		entryPoints.clear();
-		entryPoints.add(entryPoint);
-	}
-
-	public String getKeyword() {
-		if(keywords!=null && keywords.size()==1)
-			return keywords.get(0);
-		return null;
-	}
-
-	public void setKeyword(String keyword) {
-		keywords.clear();
-		keywords.add(keyword);
-	}
-
+//	public EntryPointType getEntryPointType() {
+//		if(entryTypes!=null && entryTypes.size()==1)
+//			return entryTypes.get(0);
+//		return null;
+//	}
+//
+//	public void setEntryPointType(EntryPointType entryType) {
+//		entryTypes.clear();
+//		entryTypes.add(entryType);
+//	}
+//
+//	public String getEntryPoint() {
+//		if(entryPoints!=null && entryPoints.size()==1)
+//			return entryPoints.get(0);
+//		return null;
+//	}
+//
+//	public void setEntryPoint(String entryPoint) {
+//		entryPoints.clear();
+//		entryPoints.add(entryPoint);
+//	}
+//
+//	public String getKeyword() {
+//		if(keywords!=null && keywords.size()==1)
+//			return keywords.get(0);
+//		return null;
+//	}
+//
+//	public void setKeyword(String keyword) {
+//		keywords.clear();
+//		keywords.add(keyword);
+//	}
+//
 	public List<EntryData> getEntryData()
 	{
 		int maxSize = entryTypes.size();

@@ -299,28 +299,32 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			for(String connUID : node.getDownstreamConnections())
 			{
 				conn=getCampaignManager().getSpecificConnectorVersion(connUID, publishedVersion);
+				
 				if(conn.getType().equals(ConnectorType.Response))
 				{
 					ResponseConnector rConn = (ResponseConnector)conn;
-					if(!keyphrase.equalsIgnoreCase(rConn.getKeyword()))
-						continue;
-					switch(e.getSourceType())
+					for(EntryData data : rConn.getEntryData())
 					{
-					case EmailEndpoint:
-						if(!rConn.getEntryPointType().equals(EntryPointType.Email)) continue;
-						break;
-					case SMSEndpoint:
-						if(!rConn.getEntryPointType().equals(EntryPointType.SMS)) continue;
-						break;
-					case TwitterEndpoint:
-						if(!rConn.getEntryPointType().equals(EntryPointType.Twitter)) continue;
-						break;
-					default:
-						continue;
+						if(!keyphrase.equalsIgnoreCase(data.getKeyword()))
+							continue;
+						switch(e.getSourceType())
+						{
+							case EmailEndpoint:
+								if(!data.getEntryType().equals(EntryPointType.Email)) continue;
+								break;
+							case SMSEndpoint:
+								if(!data.getEntryType().equals(EntryPointType.SMS)) continue;
+								break;
+							case TwitterEndpoint:
+								if(!data.getEntryType().equals(EntryPointType.Twitter)) continue;
+								break;
+							default:
+								continue;
+						}
+						CATEvent fireConnectorEvent = CATEvent.buildFireConnectorForSubscriberEvent(rConn.getUid(), sub.getPrimaryKey().toString());
+						getEventManager().queueEvent(fireConnectorEvent);
+						return;
 					}
-					CATEvent fireConnectorEvent = CATEvent.buildFireConnectorForSubscriberEvent(rConn.getUid(), sub.getPrimaryKey().toString());
-					getEventManager().queueEvent(fireConnectorEvent);
-					return;
 				}
 			}
 			//If we simply drop out of this loop, it didn't match.  And we thus ignore it.

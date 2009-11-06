@@ -691,9 +691,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			{
 				ResponseConnector ret = new ResponseConnector();
 				ResponseConnector source = (ResponseConnector)from;
-				ret.setEntryPoint(source.getEntryPoint());
-				ret.setEntryPointType(source.getEntryPointType());
-				ret.setKeyword(source.getKeyword());
+				ret.setEntryData(source.getEntryData());
 				ret.setName(source.getName());
 				ret.setUid(UUID.randomUUID().toString());
 				return ret;
@@ -1218,18 +1216,22 @@ public class CampaignManagerImpl implements CampaignManager {
 		if(connector.getType().equals(ConnectorType.Response))
 		{
 			ResponseConnector rConn = (ResponseConnector)connector;
-			CampaignEntryPointDO cep = getSpecificEntryPoint(rConn.getEntryPoint(),rConn.getEntryPointType(),rConn.getKeyword());
-			if(cep==null)
+			CampaignEntryPointDO cep;
+			for(EntryData data : rConn.getEntryData())
 			{
-				log.warn("entry point modified without an appropriate CampaignEntryPointDO entry already existing.");
-			} else {
-				if(!cep.getCampaign().getUID().equals(connector.getCampaignUID()))
-					throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
-				cep.setQuantity(cep.getQuantity()-1);
-				if(cep.getQuantity()==0 && !cep.isPublished())
-					em.remove(cep);
-				else if(cep.getQuantity()<0)
-					log.warn("more entry points removed than have been initially catalogued");
+				cep= getSpecificEntryPoint(data.getEntryPoint(),data.getEntryType(),data.getKeyword());
+				if(cep==null)
+				{
+					log.warn("entry point modified without an appropriate CampaignEntryPointDO entry already existing.");
+				} else {
+					if(!cep.getCampaign().getUID().equals(connector.getCampaignUID()))
+						throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
+					cep.setQuantity(cep.getQuantity()-1);
+					if(cep.getQuantity()==0 && !cep.isPublished())
+						em.remove(cep);
+					else if(cep.getQuantity()<0)
+						log.warn("more entry points removed than have been initially catalogued");
+				}
 			}
 		}
 
