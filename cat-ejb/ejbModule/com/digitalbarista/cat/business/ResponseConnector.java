@@ -169,39 +169,39 @@ public class ResponseConnector extends Connector implements Auditable {
 		return ConnectorType.Response;
 	}
 
-//	public EntryPointType getEntryPointType() {
-//		if(entryTypes!=null && entryTypes.size()==1)
-//			return entryTypes.get(0);
-//		return null;
-//	}
-//
-//	public void setEntryPointType(EntryPointType entryType) {
-//		entryTypes.clear();
-//		entryTypes.add(entryType);
-//	}
-//
-//	public String getEntryPoint() {
-//		if(entryPoints!=null && entryPoints.size()==1)
-//			return entryPoints.get(0);
-//		return null;
-//	}
-//
-//	public void setEntryPoint(String entryPoint) {
-//		entryPoints.clear();
-//		entryPoints.add(entryPoint);
-//	}
-//
-//	public String getKeyword() {
-//		if(keywords!=null && keywords.size()==1)
-//			return keywords.get(0);
-//		return null;
-//	}
-//
-//	public void setKeyword(String keyword) {
-//		keywords.clear();
-//		keywords.add(keyword);
-//	}
-//
+	public EntryPointType getEntryPointType() {
+		if(entryTypes!=null && entryTypes.size()==1)
+			return entryTypes.get(0);
+		return null;
+	}
+
+	public void setEntryPointType(EntryPointType entryType) {
+		entryTypes.clear();
+		entryTypes.add(entryType);
+	}
+
+	public String getEntryPoint() {
+		if(entryPoints!=null && entryPoints.size()==1)
+			return entryPoints.get(0);
+		return null;
+	}
+
+	public void setEntryPoint(String entryPoint) {
+		entryPoints.clear();
+		entryPoints.add(entryPoint);
+	}
+
+	public String getKeyword() {
+		if(keywords!=null && keywords.size()==1)
+			return keywords.get(0);
+		return null;
+	}
+
+	public void setKeyword(String keyword) {
+		keywords.clear();
+		keywords.add(keyword);
+	}
+
 	public List<EntryData> getEntryData()
 	{
 		int maxSize = entryTypes.size();
