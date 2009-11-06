@@ -188,9 +188,7 @@ public final class CompcTask extends FlexTask implements DynamicConfigurator
         /* Handle required attributes and then delegate to super */
         if (outString.matches(name))
         {
-            // see FlexTask.execute() for explanation
-            final String tmpValue = (fork ? "\"" + value + "\"" : value);
-            outString.set(tmpValue);
+            outString.set(value);
         }
         else if (icStrings.matches(name))
             icStrings.addAll(value.split(" "));

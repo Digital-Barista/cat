@@ -328,6 +328,7 @@ public class Preloader extends Sprite
 		var rslEvent:RSLEvent = new RSLEvent(RSLEvent.RSL_COMPLETE);
 		rslEvent.bytesLoaded = item.total;
 		rslEvent.bytesTotal = item.total;
+        rslEvent.loaderInfo = LoaderInfo(event.target);
 		rslEvent.rslIndex = index;
 		rslEvent.rslTotal = rslListLoader.getItemCount();
 		rslEvent.url = item.urlRequest;

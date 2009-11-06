@@ -157,6 +157,9 @@ public class RectangularBorder extends Border implements IRectangularBorder
      */
     public function set backgroundImageBounds(value:Rectangle):void
     {
+        if (_backgroundImageBounds && value && _backgroundImageBounds.equals(value))
+            return;
+
         _backgroundImageBounds = value;
 
         invalidateDisplayList();

@@ -56,7 +56,7 @@ public class MultiTopicProducer extends AbstractProducer
     //--------------------------------------------------------------------------
 
     /**
-     *  Constructs a Producer.
+     *  Constructor.
      * 
      *  @example
      *  <listing version="3.0">
@@ -74,22 +74,22 @@ public class MultiTopicProducer extends AbstractProducer
      *   }
      *   </listing>
      */
-	public function MultiTopicProducer()
-	{
-		super();
-	    _log = Log.getLogger("mx.messaging.MultiTopicProducer");
-		_agentType = "MultiTopicProducer";
-	}
+    public function MultiTopicProducer()
+    {
+        super();
+        _log = Log.getLogger("mx.messaging.MultiTopicProducer");
+        _agentType = "MultiTopicProducer";
+    }
 
     //--------------------------------------------------------------------------
     //
     // Variables
     // 
     //--------------------------------------------------------------------------
-	
-	//----------------------------------
-	//  subtopic
-	//----------------------------------	
+    
+    //----------------------------------
+    //  subtopic
+    //----------------------------------    
 
     /**
      *  @private
@@ -160,7 +160,7 @@ public class MultiTopicProducer extends AbstractProducer
                                      subtopic + " which does not exist");
         subtopics.removeItemAt(ix);
     }
-	
+    
     //--------------------------------------------------------------------------
     //
     // Protected Methods
@@ -184,7 +184,7 @@ public class MultiTopicProducer extends AbstractProducer
     // Private Methods
     // 
     //--------------------------------------------------------------------------
-	
+    
 }
 
 }

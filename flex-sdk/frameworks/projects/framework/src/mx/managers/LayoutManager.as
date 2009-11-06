@@ -12,12 +12,15 @@
 package mx.managers
 {
 
+import flash.display.DisplayObject;
 import flash.display.Stage;
 import flash.events.Event;
 import flash.events.EventDispatcher;
+
 import mx.core.ApplicationGlobals;
-import mx.core.UIComponent;
+import mx.core.IFlexDisplayObject;
 import mx.core.mx_internal;
+import mx.core.UIComponent;
 import mx.events.FlexEvent;
 import mx.managers.layoutClasses.PriorityQueue;
 
@@ -322,15 +325,25 @@ public class LayoutManager extends EventDispatcher implements ILayoutManager
 			// While we're doing phased instantiation, temporarily increase
 			// the frame rate.  That will cause the enterFrame and render
 			// events to fire more promptly, which improves performance.
-			var stage:Stage = SystemManagerGlobals.topLevelSystemManagers[0].stage;
-			if (value)
-			{
-				originalFrameRate = stage.frameRate;
-				stage.frameRate = 1000;
+			try {
+				var sm:ISystemManager = SystemManagerGlobals.topLevelSystemManagers[0];
+				var stage:Stage = SystemManagerGlobals.topLevelSystemManagers[0].stage;
+				if (stage)
+				{
+					if (value)
+					{
+						originalFrameRate = stage.frameRate;
+						stage.frameRate = 1000;
+					}
+					else
+					{
+						stage.frameRate = originalFrameRate;
+					}
+				}
 			}
-			else
+			catch (e:SecurityError)
 			{
-				stage.frameRate = originalFrameRate;
+				// trace("ignoring security error changing the framerate " + e);
 			}
 		}
 	}
@@ -484,6 +497,10 @@ public class LayoutManager extends EventDispatcher implements ILayoutManager
 
 				callLaterPending = true;
 			}
+		}
+		else if (!invalidateDisplayListFlag && !ApplicationGlobals.application.systemManager)
+		{
+			// trace("ApplicationGlobals.application.systemManager is null");
 		}
 
 		// trace("LayoutManager adding " + Object(obj) + " to invalidateDisplayListQueue");
@@ -949,11 +966,11 @@ public class LayoutManager extends EventDispatcher implements ILayoutManager
 	 */
 	private function waitAFrame():void
 	{
-		//// trace(">>LayoutManager:WaitAFrame");
+		// trace(">>LayoutManager:WaitAFrame");
 
 		callLaterObject.callLater(doPhasedInstantiation);
 
-		//// trace("<<LayoutManager:WaitAFrame");
+		// trace("<<LayoutManager:WaitAFrame");
 	}
 }
 

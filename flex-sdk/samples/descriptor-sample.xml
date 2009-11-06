@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <application 
-	xmlns="http://ns.adobe.com/air/application/1.1"
+	xmlns="http://ns.adobe.com/air/application/1.5.2"
 	minimumPatchLevel="0">
-<!-- AIR Application Descriptor File. See http://www.adobe.com/go/air_1.0_application_descriptor. -->
+<!-- AIR Application Descriptor File. See http://www.adobe.com/go/learn_air_1.0_application_descriptor_en. -->
 	<id>com.example.ExampleApplication</id>
 	<name>
 		<text xml:lang="en">Example Co. Example Application 1.0</text>
@@ -13,7 +13,7 @@
 		<text xml:lang="en">This is a sample Adobe AIR application.</text>
 		<text xml:lang="ja">これは Adobe AIR のサンプルアプリケーションです。</text>
 	</description>
-	<copyright>Copyright 2008, Example Co., Inc.</copyright>
+	<copyright>Copyright 2009, Example Co., Inc.</copyright>
 	<initialWindow>
 		<content>ExampleApplication.swf</content>
 		<title>Example Application</title>

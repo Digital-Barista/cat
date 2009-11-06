@@ -17,11 +17,16 @@ import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.Loader;
 import flash.display.LoaderInfo;
+import flash.display.Sprite;
 import flash.events.Event;
+import flash.events.EventDispatcher;
 import flash.events.HTTPStatusEvent;
+import flash.events.IEventDispatcher;
 import flash.events.IOErrorEvent;
+import flash.events.MouseEvent;
 import flash.events.ProgressEvent;
 import flash.events.SecurityErrorEvent;
+import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.net.URLRequest;
 import flash.system.ApplicationDomain;
@@ -34,10 +39,15 @@ import mx.core.Application;
 import mx.core.FlexLoader;
 import mx.core.FlexVersion;
 import mx.core.IFlexDisplayObject;
+import mx.core.ISWFLoader;
 import mx.core.IUIComponent;
 import mx.core.UIComponent;
 import mx.core.mx_internal;
 import mx.events.FlexEvent;
+import mx.events.InterManagerRequest;
+import mx.events.InvalidateRequestData;
+import mx.events.SWFBridgeEvent;
+import mx.events.SWFBridgeRequest;
 import mx.managers.CursorManager;
 import mx.managers.ISystemManager;
 import mx.managers.SystemManagerGlobals;
@@ -247,6 +257,7 @@ use namespace mx_internal;
  *  &lt;mx:SWFLoader
  *    <strong>Properties</strong>
  *    autoLoad="true|false"
+ *    loadForCompatibility="false|true"
  *    loaderContext="null"
  *    maintainAspectRatio="true|false"
  *    scaleContent="true|false"
@@ -280,7 +291,7 @@ use namespace mx_internal;
  *
  *  @see mx.controls.Image
  */
-public class SWFLoader extends UIComponent
+public class SWFLoader extends UIComponent implements ISWFLoader
 {
     include "../core/Version.as";
 
@@ -302,6 +313,8 @@ public class SWFLoader extends UIComponent
         tabEnabled = false;
 
         addEventListener(FlexEvent.INITIALIZE, initializeHandler);
+        addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
+        addEventListener(MouseEvent.CLICK, clickHandler);
 
         showInAutomationHierarchy = false;
     }
@@ -326,6 +339,11 @@ public class SWFLoader extends UIComponent
      *  @private
      */
     private var scaleContentChanged:Boolean = false;
+
+    /**
+     *  @private
+     */
+    private var smoothBitmapContentChanged:Boolean = false;
 
     /**
      *  @private
@@ -371,6 +389,27 @@ public class SWFLoader extends UIComponent
      *  @private
      */
     private var explicitLoaderContext:Boolean = false;
+
+    /**
+     *  @private
+     */
+    private var mouseShield:Sprite;
+
+    /**
+     *  @private
+     * 
+     *  When unloading a swf, check this flag to see if we
+     *  should use unload() or unloadAndStop().
+     */
+    private var useUnloadAndStop:Boolean;
+
+    /**
+     *  @private
+     * 
+     *  When using unloadAndStop, pass this flag
+     *  as the gc parameter.
+     */
+    private var unloadAndStopGC:Boolean;
 
     //--------------------------------------------------------------------------
     //
@@ -447,6 +486,55 @@ public class SWFLoader extends UIComponent
     }
 
     //----------------------------------
+    //  loadForCompatibility
+    //----------------------------------
+
+    /**
+     *  @private
+     *  Storage for the loadForCompatibility property.
+     */
+    private var _loadForCompatibility:Boolean = false;
+
+    [Bindable("loadForCompatibilityChanged")]
+    [Inspectable(defaultValue="false")]
+
+    /**
+     *  A flag that indicates whether the content is loaded so that it can
+     *  interoperate with applications built with a different verion of the Flex compiler.  
+     *  Compatibility with other Flex applications is accomplished by loading
+     *  the application into a sibling (or peer) ApplicationDomain.
+     *  This flag is ignored if the content must be loaded into a different
+     *  SecurityDomain.
+     *  If <code>true</code>, the content loads into a sibling ApplicationDomain. 
+     *  If <code>false</code>, the content loaded into a child ApplicationDomain.
+     *
+     *  @default false
+     */
+    public function get loadForCompatibility():Boolean
+    {
+        return _loadForCompatibility;
+    }
+
+    /**
+     *  @private
+     */
+    public function set loadForCompatibility(value:Boolean):void
+    {
+        if (_loadForCompatibility != value)
+        {
+            _loadForCompatibility = value;
+
+            contentChanged = true;
+
+            invalidateProperties();
+            invalidateSize();
+            invalidateDisplayList();
+
+            dispatchEvent(new Event("loadForCompatibilityChanged"));
+        }
+    }
+
+    //----------------------------------
     //  bytesLoaded (read only)
     //----------------------------------
 
@@ -494,7 +582,7 @@ public class SWFLoader extends UIComponent
      *  This property contains the object that represents
      *  the content that was loaded in the SWFLoader control. 
      *
-     *  @tiptext Returns the content of the SWFLoader
+     *  @tiptext Returns the content of the SWFLoader.
      *  @helpid 3134
      */
     public function get content():DisplayObject
@@ -545,6 +633,17 @@ public class SWFLoader extends UIComponent
             {
                 try
                 {
+                        if (systemManager.swfBridgeGroup)
+                        {
+                            var bridge:IEventDispatcher = swfBridge;
+                            if (bridge)
+                            {
+                                var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
+                                bridge.dispatchEvent(request);
+                                return request.data.height;
+                            }
+                        }
+                        
                     var content:IFlexDisplayObject =
                         Loader(contentHolder).content as IFlexDisplayObject;
                     if (content)
@@ -599,6 +698,13 @@ public class SWFLoader extends UIComponent
             {
                 try
                 {
+                        if (swfBridge)
+                        {
+                        var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
+                        swfBridge.dispatchEvent(request);
+                        return request.data.width;
+                        }
+                        
                     var content:IFlexDisplayObject =
                         Loader(contentHolder).content as IFlexDisplayObject;
                     if (content)
@@ -701,7 +807,7 @@ public class SWFLoader extends UIComponent
     public function set loaderContext(value:LoaderContext):void
     {
         _loaderContext = value;
-		explicitLoaderContext = true;
+                explicitLoaderContext = true;
 
         dispatchEvent(new Event("loaderContextChanged"));
     }
@@ -742,6 +848,11 @@ public class SWFLoader extends UIComponent
         dispatchEvent(new Event("maintainAspectRatioChanged"));
     }
 
+
+    //----------------------------------
+    //  sandBoxBridge (read only)
+    //----------------------------------
+        private var _swfBridge:IEventDispatcher;
 
     //----------------------------------
     //  percentLoaded (read only)
@@ -850,6 +961,49 @@ public class SWFLoader extends UIComponent
             else
                 CursorManager.unRegisterToUseBusyCursor(this);
         }
+    }
+
+    //----------------------------------
+    //  smoothBitmapContent
+    //----------------------------------
+
+    /**
+     *  @private
+     *  Storage for the smoothBitmapContent property.
+     */
+    private var _smoothBitmapContent:Boolean = false;
+
+    [Bindable("smoothBitmapContentChanged")]
+    [Inspectable(category="General", defaultValue="false")]
+
+    /**
+     *  A flag that indicates whether to smooth the content when it
+     *  is scaled. Only Bitmap content can be smoothed.
+     *  If <code>true</code>, and the content is a Bitmap then smoothing property 
+     *  of the content is set to <code>true</code>. 
+     *  If <code>false</code>, the content isn't smoothed. 
+     *
+     *  @default false
+     */
+    public function get smoothBitmapContent():Boolean
+    {
+        return _smoothBitmapContent;
+    }
+
+    /**
+     *  @private
+     */
+    public function set smoothBitmapContent(value:Boolean):void
+    {
+        if (_smoothBitmapContent != value)
+        {
+            _smoothBitmapContent = value;
+
+            smoothBitmapContentChanged = true;
+            invalidateDisplayList();
+        }
+
+        dispatchEvent(new Event("smoothBitmapContentChanged"));
     }
 
     //----------------------------------
@@ -996,6 +1150,66 @@ public class SWFLoader extends UIComponent
 
     //--------------------------------------------------------------------------
     //
+    //  Properties of ISWFBridgeProvider
+    //
+    //--------------------------------------------------------------------------
+
+    /**
+     * @inheritDoc
+     */    
+    public function get swfBridge():IEventDispatcher
+    {
+        return _swfBridge;
+    }
+    
+    /**
+     * @inheritDoc
+     */    
+    public function get childAllowsParent():Boolean
+    {
+        if (!isContentLoaded)
+            return false;
+            
+        try
+        {
+            if (contentHolder is Loader)
+                return Loader(contentHolder).contentLoaderInfo.childAllowsParent;
+        }
+        catch (error:Error)
+        {
+            // Error #2099: The loading object is not sufficiently loaded to provide this information.
+            // We can get this if this content has been unload
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */    
+    public function get parentAllowsChild():Boolean
+    {
+        if (!isContentLoaded)
+            return false;
+        
+        try
+        {
+            if (contentHolder is Loader)
+                return Loader(contentHolder).contentLoaderInfo.parentAllowsChild;
+        }
+        catch (error:Error)
+        {
+            // Error #2099: The loading object is not sufficiently loaded to provide this information.
+            // We can get this if this content has been unload
+            return false;
+        }
+                
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+    //
     //  Overridden methods: UIComponent
     //
     //--------------------------------------------------------------------------
@@ -1078,6 +1292,11 @@ public class SWFLoader extends UIComponent
                 doScaleLoader();
 
             scaleContentChanged = false;
+            
+            if (smoothBitmapContentChanged) {
+            	doSmoothBitmapContent();
+            	smoothBitmapContentChanged = false;
+            }
         }
 
         if (brokenImage && !brokenImageBorder)
@@ -1099,6 +1318,8 @@ public class SWFLoader extends UIComponent
 
         if (brokenImageBorder)
             brokenImageBorder.setActualSize(unscaledWidth, unscaledHeight);
+
+        sizeShield();
     }
 
     //--------------------------------------------------------------------------
@@ -1147,10 +1368,24 @@ public class SWFLoader extends UIComponent
                         // b/c we may cause a security violation trying to do it
                     }
                 
-                    Loader(contentHolder).unload();
+                    if (_swfBridge)
+                    {
+                        var request:SWFBridgeEvent = new SWFBridgeEvent(
+                                                SWFBridgeEvent.BRIDGE_APPLICATION_UNLOADING,
+                                                false, false,
+                                                _swfBridge);
+                        _swfBridge.dispatchEvent(request);
+                    }
 
-					if (!explicitLoaderContext)
-						_loaderContext = null;
+                    // try the new "unloadAndStop" in FP10. If not available
+                    // then call unload.
+                    if (useUnloadAndStop && "unloadAndStop" in contentHolder)
+                        contentHolder["unloadAndStop"](unloadAndStopGC);
+                    else 
+                        Loader(contentHolder).unload();
+
+                    if (!explicitLoaderContext)
+                        _loaderContext = null;
                 }
                 else
                 {
@@ -1177,26 +1412,26 @@ public class SWFLoader extends UIComponent
                 }
             }
 
-			// when SWFLoader/Image is used with renderer
-			// recycling and the content is a DisplayObject instance
-			// the instance can be stolen from us while
-			// we're on the free list
-			try
-			{
-				if (contentHolder.parent == this)
-					removeChild(contentHolder);
-			}
+            // when SWFLoader/Image is used with renderer
+            // recycling and the content is a DisplayObject instance
+            // the instance can be stolen from us while
+            // we're on the free list
+            try
+            {
+                if (contentHolder.parent == this)
+                    removeChild(contentHolder);
+            }
             catch(error:Error)
             {
-				try
-				{
-					// just try to remove it anyway
-					removeChild(contentHolder);
-				}
-				catch(error1:Error)
-				{
-					// Ignore any errors thrown by removeChild()
-				}
+                try
+                {
+                    // just try to remove it anyway
+                    removeChild(contentHolder);
+                }
+                catch(error1:Error)
+                {
+                    // Ignore any errors thrown by removeChild()
+                }
             }
 
             contentHolder = null;
@@ -1204,20 +1439,79 @@ public class SWFLoader extends UIComponent
 
         isContentLoaded = false;
         brokenImage = false;
+        useUnloadAndStop = false;
 
         if (!_source || _source == "")
             return;
 
-        contentHolder = loadContent(_source);
+        loadContent(_source);
     }
 
+    /**
+     *  Unloads an image or SWF file. After this method returns the 
+     *  <code>source</code> property will be null. This is only supported
+     *  if the host Flash Player is version 10 or greater. If the host Flash 
+     *  Player is less than version 10, then this method will unload the 
+     *  content the same way as if <code>source</code> was set to null. 
+     * 
+     *  This method attempts to unload SWF files by removing references to 
+     *  EventDispatcher, NetConnection, Timer, Sound, or Video objects of the
+     *  child SWF file. As a result, the following occurs for the child SWF file
+     *  and the child SWF file's display list: 
+     *  <ul>
+     *  <li>Sounds are stopped.</li>
+     *  <li>Stage event listeners are removed.</li>
+     *  <li>Event listeners for <code>enterFrame</code>, 
+     *  <code>frameConstructed</code>, <code>exitFrame</code>,
+     *  <code>activate</code> and <code>deactivate</code> are removed.</li>
+     *  <li>Timers are stopped.</li>
+     *  <li>Camera and Microphone instances are detached</li>
+     *  <li>Movie clips are stopped.</li>
+     *  </ul>
+     * 
+     *  @param invokeGarbageCollector  Provides a hint to the garbage collector to run
+     *  on the child SWF objects (<code>true</code>) or not (<code>false</code>).
+     *  If you are unloading many objects asynchronously, setting the 
+     *  <code>gc</code> parameter to <code>false</code> might improve application
+     *  performance. However, if the parameter is set to <code>false</code>, media
+     *  and display objects of the child SWF file might persist in memory after
+     *  the child SWF has been unloaded.  
+     */
+    public function unloadAndStop(invokeGarbageCollector:Boolean = true):void
+    {
+        useUnloadAndStop = true;
+        unloadAndStopGC = invokeGarbageCollector;
+        source = null;        // this will cause an unload unless autoload is true
+        if (!autoLoad)
+            load(null);
+    }
+ 
+    //--------------------------------------------------------------------------
+    //
+    //  ISWFLoader
+    //
+    //--------------------------------------------------------------------------
+    
+    /**
+     *  @inheritDoc
+     */  
+    public function getVisibleApplicationRect(allApplications:Boolean=false):Rectangle
+    {
+        var rect:Rectangle = getVisibleRect();
+        
+        if (allApplications)
+            rect = systemManager.getVisibleApplicationRect(rect);
+        
+        return rect;
+    }
+ 
     /**
      *  @private
      *  If changes are made to this method, make sure to look at
      *  RectangularBorder.updateDisplayList()
      *  to see if changes are needed there as well.
      */
-    private function loadContent(classOrString:Object):DisplayObject
+    private function loadContent(classOrString:Object):void
     {
         var child:DisplayObject;
         var cls:Class;
@@ -1271,13 +1565,15 @@ public class SWFLoader extends UIComponent
         else if (byteArray)
         {
             loader = new FlexLoader();
-            child = loader;
+            contentHolder = child = loader;
             addChild(child);
             
             loader.contentLoaderInfo.addEventListener(
                 Event.COMPLETE, contentLoaderInfo_completeEventHandler);
             loader.contentLoaderInfo.addEventListener(
                 Event.INIT, contentLoaderInfo_initEventHandler);
+            loader.contentLoaderInfo.addEventListener(
+                IOErrorEvent.IO_ERROR, contentLoaderInfo_ioErrorEventHandler);
             loader.contentLoaderInfo.addEventListener(
                 Event.UNLOAD, contentLoaderInfo_unloadEventHandler);
             
@@ -1289,7 +1585,7 @@ public class SWFLoader extends UIComponent
         {
             // Create an instance of the Flash Player Loader class to do all the work
             loader = new FlexLoader();
-            child = loader;
+            contentHolder = child = loader;
 
             // addChild needs to be called before load()
             addChild(loader);
@@ -1332,11 +1628,7 @@ public class SWFLoader extends UIComponent
                     rootURL = LoaderUtil.normalizeURL(DisplayObject(systemManager).loaderInfo);
 
                 if (rootURL)
-                {
-                    var lastIndex:int = Math.max(rootURL.lastIndexOf("\\"), rootURL.lastIndexOf("/"));
-                    if (lastIndex != -1)
-                        url = rootURL.substr(0, lastIndex + 1) + url;
-                }
+                    url = LoaderUtil.createAbsoluteURL(rootURL, url);
             }
 
             requestedURL = new URLRequest(url);
@@ -1346,11 +1638,33 @@ public class SWFLoader extends UIComponent
             {
                 lc = new LoaderContext();
                 _loaderContext = lc;
+                
+                // To get a peer application domain (relative to framework classes), 
+                // get the topmost parent domain of the current domain. This
+                // will either be the application domain of the 
+                // bootstrap loader (non-framework classes), or null. Either way we get
+                // an application domain free of framework classes. 
+                if (loadForCompatibility) 
+                {
+                    // the AD.currentDomain.parentDomain could be null, 
+                    // the domain of the top-level system manager, or
+                    // the bootstrap loader. The bootstrap loader will always be topmost
+                    // if it is present.
+                    var currentDomain:ApplicationDomain = ApplicationDomain.currentDomain.parentDomain;
+                    var topmostDomain:ApplicationDomain = null;
+                    while (currentDomain)
+                    {
+                        topmostDomain = currentDomain;
+                        currentDomain = currentDomain.parentDomain;
+                    }
+                    lc.applicationDomain = new ApplicationDomain(topmostDomain);
+                }
+                        
                 if (trustContent)
                 {
                     lc.securityDomain = SecurityDomain.currentDomain;
                 }
-                else
+                else if (!loadForCompatibility)
                 {
                     attemptingChildAppDomain = true;
                     // assume the best, which is that it is in the same domain and
@@ -1369,8 +1683,6 @@ public class SWFLoader extends UIComponent
         }
 
         invalidateDisplayList();
-
-        return child;
     }
 
     /**
@@ -1396,11 +1708,15 @@ public class SWFLoader extends UIComponent
             {
                 try 
                 {
-                    flexContent = Loader(contentHolder).content is IFlexDisplayObject;
+                    if (Loader(contentHolder).content is IFlexDisplayObject)
+                        flexContent = true;
+                    else
+                        flexContent = swfBridge != null;
                 }
                 catch(e:Error)
                 {
-                    flexContent = false;
+                    // trace("contentLoader: " + e);
+                    flexContent = swfBridge != null;
                 }
             }
         }
@@ -1409,7 +1725,8 @@ public class SWFLoader extends UIComponent
         {
             if (tabChildren &&
                 contentHolder is Loader &&
-                Loader(contentHolder).content is DisplayObjectContainer)
+                (loaderInfo.contentType == "application/x-shockwave-flash" ||
+                Loader(contentHolder).content is DisplayObjectContainer))
             {
                 Loader(contentHolder).tabChildren = true;
                 DisplayObjectContainer(Loader(contentHolder).content).tabChildren = true;
@@ -1491,7 +1808,6 @@ public class SWFLoader extends UIComponent
 
             contentHolder.x = x;
             contentHolder.y = y;
-
         }
         else
         {
@@ -1507,13 +1823,31 @@ public class SWFLoader extends UIComponent
                 try
                 {
                     // don't resize contentHolder until after it is layed out
-                    if (holder.content.width > 0)
+                    if (getContentSize().x > 0)
                     {
-                        if (holder.content is IFlexDisplayObject)
+                        var sizeSet:Boolean = false;
+                        
+                        if (holder.contentLoaderInfo.contentType == "application/x-shockwave-flash")
                         {
-                            IFlexDisplayObject(holder.content).setActualSize(w, h);
+                            if (childAllowsParent)
+                            {
+                                if (holder.content is IFlexDisplayObject)
+                                {
+                                    IFlexDisplayObject(holder.content).setActualSize(w, h);
+                                    sizeSet = true;
+                                }
+                            }
+                            
+                            if (!sizeSet && swfBridge) 
+                            {
+                                swfBridge.dispatchEvent(new SWFBridgeRequest(SWFBridgeRequest.SET_ACTUAL_SIZE_REQUEST, 
+                                                        false, false, null,
+                                                        { width: w, height: h}));
+                                sizeSet = true;
+                            }                               
                         }
-                        else
+
+                        if (!sizeSet)
                         {
                             // Bug 142705 - we can't just set width and height here. If the SWF content
                             // does not fill the stage, the width/height of the content holder is NOT
@@ -1533,7 +1867,8 @@ public class SWFLoader extends UIComponent
                             }
                         }
                     }
-                    else if (!(holder.content is IFlexDisplayObject))
+                    else if (childAllowsParent &&
+                             !(holder.content is IFlexDisplayObject))
                     {
                         contentHolder.width = w;
                         contentHolder.height = h;
@@ -1544,6 +1879,11 @@ public class SWFLoader extends UIComponent
                     contentHolder.width = w;
                     contentHolder.height = h;
                 }
+                
+                if (!parentAllowsChild)
+                    contentHolder.scrollRect = new Rectangle(0, 0, 
+                                                             w / contentHolder.scaleX, 
+                                                             h / contentHolder.scaleY);
             }
             else
             {
@@ -1576,7 +1916,8 @@ public class SWFLoader extends UIComponent
         var h:Number = unscaledHeight;
 
         if ((contentHolderWidth > w) ||
-            (contentHolderHeight > h))
+            (contentHolderHeight > h) ||
+             !parentAllowsChild)
         {
             contentHolder.scrollRect = new Rectangle(0, 0, w, h);
         }
@@ -1587,6 +1928,15 @@ public class SWFLoader extends UIComponent
 
         contentHolder.x = (w - contentHolderWidth) * getHorizontalAlignValue();
         contentHolder.y = (h - contentHolderHeight) * getVerticalAlignValue();
+    }
+    
+    /**
+     *  @private
+     */
+    private function doSmoothBitmapContent():void
+    {
+    	if (content is Bitmap) 
+    		(content as Bitmap).smoothing = _smoothBitmapContent;
     }
 
     /**
@@ -1599,6 +1949,7 @@ public class SWFLoader extends UIComponent
         contentHolder.x = 0;
         contentHolder.y = 0;
     }
+
 
     /**
      *  @private
@@ -1631,7 +1982,39 @@ public class SWFLoader extends UIComponent
         // default = middle
         return 0.5;
     }
-
+    
+    /**
+     *  @private
+     *  
+     *  Dispatch an invalidate request to a parent application using
+     *  a sandbox bridge.
+     */     
+    private function dispatchInvalidateRequest(invalidateProperites:Boolean,
+                                               invalidateSize:Boolean,
+                                               invalidateDisplayList:Boolean):void
+    {
+        var sm:ISystemManager = systemManager;
+        if (!sm.useSWFBridge())
+            return;
+            
+        var bridge:IEventDispatcher = sm.swfBridgeGroup.parentBridge;
+        var flags:uint = 0;
+        
+        if (invalidateProperites)
+            flags |= InvalidateRequestData.PROPERTIES;
+        if (invalidateSize)
+            flags |= InvalidateRequestData.SIZE;
+        if (invalidateDisplayList)
+            flags |= InvalidateRequestData.DISPLAY_LIST;
+            
+        var request:SWFBridgeRequest = new SWFBridgeRequest(
+                                                    SWFBridgeRequest.INVALIDATE_REQUEST,
+                                                    false, false,
+                                                    bridge,
+                                                    flags);
+         bridge.dispatchEvent(request);
+    }
+    
     //--------------------------------------------------------------------------
     //
     //  Event handlers
@@ -1650,8 +2033,18 @@ public class SWFLoader extends UIComponent
             if (_autoLoad)
                 load(_source);
         }
+        }
+
+    /**
+     *  @private
+     */
+    private function addedToStageHandler(event:Event):void
+    {
+        systemManager.getSandboxRoot().addEventListener(InterManagerRequest.DRAG_MANAGER_REQUEST, 
+                mouseShieldHandler, false, 0, true);
     }
 
+    
     /**
      *  @private
      */
@@ -1671,6 +2064,10 @@ public class SWFLoader extends UIComponent
         dispatchEvent(event);
 
         contentLoaded();
+        
+        if (contentHolder is Loader) 
+            removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+
     }
 
     /**
@@ -1690,6 +2087,38 @@ public class SWFLoader extends UIComponent
     {
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
+        
+        // if we are loading a swf listen of a message if it ends up needing to
+        // use a sandbox bridge to communicate.
+                addInitSystemManagerCompleteListener(LoaderInfo(event.target).loader.contentLoaderInfo);
+    }
+
+
+        /**
+         * If we are loading a swf, listen for a message from the swf telling us it was loading
+         * into an application domain where it needs to use a sandbox bridge to communicate.
+         */
+        private function addInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void
+        {
+                if (loaderInfo.contentType == "application/x-shockwave-flash")
+                {
+                        var bridge:EventDispatcher = loaderInfo.sharedEvents;
+                        bridge.addEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
+                                                                  initSystemManagerCompleteEventHandler);
+                }
+        }
+        
+    /**
+     * Remove the listener after the swf is loaded.
+     */
+    private function removeInitSystemManagerCompleteListener(loaderInfo:LoaderInfo):void
+    {
+        if (loaderInfo.contentType == "application/x-shockwave-flash")
+        {
+            var bridge:EventDispatcher = loaderInfo.sharedEvents;                   
+            bridge.removeEventListener(SWFBridgeEvent.BRIDGE_NEW_APPLICATION, 
+                                       initSystemManagerCompleteEventHandler);
+        }
     }
 
     /**
@@ -1714,6 +2143,10 @@ public class SWFLoader extends UIComponent
         // a runtime error is displayed.
         if (hasEventListener(event.type))
             dispatchEvent(event);
+        
+        if (contentHolder is Loader)
+                        removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+
     }
 
     /**
@@ -1755,6 +2188,9 @@ public class SWFLoader extends UIComponent
 
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
+        
+        if (contentHolder is Loader)
+            removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
     }
 
     /**
@@ -1762,8 +2198,132 @@ public class SWFLoader extends UIComponent
      */
     private function contentLoaderInfo_unloadEventHandler(event:Event):void
     {
+        isContentLoaded = false;
+        
         // Redispatch the event from this SWFLoader.
         dispatchEvent(event);
+        
+        // remove the sandbox bridge if we had one.
+        if (_swfBridge)
+        {
+            _swfBridge.removeEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
+                                           invalidateRequestHandler);
+                                               
+            var sm:ISystemManager = systemManager;
+            sm.removeChildBridge(_swfBridge);
+            _swfBridge = null;
+        }
+
+        if (contentHolder is Loader)
+            removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+
+    }
+
+    /**
+     *      @private
+     * 
+     *      Message dispatched from System Manager. This gives us the child bridge
+     *  of the application we loaded.
+     */
+    private function initSystemManagerCompleteEventHandler(event:Event):void
+    {
+        var eObj:Object = Object(event);
+        
+        // make sure this is the child we created by checking the loader info.
+        if (contentHolder is Loader && 
+            eObj.data == Loader(contentHolder).contentLoaderInfo.sharedEvents)
+        {
+            _swfBridge = Loader(contentHolder).contentLoaderInfo.sharedEvents;
+            
+            var sm:ISystemManager = systemManager;
+            sm.addChildBridge(_swfBridge, this);
+            removeInitSystemManagerCompleteListener(Loader(contentHolder).contentLoaderInfo);
+            
+            _swfBridge.addEventListener(SWFBridgeRequest.INVALIDATE_REQUEST, 
+                                       invalidateRequestHandler);
+        }
+    }
+        
+    /**
+     *  @private
+     * 
+     *  Handle invalidate requests send from the child using the
+     *  sandbox bridge. 
+     * 
+     */  
+    private function invalidateRequestHandler(event:Event):void
+    {
+        if (event is SWFBridgeRequest)
+            return;
+
+        // handle request
+        var request:SWFBridgeRequest = SWFBridgeRequest.marshal(event);
+
+        var invalidateFlags:uint = uint(request.data);        
+
+        if (invalidateFlags & InvalidateRequestData.PROPERTIES)
+            invalidateProperties();
+
+        if (invalidateFlags & InvalidateRequestData.SIZE)
+            invalidateSize();
+
+        if (invalidateFlags & InvalidateRequestData.DISPLAY_LIST)
+            invalidateDisplayList();
+                    
+        // redispatch the request up the parent chain
+        dispatchInvalidateRequest(
+                (invalidateFlags & InvalidateRequestData.PROPERTIES) != 0,
+                (invalidateFlags & InvalidateRequestData.SIZE) != 0,
+                (invalidateFlags & InvalidateRequestData.DISPLAY_LIST) != 0);
+    }
+    
+
+    /**
+     *  @private
+     * 
+     *  Put up or takedown a mouseshield that covers the content
+     *  of the application we loaded.
+     */
+    private function mouseShieldHandler(event:Event):void
+    {
+        if (event["name"] != "mouseShield")
+            return;
+
+        if (!isContentLoaded || parentAllowsChild)
+            return;
+
+        if (event["value"])
+        {
+            if (!mouseShield)
+            {
+                mouseShield = new Sprite();
+                mouseShield.graphics.beginFill(0, 0);
+                mouseShield.graphics.drawRect(0, 0, 100, 100);
+                mouseShield.graphics.endFill();
+            }
+            if (!mouseShield.parent)
+                addChild(mouseShield);
+            sizeShield();
+        }
+        else
+        {
+            if (mouseShield && mouseShield.parent)
+                removeChild(mouseShield)
+        }
+    }
+    
+    /**
+     *      @private
+     * 
+     *      size the shield if needed
+     */
+    private function sizeShield():void
+    {
+        if (mouseShield && mouseShield.parent)
+        {
+            mouseShield.width = unscaledWidth;
+            mouseShield.height = unscaledHeight;
+        }
     }
 
     /**
@@ -1786,7 +2346,7 @@ public class SWFLoader extends UIComponent
         {
             // Ignore any errors trying to access the content
             // b/c we may cause a security violation trying to do it
-			// Also ignore if the sm doesn't have a regenerateStyleCache method
+                        // Also ignore if the sm doesn't have a regenerateStyleCache method
         }
     }
 
@@ -1810,10 +2370,65 @@ public class SWFLoader extends UIComponent
         {
             // Ignore any errors trying to access the content
             // b/c we may cause a security violation trying to do it
-			// Also ignore if the sm doesn't have a notifyStyleChangeInChildren method
+                        // Also ignore if the sm doesn't have a notifyStyleChangeInChildren method
         }
     }
+
+    /**
+     *  @private 
+     *  @throws Error - #2099 if the content has been unloaded 
+     */    
+    private function getContentSize():Point
+    {
+        var pt:Point = new Point();
+        
+        if (!contentHolder is Loader)
+            return pt;
+                
+        var holder:Loader = Loader(contentHolder);
+        if (holder.contentLoaderInfo.childAllowsParent)
+        {
+            pt.x = holder.content.width;
+            pt.y = holder.content.height;
+        }
+        else
+        {
+            var bridge:IEventDispatcher = swfBridge;
+            if (bridge)
+            {
+                var request:SWFBridgeRequest = new SWFBridgeRequest(SWFBridgeRequest.GET_SIZE_REQUEST);
+                bridge.dispatchEvent(request);
+                pt.x = request.data.width;
+                pt.y = request.data.height;
+            }
+        }
+
+        // don't return zero out of here otherwise the Loader's scale goes to zero
+        if (pt.x == 0)
+            pt.x = holder.contentLoaderInfo.width;
+        if (pt.y == 0)
+            pt.y = holder.contentLoaderInfo.height;
+
+        return pt;
+    }
     
+    /**
+     *  The default handler for the <code>MouseEvent.CLICK</code> event.
+     *
+     *  @param The event object.
+     */    
+    protected function clickHandler(event:MouseEvent):void
+    {
+        if (!enabled)
+        {
+            // Prevent the propagation of click from a disabled component.
+            // This is conceptually a higher-level event and
+            // developers will expect their click handlers not to fire
+            // if the Button is disabled.
+            event.stopImmediatePropagation();
+            return;
+        }
+    }      
 }
 
 }

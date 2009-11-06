@@ -1712,6 +1712,8 @@ public class Slider extends UIComponent
             n = thumbs.numChildren;
             for (i = n - 1; i >= 0; i--)
             {
+                // we don't need to bother to remove the event listeners here
+                // they will be removed by the garbage collector automatically
                 thumbs.removeChildAt(i);
             }
         }
@@ -2173,6 +2175,7 @@ public class Slider extends UIComponent
         
         var o:Point = new Point(relX, relY);
         var r:Point = localToGlobal(o);
+		r = dataTip.parent.globalToLocal(r);
 
         dataTip.x = r.x < 0 ? 0 : r.x;
         dataTip.y = r.y < 0 ? 0 : r.y;
@@ -2449,9 +2452,20 @@ public class Slider extends UIComponent
                 keyInteraction = false;
             }
             else
-            event.triggerEvent = new MouseEvent(MouseEvent.CLICK);
-            if (!isNaN(oldValue) && Math.abs(oldValue - value) > 0.002)
-                dispatchEvent(event);
+            {
+            	event.triggerEvent = new MouseEvent(MouseEvent.CLICK);
+            }
+            
+            if (!isNaN(oldValue))
+            {
+            	if (Math.abs(oldValue - value) > 0.002)
+            		dispatchEvent(event)
+            }
+            // Handle case of changing from NaN to a valid value
+            else if (!isNaN(value))	
+			{	
+            	dispatchEvent(event);
+			}
         }
 
         invalidateDisplayList();

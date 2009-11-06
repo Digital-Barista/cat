@@ -54,7 +54,9 @@ public class WSDLLoadEvent extends XMLLoadEvent
     public var wsdl:WSDL
 
     /**
-     * Returns a copy of this WSDLLoadEvent object.
+     *  Returns a copy of this WSDLLoadEvent object.
+     *
+     *  @return A copy of this WSDLLoadEvent object.
      */
     override public function clone():Event
     {
@@ -62,7 +64,9 @@ public class WSDLLoadEvent extends XMLLoadEvent
     }
 
     /**
-     * Returns a String representation of this WSDLLoadEvent object.
+     *  Returns a String representation of this WSDLLoadEvent object.
+     *
+     *  @return A String representation of this WSDLLoadEvent object.
      */
     override public function toString():String
     {

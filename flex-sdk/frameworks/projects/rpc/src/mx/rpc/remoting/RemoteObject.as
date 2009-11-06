@@ -13,8 +13,13 @@ package mx.rpc.remoting
 {
 
 import mx.core.mx_internal;
+import mx.messaging.Channel;
+import mx.messaging.ChannelSet;
+import mx.messaging.channels.AMFChannel;
+import mx.messaging.channels.SecureAMFChannel;
 import mx.rpc.AbstractOperation;
 import mx.rpc.AbstractService;
+import mx.rpc.mxml.Concurrency;
 
 use namespace mx_internal;
 
@@ -37,7 +42,9 @@ public dynamic class RemoteObject extends AbstractService
     {
         super(destination);
 
+        concurrency = Concurrency.MULTIPLE;
         makeObjectsBindable = true;
+        showBusyCursor = false;
     }
     
     //--------------------------------------------------------------------------
@@ -46,15 +53,15 @@ public dynamic class RemoteObject extends AbstractService
     // 
     //--------------------------------------------------------------------------
     
-    /**
-     *  @private
-     */
+    private var _concurrency:String;
+    
+    private var _endpoint:String;
+
     private var _source:String;
     
-    /**
-     *  @private
-     */
     private var _makeObjectsBindable:Boolean;
+
+    private var _showBusyCursor:Boolean;
 
     //--------------------------------------------------------------------------
     //
@@ -62,6 +69,68 @@ public dynamic class RemoteObject extends AbstractService
     // 
     //--------------------------------------------------------------------------
 
+    [Inspectable(enumeration="multiple,single,last", defaultValue="multiple", category="General")]
+   /**
+    * Value that indicates how to handle multiple calls to the same service. The default
+    * value is multiple. The following values are permitted:
+    * <ul>
+    * <li>multiple - Existing requests are not cancelled, and the developer is
+    * responsible for ensuring the consistency of returned data by carefully
+    * managing the event stream. This is the default.</li>
+    * <li>single - Making only one request at a time is allowed on the method; additional requests made 
+    * while a request is outstanding are immediately faulted on the client and are not sent to the server.</li>
+    * <li>last - Making a request causes the client to ignore a result or fault for any current outstanding request. 
+    * Only the result or fault for the most recent request will be dispatched on the client. 
+    * This may simplify event handling in the client application, but care should be taken to only use 
+    * this mode when results or faults for requests may be safely ignored.</li>
+    * </ul>
+    */
+    public function get concurrency():String
+    {
+        return _concurrency;
+    }
+
+    /**
+     *  @private
+     */
+    public function set concurrency(c:String):void
+    {
+        _concurrency = c;
+    }
+
+    
+	//----------------------------------
+	//  endpoint
+	//----------------------------------
+
+    [Inspectable(category="General")]
+    /**
+     * This property allows the developer to quickly specify an endpoint for a RemoteObject
+     * destination without referring to a services configuration file at compile time or programmatically creating 
+     * a ChannelSet. It also overrides an existing ChannelSet if one has been set for the RemoteObject service.
+     *
+     * <p>If the endpoint url starts with "https" a SecureAMFChannel will be used, otherwise an AMFChannel will 
+     * be used. Two special tokens, {server.name} and {server.port}, can be used in the endpoint url to specify
+     * that the channel should use the server name and port that was used to load the SWF. </p>
+     *
+     * <p><b>Note:</b> This property is required when creating AIR applications.</p>
+     */
+    public function get endpoint():String
+    {
+        return _endpoint;
+    }
+    
+    public function set endpoint(url:String):void
+    {
+        // If endpoint has changed, null out channelSet to force it
+        // to be re-initialized on the next Operation send
+        if (_endpoint != url || url == null)
+        {
+            _endpoint = url;
+            channelSet = null;
+        }
+    }
+    
 	//----------------------------------
 	//  makeObjectsBindable
 	//----------------------------------
@@ -82,6 +151,25 @@ public dynamic class RemoteObject extends AbstractService
     }
 
 	//----------------------------------
+	//  showBusyCursor
+	//----------------------------------
+
+    [Inspectable(defaultValue="false", category="General")]
+    /**
+    * If <code>true</code>, a busy cursor is displayed while a service is executing. The default
+    * value is <code>false</code>.
+    */
+    public function get showBusyCursor():Boolean
+    {
+        return _showBusyCursor;
+    }
+
+    public function set showBusyCursor(sbc:Boolean):void
+    {
+        _showBusyCursor = sbc;
+    }
+
+	//----------------------------------
 	//  source
 	//----------------------------------
 
@@ -99,6 +187,60 @@ public dynamic class RemoteObject extends AbstractService
     public function set source(s:String):void
     {
         _source = s;
+    }
+        
+    /**
+     * An optional function, primarily intended for framework developers who need to install
+     * a function to get called with the parameters passed to each remote object invocation.
+     * The function takes an array of parameters and returns the potentially altered array.
+     *
+     * The function definition should look like:
+     * <code>
+     *   function myParametersFunction(parameters:Array):Array
+     * </code>
+     */
+    public var convertParametersHandler:Function;
+
+    /**
+     * An optional function, primarily intended for framework developers who need to install
+     * a hook to process the results of an operation before notifying the result handlers.
+     *
+     * The function definition should look like:
+     * <code>
+     *   function myConvertResultsFunction(result:*, operation:AbstractOperation):*
+     * </code>
+     * 
+     * It is passed the result just after the makeObjectsBindable conversion has been done
+     * but before the result event is created.
+     */
+    public var convertResultHandler:Function;
+
+   //-------------------------------------------------------------------------
+
+   //
+   // Internal Methods
+   //
+   //-------------------------------------------------------------------------
+
+    /**
+     *@private
+     */
+    mx_internal function initEndpoint():void
+    {
+        if (endpoint != null)
+        {
+            var chan:Channel;
+            if (endpoint.indexOf("https") == 0)
+            {
+                chan = new SecureAMFChannel(null, endpoint);
+            }
+            else
+            {
+                chan = new AMFChannel(null, endpoint);
+            }
+            channelSet = new ChannelSet();
+            channelSet.addChannel(chan);
+        }
     }
 
     //--------------------------------------------------------------------------

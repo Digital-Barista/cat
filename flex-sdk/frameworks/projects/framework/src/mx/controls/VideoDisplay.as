@@ -1167,6 +1167,7 @@ public class VideoDisplay extends UIComponent
         {
             _source = value;
 
+            _playheadTime = NaN;
             sourceChanged = true;
 
             dispatchEvent(new Event("sourceChanged"));
@@ -1819,6 +1820,11 @@ public class VideoDisplay extends UIComponent
         // video has started playing.
         if (videoPlayer.state == VideoPlayer.PLAYING)
             resizeVideo();
+                       
+        // The NetConnection needs to be close on a connection error because at
+        // this point it can no longer connect to new urls.
+        if(event.state == VideoEvent.CONNECTION_ERROR)
+        	this.close();
 
         dispatchEvent(event.clone());
     }

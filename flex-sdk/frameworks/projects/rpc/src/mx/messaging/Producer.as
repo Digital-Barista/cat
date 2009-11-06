@@ -12,23 +12,11 @@
 package mx.messaging
 {
 
-import flash.errors.IllegalOperationError;
-import flash.events.TimerEvent;
-import flash.utils.Timer;
 import mx.core.mx_internal;
-import mx.logging.Log;
 import mx.events.PropertyChangeEvent;
-import mx.messaging.errors.InvalidDestinationError;
-import mx.messaging.errors.MessagingError;
-import mx.messaging.events.ChannelEvent;
-import mx.messaging.events.ChannelFaultEvent;
-import mx.messaging.events.MessageEvent;
-import mx.messaging.events.MessageFaultEvent;
+import mx.logging.Log;
 import mx.messaging.messages.AbstractMessage;
-import mx.messaging.messages.AcknowledgeMessage;
 import mx.messaging.messages.AsyncMessage;
-import mx.messaging.messages.CommandMessage;
-import mx.messaging.messages.ErrorMessage;
 import mx.messaging.messages.IMessage;
 
 use namespace mx_internal;
@@ -53,12 +41,23 @@ public class Producer extends AbstractProducer
 {
     //--------------------------------------------------------------------------
     //
+    // Static Constants
+    // 
+    //--------------------------------------------------------------------------
+
+    /**
+     *  The default message priority.
+     */
+    public static const DEFAULT_PRIORITY:int = 4;
+
+    //--------------------------------------------------------------------------
+    //
     // Constructor
     // 
     //--------------------------------------------------------------------------
 
     /**
-     *  Constructs a Producer.
+     *  Constructor.
      * 
      *  @example
      *  <pre>
@@ -73,12 +72,12 @@ public class Producer extends AbstractProducer
      *   }
      *   </pre>
      */
-	public function Producer()
-	{
-		super();
-	    _log = Log.getLogger("mx.messaging.Producer");
-		_agentType = "producer";
-	}
+    public function Producer()
+    {
+        super();
+        _log = Log.getLogger("mx.messaging.Producer");
+        _agentType = "producer";
+    }
 
     //--------------------------------------------------------------------------
     //
@@ -92,9 +91,9 @@ public class Producer extends AbstractProducer
     // 
     //--------------------------------------------------------------------------
 
-	//----------------------------------
-	//  subtopic
-	//----------------------------------	
+    //----------------------------------
+    //  subtopic
+    //----------------------------------    
 
     /**
      *  @private
@@ -143,6 +142,8 @@ public class Producer extends AbstractProducer
         if (subtopic.length > 0)
             message.headers[AsyncMessage.SUBTOPIC_HEADER] = subtopic;    
 
+        handlePriority(message);
+
         super.internalSend(message, waitForClientId);
     }
 
@@ -151,7 +152,31 @@ public class Producer extends AbstractProducer
     // Private Methods
     // 
     //--------------------------------------------------------------------------
-	
+
+    /**
+     *  @private
+     *  If the priority header has been set on the message, makes sure that the
+     *  priority value is within the valid range (0-9). If no priority header
+     *  has been set, tries to use Producer's priority level if one exists.
+     * 
+     */
+    private function handlePriority(message:IMessage):void
+    {
+        // If message priority is already set, make sure it's within range.
+        if (message.headers[AbstractMessage.PRIORITY_HEADER] != null)
+        {
+            var messagePriority:int = message.headers[AbstractMessage.PRIORITY_HEADER];
+            if (messagePriority < 0)
+                message.headers[AbstractMessage.PRIORITY_HEADER] = 0;
+            else if (messagePriority > 9)
+                message.headers[AbstractMessage.PRIORITY_HEADER] = 9;
+        }
+        // Otherwise, see if there's the default priority property is set.
+        else if (priority > -1)
+        {
+            message.headers[AbstractMessage.PRIORITY_HEADER] = priority;
+        }
+    }
 }
 
 }

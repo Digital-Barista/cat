@@ -240,6 +240,7 @@
 
 	<!-- rpc -->
     <component id="AMFChannel" class="mx.messaging.channels.AMFChannel"/>
+    <component id="CallResponder" class="mx.rpc.CallResponder"/>  
     <component id="ChannelSet" class="mx.messaging.ChannelSet"/>  
     <component id="Consumer" class="mx.messaging.Consumer"/>
     <component id="HTTPChannel" class="mx.messaging.channels.HTTPChannel"/>

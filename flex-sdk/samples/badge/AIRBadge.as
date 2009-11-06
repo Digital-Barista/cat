@@ -112,13 +112,13 @@ package {
 					break;
 				case "available" :
 					if (_appName && _appName.length > 0) {
-						root.statusMessage.htmlText = "<p align='center'><font color='#" + _messageColor + "'>In order to run " + _appName + ", this installer will also set up Adobe® AIR™.</font></p>";
+						root.statusMessage.htmlText = "<p align='center'><font color='#" + _messageColor + "'>In order to run " + _appName + ", this installer will also set up Adobe® AIR®.</font></p>";
 					} else {
-						root.statusMessage.htmlText = "<p align='center'><font color='#" + _messageColor + "'>In order to run this application, this installer will also set up Adobe® AIR™.</font></p>";
+						root.statusMessage.htmlText = "<p align='center'><font color='#" + _messageColor + "'>In order to run this application, this installer will also set up Adobe® AIR®.</font></p>";
 					}
 					break;
 				case "unavailable" :
-					root.statusMessage.htmlText = "<p align='center'><font color='#" + _messageColor + "'>Adobe® AIR™ is not available for your system.</font></p>";
+					root.statusMessage.htmlText = "<p align='center'><font color='#" + _messageColor + "'>Adobe® AIR® is not available for your system.</font></p>";
 					root.buttonBg_mc.enabled = false;
 					break;
 			}

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<application xmlns="http://ns.adobe.com/air/application/1.1">
+<application xmlns="http://ns.adobe.com/air/application/1.5.2">
 
 <!-- Adobe AIR Application Descriptor File Template.
 
 	Specifies parameters for identifying, installing, and launching AIR applications.
 
-	xmlns - The Adobe AIR namespace: http://ns.adobe.com/air/application/1.1
+	xmlns - The Adobe AIR namespace: http://ns.adobe.com/air/application/1.5.2
 			The last segment of the namespace specifies the version 
 			of the AIR runtime required for this application to run.
 			
@@ -36,7 +36,7 @@
 	<!-- Settings for the application's initial window. Required. -->
 	<initialWindow>
 		<!-- The main SWF or HTML file of the application. Required. -->
-		<!-- Note: In Flex Builder, the SWF reference is set automatically. -->
+		<!-- Note: In Flash Builder, the SWF reference is set automatically. -->
 		<content></content>
 		
 		<!-- The title of the main window. Optional. -->
@@ -82,7 +82,7 @@
 	<!-- The subpath of the standard default installation location to use. Optional. -->
 	<!-- <installFolder></installFolder> -->
 
-	<!-- The subpath of the Windows Start/Programs menu to use. Optional. -->
+	<!-- The subpath of the Programs menu to use. (Ignored on operating systems without a Programs menu.) Optional. -->
 	<!-- <programMenuFolder></programMenuFolder> -->
 
 	<!-- The icon the system uses for the application. For at least one resolution,
@@ -118,7 +118,7 @@
 			<!-- The description of the file type. Optional. -->
 			<!-- <description></description> -->
 			
-			<!-- The MIME type. Optional. -->
+			<!-- The MIME content type. -->
 			<!-- <contentType></contentType> -->
 			
 			<!-- The icon to display for the file type. Optional. -->

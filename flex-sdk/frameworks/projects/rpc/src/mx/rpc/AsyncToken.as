@@ -51,7 +51,7 @@ public dynamic class AsyncToken extends EventDispatcher
      *
      * @param message The message with which the token is associated.
      */
-    public function AsyncToken(message:IMessage)
+    public function AsyncToken(message:IMessage=null)
     {
         super();
         _message = message;
@@ -85,14 +85,14 @@ public dynamic class AsyncToken extends EventDispatcher
         _message = message;
     }
     
-	//----------------------------------
-	// responder
-	//----------------------------------
+    //----------------------------------
+    // responder
+    //----------------------------------
 
     /**
-	 *  @private
-	 */
-	private var _responders:Array;
+     *  @private
+     */
+    private var _responders:Array;
 
     /**
      * An array of IResponder handlers that will be called when
@@ -109,10 +109,10 @@ public dynamic class AsyncToken extends EventDispatcher
      * Note that this will not prevent the service or operation's 
      * <code>result</code> property from being assigned.
      */
-	public function get responders():Array
-	{
-		return _responders;
-	}
+    public function get responders():Array
+    {
+        return _responders;
+    }
     
     //----------------------------------
     // result
@@ -129,7 +129,7 @@ public dynamic class AsyncToken extends EventDispatcher
      */
     public function get result():Object
     {
-    	return _result;
+        return _result;
     }
 
     //--------------------------------------------------------------------------
@@ -138,22 +138,22 @@ public dynamic class AsyncToken extends EventDispatcher
     // 
     //--------------------------------------------------------------------------
     
-	/**
-	 *  <code>addResponder</code> adds a responder to an Array of responders. 
+    /**
+     *  Adds a responder to an Array of responders. 
      *  The object assigned to the responder parameter must implement
      *  <code>mx.rpc.IResponder</code>.
-	 *
-	 *  @param responder A handler which will be called when the asynchronous request completes.
-	 * 
-	 *  @see	mx.rpc.IResponder
+     *
+     *  @param responder A handler which will be called when the asynchronous request completes.
+     * 
+     *  @see mx.rpc.IResponder
      */
-	public function addResponder(responder:IResponder):void
-	{
-		if (_responders == null)
-			_responders = [];
+    public function addResponder(responder:IResponder):void
+    {
+        if (_responders == null)
+            _responders = [];
 
-		_responders.push(responder);
-	}
+        _responders.push(responder);
+    }
 
     /**
      * Determines if this token has at least one <code>mx.rpc.IResponder</code> registered.
@@ -169,9 +169,9 @@ public dynamic class AsyncToken extends EventDispatcher
      */
     mx_internal function applyFault(event:FaultEvent):void
     {
-		if (_responders != null)
-    	{
-    	    for (var i:uint = 0; i < _responders.length; i++)
+        if (_responders != null)
+        {
+            for (var i:uint = 0; i < _responders.length; i++)
             {
                 var responder:IResponder = _responders[i];
                 if (responder != null)
@@ -179,7 +179,7 @@ public dynamic class AsyncToken extends EventDispatcher
                     responder.fault(event);
                 }
             }
-    	}
+        }
     }
 
     /**
@@ -189,9 +189,9 @@ public dynamic class AsyncToken extends EventDispatcher
     {
         setResult(event.result);
 
-    	if (_responders != null)
-    	{
-    	    for (var i:uint = 0; i < _responders.length; i++)
+        if (_responders != null)
+        {
+            for (var i:uint = 0; i < _responders.length; i++)
             {
                 var responder:IResponder = _responders[i];
                 if (responder != null)
@@ -199,7 +199,7 @@ public dynamic class AsyncToken extends EventDispatcher
                     responder.result(event);
                 }
             }
-    	}
+        }
     }
 
     /**
@@ -212,7 +212,7 @@ public dynamic class AsyncToken extends EventDispatcher
             var event:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(this, "result", _result, newResult);
             _result = newResult;
             dispatchEvent(event);
-    	}
+        }
     }
 }
 }

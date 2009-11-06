@@ -49,9 +49,13 @@ import mx.effects.Tween;
 import mx.events.CollectionEvent;
 import mx.events.CollectionEventKind;
 import mx.events.FlexEvent;
+import mx.events.FlexMouseEvent;
+import mx.events.InterManagerRequest;
 import mx.events.ListEvent;
 import mx.events.MenuEvent;
+import mx.events.SandboxMouseEvent;
 import mx.managers.IFocusManagerContainer;
+import mx.managers.ISystemManager;
 import mx.managers.PopUpManager;
 
 use namespace mx_internal;
@@ -575,6 +579,13 @@ public class Menu extends List implements IFocusManagerContainer
      *  Where to add this menu on the display list.
      */
     mx_internal var parentDisplayObject:DisplayObject;
+    
+    /**
+     *  @private
+     *  Whether the menu was opened from the left or the right.
+     *  This really only applies to submenus and helps with cascading submenus.
+     */
+    private var isDirectionLeft:Boolean = false;
 
     // the anchor is the row in the parent menu that opened to be this menu
     // or the row in this menu that opened to be a submenu
@@ -1375,7 +1386,7 @@ public class Menu extends List implements IFocusManagerContainer
      * 
      *  The x and y arguments of the <code>show()</code> method specify the 
      *  coordinates of the upper-left corner of the Menu control relative to the 
-     *  parent application, which is not necessarily the direct parent of the 
+     *  sandbox root, which is not necessarily the direct parent of the 
      *  Menu control. 
      * 
      *  For example, if the Menu control is in an HBox container which is 
@@ -1384,6 +1395,7 @@ public class Menu extends List implements IFocusManagerContainer
      *
      *  @param x Horizontal location of the Menu control's upper-left 
      *  corner (optional).
+     * 
      *  @param y Vertical location of the Menu control's upper-left 
      *  corner (optional).
      */
@@ -1401,7 +1413,7 @@ public class Menu extends List implements IFocusManagerContainer
         if (visible)
             return;
 
-        if (parentDisplayObject && parent != parentDisplayObject)
+        if (parentDisplayObject && (!parent || !parent.contains(parentDisplayObject)))
         {
             PopUpManager.addPopUp(this, parentDisplayObject, false);
             addEventListener(MenuEvent.MENU_HIDE, menuHideHandler, false, EventPriority.DEFAULT_HANDLER);
@@ -1423,15 +1435,32 @@ public class Menu extends List implements IFocusManagerContainer
             y = Number(yShow);
 
         // Adjust for menus that extend out of bounds
+        var sm:ISystemManager = systemManager.topLevelSystemManager;
+        var sbRoot:DisplayObject = sm.getSandboxRoot();
         if (this != getRootMenu())
         {
             // do x
-            var shift:Number = x + width - screen.width;
+            var screen:Rectangle;
+            var pt:Point = new Point(x, y);
+            pt = sbRoot.localToGlobal(pt);
+    
+            if (sm != sbRoot)
+            {
+                var request:InterManagerRequest = new InterManagerRequest(InterManagerRequest.SYSTEM_MANAGER_REQUEST, 
+                                        false, false,
+                                        "getVisibleApplicationRect"); 
+                sbRoot.dispatchEvent(request);
+                screen = Rectangle(request.value);
+            }
+            else
+                screen = sm.getVisibleApplicationRect();
+                
+            var shift:Number = pt.x + width - screen.right;
             if (shift > 0)
                 x = Math.max(x - shift, 0);
                 
             // now do y
-            shift = y + height - screen.height;
+            shift = pt.y + height - screen.bottom;
             if (shift > 0)
                 y = Math.max(y - shift, 0);
         }
@@ -1471,7 +1500,8 @@ public class Menu extends List implements IFocusManagerContainer
         supposedToLoseFocus = true;
         
         // If the user clicks outside the menu, then hide the menu
-        systemManager.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownOutsideHandler, false, 0, true);
+        sbRoot.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownOutsideHandler, false, 0, true);
+        addEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE, mouseDownOutsideHandler, false, 0, true);
     }
 
     /**
@@ -1517,8 +1547,9 @@ public class Menu extends List implements IFocusManagerContainer
 
             // Now that the menu is no longer visible, it doesn't need
             // to listen to mouseDown events anymore.
-            systemManager.removeEventListener(MouseEvent.MOUSE_DOWN,
-                                                   mouseDownOutsideHandler);
+            var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+            sbRoot.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDownOutsideHandler);
+            removeEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE, mouseDownOutsideHandler);
 
             // Fire an event
             var menuEvent:MenuEvent = new MenuEvent(MenuEvent.MENU_HIDE);
@@ -1575,9 +1606,15 @@ public class Menu extends List implements IFocusManagerContainer
     /**
      *  @private
      */
-    private function mouseDownOutsideHandler(event:MouseEvent):void
+    private function mouseDownOutsideHandler(event:Event):void
     {
-        if (!isMouseOverMenu(event) && !isMouseOverMenuBarItem(event))
+        if (event is MouseEvent)
+        {
+            var mouseEvent:MouseEvent = MouseEvent(event);
+            if (!isMouseOverMenu(mouseEvent) && !isMouseOverMenuBarItem(mouseEvent))
+                hideAllMenus();
+        }
+        else if (event is SandboxMouseEvent)
             hideAllMenus();
     }
 
@@ -1593,6 +1630,7 @@ public class Menu extends List implements IFocusManagerContainer
         var menu:Menu = Menu(event.target);
         if (!event.isDefaultPrevented() && event.menu == menu)
         {
+            menu.supposedToLoseFocus = true;
             PopUpManager.removePopUp(menu);
             menu.removeEventListener(MenuEvent.MENU_HIDE, menuHideHandler);
         }
@@ -1745,6 +1783,8 @@ public class Menu extends List implements IFocusManagerContainer
         if (row && row.data)
             item = row.data;
 
+        isPressed = event.buttonDown;
+        
         if (row && row != anchorRow)
         {
             if (anchorRow)
@@ -1809,6 +1849,17 @@ public class Menu extends List implements IFocusManagerContainer
         if (row)
         {
             drawItem(row, false, Boolean(item && _dataDescriptor.isEnabled(item)));
+            
+            if (isPressed)
+            {
+                if (item && _dataDescriptor.isEnabled(item))
+                {
+                    if (!_dataDescriptor.isBranch(item))
+                        selectItem(row, event.shiftKey, event.ctrlKey);
+                    else
+                        clearSelected();
+                }
+            }
             
             if (item && _dataDescriptor.isEnabled(item))
             {
@@ -2091,10 +2142,10 @@ public class Menu extends List implements IFocusManagerContainer
     mx_internal function openSubMenu(row:IListItemRenderer):void
     {
         supposedToLoseFocus = true;
-
+        
         var r:Menu = getRootMenu();
         var menu:Menu;
-
+        
         // check to see if the menu exists, if not create it
         if (!IMenuItemRenderer(row).menu)
         {
@@ -2112,7 +2163,7 @@ public class Menu extends List implements IFocusManagerContainer
             menu.rowHeight = r.rowHeight;
             menu.scaleY = r.scaleY;
             menu.scaleX = r.scaleX;
-
+            
             // if there's data and it has children then add the items
             if (row.data && 
                 _dataDescriptor.isBranch(row.data) &&
@@ -2122,7 +2173,7 @@ public class Menu extends List implements IFocusManagerContainer
             }
             menu.sourceMenuBar = sourceMenuBar;
             menu.sourceMenuBarItem = sourceMenuBarItem;
-
+            
             IMenuItemRenderer(row).menu = menu;
             PopUpManager.addPopUp(menu, r, false);
         }
@@ -2130,14 +2181,63 @@ public class Menu extends List implements IFocusManagerContainer
         {
             menu = IMenuItemRenderer(row).menu;
         }
-
+        
         var _do:DisplayObject = DisplayObject(row);
-        var pt:Point = new Point(0,0);
-        pt = _do.localToGlobal(pt);
+        var sandBoxRootPoint:Point = new Point(0,0);
+        sandBoxRootPoint = _do.localToGlobal(sandBoxRootPoint);
         // when loadMovied, you may not be in global coordinates
         if (_do.root)   //verify this is sufficient
-            pt = _do.root.globalToLocal(pt);
-        menu.show(pt.x + row.width, pt.y);
+            sandBoxRootPoint = _do.root.globalToLocal(sandBoxRootPoint);
+        
+        // showX, showY are in sandbox root coordinates
+        var showY:Number = sandBoxRootPoint.y;
+        var showX:Number;
+        if (!isDirectionLeft)
+            showX = sandBoxRootPoint.x + row.width;
+        else
+            showX = sandBoxRootPoint.x - menu.getExplicitOrMeasuredWidth();
+        
+        // convert to global coordinates to compare with getVisibleApplicationRect().
+        // the screen is the visible coordinates of our sandbox (written in global coordinates)
+        var screen:Rectangle = systemManager.getVisibleApplicationRect();
+        var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+        
+        var screenPoint:Point = sbRoot.localToGlobal(new Point(showX, showY));
+        
+        // do x
+        var shift:Number = screenPoint.x + menu.getExplicitOrMeasuredWidth() - screen.right;
+        if (shift > 0 || screenPoint.x < screen.x)
+        {
+            // if we want to ensure our parent's visible, let's 
+            // modify the shift so that we're not just on-screen
+            // but we're also shifted away from our parent.
+            var shiftForParent:Number = getExplicitOrMeasuredWidth() + menu.getExplicitOrMeasuredWidth();
+            
+            // if was going left, shift to right.  otherwise, shift to left
+            if (isDirectionLeft)
+                shiftForParent *= -1;
+            
+            showX = Math.max(showX - shiftForParent, 0);
+            
+            // now make sure we're still on-screen again
+            screenPoint = new Point(showX, showY);
+            screenPoint = sbRoot.localToGlobal(screenPoint);
+            
+            // only shift if greater our position + width > width of screen
+            shift = Math.max(0, screenPoint.x + width - screen.right);
+            
+            showX = Math.max(showX - shift, 0);
+        }
+        
+        menu.isDirectionLeft = this.x > showX;
+        
+        // now do y
+        shift = screenPoint.y + height - screen.bottom;
+        if (shift > 0 || screenPoint.y < screen.y)
+            showY = Math.max(showY - shift, 0);
+        
+        menu.show(showX, showY);
+        
         subMenu = menu;
         clearInterval(openSubMenuTimer);
         openSubMenuTimer = 0;

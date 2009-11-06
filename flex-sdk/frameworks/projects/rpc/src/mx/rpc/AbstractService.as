@@ -55,8 +55,8 @@ use namespace mx_internal;
 [Bindable(event="operationsChange")]
 
 /**
- * The AbstractService class is the base class for the WebService and
- * RemoteObject classes. This class does the work of creating Operations
+ * The AbstractService class is the base class for the HTTPMultiService, WebService, 
+ * and RemoteObject classes. This class does the work of creating Operations
  * which do the actual execution of remote procedure calls.
  */
 public dynamic class AbstractService extends Proxy implements IEventDispatcher
@@ -79,7 +79,10 @@ public dynamic class AbstractService extends Proxy implements IEventDispatcher
         asyncRequest = new AsyncRequest();
 
         if (destination)
+        {
             this.destination = destination;
+            asyncRequest.destination = destination;
+        }
 
         _operations = {};
     }
@@ -148,6 +151,48 @@ public dynamic class AbstractService extends Proxy implements IEventDispatcher
         asyncRequest.destination = name;
     }
 
+
+    //----------------------------------
+    //  managers
+    //----------------------------------
+
+    private var _managers:Array;
+
+    /**
+     * The managers property stores a list of data managers which modify the
+     * behavior of this service.  You can use this hook to define one or more
+     * manager components associated with this service.  When this property is set,
+     * if the managers have a property called "service" that property is set to 
+     * the value of this service.  When this service is initialized, we also call
+     * the initialize method on any manager components.
+     */
+    public function get managers():Array
+    {
+        return _managers;
+    }
+
+    public function set managers(mgrs:Array):void
+    {
+        if (_managers != null)
+        {
+            for (var i:int = 0; i < _managers.length; i++)
+            {
+                var mgr:Object = _managers[i];
+                if (mgr.hasOwnProperty("service"))
+                    mgr.service = null;
+            }
+        }
+        _managers = mgrs;
+        for (i = 0; i < mgrs.length; i++)
+        {
+            mgr = _managers[i];
+            if (mgr.hasOwnProperty("service"))
+                mgr.service = this;
+            if (_initialized && mgr.hasOwnProperty("initialize"))
+                mgr.initialize();
+        }
+    }
+
     //----------------------------------
     //  operations
     //----------------------------------
@@ -182,6 +227,7 @@ public dynamic class AbstractService extends Proxy implements IEventDispatcher
             op.asyncRequest = asyncRequest;
         }
         _operations = ops;
+        dispatchEvent(new flash.events.Event("operationsChange"));
     }
 
     //----------------------------------
@@ -259,6 +305,23 @@ public dynamic class AbstractService extends Proxy implements IEventDispatcher
     public function willTrigger(type:String):Boolean
     {
         return eventDispatcher.willTrigger(type);
+    }
+
+    /**
+     *  Called to initialize the service.
+     */
+    public function initialize():void
+    {
+        if (!_initialized && _managers != null)
+        {
+            for (var i:int = 0; i < _managers.length; i++)
+            {
+                var mgr:Object = _managers[i];
+                if (mgr.hasOwnProperty("initialize"))
+                    mgr.initialize();
+            }
+            _initialized = true;
+        }
     }
 
     //---------------------------------
@@ -393,6 +456,11 @@ public dynamic class AbstractService extends Proxy implements IEventDispatcher
      * if you're connected over the my-rtmp channel and you log out using one
      * of your RPC components, anything that was connected over the same
      * ChannelSet is logged out.
+     *
+     *  <p><b>Note:</b> Adobe recommends that you use the mx.messaging.ChannelSet.logout() method
+     *  rather than this method. </p>
+     *
+     *  @see mx.messaging.ChannelSet#logout()   
      */
     public function logout():void
     {
@@ -404,8 +472,8 @@ public dynamic class AbstractService extends Proxy implements IEventDispatcher
      * accessing a remote, third-party endpoint such as a web service through a
      * proxy or a remote object through a custom adapter when using Data Services on the server side.
      *
-     * @param remoteUsername the username to pass to the remote endpoint
-     * @param remotePassword the password to pass to the remote endpoint
+     * @param remoteUsername The username to pass to the remote endpoint
+     * @param remotePassword The password to pass to the remote endpoint
      * @param charset The character set encoding to use while encoding the
      * remote credentials. The default is null, which implies the legacy charset
      * of ISO-Latin-1. The only other supported charset is &quot;UTF-8&quot;.
@@ -461,6 +529,7 @@ public dynamic class AbstractService extends Proxy implements IEventDispatcher
     mx_internal var _availableChannelIds:Array;
     mx_internal var asyncRequest:AsyncRequest;
     private var eventDispatcher:EventDispatcher;
+    private var _initialized:Boolean = false;
 }
 
 }

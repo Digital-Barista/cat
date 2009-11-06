@@ -57,7 +57,9 @@ public class XMLLoadEvent extends Event
     public var location:String;
 
     /**
-     * Returns a copy of this XMLLoadEvent object.
+     *  Returns a copy of this XMLLoadEvent object.
+     *
+     *  @return A copy of this XMLLoadEvent object.
      */
     override public function clone():Event
     {
@@ -65,7 +67,9 @@ public class XMLLoadEvent extends Event
     }
 
     /**
-     * Returns a String representation of this XMLLoadEvent object.
+     *  Returns a String representation of this XMLLoadEvent object.
+     *
+     *  @return A String representation of this XMLLoadEvent object.
      */
     override public function toString():String
     {

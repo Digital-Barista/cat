@@ -14,7 +14,7 @@
 <flex-config>
     <!-- Specifies the minimum player version that will run the compiled SWF. -->
     <!-- 9.0.124 is the April 2008 security release -->
-    <target-player>10.0.0</target-player>
+    <target-player>9.0.124</target-player>
 
    <compiler>
 
@@ -318,9 +318,9 @@
    <!-- runtime-shared-library-path: specifies a SWC or directory to link against and an RSL URL to load with optional failover URLs -->
    <runtime-shared-library-path>
       <path-element>libs/framework.swc</path-element>
-      <rsl-url>framework_3.1.0.2710.swz</rsl-url>
+      <rsl-url>framework_3.4.0.9271.swz</rsl-url>
       <policy-file-url></policy-file-url>
-      <rsl-url>framework_3.1.0.2710.swf</rsl-url>
+      <rsl-url>framework_3.4.0.9271.swf</rsl-url>
       <policy-file-url></policy-file-url>
    </runtime-shared-library-path>
    <!-- static-link-runtime-shared-libraries: statically link the libraries specified by the -runtime-shared-libraries-path option.-->
@@ -344,13 +344,7 @@
       <creator>unknown</creator>
       <language>EN</language>
    </metadata>
-   
-	<licenses>
-      <license>
-         <product>flexbuilder3</product>
-         <serial-number>137742655434033807335392</serial-number>
-      </license>
-   </licenses>
+
    <!-- licenses: specifies a list of product and serial number pairs. -->
    <!-- not set -->
    <!--

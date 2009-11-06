@@ -179,6 +179,43 @@ public class AbstractProducer extends MessageAgent
     }   
     
     //----------------------------------
+    //  priority
+    //----------------------------------
+
+    /**
+     *  @private
+     */
+    private var _priority:int = -1;
+
+    [Bindable(event="propertyChange")]
+    
+    /**
+     *  The default message priority for the messages sent by the Producer. The
+     *  valid values are 0 to 9 (0 being lowest) and -1 means that the Producer
+     *  does not have a priority set. Note that if the message already has a 
+     *  priority defined, that takes precedence over Producer's priority.
+     */
+    public function get priority():int
+    {
+        return _priority;
+    }
+    
+    /**
+     *  @private
+     */
+    public function set priority(value:int):void
+    {
+        if (_priority != value)
+        {
+            value = value < 0? 0 : value > 9? 9 : value;
+
+            var event:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(this, "priority", _priority, value);
+            _priority = value;
+            dispatchEvent(event);
+        }  
+    }
+
+    //----------------------------------
     //  reconnectAttempts
     //----------------------------------
     

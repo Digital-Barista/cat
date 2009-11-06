@@ -12,6 +12,7 @@
 package mx.modules 
 {
 
+import flash.utils.ByteArray;
 import mx.core.IFlexModuleFactory;
 
 /**
@@ -90,6 +91,7 @@ import flash.system.ApplicationDomain;
 import flash.system.LoaderContext;
 import flash.system.Security;
 import flash.system.SecurityDomain;
+import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.getDefinitionByName;
 import flash.utils.getQualifiedClassName;
@@ -249,6 +251,7 @@ class ModuleInfo extends EventDispatcher
      */
     private var numReferences:int = 0;
 
+
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -391,7 +394,8 @@ class ModuleInfo extends EventDispatcher
      *  @private
      */
     public function load(applicationDomain:ApplicationDomain = null,
-                         securityDomain:SecurityDomain = null):void
+                         securityDomain:SecurityDomain = null,
+                         bytes:ByteArray = null):void
     {
         if (_loaded)
             return;
@@ -400,6 +404,14 @@ class ModuleInfo extends EventDispatcher
 
         limbo = null;
 
+        // If bytes are supplied, then load the bytes instead of loading
+        // from the url.
+        if (bytes)
+        {
+            loadBytes(applicationDomain, bytes);
+            return;
+        }
+    
         if (_url.indexOf("published://") == 0)
             return;
 
@@ -429,6 +441,36 @@ class ModuleInfo extends EventDispatcher
             SecurityErrorEvent.SECURITY_ERROR, errorHandler);
 
         loader.load(r, c);
+    }
+
+    /**
+     *  @private
+     */
+    private function loadBytes(applicationDomain:ApplicationDomain, bytes:ByteArray):void
+    {
+        var c:LoaderContext = new LoaderContext();
+        c.applicationDomain =
+            applicationDomain ?
+            applicationDomain :
+            new ApplicationDomain(ApplicationDomain.currentDomain);
+
+        // If the AIR flag is available then set it to true so we can
+        // load the module without a security error.
+        if ("allowLoadBytesCodeExecution" in c)
+            c["allowLoadBytesCodeExecution"] = true;
+        
+        loader = new Loader();
+
+        loader.contentLoaderInfo.addEventListener(
+            Event.INIT, initHandler);
+        loader.contentLoaderInfo.addEventListener(
+            Event.COMPLETE, completeHandler);
+        loader.contentLoaderInfo.addEventListener(
+            IOErrorEvent.IO_ERROR, errorHandler);
+        loader.contentLoaderInfo.addEventListener(
+            SecurityErrorEvent.SECURITY_ERROR, errorHandler);
+
+        loader.loadBytes(bytes, c);
     }
 
     /**
@@ -507,7 +549,10 @@ class ModuleInfo extends EventDispatcher
             try
             {
                 if (loader.content)
+                {
                     loader.content.removeEventListener("ready", readyHandler);
+                    loader.content.removeEventListener("error", moduleErrorHandler);
+                }
             }
             catch(error:Error)
             {
@@ -633,6 +678,7 @@ class ModuleInfo extends EventDispatcher
         }
 
         loader.content.addEventListener("ready", readyHandler);
+        loader.content.addEventListener("error", moduleErrorHandler);
 
         try
         {
@@ -701,10 +747,37 @@ class ModuleInfo extends EventDispatcher
 
         factoryInfo.bytesTotal = loader.contentLoaderInfo.bytesTotal;
 
+        var moduleEvent:ModuleEvent = new ModuleEvent(ModuleEvent.READY);
+        moduleEvent.bytesLoaded = loader.contentLoaderInfo.bytesLoaded;
+        moduleEvent.bytesTotal = loader.contentLoaderInfo.bytesTotal;
+
         clearLoader();
 
-        dispatchEvent(new ModuleEvent(ModuleEvent.READY));
+        dispatchEvent(moduleEvent);
     }
+    
+    /**
+     *  @private
+     */
+    public function moduleErrorHandler(event:Event):void
+    {
+        //trace("Error: child load of " + _url + ");
+
+        _ready = true;
+
+        factoryInfo.bytesTotal = loader.contentLoaderInfo.bytesTotal;
+
+        clearLoader();
+
+        var errorEvent:ModuleEvent;
+        
+        if (event is ModuleEvent)
+            errorEvent = ModuleEvent(event);
+        else
+            errorEvent = new ModuleEvent(ModuleEvent.ERROR);
+             
+        dispatchEvent(errorEvent);
+    }    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -941,7 +1014,8 @@ class ModuleInfoProxy extends EventDispatcher implements IModuleInfo
      *  @private
      */
     public function load(applicationDomain:ApplicationDomain = null,
-                         securityDomain:SecurityDomain = null):void
+                         securityDomain:SecurityDomain = null,
+                         bytes:ByteArray = null):void
     {
         info.resurrect();
 
@@ -983,7 +1057,7 @@ class ModuleInfoProxy extends EventDispatcher implements IModuleInfo
         }
         else
         {
-            info.load(applicationDomain, securityDomain);
+            info.load(applicationDomain, securityDomain, bytes);
         }
     }
 

@@ -182,7 +182,11 @@
 			<source-path path-element="${utilities.dir}/src"/>
 			<source-path path-element="${framework.dir}/src"/>
 			<source-path path-element="${framework.dir}/bundles/{locale}/src"/>
-			<library-path/>
+			<library-path dir="${basedir}/libs">
+                <include name="FlexContentHolder.swc"/>
+            </library-path>
+			<external-library-path dir="${basedir}/libs/player/9" includes="playerglobal.swc"/>
+			<external-library-path dir="${basedir}/libs" includes="framework.swc"/>
 		</compc>
 	</target>
 
