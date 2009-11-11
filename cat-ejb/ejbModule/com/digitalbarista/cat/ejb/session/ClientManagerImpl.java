@@ -59,6 +59,8 @@ import com.digitalbarista.cat.exception.FlexException;
 @Interceptors(AuditInterceptor.class)
 public class ClientManagerImpl implements ClientManager {
 
+	public static final Integer DEFAULT_MAX_KEYWORDS = 5;
+	
 	@Resource
 	private SessionContext ctx; //Used to flag rollbacks.
 	
@@ -217,9 +219,37 @@ public class ClientManagerImpl implements ClientManager {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
 		
+		// Check that the keyword is available
 		if (!checkKeywordAvailability(kwd))
 			throw new FlexException("The keyword you have entered is currently unavailable");
+		
+		// Make sure adding this keyword won't put the client over their limit
+		if (kwd.getPrimaryKey() == null)
+		{
+			ClientDO client = em.find(ClientDO.class, kwd.getClientId());
+			EntryPointDO entryPoint = em.find(EntryPointDO.class, kwd.getEntryPointId());
+			Integer max = DEFAULT_MAX_KEYWORDS;
+			for (KeywordLimitDO limit : client.getKeywordLimits())
+			{
+				if (limit.getEntryType().equals(entryPoint.getType()))
+				{
+					max = limit.getMaxKeywords();
+					break;
+				}
+			}
 			
+			// Find current count for given entry point type
+			Criteria crit = session.createCriteria(KeywordDO.class);
+			crit.add(Restrictions.eq("client.primaryKey", kwd.getClientId()));
+			crit.createAlias("entryPoint", "entryPoint");
+			crit.add(Restrictions.eq("entryPoint.type", entryPoint.getType()));
+			crit.setProjection(Projections.rowCount());
+			Integer currentCount = (Integer)crit.uniqueResult();
+			if (currentCount >= max)
+				throw new FlexException("You have already reached your maximum " + max + 
+						" keywords for " + entryPoint.getType() + " accounts.");
+		}
+		
 		KeywordDO kwdData=null;
 		if(kwd.getPrimaryKey()!=null)
 			kwdData = em.find(KeywordDO.class, kwd.getPrimaryKey());

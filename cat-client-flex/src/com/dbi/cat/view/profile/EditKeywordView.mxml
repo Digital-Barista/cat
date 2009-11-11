@@ -7,6 +7,7 @@
 	creationComplete="init()" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.controls.CustomMessage;
 			import com.dbi.cat.constants.KeywordAvailableCheckState;
 			import com.dbi.cat.common.vo.KeywordLimitVO;
 			import com.dbi.cat.common.constants.KeywordConstants;
@@ -66,7 +67,7 @@
 				for each (var k:KeywordVO in keywords)
 				{
 					if (k.clientId == Client.selectedItem.clientId &&
-					    k.entryPointId == Address.selectedItem.primaryKey)
+					    k.incomingAddressType == Address.selectedItem.type)
 						count++;
 				}
 				return count;
@@ -100,11 +101,19 @@
 				if (currentKeyword.keyword != null &&
 					currentKeyword.keyword.length > 0)
 				{
-					var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_KEYWORD);
-					currentKeyword.clientId = Client.selectedItem.clientId;
-					currentKeyword.entryPointId = Address.selectedItem.primaryKey;
-					event.keyword = currentKeyword;
-					dispatchEvent(event);
+					if (usedCount >= availableCount)
+					{
+						CustomMessage.show("You have already reached your maximum " + availableCount + 
+						" keywords for " + Address.selectedItem.type + " accounts.");
+					}
+					else
+					{
+						var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_KEYWORD);
+						currentKeyword.clientId = Client.selectedItem.clientId;
+						currentKeyword.entryPointId = Address.selectedItem.primaryKey;
+						event.keyword = currentKeyword;
+						dispatchEvent(event);
+					}
 				}
 			}
 			private function checkAvailability():void

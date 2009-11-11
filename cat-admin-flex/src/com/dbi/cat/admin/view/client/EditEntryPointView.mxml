@@ -3,7 +3,7 @@
 	width="400" height="260"
 	showCloseButton="true"
 	close="onClose()" xmlns:controls="com.dbi.controls.*"
-	title="{isNaN(currentEntryPointDefinition.primaryKey) ? 'Create Entry Point' : 'Edit Entry Point'}">
+	title="{currentEntryPointDefinition.primaryKey == null ? 'Create Entry Point' : 'Edit Entry Point'}">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryRestrictionType;

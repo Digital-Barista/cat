@@ -5,7 +5,7 @@
 	width="400" height="470"
 	showCloseButton="true"
 	close="onClose()" xmlns:controls="com.dbi.controls.*"
-	title="{isNaN(currentEntryPointDefinition.primaryKey) ? 'Create Account' : 'Edit Account'}" >
+	title="{currentEntryPointDefinition.primaryKey == null ? 'Create Account' : 'Edit Account'}" >
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
@@ -77,7 +77,7 @@
 		]]>
 	</mx:Script>
 	<controls:AdvancedComboBox id="EntryPointCombo"
-		enabled="{isNaN(currentEntryPointDefinition.primaryKey)}"
+		enabled="{currentEntryPointDefinition.primaryKey == null}"
 		dataProvider="{entryPointTypes}"
 		change="changeView()"
 		selectedBindingValue="{currentEntryPointDefinition.type}" y="8" x="130"/>
