@@ -15,7 +15,7 @@ package com.dbi.cat.common.vo
 			super();
 		}
 		
-		public var primaryKey:Number;
+		public var primaryKey:String;
 		public var description:String;
 		public var value:String;
 		public var type:String;
