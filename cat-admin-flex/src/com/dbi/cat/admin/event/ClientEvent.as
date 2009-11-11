@@ -3,6 +3,7 @@ package com.dbi.cat.admin.event
 	import com.dbi.cat.common.vo.ClientVO;
 	import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 	import com.dbi.cat.common.vo.KeywordVO;
+	import com.dbi.cat.common.vo.ReservedKeywordVO;
 	
 	import flash.events.Event;
 
@@ -31,9 +32,15 @@ package com.dbi.cat.admin.event
 		public static const CLOSE_EDIT_KEYWORD:String = "closeEditKeywordEvent";
 		public static const LIST_KEYWORDS:String = "listKeywordsEvent";
 		
+		
+		public static const LIST_RESERVED_KEYWORD:String = "listReservedKeywordEvent";
+		public static const SAVE_RESERVED_KEYWORD:String = "saveReservedKeywordEvent";
+		public static const DELETE_RESERVED_KEYWORD:String = "deleteReservedkeywordEvent";
+		
 		public var client:ClientVO;
 		public var entryPoint:EntryPointDefinitionVO;
 		public var keyword:KeywordVO;
+		public var reservedKeyword:ReservedKeywordVO;
 		
 		public function ClientEvent(type:String)
 		{

@@ -131,6 +131,22 @@
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CHECK_KEYWORD_AVAILABILITY}">
+		<MethodInvoker
+			generator="{ClientManager}"
+			method="startKeywordAvailabilityCheck" />
+		<RemoteObjectInvoker destination="clientManager"
+			method="checkKeywordAvailability"
+			arguments="{event.keyword}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{ClientManager}"
+					method="showKeywordAvailability"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 	
 	<!-- Entry point events -->
 	<EventHandlers type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}">

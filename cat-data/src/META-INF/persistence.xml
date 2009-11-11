@@ -26,6 +26,8 @@
 		<class>com.digitalbarista.cat.data.CampaignEntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CampaignDO</class>
 		<class>com.digitalbarista.cat.data.CampaignConnectorLinkDO</class>
+		<class>com.digitalbarista.cat.data.KeywordLimitDO</class>
+		<class>com.digitalbarista.cat.data.ReservedKeywordDO</class>
 		<class>com.digitalbarista.cat.audit.OutgoingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.IncomingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.AuditDO</class>

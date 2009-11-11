@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-	width="392" height="200"
+	width="406" height="200"
 	showCloseButton="true"
 	close="onClose()"
 	title="Create Keyword"
 	creationComplete="init()" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.constants.KeywordAvailableCheckState;
+			import com.dbi.cat.common.vo.KeywordLimitVO;
+			import com.dbi.cat.common.constants.KeywordConstants;
 			import com.dbi.cat.event.ClientEvent;
 			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.KeywordVO;
 			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			
+			[Embed("/assets/img/available.png")]
+			private var availableIcon:Class;
+			
+			[Embed("/assets/img/unavailable.png")]
+			private var unavailableIcon:Class;
+			
 			
 			[Bindable]
 			public var clients:ArrayCollection;
@@ -22,6 +32,32 @@
 			[Bindable]
 			public var keywords:ArrayCollection;
 			
+			private var _isKeywordAvailable:String;
+			[Bindable]
+			public function get isKeywordAvailable():String
+			{
+				return _isKeywordAvailable;
+			}
+			public function set isKeywordAvailable(value:String):void
+			{
+				_isKeywordAvailable = value;
+				
+				AvailableIndicator.visible = true;
+				AvailableIndicator.toolTip = "";
+				switch (isKeywordAvailable)
+				{
+					case KeywordAvailableCheckState.AVAILABLE:
+						AvailableIndicator.source = availableIcon;
+						AvailableIndicator.toolTip = "This keyword is available";
+						break;
+					case KeywordAvailableCheckState.UNAVAILABLE:
+						AvailableIndicator.source = unavailableIcon;
+						AvailableIndicator.toolTip = "This keyword is not available";
+						break;
+					default:
+						AvailableIndicator.visible = false;
+				}
+			}
 			
 			[Bindable(event="changeAddress")]
 			private function get usedCount():Number
@@ -35,6 +71,20 @@
 				}
 				return count;
 			}
+			[Bindable(event="changeAddress")]
+			private function get availableCount():Number
+			{
+				var ret:Number = KeywordConstants.DEFAULT_KEYWORD_LIMIT;
+				for each (var limit:KeywordLimitVO in Client.selectedItem.keywordLimits)
+				{
+					if (limit.entryType == Address.selectedItem.type)
+					{
+						ret = limit.maxKeywords;
+						break;
+					}
+				}
+				return ret;
+			}
 			
 			
 			private function init():void
@@ -47,15 +97,27 @@
 			}
 			private function save():void
 			{
-				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_KEYWORD);
-				currentKeyword.clientId = Client.selectedItem.clientId;
-				currentKeyword.entryPointId = Address.selectedItem.primaryKey;
-				event.keyword = currentKeyword;
-				dispatchEvent(event);
+				if (currentKeyword.keyword != null &&
+					currentKeyword.keyword.length > 0)
+				{
+					var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_KEYWORD);
+					currentKeyword.clientId = Client.selectedItem.clientId;
+					currentKeyword.entryPointId = Address.selectedItem.primaryKey;
+					event.keyword = currentKeyword;
+					dispatchEvent(event);
+				}
 			}
 			private function checkAvailability():void
 			{
-				
+				if (currentKeyword.keyword != null &&
+					currentKeyword.keyword.length > 0)
+				{
+					var event:ClientEvent = new ClientEvent(ClientEvent.CHECK_KEYWORD_AVAILABILITY);
+					currentKeyword.clientId = Client.selectedItem.clientId;
+					currentKeyword.entryPointId = Address.selectedItem.primaryKey;
+					event.keyword = currentKeyword;
+					dispatchEvent(event);
+				}
 			}
 			private function changeAddress():void
 			{
@@ -87,12 +149,13 @@
 				text="{currentKeyword.keyword}"
 				change="{currentKeyword.keyword = Keyword.text;}" />
 		</mx:FormItem>
-		<mx:FormItem>
-			<mx:Label text="{'Using ' + usedCount + ' of 5 Available'}" />
+		<mx:FormItem visible="{availableCount > 0}">
+			<mx:Label text="{'Using ' + usedCount + ' of ' + availableCount + ' Available'}" />
 		</mx:FormItem>
 	</mx:Form>
 	<mx:Button id="Check" label="Check Availability"
-		click="checkAvailability()" x="247" y="72"/>
+		click="checkAvailability()" y="72" right="10"/>
+	<mx:Image id="AvailableIndicator" y="74" right="140"  width="16" height="16"/>
 	<mx:ControlBar>
 		<mx:Spacer width="100%" />
 		<mx:Button id="Save" label="Save"

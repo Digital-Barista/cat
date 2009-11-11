@@ -3,6 +3,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.ClientVO;
 	import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 	import com.dbi.cat.common.vo.KeywordVO;
+	import com.dbi.cat.constants.KeywordAvailableCheckState;
 	import com.dbi.cat.view.EditClientView;
 	import com.dbi.cat.view.profile.EditEntryPointView;
 	import com.dbi.cat.view.profile.EditKeywordView;
@@ -26,6 +27,7 @@ package com.dbi.cat.business
 		public var currentClient:ClientVO;
 		public var currentKeyword:KeywordVO;
 		public var currentEntryPointDefinition:EntryPointDefinitionVO;
+		public var isKeywordAvailable:String; KeywordAvailableCheckState.STOPPED;
 		
 		private var editKeywordPopup:IFlexDisplayObject;
 		private var editClientPopup:IFlexDisplayObject;
@@ -177,7 +179,17 @@ package com.dbi.cat.business
 			
 			closeEditEntryPoint();
 		}
-		
+		public function startKeywordAvailabilityCheck():void
+		{
+			isKeywordAvailable = KeywordAvailableCheckState.CHECKING;
+		}
+		public function showKeywordAvailability(isAvailable:Boolean):void
+		{
+			if (isAvailable)
+				isKeywordAvailable = KeywordAvailableCheckState.AVAILABLE;
+			else
+				isKeywordAvailable = KeywordAvailableCheckState.UNAVAILABLE;
+		}
 		//
 		// Keyword methods
 		//
@@ -193,6 +205,8 @@ package com.dbi.cat.business
 				editKeywordPopup = new EditKeywordView();
 			PopUpManager.addPopUp(editKeywordPopup, UIComponent(Application.application), true);
 			PopUpManager.centerPopUp(editKeywordPopup);
+			
+			isKeywordAvailable = KeywordAvailableCheckState.STOPPED;
 		}
 		public function closeEditKeyword():void
 		{

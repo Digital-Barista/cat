@@ -111,6 +111,8 @@ package com.dbi.cat.business
 			dispatcher.dispatchEvent(new CampaignTestEvent(CampaignTestEvent.END_TEST_CAMPAIGN));
 			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CANCEL_EDIT));
 			dispatcher.dispatchEvent(new UserEvent(UserEvent.CANCEL_EDIT));
+			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_ENTRY_POINT));
+			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_KEYWORD));
 		}
 		
 		/**

@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.OrderBy;
@@ -30,6 +31,7 @@ public class ClientDO implements Serializable,DataObject {
 	private String adminAddInMessage;
 	private String userAddInMessage;
 	private Set<EntryPointDO> entryPoints;
+	private Set<KeywordLimitDO> keywordLimits;
 	private static final long serialVersionUID = 1L;
 
 	public ClientDO() {
@@ -86,6 +88,17 @@ public class ClientDO implements Serializable,DataObject {
 
 	public void setEntryPoints(Set<EntryPointDO> entryPoints) {
 		this.entryPoints = entryPoints;
+	}
+
+
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=KeywordLimitDO.class, mappedBy="client")
+	@JoinColumn(name="client_id")
+	public Set<KeywordLimitDO> getKeywordLimits() {
+		return keywordLimits;
+	}
+
+	public void setKeywordLimits(Set<KeywordLimitDO> keywordLimits) {
+		this.keywordLimits = keywordLimits;
 	}
    
 }

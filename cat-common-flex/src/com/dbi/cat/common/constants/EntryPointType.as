@@ -1,5 +1,8 @@
 package com.dbi.cat.common.constants
 {
+	import mx.collections.ArrayCollection;
+	
+	[Bindable]
 	public class EntryPointType
 	{
 		public function EntryPointType()
@@ -31,6 +34,14 @@ package com.dbi.cat.common.constants
 					return 0;
 					break;
 			}
+		}
+		
+		public static function getAllTypes():ArrayCollection
+		{
+			return new ArrayCollection([
+				EntryPointType.SMS,
+				EntryPointType.EMAIL,
+				EntryPointType.TWITTER]);
 		}
 	}
 }

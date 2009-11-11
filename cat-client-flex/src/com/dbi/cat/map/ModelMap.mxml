@@ -250,6 +250,10 @@
 			source="{ClientManager}"
 			sourceKey="keywords"
 			targetKey="keywords" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="isKeywordAvailable"
+			targetKey="isKeywordAvailable" />
 	</Injectors>
 	<Injectors target="{EditEntryPointView}">
 		<PropertyInjector

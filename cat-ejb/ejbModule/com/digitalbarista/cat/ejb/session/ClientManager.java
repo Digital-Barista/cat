@@ -14,6 +14,7 @@ import javax.ws.rs.QueryParam;
 import com.digitalbarista.cat.business.Client;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
+import com.digitalbarista.cat.business.ReservedKeyword;
 import com.digitalbarista.cat.data.EntryPointType;
 
 @Local
@@ -55,4 +56,9 @@ public interface ClientManager {
 	@Path("/{cid}/entryPoints/{eid}/keywords")
 	@GET
 	public List<Keyword> getAllKeywordsForClientAndEntryPoint(@PathParam("cid") Long clientID, @PathParam("eid") Long entryPointID);
+
+	public List<ReservedKeyword> getAllReservedKeywords();
+	public ReservedKeyword save(ReservedKeyword keyword);
+	public void delete(ReservedKeyword keyword);
+	public Boolean checkKeywordAvailability(Keyword keyword);
 }

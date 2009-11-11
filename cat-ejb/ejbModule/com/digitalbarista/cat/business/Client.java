@@ -15,6 +15,7 @@ import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
+import com.digitalbarista.cat.data.KeywordLimitDO;
 
 @XmlRootElement
 public class Client implements
@@ -26,6 +27,7 @@ public class Client implements
 	private String name;
 	private String adminAddInMessage;
 	private String userAddInMessage;
+	private Set<KeywordLimit> keywordLimits;
 	private Set<EntryPointDefinition> entryPoints = new TreeSet<EntryPointDefinition>(
 			new Comparator<EntryPointDefinition>()
 			{
@@ -52,6 +54,7 @@ public class Client implements
 		name=dataObject.getName();
 		adminAddInMessage = dataObject.getAdminAddInMessage();
 		userAddInMessage = dataObject.getUserAddInMessage();
+		keywordLimits = new HashSet<KeywordLimit>();
 		entryPoints = new HashSet<EntryPointDefinition>();
 		EntryPointDefinition epd;
 		if (dataObject.getEntryPoints() != null)
@@ -63,7 +66,18 @@ public class Client implements
 				entryPoints.add(epd);
 			}
 		}
-}
+		
+		// Copy keyword limits
+		if (dataObject.getKeywordLimits() != null)
+		{
+			for (KeywordLimitDO kl : dataObject.getKeywordLimits())
+			{
+				KeywordLimit limit = new KeywordLimit();
+				limit.copyFrom(kl);
+				keywordLimits.add(limit);
+			}
+		}
+	}
 
 	@Override
 	public void copyTo(ClientDO dataObject) {
@@ -136,6 +150,14 @@ public class Client implements
 
 	public void setEntryPoints(Set<EntryPointDefinition> entryPoints) {
 		this.entryPoints = entryPoints;
+	}
+
+	public Set<KeywordLimit> getKeywordLimits() {
+		return keywordLimits;
+	}
+
+	public void setKeywordLimits(Set<KeywordLimit> keywordLimits) {
+		this.keywordLimits = keywordLimits;
 	}
 
 }

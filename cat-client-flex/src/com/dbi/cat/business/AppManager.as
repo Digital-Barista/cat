@@ -138,6 +138,14 @@ package com.dbi.cat.business
 		 		CustomMessage.show("Your session has ended.  Please login again");
 		 		dispatcher.dispatchEvent(new LoginEvent(LoginEvent.LOGOUT));
 		 	}
+		 	else if (fault.rootCause != null &&
+		 		fault.rootCause.cause != null &&
+		 		fault.rootCause.cause.message != null &&
+		 		fault.rootCause.message != null &&
+		 		fault.rootCause.message.indexOf("FlexException") > -1)
+		 	{
+		 		CustomMessage.show(fault.rootCause.cause.message);
+		 	}
 		 	else
 		 	{
 		 		CustomMessage.show(fault.toString());
