@@ -238,16 +238,20 @@ public class ClientManagerImpl implements ClientManager {
 				}
 			}
 			
-			// Find current count for given entry point type
-			Criteria crit = session.createCriteria(KeywordDO.class);
-			crit.add(Restrictions.eq("client.primaryKey", kwd.getClientId()));
-			crit.createAlias("entryPoint", "entryPoint");
-			crit.add(Restrictions.eq("entryPoint.type", entryPoint.getType()));
-			crit.setProjection(Projections.rowCount());
-			Integer currentCount = (Integer)crit.uniqueResult();
-			if (currentCount >= max)
-				throw new FlexException("You have already reached your maximum " + max + 
-						" keywords for " + entryPoint.getType() + " accounts.");
+			// Zero is infinite number of keywords
+			if (max != 0)
+			{
+				// Find current count for given entry point type
+				Criteria crit = session.createCriteria(KeywordDO.class);
+				crit.add(Restrictions.eq("client.primaryKey", kwd.getClientId()));
+				crit.createAlias("entryPoint", "entryPoint");
+				crit.add(Restrictions.eq("entryPoint.type", entryPoint.getType()));
+				crit.setProjection(Projections.rowCount());
+				Integer currentCount = (Integer)crit.uniqueResult();
+				if (currentCount >= max)
+					throw new FlexException("You have already reached your maximum " + max + 
+							" keywords for " + entryPoint.getType() + " accounts.");
+			}
 		}
 		
 		KeywordDO kwdData=null;
