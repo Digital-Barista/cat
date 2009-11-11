@@ -101,7 +101,8 @@
 				if (currentKeyword.keyword != null &&
 					currentKeyword.keyword.length > 0)
 				{
-					if (usedCount >= availableCount)
+					if (availableCount > 0 &&
+						usedCount >= availableCount)
 					{
 						CustomMessage.show("You have already reached your maximum " + availableCount + 
 						" keywords for " + Address.selectedItem.type + " accounts.");
