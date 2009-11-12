@@ -375,11 +375,14 @@ public class ClientManagerImpl implements ClientManager {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin","account.manager"})
 	public void delete(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
 				
+		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), kwd.getClientId()))
+			throw new SecurityException("User is not allowed to delete keywords for the specified client.");
+
 		KeywordDO kwdData=null;
 		if(kwd.getPrimaryKey()!=null)
 			kwdData = em.find(KeywordDO.class, kwd.getPrimaryKey());
