@@ -58,7 +58,7 @@ public class LayoutManagerImpl implements LayoutManager {
 			if(ret==null)
 				return null;
 			
-			if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), ret.getCampaign().getPrimaryKey()))
+			if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), ret.getCampaign().getClient().getPrimaryKey()))
 				throw new SecurityException("Current user is not allowed to view layout infor for this campaign.");
 			
 			return ret;
