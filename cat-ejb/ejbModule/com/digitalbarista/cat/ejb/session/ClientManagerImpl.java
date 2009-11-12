@@ -214,10 +214,13 @@ public class ClientManagerImpl implements ClientManager {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin","account.manager"})
 	public Keyword save(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
+		
+		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), kwd.getClientId()))
+			throw new SecurityException("User is not allowed to create keywords for the specified client.");
 		
 		// Check that the keyword is available
 		if (!checkKeywordAvailability(kwd))
