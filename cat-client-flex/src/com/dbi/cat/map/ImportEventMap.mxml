@@ -32,7 +32,7 @@
 		<RemoteObjectInvoker 
 			destination="subscriptionManager"
 			method="subscribeToEntryPoint"
-			arguments="{[event.addresses, event.entryPointUID]}"
+			arguments="{[event.addresses, event.entryPointUID, event.entryPointType]}"
 			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{ImportManager}"

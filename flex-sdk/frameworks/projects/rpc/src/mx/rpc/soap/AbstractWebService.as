@@ -49,6 +49,11 @@ public class AbstractWebService extends AbstractService
      * entry in services-config.xml.  If unspecified, the WebService uses the
      * DefaultHTTP destination. The <code>rootURL</code> is required if you
      * intend to use a relative URL find the WSDL document for this WebService.
+     *
+     *  @param destination The destination. It should match a destination name 
+     *  in the services-config.xml file.
+     *
+     *  @param rootURL The URL that the WebService should use when computing relative URLs.
      */
     public function AbstractWebService(destination:String = null, rootURL:String = null)
     {

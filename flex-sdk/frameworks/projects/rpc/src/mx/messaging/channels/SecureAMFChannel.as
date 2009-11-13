@@ -25,11 +25,11 @@ public class SecureAMFChannel extends AMFChannel
     //--------------------------------------------------------------------------
     
     /**
-     *  Creates an new SecureAMFChannel instance.
+     *  Constructor.
      *
-	 *  @param id The id of this Channel.
-	 *  
-	 *  @param uri The uri for this Channel.
+     *  @param id The id of this Channel.
+     *  
+     *  @param uri The uri for this Channel.
      */
     public function SecureAMFChannel(id:String = null, uri:String = null)
     {

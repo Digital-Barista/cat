@@ -1,6 +1,6 @@
 package com.dbi.cat.view.components
 {
-	import com.dbi.cat.view.workspace.WorkspaceItem;
+	import com.dbi.cat.view.workspace.WorkspaceView;
 	
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -93,14 +93,22 @@ package com.dbi.cat.view.components
 		private function itemDisable(event:MouseEvent):Boolean 
 		{
 			var item:IListItemRenderer = mouseEventToItemRenderer(event);
-			var work:WorkspaceItem = document as WorkspaceItem;
+			var workspace:WorkspaceView;
+			var p:Object = parentDocument;
+			while(p != null &&
+				workspace == null)
+			{
+				if (p is WorkspaceView)
+					workspace = p as WorkspaceView;
+				p = p.parent;
+			}
+			
 			if (item != null &&
 				item.data != null &&
 				item.data.campaignUID != null && 
-				work != null &&
-				work.workspace != null &&
-				work.workspace.campaign != null &&
-				item.data.campaignUID != work.workspace.campaign.uid)
+				workspace != null &&
+				workspace.campaign != null &&
+				item.data.campaignUID != workspace.campaign.uid)
 				return true;
 				
 			return false;

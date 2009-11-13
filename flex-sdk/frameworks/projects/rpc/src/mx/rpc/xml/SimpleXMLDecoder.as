@@ -194,9 +194,11 @@ public class SimpleXMLDecoder
     }
 
     /**
-     * Returns the local name of an XMLNode.
+     *  Returns the local name of an XMLNode.
      *
-     * @return The local name of an XMLNode.
+     *  @param xmlNode The XMLNode. 
+     *
+     *  @return The local name of an XMLNode.
      */
     public static function getLocalName(xmlNode:XMLNode):String
     {

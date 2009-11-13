@@ -65,7 +65,7 @@ public class StreamingAMFChannel extends AMFChannel
     //--------------------------------------------------------------------------
 
     /**
-     *  Creates an new StreamingAMFChannel instance.
+     *  Constructor.
      *
      *  @param id The id of this Channel.
      *
@@ -363,7 +363,7 @@ class StreamingAMFConnectionHandler extends StreamingConnectionHandler
     //--------------------------------------------------------------------------
 
     /**
-     *  Creates an new StreamingAMFConnectionHandler instance.
+     *  Constructor.
      *
      *  @param channel The Channel that uses this class.
      *  @param log Reference to the logger for the associated Channel.

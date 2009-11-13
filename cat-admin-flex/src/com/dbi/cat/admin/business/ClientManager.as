@@ -7,6 +7,7 @@ package com.dbi.cat.admin.business
 	import com.dbi.cat.common.vo.ClientVO;
 	import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 	import com.dbi.cat.common.vo.KeywordVO;
+	import com.dbi.cat.common.vo.ReservedKeywordVO;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.HierarchicalData;
@@ -28,6 +29,7 @@ package com.dbi.cat.admin.business
 		public var currentEntryPointDefinition:EntryPointDefinitionVO;
 		public var currentKeyword:KeywordVO;
 		public var keywords:ArrayCollection;
+		public var reservedKeywords:ArrayCollection;
 		
 		private var editClientPopup:IFlexDisplayObject;
 		private var editEntryPointPopup:IFlexDisplayObject;
@@ -63,7 +65,7 @@ package com.dbi.cat.admin.business
 		
 		public function editClient(client:ClientVO):void
 		{
-			currentClient = client;
+			currentClient = ObjectUtil.copy(client) as ClientVO;
 			
 			if (editClientPopup == null)
 				editClientPopup = new EditClientView();
@@ -94,6 +96,8 @@ package com.dbi.cat.admin.business
 				if (c.clientId == client.clientId)
 				{
 					c.name = client.name;
+					c.adminAddInMessage = client.adminAddInMessage;
+					c.keywordLimits = client.keywordLimits;
 					found = true;
 					break;
 				}
@@ -250,6 +254,40 @@ package com.dbi.cat.admin.business
 			keywords.addItem(keyword);
 			setupGroupedClients();
 			closeEditKeyword();
+		}
+	
+		//
+		// Reserved keyword events
+		//
+		public function loadReservedKeywords(reservedKeywords:ArrayCollection):void
+		{
+			this.reservedKeywords = reservedKeywords;
+		}
+		public function saveReservedKeyword(reservedKeyword:ReservedKeywordVO):void
+		{
+			var found:Boolean = false;
+			for (var i:Number = 0; i < reservedKeywords.length; i++)
+			{
+				if (reservedKeywords[i].reservedKeywordId == reservedKeyword.reservedKeywordId)
+				{
+					found = true;
+					reservedKeywords[i] = reservedKeyword;
+					break;
+				}
+			}
+			if (!found)
+				reservedKeywords.addItem(reservedKeyword);
+		}
+		public function deleteReservedKeyword(reservedKeyword:ReservedKeywordVO):void
+		{
+			var cur:IViewCursor = reservedKeywords.createCursor();
+			while (cur.current != null)
+			{
+				if (cur.current.reservedKeywordId == reservedKeyword.reservedKeywordId)
+					cur.remove();
+				else
+					cur.moveNext();
+			}
 		}
 	}
 }

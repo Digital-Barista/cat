@@ -25,6 +25,11 @@
 			method="navigate"
 			arguments="{event}" />
 	</EventHandlers>
+	<EventHandlers type="{NavigationEvent.REPORTING}">
+		<MethodInvoker generator="{NavigationManager}"
+			method="navigate"
+			arguments="{event}" />
+	</EventHandlers>
 	<EventHandlers type="{NavigationEvent.PROFILE}">
 		<MethodInvoker generator="{NavigationManager}"
 			method="navigate"

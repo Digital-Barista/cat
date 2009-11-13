@@ -215,30 +215,12 @@ public abstract class FlexTask extends Java
 
         System.setProperty("FLEX_HOME", flexHomeProperty);
 
-        //FIXME: wrap paths in quotes in case they contains spaces (so cmdline parses correctly)
-        //
-        //     this is a poor solution -- the problem is that arguments are passed as Objects
-        //     directly to the compiler, and the compiler will concat them with other Strings.
-        //     So you get badly formatted strings like: "C:/sdk"/frameworks
-        //
-        //     If both entrypoints had different methods of config serialization, or shared
-        //     the same method (either pass objects, or a commandline string), this would be
-        //     okay. For now we solve it piecemeal.
-        //
-        //     Search for uses of 'fork' to track this hack.
-        {
-            final String tmpFlexHomeProperty
-                = fork
-                    // wrap in double-quotes in case path contains spaces
-                    ? ('"' + flexHomeProperty + "/frameworks\"")
-                    : (flexHomeProperty + "/frameworks");
-
-            cmdl.createArgument().setValue("+flexlib=" + tmpFlexHomeProperty);
-        }
+        cmdl.createArgument().setValue("+flexlib=" + flexHomeProperty + "/frameworks");
+        
         prepareCommandline();
 
         if (fork)
-            executeOutProcess();
+            executeOutOfProcess();
         else
             executeInProcess();
 
@@ -248,7 +230,7 @@ public abstract class FlexTask extends Java
      * Executes the task in a separate VM
      *
      */
-    private void executeOutProcess() throws BuildException
+    private void executeOutOfProcess() throws BuildException
     {
         try
         {
@@ -256,22 +238,13 @@ public abstract class FlexTask extends Java
             URL url = toolClass.getProtectionDomain().getCodeSource().getLocation();
             String fileName = url.getFile();
 
-            String[] temp = cmdl.getArguments();
-            String s = "";
-
             super.setClassname(toolClassName);
             super.setClasspath(new Path(getProject(), fileName));
 
-            //converts arguments into a string for use by executeJava()
-            for (int i = 0; i < temp.length; i++)
-            {
-                if(temp[i]!=null)
-                {
-                    s += temp[i] + " ";
-                }
-            }
-
-            super.setArgs(s);
+            // convert arguments into a string for use by executeJava()
+            // also auto-quotes arguments with spaces
+            super.createArg().setLine(
+                    Commandline.toString(cmdl.getArguments())); 
 
             int err = super.executeJava();
             //check error code

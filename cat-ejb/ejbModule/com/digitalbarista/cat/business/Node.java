@@ -3,6 +3,12 @@ package com.digitalbarista.cat.business;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.ConnectionPoint;
@@ -11,6 +17,8 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
+@XmlRootElement
+@XmlSeeAlso({CouponNode.class,EntryNode.class,MessageNode.class,TerminationNode.class})
 public abstract class Node implements BusinessObject<NodeDO> {
 
 	private List<String> downstreamConnections=new ArrayList<String>();
@@ -81,35 +89,47 @@ public abstract class Node implements BusinessObject<NodeDO> {
 		throw new IllegalArgumentException("Unknown node type specified.  Cannot create a NodeDO Business Object.");
 	}
 	
+	@XmlElementWrapper(name="DownstreamConnectors")
+	@XmlElement(name="UUID")
 	public List<String> getDownstreamConnections() {
 		return downstreamConnections;
 	}
 	public void setDownstreamConnections(List<String> downstreamConnections) {
 		this.downstreamConnections = downstreamConnections;
 	}
+	
+	@XmlElementWrapper(name="DownstreamConnectors")
+	@XmlElement(name="UUID")
 	public List<String> getUpstreamConnections() {
 		return upstreamConnections;
 	}
 	public void setUpstreamConnections(List<String> upstreamConnections) {
 		this.upstreamConnections = upstreamConnections;
 	}
+	
+	@XmlAttribute
 	public abstract NodeType getType();
 	public final void setType(NodeType type) {
 		return;
 	}
+	
+	@XmlAttribute
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	@XmlAttribute
 	public String getUid() {
 		return uid;
 	}
 	public void setUid(String uid) {
 		this.uid = uid;
 	}
-
+	
+	@XmlAttribute
 	public String getCampaignUID() {
 		return campaignUID;
 	}

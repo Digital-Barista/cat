@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Form xmlns:mx="http://www.adobe.com/2006/mxml"
-	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" xmlns:controls="com.dbi.controls.*">
+	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" xmlns:controls="com.dbi.controls.*" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.vo.ClientVO;
@@ -22,7 +22,7 @@
 		]]>
 	</mx:Script>
 	<mx:FormItem label="Organization">
-		<controls:AdvancedComboBox 
+		<components:FormattedComboBox
 			id="Client"
 			dataProvider="{clients}"
 			selectedBindingProperty="clientId"

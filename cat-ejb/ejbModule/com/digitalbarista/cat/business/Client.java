@@ -1,14 +1,23 @@
 package com.digitalbarista.cat.business;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
+import com.digitalbarista.cat.data.KeywordLimitDO;
 
+@XmlRootElement
 public class Client implements
 		BusinessObject<ClientDO>,Auditable {
 
@@ -18,7 +27,26 @@ public class Client implements
 	private String name;
 	private String adminAddInMessage;
 	private String userAddInMessage;
-	private Set<EntryPointDefinition> entryPoints = new HashSet<EntryPointDefinition>();
+	private Set<KeywordLimit> keywordLimits;
+	private Set<EntryPointDefinition> entryPoints = new TreeSet<EntryPointDefinition>(
+			new Comparator<EntryPointDefinition>()
+			{
+				@Override
+				public int compare(EntryPointDefinition arg0,
+						EntryPointDefinition arg1) {
+					if(arg0==null && arg1==null)
+						return 0;
+					if(arg1==null)
+						return 1;
+					if(arg0==null)
+						return -1;
+					if(arg0.getValue()==null && arg1.getValue()==null)
+						return 0;
+					if(arg0.getValue()==null)
+						return -1;
+					return arg0.getValue().compareToIgnoreCase(arg1.getValue());
+				}
+			});
 	
 	@Override
 	public void copyFrom(ClientDO dataObject) {
@@ -26,6 +54,7 @@ public class Client implements
 		name=dataObject.getName();
 		adminAddInMessage = dataObject.getAdminAddInMessage();
 		userAddInMessage = dataObject.getUserAddInMessage();
+		keywordLimits = new HashSet<KeywordLimit>();
 		entryPoints = new HashSet<EntryPointDefinition>();
 		EntryPointDefinition epd;
 		if (dataObject.getEntryPoints() != null)
@@ -37,7 +66,18 @@ public class Client implements
 				entryPoints.add(epd);
 			}
 		}
-}
+		
+		// Copy keyword limits
+		if (dataObject.getKeywordLimits() != null)
+		{
+			for (KeywordLimitDO kl : dataObject.getKeywordLimits())
+			{
+				KeywordLimit limit = new KeywordLimit();
+				limit.copyFrom(kl);
+				keywordLimits.add(limit);
+			}
+		}
+	}
 
 	@Override
 	public void copyTo(ClientDO dataObject) {
@@ -67,6 +107,7 @@ public class Client implements
 		return ret.toString();
 	}
 
+	@XmlAttribute
 	public Long getClientId() {
 		return clientId;
 	}
@@ -75,6 +116,7 @@ public class Client implements
 		this.clientId = clientId;
 	}
 
+	@XmlAttribute
 	public String getName() {
 		return name;
 	}
@@ -82,6 +124,8 @@ public class Client implements
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@XmlAttribute
 	public String getAdminAddInMessage() {
 		return adminAddInMessage;
 	}
@@ -90,6 +134,7 @@ public class Client implements
 		this.adminAddInMessage = adminAddInMessage;
 	}
 
+	@XmlAttribute
 	public String getUserAddInMessage() {
 		return userAddInMessage;
 	}
@@ -98,12 +143,25 @@ public class Client implements
 		this.userAddInMessage = userAddInMessage;
 	}
 	
+	@XmlElementWrapper(name="EntryPoints")
+	@XmlElement(name="EntryPoint")
 	public Set<EntryPointDefinition> getEntryPoints() {
+		
 		return entryPoints;
 	}
 
 	public void setEntryPoints(Set<EntryPointDefinition> entryPoints) {
 		this.entryPoints = entryPoints;
+	}
+
+	@XmlElementWrapper(name="KeywordLimits")
+	@XmlElement(name="KeywordLimit")
+	public Set<KeywordLimit> getKeywordLimits() {
+		return keywordLimits;
+	}
+
+	public void setKeywordLimits(Set<KeywordLimit> keywordLimits) {
+		this.keywordLimits = keywordLimits;
 	}
 
 }

@@ -1,13 +1,12 @@
 package com.dbi.cat.view.workspace
 {
+	import com.dbi.cat.common.vo.LayoutInfoVO;
 	import com.dbi.controls.CustomMessage;
 	import com.dbi.event.CustomMessageEvent;
 	
-	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
-	import flash.ui.Keyboard;
 	
 	import mx.containers.TitleWindow;
 	import mx.controls.SWFLoader;
@@ -70,6 +69,11 @@ package com.dbi.cat.view.workspace
 					addChild(deleteLoader);
 			}
 		 }
+		 
+		/**
+		 * Flag to determine if invalid icon should show
+		 */
+		 public var showInvalidWarning:Boolean = true;
 		 
 		// Selected properties
 		private var selectGlow:GlowFilter = new GlowFilter(0x0000DD, 0.5, 10, 10);
@@ -170,7 +174,6 @@ package com.dbi.cat.view.workspace
 			deleteLoader.addEventListener(MouseEvent.CLICK, deleteClick, false, 0, true);
 			deleteLoader.toolTip = "Remove this item";
 			
-			
 			// Add event handlers
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
@@ -189,7 +192,9 @@ package com.dbi.cat.view.workspace
 			
 			// Add children to canvas
 			addChild(editLoader);
-			addChild(invalidWarningLoader);
+			
+			if (showInvalidWarning)
+				addChild(invalidWarningLoader);
 			
 			if (!readonly)
 				addChild(deleteLoader);
@@ -197,6 +202,21 @@ package com.dbi.cat.view.workspace
 			
 			// Set title of edit window
 			editWindow.title = label;
+		}
+		
+		/**
+		 * Update the x, y position of this item when the layout
+		 * info is changed
+		 * 
+		 * @param info LayoutInfoVO containing x, y positions
+		 */
+		protected function onLayoutInfoChanged(info:LayoutInfoVO):void
+		{
+			if (info != null)
+			{
+				x = info.x;
+				y = info.y;
+			}
 		}
 		
 		private function onMouseDown(e:MouseEvent):void

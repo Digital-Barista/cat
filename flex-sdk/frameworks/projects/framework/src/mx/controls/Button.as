@@ -43,11 +43,14 @@ import mx.core.UITextField;
 import mx.core.mx_internal;
 import mx.events.FlexEvent;
 import mx.events.MoveEvent;
+import mx.events.SandboxMouseEvent;
 import mx.managers.IFocusManagerComponent;
+import mx.managers.ISystemManager;
 import mx.states.State;
 import mx.styles.ISimpleStyleClient;
 import mx.core.IStateClient;
 import mx.core.IProgrammaticSkin;
+
 
 use namespace mx_internal;
 
@@ -868,7 +871,8 @@ public class Button extends UIComponent
 
         _data = value;
 
-        if (_listData && _listData is DataGridListData)
+        if (_listData && _listData is DataGridListData && 
+        	DataGridListData(_listData).dataField !=null)
         {
             newSelected = _data[DataGridListData(_listData).dataField];
 
@@ -1490,6 +1494,7 @@ public class Button extends UIComponent
         var textWidth:Number = 0;
         var textHeight:Number = 0;
 
+		// trace("measure: Button " + this + " label = " + label);
         if (label)
         {
             var lineMetrics:TextLineMetrics = measureText(label);
@@ -1556,6 +1561,7 @@ public class Button extends UIComponent
 
         measuredMinWidth = measuredWidth = w;
         measuredMinHeight = measuredHeight = h;
+        // trace("measure: Button width = " + w + " height = " + h);
     }
     
     /**
@@ -2512,10 +2518,10 @@ public class Button extends UIComponent
     mx_internal function buttonReleased():void
     {
         // Remove the handlers that were added in mouseDownHandler().
-        systemManager.removeEventListener(
+        systemManager.getSandboxRoot().removeEventListener(
             MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);
-        systemManager.stage.removeEventListener(
-            Event.MOUSE_LEAVE, stage_mouseLeaveHandler);
+        systemManager.getSandboxRoot().removeEventListener(
+            SandboxMouseEvent.MOUSE_UP_SOMEWHERE, stage_mouseLeaveHandler);
         
         if (autoRepeatTimer)
         {
@@ -2736,10 +2742,10 @@ public class Button extends UIComponent
         // We also place a mouseLeave handler on the stage
         // in case the user drags off the stage and releases the mouse.
         // These handlers are removed in buttonReleased().
-        systemManager.addEventListener(
+        systemManager.getSandboxRoot().addEventListener(
             MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);
-        systemManager.stage.addEventListener(
-            Event.MOUSE_LEAVE, stage_mouseLeaveHandler);
+        systemManager.getSandboxRoot().addEventListener(
+            SandboxMouseEvent.MOUSE_UP_SOMEWHERE, stage_mouseLeaveHandler);
 
         buttonPressed();
 

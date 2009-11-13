@@ -5,6 +5,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.business.CampaignTemplateManager;
+			import com.dbi.cat.event.CampaignTemplateEvent;
 			import com.dbi.cat.business.CouponManager;
 			import com.dbi.cat.event.CouponEvent;
 			import com.asfusion.mate.events.UnhandledFaultEvent;
@@ -39,13 +41,13 @@
 		<ObjectBuilder generator="{UserManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{LoginManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{CampaignManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{CampaignTemplateManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{LayoutInfoManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{ClientManager}"  />
 	</EventHandlers>
 	
 	<EventHandlers type="{FlexEvent.INITIALIZE}">
 		<MethodInvoker generator="{AppManager}" method="registerClasses" />
-		<MethodInvoker generator="{AppManager}" method="setupGlobalEvents" />
 		<MethodInvoker generator="{AppManager}" method="loadExternalParameters" />
 	</EventHandlers>
 	
@@ -77,6 +79,9 @@
 	<!-- Data Events -->
 	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
 		<EventAnnouncer type="{CampaignEvent.LIST_CAMPAIGNS}" />
+		<EventAnnouncer type="{ClientEvent.LIST_KEYWORDS}" />
+		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />
+		<EventAnnouncer type="{CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES}" />
 		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
 		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />

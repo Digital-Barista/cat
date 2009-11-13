@@ -50,9 +50,6 @@ package com.dbi.cat.view.components
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			addEventListener(MouseEvent.CLICK, onMouseClick);
-			
-			ChangeWatcher.watch(this, "width", function(e:Event):void{fitComponents()});
-			ChangeWatcher.watch(this, "height", function(e:Event):void{fitComponents()});
 		}
   		
   		override public function get mouseX():Number

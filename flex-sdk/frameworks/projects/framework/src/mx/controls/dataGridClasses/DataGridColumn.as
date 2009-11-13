@@ -15,22 +15,22 @@ package mx.controls.dataGridClasses
 import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.utils.Dictionary;
-import mx.controls.DataGrid;
+
 import mx.controls.TextInput;
 import mx.controls.listClasses.IListItemRenderer;
 import mx.core.ClassFactory;
+import mx.core.ContextualClassFactory;
 import mx.core.EmbeddedFont;
 import mx.core.EmbeddedFontRegistry;
 import mx.core.IEmbeddedFontRegistry;
 import mx.core.IFactory;
 import mx.core.IFlexModuleFactory;
 import mx.core.IIMESupport;
-import mx.core.mx_internal;
 import mx.core.Singleton;
+import mx.core.mx_internal;
 import mx.styles.CSSStyleDeclaration;
 import mx.styles.StyleManager;
 import mx.utils.StringUtil;
-import mx.core.ContextualClassFactory;
 
 use namespace mx_internal;
 
@@ -242,6 +242,13 @@ public class DataGridColumn extends CSSStyleDeclaration implements IIMESupport
 
     /**
      *  @private
+     *  cached header renderer so we don't have to keep
+     *  making new ones
+     */
+    mx_internal var cachedHeaderRenderer:IListItemRenderer;
+
+    /**
+     *  @private
      * Holds the last recorded value of the module factory used to create the font.
      */
     private var oldEmbeddedFontContext:IFlexModuleFactory = null;
@@ -265,6 +272,20 @@ public class DataGridColumn extends CSSStyleDeclaration implements IIMESupport
      * Cache last value of embedded font.
      */
     private var cachedEmbeddedFont:EmbeddedFont = null;
+         
+    /**
+     *  @private
+     * 
+     * Columns has complex data field named.
+     */
+    protected var hasComplexFieldName:Boolean = false;
+
+    /**
+     *  @private
+     * 
+     * Array of split complex field name derived when set so that it is not derived each time.
+     */
+    protected var complexFieldNameComponents:Array;
          
     //--------------------------------------------------------------------------
     //
@@ -355,6 +376,12 @@ public class DataGridColumn extends CSSStyleDeclaration implements IIMESupport
     //  dataField
     //----------------------------------
 
+    /**
+     *  @private
+     *  Storage for the dataField property.
+     */
+    private var _dataField:String;
+
     [Inspectable(category="General", defaultValue="")]
 
     /**
@@ -379,7 +406,39 @@ public class DataGridColumn extends CSSStyleDeclaration implements IIMESupport
      *
      *  @see #headerText 
      */
-    public var dataField:String;
+     public function get dataField():String
+     {
+          return _dataField;
+     }
+
+     /**
+      *  @private
+      */
+     public function set dataField(value:String):void
+     {
+        _dataField = value;
+  
+        if ( value.indexOf( "." ) != -1 ) 
+        {
+            hasComplexFieldName = true;
+            complexFieldNameComponents = value.split( "." );
+            
+            if ( _sortCompareFunction == null ) 
+            {
+                //if the sort field is null, but the user supplied a complex dataField, we will assign a generic
+                //sort compare that handles this situation. It will yield identical results to the sort created in
+                //datagrid under normal circumstances
+                
+                //intentionally not using the setter, the user might still override this or be looking for that change
+                //we want to this to be purely happen behind the scenes if there is no function provided
+                _sortCompareFunction = complexColumnSortCompare;
+            }
+            
+        }
+
+        if (owner)
+            owner.invalidateList();
+     }
 
     //----------------------------------
     //  dataTipField
@@ -1201,10 +1260,13 @@ public class DataGridColumn extends CSSStyleDeclaration implements IIMESupport
      *  Internal function to allow the DataGrid to set the width of the
      *  column without locking it as an explicitWidth
      */
-    mx_internal function setWidth(value:Number):void
-    {
-        _width = value;
-    }
+     mx_internal function setWidth(value:Number):void
+     {
+         var oldValue:Number = _width;
+         _width = value;
+         if (oldValue != value)
+             dispatchEvent(new Event("widthChanged"));
+     }
 
     //----------------------------------
     //  wordWrap
@@ -1416,7 +1478,10 @@ public class DataGridColumn extends CSSStyleDeclaration implements IIMESupport
         {
             try
             {
-                data = data[dataField];
+                if ( !hasComplexFieldName ) 
+                    data = data[dataField];
+                else 
+                    data = deriveComplexColumnData( data );
             }
             catch(e:Error)
             {
@@ -1490,6 +1555,41 @@ public class DataGridColumn extends CSSStyleDeclaration implements IIMESupport
         }
 
         return " ";
+    }
+
+    protected function deriveComplexColumnData( data:Object ):Object 
+    {
+        var currentRef:Object = data;
+        if ( complexFieldNameComponents ) 
+        {
+            for ( var i:int=0; i<complexFieldNameComponents.length; i++ )
+                currentRef = currentRef[ complexFieldNameComponents[ i ] ];
+        }
+        
+        return currentRef;
+    }
+
+    protected function complexColumnSortCompare( obj1:Object, obj2:Object ):int 
+    {
+        if ( !obj1 && !obj2 )
+            return 0;
+        
+        if ( !obj1 )
+            return 1;
+        
+        if ( !obj2 )
+            return -1;
+        
+        var obj1Data:String = deriveComplexColumnData( obj1 ).toString();
+        var obj2Data:String = deriveComplexColumnData( obj2 ).toString();
+        
+        if ( obj1Data < obj2Data )
+            return -1;
+        
+        if ( obj1Data > obj2Data )
+            return 1;
+        
+        return 0;
     }
 
     /**

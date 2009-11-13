@@ -15,6 +15,7 @@ package mx.managers
 import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.events.EventDispatcher;
+import flash.events.IEventDispatcher;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
 import flash.geom.Point;
@@ -30,6 +31,7 @@ import mx.effects.IAbstractEffect;
 import mx.effects.EffectManager;
 import mx.events.EffectEvent;
 import mx.events.ToolTipEvent;
+import mx.events.InterManagerRequest;
 import mx.managers.IToolTipManagerClient;
 import mx.styles.IStyleClient;
 import mx.validators.IValidatorListener;
@@ -94,6 +96,15 @@ public class ToolTipManagerImpl extends EventDispatcher
         
         if (instance)
             throw new Error("Instance already exists.");
+
+		this.systemManager = SystemManagerGlobals.topLevelSystemManagers[0] as ISystemManager;
+		sandboxRoot = this.systemManager.getSandboxRoot();
+		sandboxRoot.addEventListener(InterManagerRequest.TOOLTIP_MANAGER_REQUEST, marshalToolTipManagerHandler, false, 0, true);
+		var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.TOOLTIP_MANAGER_REQUEST);
+		me.name = "update";
+		// trace("--->update request for ToolTipManagerImpl", systemManager);
+		sandboxRoot.dispatchEvent(me);
+		// trace("<---update request for ToolTipManagerImpl", systemManager);
     }
 
     //--------------------------------------------------------------------------
@@ -101,6 +112,16 @@ public class ToolTipManagerImpl extends EventDispatcher
     //  Variables
     //
     //--------------------------------------------------------------------------
+
+    /**
+     *  @private
+     */
+    private var systemManager:ISystemManager = null;
+    
+    /**
+     *  @private
+     */
+    private var sandboxRoot:IEventDispatcher = null;
 
     /**
      *  @private
@@ -202,7 +223,7 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  @private
      */
-    private var _currentToolTip:IToolTip;
+    private var _currentToolTip:DisplayObject;
 
     /**
      *  The ToolTip object that is currently visible,
@@ -210,7 +231,7 @@ public class ToolTipManagerImpl extends EventDispatcher
      */
     public function get currentToolTip():IToolTip
     {
-        return _currentToolTip;
+        return _currentToolTip as IToolTip;
     }
     
     /**
@@ -218,7 +239,13 @@ public class ToolTipManagerImpl extends EventDispatcher
      */
     public function set currentToolTip(value:IToolTip):void
     {
-        _currentToolTip = value;
+        _currentToolTip = value as DisplayObject;
+
+		var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.TOOLTIP_MANAGER_REQUEST);
+		me.name = "currentToolTip";
+		me.value = value;
+		// trace("-->dispatched currentToolTip for ToolTipManagerImpl", systemManager, value);
+		sandboxRoot.dispatchEvent(me);
     }
 
     //----------------------------------
@@ -295,6 +322,9 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  The effect that plays when a ToolTip is hidden,
      *  or <code>null</code> if the ToolTip should disappear with no effect.
+	 *
+	 *  <p>Effects are not marshaled across applicationDomains in a sandbox
+	 *  as they may not be supportable in different versions</p>
      *
      *  @default null
      */
@@ -392,6 +422,9 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  The effect that plays when a ToolTip is shown,
      *  or <code>null</code> if the ToolTip should appear with no effect.
+	 *
+	 *  <p>Effects are not marshaled across applicationDomains in a sandbox
+	 *  as they may not be supportable in different versions</p>
      *
      *  @default null
      */
@@ -420,6 +453,11 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  The class to use for creating ToolTips.
      *  
+	 *  <p>The ToolTipClass is not marshaled across applicationDomains in a sandbox
+	 *  as they may not be supportable in different versions.  Child
+	 *  applications should only be interested in setting the tooltip
+	 *  for objects within themselves</p>
+     *
      *  @default mx.controls.ToolTip
      */
     public function get toolTipClass():Class 
@@ -704,9 +742,19 @@ public class ToolTipManagerImpl extends EventDispatcher
         
         if (previousTarget && currentToolTip)
         {
-            event = new ToolTipEvent(ToolTipEvent.TOOL_TIP_HIDE);
-            event.toolTip = currentToolTip;
-            previousTarget.dispatchEvent(event);
+			if (currentToolTip is IToolTip)
+			{
+				event = new ToolTipEvent(ToolTipEvent.TOOL_TIP_HIDE);
+				event.toolTip = currentToolTip;
+				previousTarget.dispatchEvent(event);
+			}
+			else
+			{
+				var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.TOOLTIP_MANAGER_REQUEST);
+				me.name = ToolTipEvent.TOOL_TIP_HIDE;
+				// trace("-->dispatched hide for ToolTipManagerImpl", systemManager);
+				sandboxRoot.dispatchEvent(me);
+			}
         }   
             
         reset();
@@ -780,8 +828,8 @@ public class ToolTipManagerImpl extends EventDispatcher
 
         currentToolTip.visible = false;
 
-        var sm:ISystemManager = getSystemManager(currentTarget);
-        sm.toolTipChildren.addChild(DisplayObject(currentToolTip));
+        var sm:ISystemManager = getSystemManager(currentTarget) as ISystemManager;
+       	sm.topLevelSystemManager.addChildToSandboxRoot("toolTipChildren", currentToolTip as DisplayObject);
     }
 
     /**
@@ -809,8 +857,8 @@ public class ToolTipManagerImpl extends EventDispatcher
     mx_internal function initializeTip():void
     {
         // Set the text of the tooltip.
-        if (currentToolTip is ToolTip)
-            ToolTip(currentToolTip).text = currentText;
+        if (currentToolTip is IToolTip)
+            IToolTip(currentToolTip).text = currentText;
 
         if (isError && currentToolTip is IStyleClient)
             IStyleClient(currentToolTip).setStyle("styleName", "errorTip");
@@ -876,7 +924,7 @@ public class ToolTipManagerImpl extends EventDispatcher
 
         if (isError)
         {
-            var targetGlobalBounds:Rectangle = getGlobalBounds(currentTarget);
+            var targetGlobalBounds:Rectangle = getGlobalBounds(currentTarget, currentToolTip.root);
 
             x = targetGlobalBounds.right + 4;
             y = targetGlobalBounds.top - 1;
@@ -903,7 +951,6 @@ public class ToolTipManagerImpl extends EventDispatcher
                     if (currentToolTip is IStyleClient)
                         IStyleClient(currentToolTip).setStyle("borderStyle", "errorTipAbove");
                     currentToolTip["text"] = currentToolTip["text"];
-                    Object(toolTipClass).maxWidth = oldWidth;
                 }
 
                 // Even if the error tip will fit onstage, we still need to
@@ -930,8 +977,6 @@ public class ToolTipManagerImpl extends EventDispatcher
                     if (currentToolTip is IStyleClient)
                         IStyleClient(currentToolTip).setStyle("borderStyle", "errorTipBelow");
                     currentToolTip["text"] = currentToolTip["text"];
-                    if (!isNaN(oldWidth))
-                        Object(toolTipClass).maxWidth = oldWidth;
                 }
             }
 
@@ -941,19 +986,17 @@ public class ToolTipManagerImpl extends EventDispatcher
             // don't undergo normal measurement and layout.
             sizeTip(currentToolTip)
 
-            // We might be loaded and offset.
-            var pos:Point = new Point(x, y);
-            var ctt:IToolTip = currentToolTip;
-            pos = DisplayObject(ctt).root.globalToLocal(pos);
-            x = pos.x;
-            y = pos.y;
+            // If we changed the tooltip max size, we change it back
+            if (!isNaN(oldWidth))
+                Object(toolTipClass).maxWidth = oldWidth;
         }
         else
         {
+            var sm:ISystemManager = getSystemManager(currentTarget);
             // Position the upper-left of the tooltip
             // at the lower-right of the arrow cursor.
-            x = ApplicationGlobals.application.mouseX + 11;
-            y = ApplicationGlobals.application.mouseY + 22;
+            x = DisplayObject(sm).mouseX + 11;
+            y = DisplayObject(sm).mouseY + 22;
 
             // If the tooltip is too wide to fit onstage, move it left.
             var toolTipWidth:Number = currentToolTip.width;
@@ -964,6 +1007,12 @@ public class ToolTipManagerImpl extends EventDispatcher
             var toolTipHeight:Number = currentToolTip.height;
             if (y + toolTipHeight > screenHeight)
                 y = screenHeight - toolTipHeight;
+
+			var pos:Point = new Point(x, y);
+			pos = DisplayObject(sm).localToGlobal(pos);
+			pos = DisplayObject(sandboxRoot).globalToLocal(pos);
+			x = pos.x;
+			y = pos.y;
         }
 
         currentToolTip.move(x, y);
@@ -1087,8 +1136,8 @@ public class ToolTipManagerImpl extends EventDispatcher
             EffectManager.endEffectsForTarget(currentToolTip);
 
             // Remove it.
-            var sm:ISystemManager = currentToolTip.systemManager;
-            sm.toolTipChildren.removeChild(DisplayObject(currentToolTip));
+            var sm:ISystemManager = currentToolTip.systemManager as ISystemManager;
+           	sm.topLevelSystemManager.removeChildFromSandboxRoot("toolTipChildren", currentToolTip as DisplayObject);
             currentToolTip = null;
 
             scrubTimer.delay = scrubDelay;
@@ -1163,9 +1212,9 @@ public class ToolTipManagerImpl extends EventDispatcher
         var toolTip:ToolTip = new ToolTip();
 
         var sm:ISystemManager = context ?
-                                context.systemManager :
-                                ApplicationGlobals.application.systemManager;
-        sm.toolTipChildren.addChild(toolTip);
+                                          context.systemManager as ISystemManager:
+                                          ApplicationGlobals.application.systemManager as ISystemManager;
+       	sm.topLevelSystemManager.addChildToSandboxRoot("toolTipChildren", toolTip as DisplayObject);
 
         if (errorTipBorderStyle)
         {
@@ -1201,8 +1250,8 @@ public class ToolTipManagerImpl extends EventDispatcher
      */
     public function destroyToolTip(toolTip:IToolTip):void
     {
-        var sm:ISystemManager = toolTip.systemManager;
-        sm.toolTipChildren.removeChild(DisplayObject(toolTip));
+        var sm:ISystemManager = toolTip.systemManager as ISystemManager;
+       	sm.topLevelSystemManager.removeChildFromSandboxRoot("toolTipChildren", DisplayObject(toolTip));
 
         // hide effect?
     }
@@ -1263,10 +1312,11 @@ public class ToolTipManagerImpl extends EventDispatcher
     /**
      *  @private
      */
-    private function getGlobalBounds(obj:DisplayObject):Rectangle
+    private function getGlobalBounds(obj:DisplayObject, parent:DisplayObject):Rectangle
     {
         var upperLeft:Point = new Point(0, 0);
         upperLeft = obj.localToGlobal(upperLeft);
+        upperLeft = parent.globalToLocal(upperLeft);
         return new Rectangle(upperLeft.x, upperLeft.y, obj.width, obj.height);
     }
 
@@ -1377,6 +1427,43 @@ public class ToolTipManagerImpl extends EventDispatcher
     {
         reset();
     }
+
+	/**
+	 *  Marshal dragManager
+	 */
+	private function marshalToolTipManagerHandler(event:Event):void
+	{
+		if (event is InterManagerRequest)
+			return;
+
+		var me:InterManagerRequest;
+
+		var marshalEvent:Object = event;
+		switch (marshalEvent.name)
+		{
+		case "currentToolTip":
+			// trace("--marshaled currentToolTip for ToolTipManagerImpl", systemManager, marshalEvent.value);
+			_currentToolTip = marshalEvent.value;
+			break;
+		case ToolTipEvent.TOOL_TIP_HIDE:
+			// trace("--handled hide for ToolTipManagerImpl", systemManager);
+			if (_currentToolTip is IToolTip)
+				hideTip()
+			break;
+		case "update":
+			// anyone can answer so prevent others from responding as well
+			event.stopImmediatePropagation();
+			// update the others
+			// trace("-->marshaled update for ToolTipManagerImpl", systemManager);
+			me = new InterManagerRequest(InterManagerRequest.TOOLTIP_MANAGER_REQUEST);
+			me.name = "currentToolTip";
+			me.value = _currentToolTip;
+			// trace("-->dispatched currentToolTip for ToolTipManagerImpl", systemManager, true);
+			sandboxRoot.dispatchEvent(me);
+			// trace("<--dispatched currentToolTip for ToolTipManagerImpl", systemManager, true);
+			// trace("<--marshaled update for ToolTipManagerImpl", systemManager);
+		}
+	}
 }
 
 }

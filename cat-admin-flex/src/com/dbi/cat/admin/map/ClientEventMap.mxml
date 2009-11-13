@@ -137,4 +137,38 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	
+	<!-- Reserved Keyword events -->
+	<EventHandlers type="{ClientEvent.LIST_RESERVED_KEYWORD}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="getAllReservedKeywords">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadReservedKeywords"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.SAVE_RESERVED_KEYWORD}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="save"
+			arguments="{event.reservedKeyword}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="saveReservedKeyword"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.DELETE_RESERVED_KEYWORD}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="delete"
+			arguments="{event.reservedKeyword}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="deleteReservedKeyword"
+					arguments="{event.reservedKeyword}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 </EventMap>

@@ -20,6 +20,7 @@ import flash.net.Responder;
 import mx.core.mx_internal;
 import mx.logging.Log;
 import mx.messaging.FlexClient;
+import mx.messaging.MessageResponder;
 import mx.messaging.config.ConfigMap;
 import mx.messaging.config.ServerConfig;
 import mx.messaging.events.ChannelFaultEvent;
@@ -81,7 +82,7 @@ public class AMFChannel extends NetConnectionChannel
     //--------------------------------------------------------------------------
 
     /**
-     *  Creates an new AMFChannel instance.
+     *  Constructor.
      *
      *  @param id The id of this Channel.
      *
@@ -301,11 +302,11 @@ public class AMFChannel extends NetConnectionChannel
     override protected function internalDisconnect(rejected:Boolean = false):void
     {
         // Attempt to notify the server of the disconnect.
-        if (!rejected)
+        if (!rejected && !shouldBeConnected)
         {
             var msg:CommandMessage = new CommandMessage();
             msg.operation = CommandMessage.DISCONNECT_OPERATION;
-            internalSend(new AMFFireAndForgetResponder(msg));
+            internalSend(new MessageResponder(null, msg, null));
         }
         // Shut down locally.
         setConnected(false);
@@ -353,6 +354,17 @@ public class AMFChannel extends NetConnectionChannel
             // If the level is error we couldn't communicate with the server.
             if (info.level == "error")
             {
+                // Suppress processing of "Client.Data.Underflow" status events which are dispatched for
+                // any outstanding AMF messages in HTTP responses that are not fully received because
+                // the underlying connection has closed mid-response.
+                if (info.code == "Client.Data.UnderFlow")
+                {
+                    if (Log.isDebug())
+                        _log.debug("'{0}' channel received a 'Client.Data.Underflow' status event.");
+
+                    return; // Skip further processing.
+                }
+
                 if (connected)
                 {
                     if (info.code.indexOf("Call.Failed") != -1)
@@ -471,8 +483,11 @@ public class AMFChannel extends NetConnectionChannel
                     var serverVersion:Number = msg.headers[CommandMessage.MESSAGING_VERSION] as Number;
                     handleServerMessagingVersion(serverVersion);
                 }
-
-                faultEvent = ChannelFaultEvent.createEvent(this, false, "Channel.Ping.Failed", "error", msg.faultDetail + " url: '" + endpoint + "'");
+                faultEvent = ChannelFaultEvent.createEvent(this, false,
+                                                "Channel.Ping.Failed",
+                                                "error",
+                                                msg.faultString + " url: '" + endpoint
+                                                + (_appendToURL == null ? "" : _appendToURL + "'") + "'");
                 faultEvent.rootCause = msg;
                 connectFailed(faultEvent);
             }
@@ -513,24 +528,4 @@ public class AMFChannel extends NetConnectionChannel
     }
 }
 
-}
-
-//------------------------------------------------------------------------------
-//
-// Private Classes
-//
-//------------------------------------------------------------------------------
-
-import mx.messaging.MessageResponder;
-import mx.messaging.messages.IMessage;
-
-/**
- *  Helper class for sending a fire-and-forget disconnect message.
- */
-class AMFFireAndForgetResponder extends MessageResponder
-{
-    public function AMFFireAndForgetResponder(message:IMessage)
-    {
-        super(null, message, null);
-    }
 }

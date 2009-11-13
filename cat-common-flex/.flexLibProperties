@@ -16,6 +16,8 @@
     <classEntry path="com.dbi.cat.common.vo.CalendarConnectorVO"/>
     <classEntry path="com.dbi.cat.common.vo.ConnectorVO"/>
     <classEntry path="com.dbi.cat.common.constants.EntryRestrictionType"/>
+    <classEntry path="com.dbi.cat.common.exception.FlexException"/>
+    <classEntry path="com.dbi.cat.common.constants.KeywordConstants"/>
     <classEntry path="com.dbi.cat.common.vo.ImmediateConnectorVO"/>
     <classEntry path="com.dbi.cat.common.vo.UserProfileVO"/>
     <classEntry path="com.dbi.cat.common.vo.KeywordVO"/>

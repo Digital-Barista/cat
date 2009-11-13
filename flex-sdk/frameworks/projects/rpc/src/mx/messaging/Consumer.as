@@ -70,7 +70,7 @@ public class Consumer extends AbstractConsumer
     //--------------------------------------------------------------------------
 
     /**
-     *  Constructs a Consumer.
+     *  Constructor.
      * 
      *  @param messageType The alias for the message type processed by the service
      *                     hosting the remote destination the Consumer will subscribe to.
@@ -96,11 +96,11 @@ public class Consumer extends AbstractConsumer
      *   }
      *   </listing>
      */
-	public function Consumer(messageType:String="flex.messaging.messages.AsyncMessage")
-	{
-		super();
-	}
-	
+    public function Consumer(messageType:String="flex.messaging.messages.AsyncMessage")
+    {
+        super();
+    }
+    
 
     //--------------------------------------------------------------------------
     //
@@ -108,45 +108,45 @@ public class Consumer extends AbstractConsumer
     // 
     //--------------------------------------------------------------------------
 
-	//----------------------------------
-	//  selector
-	//----------------------------------
-
-	/**
-     *  @private
-	 */
-	private var _selector:String = "";
-
-    [Bindable(event="propertyChange")]
-
-    [Inspectable(category="General", verbose="1")]
-	/**
-	 *  The selector for the Consumer. 
-	 *  This is an expression that is passed to the destination which uses it
-	 *  to filter the messages delivered to the Consumer.
-	 * 
-	 *  <p>Before a call to the <code>subscribe()</code> method, this property 
-	 *  can be set with no side effects. 
-	 *  After the Consumer has subscribed to its destination, changing this 
-	 *  value has the side effect of updating the Consumer's subscription to 
-	 *  use the new selector expression immediately.</p>
-	 * 
-	 *  <p>The remote destination must understand the value of the selector 
-	 *  expression.</p>
-	 */	
-	public function get selector():String
-	{
-		return _selector;
-	}
+    //----------------------------------
+    //  selector
+    //----------------------------------
 
     /**
      *  @private
      */
-	public function set selector(value:String):void
-	{
-	    if (_selector !== value)
-	    {
-	        var event:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(this, "selector", _selector, value);
+    private var _selector:String = "";
+
+    [Bindable(event="propertyChange")]
+
+    [Inspectable(category="General", verbose="1")]
+    /**
+     *  The selector for the Consumer. 
+     *  This is an expression that is passed to the destination which uses it
+     *  to filter the messages delivered to the Consumer.
+     * 
+     *  <p>Before a call to the <code>subscribe()</code> method, this property 
+     *  can be set with no side effects. 
+     *  After the Consumer has subscribed to its destination, changing this 
+     *  value has the side effect of updating the Consumer's subscription to 
+     *  use the new selector expression immediately.</p>
+     * 
+     *  <p>The remote destination must understand the value of the selector 
+     *  expression.</p>
+     */ 
+    public function get selector():String
+    {
+        return _selector;
+    }
+
+    /**
+     *  @private
+     */
+    public function set selector(value:String):void
+    {
+        if (_selector !== value)
+        {
+            var event:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(this, "selector", _selector, value);
 
             var resetSubscription:Boolean = false;
             if (subscribed)
@@ -155,19 +155,19 @@ public class Consumer extends AbstractConsumer
                 resetSubscription = true;
             }
 
-    		_selector = value;
+            _selector = value;
 
-    		// Update an existing subscription to use the new selector.
-    		if (resetSubscription)
-    			subscribe(clientId);
+            // Update an existing subscription to use the new selector.
+            if (resetSubscription)
+                subscribe(clientId);
 
-    	    dispatchEvent(event);
-    	}
-	}
-	
-	//----------------------------------
-	//  subtopic
-	//----------------------------------	
+            dispatchEvent(event);
+        }
+    }
+    
+    //----------------------------------
+    //  subtopic
+    //----------------------------------    
 
     /**
      *  @private
@@ -184,16 +184,16 @@ public class Consumer extends AbstractConsumer
         return _subtopic;
     }
     
-	/**
-	 *  Setting the subtopic when the Consumer is connected and
-	 *  subscribed has the side effect of unsubscribing and resubscribing
-	 *  the Consumer.
-	 */
+    /**
+     *  Setting the subtopic when the Consumer is connected and
+     *  subscribed has the side effect of unsubscribing and resubscribing
+     *  the Consumer.
+     */
     public function set subtopic(value:String):void
     {
         if (subtopic != value)
-	    {
-	        var resetSubscription:Boolean = false;
+        {
+            var resetSubscription:Boolean = false;
             if (subscribed)
             {
                 unsubscribe();

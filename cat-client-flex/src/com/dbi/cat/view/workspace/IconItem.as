@@ -111,14 +111,14 @@ package com.dbi.cat.view.workspace
 			nameLabel.wordWrap = true;
 			nameLabel.editable = false;
 			nameLabel.maxWidth = 100;
-			nameLabel.maxHeight = 40;
+			nameLabel.maxHeight = 20;
 			nameLabel.width = 100;
-			nameLabel.height = 40;
+			nameLabel.height = 20;
 			nameLabel.selectable = false;
 			nameLabel.setStyle("textAlign", "center");
 			nameLabel.setStyle("backgroundAlpha", 0);
 			nameLabel.setStyle("borderStyle", "none");
-			nameLabel.setStyle("bottom", -40);
+			nameLabel.setStyle("bottom", -20);
 			nameLabel.setStyle("horizontalCenter", 0);
 			
 			BindingUtils.bindProperty(nameLabel, "text", this, "title");

@@ -5,6 +5,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
 	import com.dbi.cat.common.vo.CouponNodeVO;
+	import com.dbi.cat.common.vo.EntryDataVO;
 	import com.dbi.cat.common.vo.EntryPointVO;
 	import com.dbi.cat.common.vo.ImmediateConnectorVO;
 	import com.dbi.cat.common.vo.IntervalConnectorVO;
@@ -12,7 +13,6 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.common.vo.ResponseConnectorVO;
 	
-	import mx.collections.ArrayCollection;
 	import mx.formatters.DateFormatter;
 	
 	[Bindable]
@@ -86,14 +86,23 @@ package com.dbi.cat.business
 					if (node is EntryPointVO)
 					{
 						var entry:EntryPointVO = node as EntryPointVO;
-						if (entry.valid &&
-							entry.keyword.toLowerCase() == response.toLowerCase())
+						if (entry.valid)
 						{
-							match = true;
-							currentNode = entry;
-							out("Response: ", response);
-							out("Matched entry point with keyword: ", entry.keyword);
-							break;
+							// Search each entry data and return the first match
+							for each (var ed:EntryDataVO in entry.entryData)
+							{
+								if (ed.valid &&
+									matchKeyword(response, ed.keyword) )
+								{
+									match = true;
+									currentNode = entry;
+									out("Response: ", response);
+									out("Matched entry point with keyword: ", ed.keyword);
+									break;
+								}
+							}
+							if (match)
+								break;
 						}
 					}
 				}
@@ -113,16 +122,26 @@ package com.dbi.cat.business
 					if (connector is ResponseConnectorVO)
 					{
 						var rConnector:ResponseConnectorVO = connector as ResponseConnectorVO;
-						if (rConnector.valid &&
-							rConnector.keyword.toLowerCase() == response.toLowerCase())
+						
+						if (rConnector.valid)
 						{
-							match = true;
-							out("Response: ", response);
-							out("Matched response connector with keyword: ", rConnector.keyword);
-							
-							// Find destination node of this matching response connector
-							followConnector(rConnector);
-							break;
+							match = false;
+							for each (ed in rConnector.entryData)
+							{
+								if (ed.valid &&
+									matchKeyword(response, ed.keyword) )
+								{
+									match = true;
+									out("Response: ", response);
+									out("Matched response connector with keyword: ", ed.keyword);
+									
+									// Find destination node of this matching response connector
+									followConnector(rConnector);
+									break;
+								}
+							}
+							if (match)
+								break;
 						}
 					}
 				}
@@ -134,6 +153,15 @@ package com.dbi.cat.business
 			}
 			nextStep();
 		}
+		private function matchKeyword(input:String, keyword:String):Boolean
+		{
+			// Strip all white space to a single space and ignore case for compare
+			var reg:RegExp = /\s+/g;
+			var responseText:String = input.replace(reg, " ").toLowerCase();
+			var keywordText:String = keyword.replace(reg, " ").toLowerCase();
+			return responseText == keywordText;
+		}
+		
 		public function followNextTimeConnector():void
 		{
 			if (currentNode == null)

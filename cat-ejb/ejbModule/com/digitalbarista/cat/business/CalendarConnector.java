@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.log4j.LogManager;
 
 import com.digitalbarista.cat.audit.Auditable;
@@ -13,6 +16,7 @@ import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
 
+@XmlRootElement
 public class CalendarConnector extends Connector implements Auditable {
 
 	public static final String INFO_PROPERTY_TARGET_DATE="TargetDate";
@@ -68,6 +72,7 @@ public class CalendarConnector extends Connector implements Auditable {
 		return ConnectorType.Calendar;
 	}
 
+	@XmlAttribute
 	public Date getTargetDate() {
 		return targetDate;
 	}

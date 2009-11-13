@@ -15,10 +15,11 @@ package com.dbi.cat.business
 		public static const VIEW_MAIN:Number = 2;
 		
 		public static const VIEW_MAIN_CAMPAIGNS:Number = 0;
-		public static const VIEW_MAIN_USERS:Number = 1;
-		public static const VIEW_MAIN_PROFILE:Number = 2;
-		public static const VIEW_MAIN_CHANGE_PASSWORD:Number = 3;
-		public static const VIEW_MAIN_EDIT_USER:Number = 4;
+		public static const VIEW_MAIN_REPORTING:Number = 1;
+		public static const VIEW_MAIN_USERS:Number = 2;
+		public static const VIEW_MAIN_PROFILE:Number = 3;
+		public static const VIEW_MAIN_CHANGE_PASSWORD:Number = 4;
+		public static const VIEW_MAIN_EDIT_USER:Number = 5;
 		
 		public static const VIEW_RECOVER_PASSWORD_MAIN:String = "";
 		public static const VIEW_RECOVER_PASSWORD_RESET:String = "resetPassword";
@@ -54,6 +55,10 @@ package com.dbi.cat.business
 				case NavigationEvent.PROFILE:
 					appCurrentView = VIEW_MAIN;
 					mainCurrentView = VIEW_MAIN_PROFILE;
+					break;
+				case NavigationEvent.REPORTING:
+					appCurrentView = VIEW_MAIN;
+					mainCurrentView = VIEW_MAIN_REPORTING;
 					break;
 				case NavigationEvent.RECOVER_PASSWORD:
 					appCurrentView = VIEW_RECOVER_PASSWORD;

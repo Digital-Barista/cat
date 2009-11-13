@@ -108,6 +108,7 @@ public class ConnectorDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(mappedBy="connector",targetEntity=ConnectorInfoDO.class,cascade=CascadeType.ALL)
+	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
 	public Set<ConnectorInfoDO> getConnectorInfo() {
 		return connectorInfo;

@@ -5,10 +5,10 @@ package com.dbi.cat.common.vo
 	public class KeywordVO
 	{
 		
-		public var entryPointId:Number;
-		public var clientId:Number;
+		public var entryPointId:String;
+		public var clientId:String;
 		public var keyword:String;
-		public var primaryKey:Number;
+		public var primaryKey:String;
 		public var campaignUID:String;
 		public var incomingAddress:String;
 		public var incomingAddressType:String;

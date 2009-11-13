@@ -8,12 +8,11 @@
 	editWindowWidth="380"
 	displayIcon="{couponIcon}"
 	workspaceIcon="{couponIcon}"
-	x="{nodeVO.layoutInfo.x}"
-	y="{nodeVO.layoutInfo.y}"
 	label="Coupon"
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.vo.CouponNodeVO;
 			import mx.events.ChildExistenceChangedEvent;
@@ -32,18 +31,6 @@
 			{
 				nodeVO = c;
 			}
-			public function get layoutInfo():LayoutInfoVO
-			{
-				return couponVO.layoutInfo;
-			}
-			public function set layoutInfo(info:LayoutInfoVO):void
-			{
-				couponVO.layoutInfo = info;
-			}
-			public function get voUID():String
-			{
-				return couponVO.uid;
-			}
 			
 			override public function get valid():Boolean
 			{
@@ -52,11 +39,11 @@
 			
 			private function get maxCharacters():Number
 			{
-				return EntryPointType.getMaxCharacters(workspace.campaign.type);
+				return EntryPointType.TWITTER_MAX_CHARACTERS;
 			}
 			
 			// Addin message of current campaign
-			private var _addInMessage:String;
+			private var _addInMessage:String = "";
 			[Bindable]
 			public function get addInMessage():String
 			{
@@ -146,7 +133,7 @@
 			[Bindable(event="unavailableCharacterUpdate")]
 			private function get unavailableCharacterCount():Number
 			{
-				var ret:Number = addInMessage.length;
+				var ret:Number = addInMessage == null ? 0 : addInMessage.length;
 				if (couponVO != null &&
 					couponVO.unavailableMessage != null)
 				{
@@ -159,7 +146,7 @@
 			[Bindable(event="availableCharacterUpdate")]
 			private function get availableCharacterCount():Number
 			{
-				var ret:Number = addInMessage.length;
+				var ret:Number = addInMessage == null ? 0 : addInMessage.length;
 				if (couponVO != null &&
 					couponVO.availableMessage != null)
 				{
@@ -188,7 +175,8 @@
 			[Bindable(event="changeAddInMessage")]
 			private function get showAddin():Boolean
 			{
-				return addInMessage.length > 0;
+				return addInMessage != null &&
+					addInMessage.length > 0;
 			}
 		]]>
 	</mx:Script>
@@ -200,7 +188,8 @@
 					text="{couponVO.name}"
 					change="{couponVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="Max Coupons">
+			<mx:FormItem label="Max Coupons"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:HBox width="100%">
 					<mx:TextInput id="MaxCoupons" width="80"
 						restrict="[0-9]"
@@ -214,7 +203,8 @@
 						change="{setInfiniteCoupons()}" />
 				</mx:HBox>
 			</mx:FormItem>
-			<mx:FormItem label="Max Redemptions">
+			<mx:FormItem label="Max Redemptions"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:HBox width="100%">
 					<mx:TextInput id="MaxRedemptions" width="80"
 						restrict="[0-9]"
@@ -228,7 +218,8 @@
 						change="{setInfiniteRedemptions()}" />
 				</mx:HBox>
 			</mx:FormItem>
-			<mx:FormItem label="Coupon Code">
+			<mx:FormItem label="Coupon Code"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:HBox width="100%">
 					<mx:RadioButtonGroup id="CouponType"
 						change="changeCodeType()" />
@@ -247,30 +238,36 @@
 						visible="{StaticCode.selected}" />
 				</mx:HBox>
 			</mx:FormItem>
-			<mx:FormItem label="Unavailable Date">
+			<mx:FormItem label="Unavailable Date"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:DateField id="UnavailableDate"
 					editable="true"
 					selectedDate="{couponVO.unavailableDate}"
 					change="{couponVO.unavailableDate = UnavailableDate.selectedDate}" />
 			</mx:FormItem>
-			<mx:FormItem label="Available" required="true" width="100%" >
+			<mx:FormItem label="Available" required="true" width="100%" 
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 					<mx:TextArea id="AvailableMessage"  width="225" height="60"
 						styleName="couponMessage"
 						text="{couponVO.availableMessage}" 
 						change="updateAvailableMessage()"/>
 			</mx:FormItem>
-			<mx:FormItem id="AvailableCharCount">
+			<mx:FormItem id="AvailableCharCount"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:Label text="{availableCharacterCount + '/' + maxCharacters + ' chars'}" />
 			</mx:FormItem>
-			<mx:FormItem label="Unavailable" >
+			<mx:FormItem label="Unavailable" 
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:TextArea id="UnavailableMessage" width="225" height="60"
 					text="{couponVO.unavailableMessage}"
 					change="updateUnavailableMessage()"  />
 			</mx:FormItem>
-			<mx:FormItem id="UnavailableCharCount">
+			<mx:FormItem id="UnavailableCharCount"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:Label text="{unavailableCharacterCount + '/' + maxCharacters + ' chars'}" />
 			</mx:FormItem>
-			<mx:FormItem label="Add In" visible="{showAddin}" includeInLayout="{showAddin}">
+			<mx:FormItem label="Add In" visible="{showAddin}" includeInLayout="{showAddin}"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:TextArea id="AddIn" width="200" height="70"
 					text="{addInMessage}"
 					editable="false" />

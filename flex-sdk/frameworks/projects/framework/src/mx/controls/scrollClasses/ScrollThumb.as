@@ -17,6 +17,7 @@ import flash.geom.Point;
 import mx.controls.Button;
 import mx.core.mx_internal;
 import mx.events.ScrollEventDetail;
+import mx.managers.ISystemManager;
 
 use namespace mx_internal;
 
@@ -133,12 +134,9 @@ public class ScrollThumb extends Button
         
 		scrollBar.oldPosition = NaN;
 		
-		systemManager.removeEventListener(
+		systemManager.getSandboxRoot().removeEventListener(
 			MouseEvent.MOUSE_MOVE, mouseMoveHandler, true);
 
-		// in case we go offscreen
-		systemManager.stage.removeEventListener(MouseEvent.MOUSE_MOVE, 
-							stage_mouseMoveHandler);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -160,12 +158,9 @@ public class ScrollThumb extends Button
 		
 		lastY = event.localY;
 		
-		systemManager.addEventListener(
+		systemManager.getSandboxRoot().addEventListener(
 			MouseEvent.MOUSE_MOVE, mouseMoveHandler, true);
 
-		// in case we go offscreen
-		systemManager.stage.addEventListener(MouseEvent.MOUSE_MOVE, 
-							stage_mouseMoveHandler);
 	}
 
 	//--------------------------------------------------------------------------
@@ -173,14 +168,6 @@ public class ScrollThumb extends Button
 	//  Event handlers
 	//
 	//--------------------------------------------------------------------------
-
-	private function stage_mouseMoveHandler(event:MouseEvent):void
-	{
-		if (event.target != stage)
-			return;
-
-		mouseMoveHandler(event);
-	}
 
 	/**
 	 *  @private

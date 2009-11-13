@@ -92,7 +92,7 @@ public class HTTPChannel extends PollingChannel
     //--------------------------------------------------------------------------
 
     /**
-     *  Creates an new HTTPChannel instance.
+     *  Constructor.
      *
      *  @param id The id of this Channel.
      *  @param uri The uri for this Channel.
@@ -305,14 +305,6 @@ public class HTTPChannel extends PollingChannel
     /**
      *  @private
      */
-    override protected function getPollSyncMessageResponder(agent:MessageAgent, msg:CommandMessage):MessageResponder
-    {
-        return new PollSyncHTTPMessageResponder(agent, msg, this);
-    }
-
-    /**
-     *  @private
-     */
     override protected function getDefaultMessageResponder(agent:MessageAgent, msg:IMessage):MessageResponder
     {
         return new HTTPMessageResponder(agent, msg, this);
@@ -362,11 +354,11 @@ public class HTTPChannel extends PollingChannel
     override protected function internalDisconnect(rejected:Boolean = false):void
     {
         // Attempt to notify the server of the disconnect.
-        if (!rejected)
+        if (!rejected && !shouldBeConnected)
         {
             var msg:CommandMessage = new CommandMessage();
             msg.operation = CommandMessage.DISCONNECT_OPERATION;
-            internalSend(new HTTPFireAndForgetResponder(msg));
+            internalSend(new MessageResponder(null, msg, null));
         }
         // Shutdown locally.
         setConnected(false);
@@ -998,6 +990,10 @@ class HTTPMessageResponder extends MessageResponder
         msg.rootCause = event;
 
         (channel as HTTPChannel).connectionError(msg);
+        
+        // already disconnected, now let the agent know the the message faulted
+        // this is similar to the disconnect() and fault() in the NetConnectionChannel statusHandler
+        agent.fault(msg, message);    
     }
 
     /**
@@ -1189,80 +1185,5 @@ class ChannelRequestLoader
     {
         callRequestProcessedCallback(event);
         callEventCallback(completeCallback, event);
-    }
-}
-
-/**
- *  @private
- *  This class provides a way to synchronize polling with a subscribe or
- *  unsubscribe request.  It is constructed in response to a consumer sending
- *  either a subscribe or unsubscribe command message.  If a successfull
- *  subscribe/unsubscribe is made this responder will inform the channel
- *  appropriately.
- *
- *  See the PollSyncMessageResponder in NetConnectionChannel - the prototype.
- */
-class PollSyncHTTPMessageResponder extends HTTPMessageResponder
-{
-    //--------------------------------------------------------------------------
-    //
-    // Constructor
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  @private
-     *  Constructs a PollSyncHTTPMessageResponder.
-     *
-     *  @param agent The associated MessageAgent.
-     *
-     *  @param msg The subscribe or unsubscribe message.
-     *
-     *  @param channel The Channel used to send the message.
-     */
-    public function PollSyncHTTPMessageResponder
-        (agent:MessageAgent, msg:IMessage, channel:HTTPChannel)
-    {
-        super(agent, msg, channel);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    // Overridden Protected Methods
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  @private
-     */
-    override protected function resultHandler(response:IMessage):void
-    {
-        super.resultHandler(response);
-        if ((response is AsyncMessage) && (AsyncMessage(response).correlationId == message.messageId))
-        {
-            // notify the channel
-            var cmd:CommandMessage = CommandMessage(message);
-            switch (cmd.operation)
-            {
-                case CommandMessage.SUBSCRIBE_OPERATION:
-                    HTTPChannel(channel).enablePolling();
-                break;
-
-                case CommandMessage.UNSUBSCRIBE_OPERATION:
-                    HTTPChannel(channel).disablePolling();
-                break;
-            }
-        }
-    }
-}
-
-/**
- *  Helper class for sending a fire-and-forget disconnect message.
- */
-class HTTPFireAndForgetResponder extends MessageResponder
-{
-    public function HTTPFireAndForgetResponder(message:IMessage)
-    {
-        super(null, message, null);
     }
 }

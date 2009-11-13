@@ -16,14 +16,13 @@ import flash.utils.ByteArray;
 import flash.utils.getQualifiedClassName;
 
 import mx.collections.ArrayCollection;
-import mx.collections.IList;
 import mx.logging.ILogger;
 import mx.logging.Log;
 import mx.utils.DescribeTypeCache;
-import mx.utils.object_proxy;
 import mx.utils.ObjectProxy;
 import mx.utils.URLUtil;
 import mx.utils.XMLUtil;
+import mx.utils.object_proxy;
 
 [ExcludeClass]
 
@@ -799,12 +798,16 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
 
         // FIXME: Should we care if base type is marked final?
 
+        // Fix for SDK-16891. It seems the sequence order for base types are not
+        // honored by some web services so we allow lax processing to find them.
+        var originalLaxSequence:Boolean = context.laxSequence;
+        context.laxSequence = true;
+
         // First encode all of the properties of the base type
         decodeComplexType(baseDefinition, parent, name, value, null, context);
 
         // Then release the scope of the base type definition
         schemaManager.releaseScope();
-
 
         var childElements:XMLList = definition.elements();
         var valueElements:XMLList = new XMLList();
@@ -851,6 +854,9 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
                 decodeAnyAttribute(childDefinition, parent, value);
             }
         }
+
+        // Finally, reset to the original laxSequence setting
+        context.laxSequence = originalLaxSequence;
     }
     
     /**    
@@ -1018,6 +1024,10 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
         var maxOccurs:uint = getMaxOccurs(definition);
         var minOccurs:uint = getMinOccurs(definition);
 
+        // If the maximum occurence is 0 this element must not be present.
+        if (maxOccurs == 0)
+            return true;
+
         // <element ref="..."> may be used to point to a top-level element definition
         var ref:QName;
         if (definition.attribute("ref").length() == 1)
@@ -1027,10 +1037,6 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
             if (definition == null)
                 throw new Error("Cannot resolve element definition for ref '" + ref + "'");
         }
-
-        // If the maximum occurence is 0 this element must not be present.
-        if (maxOccurs == 0)
-            return true;
 
         var elementName:String = definition.@name.toString();
         var elementQName:QName = schemaManager.getQNameForElement(elementName, getAttributeFromNode("form", definition));
@@ -1046,6 +1052,11 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
         {
             setValue(parent, elementQName, null);
             context.index++;
+
+            // If we found our element by reference, we now release the schema scope
+            if (ref != null)
+                schemaManager.releaseScope();
+
             return true;
         }
 
@@ -1087,6 +1098,10 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
         // a value was not provided.
         if (applicableValues.length() == 0)
         {
+            // If we found our element by reference, we now release the schema scope
+            if (ref != null)
+                schemaManager.releaseScope();
+
             if (minOccurs == 0)
             	return true;
             else
@@ -1110,6 +1125,10 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
             // Array of values
             if (applicableValues.length() < minOccurs)
             {
+                // If we found our element by reference, we now release the schema scope
+                if (ref != null)
+                    schemaManager.releaseScope();
+
                 if (strictOccurenceBounds)
                     throw new Error("Value supplied for element '" + elementQName +
                         "' occurs " + applicableValues.length() + " times which falls short of minOccurs " +
@@ -1120,6 +1139,10 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
 
             if (applicableValues.length() > maxOccurs)
             {
+                // If we found our element by reference, we now release the schema scope
+                if (ref != null)
+                    schemaManager.releaseScope();
+
                 if (strictOccurenceBounds)
                     throw new Error("Value supplied for element of type '" + elementQName +
                         "' occurs " + applicableValues.length() + " times which exceeds maxOccurs " +
@@ -1191,6 +1214,12 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
         if (attributeValue != null)
         {
             var typeQName:QName = schemaManager.getQNameForPrefixedName(attributeValue, definition);
+
+            // Check if a concrete type was specified in the xml value
+            var xsiType:QName = getXSIType(value);
+            if (xsiType != null)
+                typeQName = xsiType;
+
             content = createContent(typeQName);
             decodeType(typeQName, content, elementQName, value);
             return content;
@@ -2042,9 +2071,44 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
                     propertyName = Object(name).toString();
 
 
+
                 if (parent is ContentProxy && ContentProxy(parent).object_proxy::isSimple)
                 {
-                    existingValue = ContentProxy(parent).object_proxy::content;
+                    var simpleContent:* = ContentProxy(parent).object_proxy::content;
+                    if (simpleContent != null)
+                    {
+                        if (isSimpleValue(simpleContent) || TypeIterator.isIterable(simpleContent))
+                        {
+                            existingValue = simpleContent;
+                        }
+                        else
+                        {
+                            // TODO: Remove these hacks and establish a convention
+                            // for simple property values on strongly typed values
+
+                            // HACK for SDK-14800:
+                            // Flex Builder 3 may generate a strongly typed class for simpleContent extensions
+                            // or restrictions, which uses the convention of "_" + typeName for the simpleContent
+                            // value.
+                            var localName:String = getUnqualifiedClassName(simpleContent); 
+                            var simplePropName:String = "_" + localName;
+                            if (Object(simpleContent).hasOwnProperty(simplePropName))
+                            {
+                                simpleContent[simplePropName] = value;
+                                return;
+                            }
+
+                            // HACK for SDK-22327:
+                            // Flex Builder 3 may alternatively generate a property
+                            // name with camel case for a simpleType enumeration
+                            simplePropName = localName.charAt(0).toLowerCase() + localName.substr(1);
+                            if (Object(simpleContent).hasOwnProperty(simplePropName))
+                            {
+                                simpleContent[simplePropName] = value;
+                                return;
+                            }
+                        }
+                    }
                 }
                 else 
                 {
@@ -2199,6 +2263,11 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
         if (context.anyIndex > -1 && name != null)
         {
             startIndex = context.anyIndex;
+            skipAhead = true;
+        }
+        else if (context.laxSequence)
+        {
+            startIndex = 0;
             skipAhead = true;
         }
 
@@ -2425,6 +2494,31 @@ public class XMLDecoder extends SchemaProcessor implements IXMLDecoder
         }
 
         return existingValue;
+    }
+    
+    /**
+     *  Returns the name of the specified object's class,
+     *  such as <code>"Button"</code>
+     *
+     *  <p>This string does not include the package name.
+     *  If you need the package name as well, call the
+     *  <code>getQualifiedClassName()</code> method in the flash.utils package.
+     *  It will return a string such as <code>"mx.controls::Button"</code>.</p>
+     */
+    public static function getUnqualifiedClassName(object:Object):String
+    {
+        var name:String;
+        if (object is String)
+            name = object as String;
+        else
+            name = getQualifiedClassName(object);
+
+        // If there is a package name, strip it off.
+        var index:int = name.indexOf("::");
+        if (index != -1)
+            name = name.substr(index + 2);
+
+        return name;
     }
 
     /**

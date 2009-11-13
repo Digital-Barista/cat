@@ -18,26 +18,25 @@ package mx.rpc
  */
 public interface IResponder
 {
-	/**
-	 *  This method is called by a service when the return value
-	 *  has been received. 
-	 *  While <code>data</code> is typed as Object, it is often
-	 *  (but not always) an mx.rpc.events.ResultEvent.
-         *
-         * @param data Although typed as Object, data is often (but not always)
-         * an mx.rpc.events.ResultEvent.
-	 */
-	function result(data:Object):void;
-	
-	/**
-	 *  This method is called by a service when an error has been received.
-	 *  While <code>info</code> is typed as Object it is often
-	 *  (but not always) an mx.rpc.events.FaultEvent.
-         *
-         * @param info Although typed as Object, info is often (but not always)
-         * an mx.rpc.events.FaultEvent.
-	 */
-	function fault(info:Object):void;
+    /**
+     *  This method is called by a service when the return value
+     *  has been received. 
+     *  While <code>data</code> is typed as Object, it is often
+     *  (but not always) an mx.rpc.events.ResultEvent object.
+     *
+     *  @param data Contains the information returned from the request.
+     */
+    function result(data:Object):void;
+    
+    /**
+     *  This method is called by a service when an error has been received.
+     *  While <code>info</code> is typed as Object it is often
+     *  (but not always) an mx.rpc.events.FaultEvent object.
+     *
+     *  @param info Contains the information about the error that 
+     *  occured.
+     */
+    function fault(info:Object):void;
 }
 
 }

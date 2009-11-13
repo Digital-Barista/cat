@@ -20,6 +20,7 @@ import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CouponCounterDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
+import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.data.CouponResponseDO.Type;
@@ -81,7 +82,6 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 				MessageNode mNode = (MessageNode)dest;
 				CATEvent sendMessageEvent=null;
 				NodeDO simpleNode=getCampaignManager().getSimpleNode(mNode.getUid());
-				String fromAddress = simpleNode.getCampaign().getDefaultFrom();
 				if(e.getTargetType().equals(CATTargetType.SpecificSubscriber))
 				{
 					SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
@@ -98,15 +98,21 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					if(adminAddIn!=null && adminAddIn.trim().length()>0)
 						actualMessage+=adminAddIn;
 					
-					switch(simpleNode.getCampaign().getCampaignType())
+					String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
+					EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+					switch(fromType)
 					{
 						
 						case Email:
-							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getEmail(), actualMessage, mNode.getName(),mNode.getUid(),version);
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), actualMessage, mNode.getName(),mNode.getUid(),version);
 							break;
 						
 						case SMS:
-							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, mNode.getName(),mNode.getUid(),version);
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), actualMessage, mNode.getName(),mNode.getUid(),version);
+							break;
+							
+						case Twitter:
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterUsername(), actualMessage, mNode.getName(),mNode.getUid(),version);
 							break;
 							
 						default:
@@ -134,14 +140,19 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 						if(adminAddIn!=null && adminAddIn.trim().length()>0)
 							actualMessage+=adminAddIn;
 						
-						switch(simpleNode.getCampaign().getCampaignType())
+						String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
+						EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+						switch(fromType)
 						{
 							case Email:
-								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getEmail(), actualMessage, mNode.getName(), mNode.getUid(), version);
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), actualMessage, mNode.getName(), mNode.getUid(), version);
 								break;
 							
 							case SMS:
-								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, mNode.getName(), mNode.getUid(), version);
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), actualMessage, mNode.getName(), mNode.getUid(), version);
+						
+							case Twitter:
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterUsername(), actualMessage, mNode.getName(), mNode.getUid(), version);
 						
 							default:
 								throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
@@ -160,7 +171,6 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 				CouponNode cNode = (CouponNode)dest;
 				CATEvent sendMessageEvent=null;
 				NodeDO simpleNode=getCampaignManager().getSimpleNode(cNode.getUid());
-				String fromAddress = simpleNode.getCampaign().getDefaultFrom();
 				if(e.getTargetType().equals(CATTargetType.SpecificSubscriber))
 				{
 					SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
@@ -222,15 +232,21 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					
 					getEntityManager().persist(response);
 					
-					switch(simpleNode.getCampaign().getCampaignType())
+					String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
+					EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+					switch(fromType)
 					{
 						
 						case Email:
-							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getEmail(), actualMessage, cNode.getName(),cNode.getUid(),version);
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), actualMessage, cNode.getName(),cNode.getUid(),version);
 							break;
 						
 						case SMS:
-							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, cNode.getName(),cNode.getUid(),version);
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), actualMessage, cNode.getName(),cNode.getUid(),version);
+							break;
+							
+						case Twitter:
+							sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterUsername(), actualMessage, cNode.getName(),cNode.getUid(),version);
 							break;
 							
 						default:
@@ -303,14 +319,19 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 						
 						getEntityManager().persist(response);
 						
-						switch(simpleNode.getCampaign().getCampaignType())
+						String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
+						EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+						switch(fromType)
 						{
 							case Email:
-								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getEmail(), actualMessage, cNode.getName(), cNode.getUid(), version);
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), actualMessage, cNode.getName(), cNode.getUid(), version);
 								break;
 							
 							case SMS:
-								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, simpleNode.getCampaign().getCampaignType(), s.getPhoneNumber(), actualMessage, cNode.getName(), cNode.getUid(), version);
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), actualMessage, cNode.getName(), cNode.getUid(), version);
+						
+							case Twitter:
+								sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterUsername(), actualMessage, cNode.getName(), cNode.getUid(), version);
 						
 							default:
 								throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");

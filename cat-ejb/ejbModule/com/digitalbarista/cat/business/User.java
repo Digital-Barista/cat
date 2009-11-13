@@ -3,9 +3,16 @@ package com.digitalbarista.cat.business;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.digitalbarista.cat.data.RoleDO;
 import com.digitalbarista.cat.data.UserDO;
 
+@XmlRootElement
 public class User implements BusinessObject<UserDO>{
 
 	private String username; 
@@ -37,30 +44,37 @@ public class User implements BusinessObject<UserDO>{
 		if(password!=null)
 			user.changePassword(password);
 	}
+	
+	@XmlAttribute
 	public String getUsername() {
 		return username;
 	}
 	public void setUsername(String username) {
 		this.username = username;
 	}
+	@XmlTransient
 	public String getPassword() {
 		return password;
 	}
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	@XmlAttribute
 	public Boolean isActive() {
 		return active;
 	}
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
+	@XmlAttribute(name="id")
 	public Long getPrimaryKey() {
 		return primaryKey;
 	}
 	public void setPrimaryKey(Long primaryKey) {
 		this.primaryKey = primaryKey;
 	}
+	@XmlElementWrapper(name="Roles")
+	@XmlElement(name="Role")
 	public List<Role> getRoles() {
 		return roles;
 	}

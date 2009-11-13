@@ -87,14 +87,16 @@ package com.dbi.controls
 				dataProvider.length > 0)
 				selectedIndex = 0;
 				
-			if (selectedBindingProperty != null &&
-				selectedBindingValue != null &&
+			if (selectedBindingValue != null &&
 				dataProvider != null)
 			{
 				for (var i:int = 0; i < dataProvider.length; i++)
 				{
-					if (dataProvider[i].hasOwnProperty(selectedBindingProperty) &&
-						dataProvider[i][selectedBindingProperty] == selectedBindingValue)
+					if ((dataProvider[i].hasOwnProperty(selectedBindingProperty) &&
+						dataProvider[i][selectedBindingProperty] == selectedBindingValue) ||
+						
+						(selectedBindingProperty == null &&
+						dataProvider[i] == selectedBindingValue) )
 					{
 						selectedIndex = i;
 						break;

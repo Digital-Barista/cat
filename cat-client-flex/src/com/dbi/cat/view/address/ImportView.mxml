@@ -7,6 +7,8 @@
 	title="Import Addresses">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.common.vo.EntryDataVO;
 			import com.dbi.cat.common.vo.EntryPointVO;
 			import com.dbi.cat.common.vo.NodeVO;
 			import com.dbi.cat.common.vo.CampaignVO;
@@ -33,15 +35,24 @@
 				{
 					for each (var n:NodeVO in publishedCampaign.nodes)
 					{
+						// Build a list of objects with the necessary properties for subscribing
+						// to an entry point
 						if (n is EntryPointVO)
-							entryPoints.addItem(n);
+						{
+							var ep:EntryPointVO = n as EntryPointVO;
+							for each (var ed:EntryDataVO in ep.entryData)
+							{
+								if (ed.valid)
+									entryPoints.addItem({"entryData": ed, "entryPoint": ep});
+							}
+						}
 					}
 				}
 			}
 			
 			[Bindable]
 			private var entryPoints:ArrayCollection;
-			
+				
 			[Bindable(event="addressUpdate")]
 			private function get validImport():Boolean
 			{
@@ -74,6 +85,12 @@
 			}
 			private function onClose():void
 			{
+				// Reload statistics for the current campaign to reflect import
+				var event:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_SUBSCRIBER_STATISTICS);
+				event.campaign = publishedCampaign;
+				dispatchEvent(event);
+				
+				// Close the popup
 				dispatchEvent(new ImportEvent(ImportEvent.CLOSE_IMPORT_WINDOW));
 			}
 			private function loadFile():void
@@ -98,7 +115,8 @@
 				{
 					var event:ImportEvent = new ImportEvent(ImportEvent.DO_IMPORT);
 					event.addresses = importList;
-					event.entryPointUID = EntryPointList.selectedItem.uid;
+					event.entryPointUID = EntryPointList.selectedItem.entryPoint.uid;
+					event.entryPointType = EntryPointList.selectedItem.entryData.entryType;
 					dispatchEvent(event);
 				}
 			}
@@ -106,15 +124,16 @@
 			{
 				dispatchEvent(new Event("addressUpdate"));
 			}
-			private function getEntryPointLabel(entry:EntryPointVO):String
+			private function getEntryPointLabel(entry:Object):String
 			{
-				return entry.entryPoint + " - " + entry.keyword;
+				return entry.entryData.entryPoint + ": " +
+					entry.entryData.keyword + " - " +
+					entry.entryData.entryType;
 			}
 			private function loadAllClientAddresses():void
 			{
 				var event:ImportEvent = new ImportEvent(ImportEvent.LOAD_ALL_CLIENT_ADDRESSES);
 				event.clientId = publishedCampaign.clientPK;
-				event.entryPointType = publishedCampaign.type;
 				dispatchEvent(event);
 			}
 		]]>

@@ -22,6 +22,7 @@ import mx.rpc.xml.QualifiedResourceManager;
 import mx.rpc.xml.Schema;
 import mx.rpc.xml.SchemaConstants;
 import mx.rpc.xml.SchemaManager;
+import mx.rpc.xml.SchemaTypeRegistry;
 
 [ResourceBundle("rpc")]
 
@@ -51,9 +52,17 @@ public class WSDL
      * @param xml An XML document starting from the top-level WSDL 
      * <code>defintions</code> element.
      */
-    public function WSDL(xml:XML)
+    public function WSDL(xml:XML, topLevelManager:SchemaManager=null)
     {
         super();
+        
+        // Fix for SDK-18926
+        // If this wsdl was imported, the top-level wsdl should pass it's own schemaManager
+        // which we should reuse.
+        if (topLevelManager != null)
+        {
+            _schemaManager = topLevelManager;
+        }
         _xml = xml;
         _log = Log.getLogger("mx.rpc.wsdl.WSDL");
         processNamespaces();
@@ -655,7 +664,7 @@ public class WSDL
 
                 // If we don't have the binding information for this operation,
                 // skip it.
-                if (operationName == null)
+                if (operation == null)
                 {
                     _log.warn("An operation '{0}' was found in the port type but is missing binding information.", operationName);
                     continue;

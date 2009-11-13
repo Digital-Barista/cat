@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:view="com.dbi.cat.view.*" xmlns:reporting="com.dbi.cat.view.reporting.*">
+	xmlns:view="com.dbi.cat.view.*" 
+	xmlns:reporting="com.dbi.cat.view.reporting.*" xmlns:campaign="com.dbi.cat.view.campaign.*" xmlns:profile="com.dbi.cat.view.profile.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.event.NavigationEvent;
@@ -11,13 +12,18 @@
 			[Bindable]
 			public var currentView:Number = 0;
 			
+			[Bindable]
+			public var statusMessage:String;
+			
 			private function tabClick(e:IndexChangedEvent):void
 			{
 				if (e.newIndex == 0)
 					dispatchEvent(new NavigationEvent(NavigationEvent.CAMPAIGNS));
 				else if (e.newIndex == 1)
-					dispatchEvent(new NavigationEvent(NavigationEvent.USERS));
+					dispatchEvent(new NavigationEvent(NavigationEvent.REPORTING));
 				else if (e.newIndex == 2)
+					dispatchEvent(new NavigationEvent(NavigationEvent.USERS));
+				else if (e.newIndex == 3)
 					dispatchEvent(new NavigationEvent(NavigationEvent.PROFILE));
 			}
 		]]>
@@ -29,9 +35,15 @@
 		left="0" right="0" top="5" bottom="0"
 		horizontalAlign="right" paddingTop="0"
 		change="tabClick(event)">
-		<view:CampaignsView label="Campaigns" />
+		<campaign:CampaignsView label="Campaigns" />
 		<reporting:ReportingView label="Reporting" />
 		<view:UsersView label="Users" />
-		<view:ProfileView label="Profile" />
+		<profile:ProfileView label="Profile" />
 	</mx:TabNavigator>
+	<mx:Canvas id="StatusMessageBox"
+		visible="{statusMessage.length != 0}"
+		styleName="generalStatusMessage"
+		bottom="0" right="0">
+		<mx:Text text="{statusMessage}" />
+	</mx:Canvas>
 </mx:Canvas>

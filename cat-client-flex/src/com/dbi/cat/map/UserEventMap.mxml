@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.constants.ServiceStatusMessage;
 			import com.dbi.cat.business.NavigationManager;
 			import com.dbi.cat.business.LayoutInfoManager;
 			import mx.managers.LayoutManager;
@@ -54,13 +55,29 @@
 	
 	<!-- Manage Users -->
 	<EventHandlers type="{UserEvent.GET_USER_LIST}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_USERS}" />
 		<RemoteObjectInvoker destination="userManager"
 			method="getAllVisibleUsers">
 			<resultHandlers>
 				<MethodInvoker generator="{UserManager}"
 					method="getUserList"
 					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_USERS}" />
 			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_USERS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{UserEvent.EDIT_USER}">

@@ -15,5 +15,6 @@
 			<attribute name="owner.project.facets" value="jst.java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/campaign-administration-tool/lib/testng-5.10-jdk15.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

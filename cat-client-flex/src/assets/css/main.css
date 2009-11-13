@@ -9,6 +9,12 @@ List
 	dropIndicatorSkin:ClassReference("com.dbi.skins.BlankSkin");
 }
 
+FormattedComboBox
+{
+	disabledSkin:ClassReference("com.dbi.skins.BlankSkin");
+	disabledColor:#000000;
+}
+
 .navBar
 {
 }
@@ -51,6 +57,13 @@ List
 	backgroundColor:#00AA00;
 	color:#FFFFFF;
 }
+.generalStatusMessage
+{
+	padding-left:5;
+	padding-right:5;
+	backgroundColor:#00AA00;
+	color:#FFFFFF;
+}
 .componentTree
 {
 	backgroundColor:#FFFFFF;
@@ -62,4 +75,9 @@ List
 	fontSize:14;
 	fontWeight:bold;
 	backgroundColor:#CCCCCC;
+}
+.treeFolder
+{
+	fontSize:12;
+	fontWeight:bold;
 }

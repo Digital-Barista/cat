@@ -377,6 +377,13 @@ public class NavBar extends Box
 				"controls", "errWrongContainer", [ id ]);
             throw new Error(message);
         }
+		
+        if (_dataProvider)
+        {
+            // use weak reference
+            _dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE,
+                                              collectionChangeHandler);
+        }
 
         // If value is a string, try to resolve here.
         // If value is a ViewStack name, document[value] may not be defined yet.
@@ -557,8 +564,10 @@ public class NavBar extends Box
     {
         _labelFunction = value;
 
-    //    itemsSizeChanged = true;
-        invalidateDisplayList();
+        // If we have a data provider, update here to
+        // reflect new label function.
+        if (_dataProvider)
+            dataProvider = _dataProvider;
 
         dispatchEvent(new Event("labelFunctionChanged"));
     }
@@ -864,7 +873,7 @@ public class NavBar extends Box
         {
             var item:Object = _dataProvider.getItemAt(i);
             var navItem:Button;
-            if (item is String)
+            if (item is String && labelFunction == null)
             {
                 navItem = Button(createNavItem(String(item)));
             }
@@ -920,6 +929,7 @@ public class NavBar extends Box
 
             navItem.enabled = enabled;
         }
+        resetNavItems();
     }
 
 
@@ -982,6 +992,19 @@ public class NavBar extends Box
 
             targetStack.removeEventListener(
                 IndexChangedEvent.CHILD_INDEX_CHANGE, childIndexChangeHandler);
+
+            var numViews:int = targetStack.numChildren;
+            var child:Container;
+
+            for (var i:int = 0; i < numViews; i++)
+	        {
+                child = Container(targetStack.getChildAt(i));
+
+                child.removeEventListener("labelChanged", labelChangedHandler);
+                child.removeEventListener("iconChanged", iconChangedHandler);
+                child.removeEventListener("enabledChanged", enabledChangedHandler);
+                child.removeEventListener("toolTipChanged", toolTipChangedHandler);
+            }
         }
 
         // Clear out the current links
@@ -1004,11 +1027,11 @@ public class NavBar extends Box
         targetStack.addEventListener(IndexChangedEvent.CHILD_INDEX_CHANGE,
                                      childIndexChangeHandler);
 
-        var numViews:int = targetStack.numChildren;
+        numViews = targetStack.numChildren;
 
-        for (var i:int = 0; i < numViews; i++)
+        for (i = 0; i < numViews; i++)
         {
-            var child:Container = Container(targetStack.getChildAt(i));
+            child = Container(targetStack.getChildAt(i));
             var item:Button = Button(createNavItem(itemToLabel(child), child.icon));
 
                  
@@ -1035,6 +1058,7 @@ public class NavBar extends Box
         if (index != -1)
             hiliteSelectedNavItem(index);
 
+        resetNavItems();
         invalidateDisplayList();
     }
 
@@ -1098,6 +1122,7 @@ public class NavBar extends Box
         newChild.addEventListener("toolTipChanged", toolTipChangedHandler);
 	
         item.enabled = enabled && newChild.enabled;
+        callLater(resetNavItems);
     }
 
     /**
@@ -1110,6 +1135,12 @@ public class NavBar extends Box
         // such as when a TabBar is inside a TabNavigator.
         if (event.target == this)
             return;
+        
+        // Remove listeners for this child
+        event.relatedObject.removeEventListener("labelChanged", labelChangedHandler);
+        event.relatedObject.removeEventListener("iconChanged", iconChangedHandler);
+        event.relatedObject.removeEventListener("enabledChanged", enabledChangedHandler);
+        event.relatedObject.removeEventListener("toolTipChanged", toolTipChangedHandler); 
 
         var viewStack:ViewStack = ViewStack(event.target);
         removeChildAt(viewStack.getChildIndex(event.relatedObject));

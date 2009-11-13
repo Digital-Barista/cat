@@ -3,9 +3,23 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.business.CouponManager;
+			import com.dbi.cat.view.profile.ProfileDetailsView;
+			import com.dbi.cat.view.profile.ProfileView;
+			import com.dbi.cat.view.profile.EntryPointDefinitionView;
+			import com.dbi.cat.view.profile.EditEntryPointView;
+			import com.dbi.cat.view.profile.EditKeywordView;
+			import com.dbi.cat.view.profile.KeywordView;
+			import com.dbi.cat.view.campaign.EditCampaignTemplateView;
+			import com.dbi.cat.event.LayoutInfoEvent;
 			import com.dbi.cat.view.reporting.CouponReportingView;
+			import com.dbi.cat.business.CouponManager;
 			import com.dbi.cat.view.reporting.CouponRedemptionView;
+			import com.dbi.cat.view.EditTemplateCommunicationsView;
+			import com.dbi.cat.business.CampaignTemplateManager;
+			import com.dbi.cat.view.campaign.EditCampaignView;
+			import com.dbi.cat.view.campaign.TemplateCampaignsView;
+			import com.dbi.cat.view.campaign.WorkingCampaignsView;
+			import com.dbi.cat.view.campaign.CampaignsView;
 			import com.dbi.cat.view.workspace.CouponItem;
 			import com.dbi.cat.view.workspace.MessageItem;
 			import com.dbi.cat.business.ImportManager;
@@ -13,14 +27,11 @@
 			import com.dbi.cat.view.TestCampaignView;
 			import com.dbi.cat.business.CampaignTestManager;
 			import com.dbi.cat.view.profile.ClientInformationView;
-			import com.dbi.cat.view.ProfileView;
 			import com.dbi.cat.business.LayoutInfoManager;
 			import mx.managers.LayoutManager;
 			import com.dbi.cat.business.ClientManager;
-			import com.dbi.cat.view.EditCampaignView;
 			import com.dbi.cat.business.AppManager;
 			import com.dbi.cat.business.CampaignManager;
-			import com.dbi.cat.view.CampaignsView;
 			import com.dbi.cat.view.EditUserView;
 			import com.dbi.cat.view.LoginView;
 			import com.dbi.cat.business.LoginManager;
@@ -52,6 +63,10 @@
 			source="{NavigationManager}"
 			sourceKey="mainCurrentView"
 			targetKey="currentView" />
+		<PropertyInjector
+			source="{AppManager}"
+			sourceKey="generalStatusMessage"
+			targetKey="statusMessage" />
 	</Injectors>
 	<Injectors target="{NavigationView}">
 		<PropertyInjector 
@@ -95,13 +110,29 @@
 			sourceKey="currentUser"
 			targetKey="currentUser" />
 	</Injectors>
-	<Injectors target="{CampaignsView}">
+	<Injectors target="{WorkingCampaignsView}">
 		<PropertyInjector
 			source="{CampaignManager}"
 			sourceKey="modifiedCampaignList"
 			targetKey="campaignList" />
 	</Injectors>
+	<Injectors target="{TemplateCampaignsView}">
+		<PropertyInjector
+			source="{CampaignTemplateManager}"
+			sourceKey="campaignTemplateList"
+			targetKey="campaignTemplateList" />
+	</Injectors>
 	<Injectors target="{EditCampaignView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{CampaignTemplateManager}"
+			sourceKey="campaignTemplateList"
+			targetKey="campaignTemplates" />
+	</Injectors>
+	<Injectors target="{EditCampaignTemplateView}">
 		<PropertyInjector
 			source="{ClientManager}"
 			sourceKey="clients"
@@ -129,13 +160,27 @@
 			sourceKey="workspaceStatusMessage"
 			targetKey="statusMessage" />
 	</Injectors>
+	<Injectors target="{EditTemplateCommunicationsView}">
+		<PropertyInjector
+			source="{CampaignTemplateManager}"
+			sourceKey="campaignTemplate"
+			targetKey="templateCampaign" />
+		<PropertyInjector
+			source="{AppManager}"
+			sourceKey="workspaceStatusMessage"
+			targetKey="statusMessage" />
+	</Injectors>
 	<Injectors target="{LayoutInfoManager}">
 		<PropertyInjector
 			source="{CampaignManager}"
 			sourceKey="allCampaignList"
 			targetKey="campaignList" />
+		<PropertyInjector
+			source="{CampaignTemplateManager}"
+			sourceKey="campaignTemplateList"
+			targetKey="campaignTemplateList" />
 	</Injectors>
-	<Injectors target="{ProfileView}">
+	<Injectors target="{ProfileDetailsView}">
 		<PropertyInjector
 			source="{LoginManager}"
 			sourceKey="currentUser"
@@ -166,6 +211,9 @@
 			source="{ClientManager}"
 			sourceKey="clientMap"
 			targetKey="clientMap" />
+		<ListenerInjector 
+			eventType="{LayoutInfoEvent.LAYOUT_LOADED}"
+			method="fitContent" />
 	</Injectors>
 	<Injectors target="{ImportView}">
 		<PropertyInjector
@@ -182,6 +230,46 @@
 			source="{ClientManager}"
 			sourceKey="clientMap"
 			targetKey="clientMap" />
+	</Injectors>
+	<Injectors target="{KeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="keywords"
+			targetKey="keywords" />
+	</Injectors>
+	<Injectors target="{EditKeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentKeyword"
+			targetKey="currentKeyword" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="keywords"
+			targetKey="keywords" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="isKeywordAvailable"
+			targetKey="isKeywordAvailable" />
+	</Injectors>
+	<Injectors target="{EditEntryPointView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentEntryPointDefinition"
+			targetKey="currentEntryPointDefinition" />
+	</Injectors>
+	<Injectors target="{EntryPointDefinitionView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="entryPointDefinitions"
+			targetKey="entryPointDefinitions" />
 	</Injectors>
 	
 	<!-- 

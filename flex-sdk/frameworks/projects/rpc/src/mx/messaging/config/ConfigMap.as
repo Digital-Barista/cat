@@ -48,7 +48,7 @@ public dynamic class ConfigMap extends Proxy
             item = {};
         _item = item;
        
-		propertyList = [];                                
+        propertyList = [];                                
     }    
     
     //--------------------------------------------------------------------------
@@ -83,7 +83,7 @@ public dynamic class ConfigMap extends Proxy
     //
     //--------------------------------------------------------------------------
 
-	/**
+    /**
      *  Returns the specified property value of the proxied object.
      *
      *  @param name Typically a string containing the name of the property,
@@ -131,21 +131,21 @@ public dynamic class ConfigMap extends Proxy
     {
         var oldVal:Object = _item[name];
         var deleted:Boolean = delete _item[name]; 
-		
+        
         var deleteIndex:int = -1;
         for (var i:int = 0; i < propertyList.length; i++)
         {
-        	if (propertyList[i] == name)
-        	{
-        		deleteIndex = i;
-        		break;
-        	}
+            if (propertyList[i] == name)
+            {
+                deleteIndex = i;
+                break;
+            }
         }
-		if (deleteIndex > -1)
-		{
-			propertyList.splice(deleteIndex, 1);
-		}
-				
+        if (deleteIndex > -1)
+        {
+            propertyList.splice(deleteIndex, 1);
+        }
+                
         return deleted;
     }
 
@@ -170,7 +170,7 @@ public dynamic class ConfigMap extends Proxy
      *  This is an internal function that must be implemented by 
      *  a subclass of flash.utils.Proxy.
      *
-     *  @param index The zero-based index value of the object's
+     *  @param index The zero-based index of the object's
      *  property.
      *
      *  @return The property's name.
@@ -185,6 +185,11 @@ public dynamic class ConfigMap extends Proxy
     /**
      *  This is an internal function that must be implemented by 
      *  a subclass of flash.utils.Proxy.
+     *
+     *  @param index The zero-based index of the object's
+     *  property.
+     *
+     *  @return The zero-based index of the next proprety.
      *
      *  @see flash.utils.Proxy#nextNameIndex()
      */
@@ -233,16 +238,16 @@ public dynamic class ConfigMap extends Proxy
             // Update item.
             _item[name] = value;
             
-			for (var i:int = 0; i < propertyList.length; i++)
-        	{
-        		if (propertyList[i] == name)
-        		{
-        			return;
-	        	}
-	        }
-	        propertyList.push(name);
+            for (var i:int = 0; i < propertyList.length; i++)
+            {
+                if (propertyList[i] == name)
+                {
+                    return;
+                }
+            }
+            propertyList.push(name);
         }
-    }              	
+    }               
 }
 
 }

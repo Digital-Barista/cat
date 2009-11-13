@@ -184,17 +184,21 @@ public class Text extends Label
      */
     private var lastUnscaledWidth:Number = NaN;
     
+    /**
+     *  @private
+     */
+	private var widthChanged:Boolean = true;
+	
     //--------------------------------------------------------------------------
     //
     //  Overridden properties
     //
     //--------------------------------------------------------------------------
 
-    /**
-     *  @private
-     */
-	private var widthChanged:Boolean = true;
-	
+	//----------------------------------
+	//  explicitWidth
+	//----------------------------------
+
     /**
      *  @private
      */
@@ -211,8 +215,37 @@ public class Text extends Label
    			invalidateProperties();
     		invalidateSize();
     	}
+
     	super.explicitWidth = value;
     }
+
+	//----------------------------------
+	//  maxWidth
+	//----------------------------------
+
+    /**
+     *  @private
+     */
+    override public function set maxWidth(value:Number):void
+    {
+        // Due to player bugs relating to scaling text, we
+        // have to be careful to set wordWrap appropriately
+        // (which we do in commitProperties).
+        // Also have to re-measure when maxWidth changes, because maxWidth
+        // can affect height.
+        if (value != maxWidth)
+        {
+            widthChanged = true;
+            invalidateProperties();
+            invalidateSize();
+        }
+
+        super.maxWidth = value;
+    }
+    
+	//----------------------------------
+	//  percentWidth
+	//----------------------------------
 
     /**
      *  @private
@@ -230,6 +263,7 @@ public class Text extends Label
  			invalidateProperties();
     		invalidateSize();
     	}
+
     	super.percentWidth = value;
     }
 
@@ -245,28 +279,35 @@ public class Text extends Label
     override protected function childrenCreated():void
     {
         super.childrenCreated();
+
         textField.wordWrap = true;
         textField.multiline = true;
         textField.mouseWheelEnabled = false;
 
     }
 
-	override protected function commitProperties():void
-	{
-		super.commitProperties();
-		// if explicitWidth or percentWidth changed, we want to set
-		// wordWrap appropriately before measuring()
-		if (widthChanged)
-		{
-			textField.wordWrap = !isNaN(percentWidth) || !isNaN(explicitWidth);
-			widthChanged = false;
-		}
-	}
+    /**
+     *  @private
+     */
+    override protected function commitProperties():void
+    {
+        super.commitProperties();
+
+        // If explicitWidth or maxWidth or percentWidth changed,
+        // set wordWrap appropriately before measuring.
+        if (widthChanged)
+        {
+            textField.wordWrap = !isNaN(explicitWidth) ||
+								 !isNaN(explicitMaxWidth) ||
+								 !isNaN(percentWidth);
+            widthChanged = false;
+        }
+    }
 
     /**
      *  @private
      *
-     *  If the Text component has an explicit width,
+     *  If the Text component has an explicit width or maximum width,
      *  its text wordwraps within that width,
      *  and the measured height is tall enough to display all the text.
      *  (If there is an explicit height or a percent height in this case,
@@ -277,7 +318,7 @@ public class Text extends Label
      *  If there is an explicit height or a percent height,
      *  the text may get clipped.
      *
-     *  If the Text doesn't have an explicit width,
+     *  If the Text doesn't have an explicit or maximum width,
      *  the measured width is based on explicit line breaks
      *  (e.g, \n, &lt;br&gt;, etc.).
      *  For example, if the text is
@@ -303,16 +344,25 @@ public class Text extends Label
             else
             {
                 // We're not ready to measure yet.
-                // We need updateDisplayList() to first tell us the unscaledWidth
-                // that has been calculated from the percentWidth.
+                // We need updateDisplayList() to first tell us
+				// the unscaledWidth that has been calculated
+				// from the percentWidth.
                 measuredWidth = 0;
                 measuredHeight = 0;
             }
             return;
         }
 
-        measureUsingWidth(explicitWidth);
+        // Figure out the width we're going to use;
+		// explicitWidth trumps explicitMaxWidth.
+        var availableWidth:Number;
         
+        if (!isNaN(explicitWidth))
+            availableWidth = explicitWidth;
+        else if (!isNaN(explicitMaxWidth))
+            availableWidth = explicitMaxWidth;
+
+        measureUsingWidth(availableWidth);
     }
     
     /**
@@ -325,7 +375,8 @@ public class Text extends Label
         // Text has a different layout algorithm than Label.
         if (isSpecialCase())
         {
-            var firstTime:Boolean = isNaN(lastUnscaledWidth) || lastUnscaledWidth != unscaledWidth;
+            var firstTime:Boolean = isNaN(lastUnscaledWidth) ||
+									lastUnscaledWidth != unscaledWidth;
             lastUnscaledWidth = unscaledWidth;
             if (firstTime)
             {
@@ -344,10 +395,11 @@ public class Text extends Label
 
         textField.x = paddingLeft;
         textField.y = paddingTop;
+
         // Although we also set wordWrap in commitProperties(), we do 
         // this here to handle width being set through setActualSize().
         if (Math.floor(width) < Math.floor(measuredWidth))
-			textField.wordWrap =  true;
+			textField.wordWrap = true;
     }
 
     //--------------------------------------------------------------------------
@@ -411,8 +463,10 @@ public class Text extends Label
         {
             textField.width = w - paddingLeft - paddingRight;
 
-            measuredWidth = Math.ceil(textField.textWidth) + UITextField.TEXT_WIDTH_PADDING;
-            measuredHeight = Math.ceil(textField.textHeight) + UITextField.TEXT_HEIGHT_PADDING;
+            measuredWidth = Math.ceil(textField.textWidth) +
+							UITextField.TEXT_WIDTH_PADDING;
+            measuredHeight = Math.ceil(textField.textHeight) +
+							 UITextField.TEXT_HEIGHT_PADDING;
             // Round up because embedded fonts can produce fractional values;
             // if a parent container rounds a component's actual width or height
             // down, the component may not be wide enough to display the text.
@@ -426,8 +480,10 @@ public class Text extends Label
         	var oldWordWrap:Boolean = textField.wordWrap;
             textField.wordWrap = false;
             
-            measuredWidth = Math.ceil(textField.textWidth) + UITextField.TEXT_WIDTH_PADDING;
-            measuredHeight = Math.ceil(textField.textHeight) + UITextField.TEXT_HEIGHT_PADDING;
+            measuredWidth = Math.ceil(textField.textWidth) +
+							UITextField.TEXT_WIDTH_PADDING;
+            measuredHeight = Math.ceil(textField.textHeight) +
+							 UITextField.TEXT_HEIGHT_PADDING;
             // Round up because embedded fonts can produce fractional values;
             // if a parent container rounds a component's actual width or height
             // down, the component may not be wide enough to display the text.

@@ -12,6 +12,7 @@
 package mx.controls
 {
 
+import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.events.Event;
 import flash.events.FocusEvent;
@@ -32,10 +33,13 @@ import mx.core.UIComponentGlobals;
 import mx.core.mx_internal;
 import mx.effects.Tween;
 import mx.events.DropdownEvent;
+import mx.events.InterManagerRequest;
 import mx.events.ListEvent;
 import mx.events.MenuEvent;
 import mx.events.FlexMouseEvent;
+import mx.events.SandboxMouseEvent;
 import mx.managers.IFocusManagerComponent;
+import mx.managers.ISystemManager;
 import mx.managers.PopUpManager;
 import mx.styles.ISimpleStyleClient;
 
@@ -353,25 +357,25 @@ public class PopUpButton extends Button
     private var _closeOnActivity:Boolean = true;
     
     /**
-     *  @private
-     *  Specifies popUp would close on click/enter activity.
-     *  In popUps like Menu/List/TileList etc, one need not change
-     *  this as they should close on activity. However for multiple 
-     *  selection, and other popUp, this can be set to false, to 
-     *  prevent the popUp from closing on activity.
+     *  If <code>true</code>, specifies popUp would close
+     *  on click/enter activity.
+     *  In <code>popUp</code> like Menu/List/TileList etc,
+     *  one need not change this as they should close on activity.
+     *  However for multiple selection, and other <code>popUp</code>,
+     *  this can be set to <code>false</code>, to prevent the 
+     *  <code>popUp</code> from closing on activity.
      *  
      *  @default true 
      */     
-    private function get closeOnActivity():Boolean
+    public function get closeOnActivity():Boolean
     {
-        // We are not exposing this property for now, until the need arises.
         return _closeOnActivity;
     }
     
     /**
      *  @private
      */  
-    private function set closeOnActivity(value:Boolean):void
+    public function set closeOnActivity(value:Boolean):void
     {
         _closeOnActivity = value;
     }
@@ -483,6 +487,13 @@ public class PopUpButton extends Button
             
             _popUp.addEventListener(FlexMouseEvent.MOUSE_WHEEL_OUTSIDE,
                                     popMouseDownOutsideHandler);
+            _popUp.addEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE,
+                                    popMouseDownOutsideHandler);
+            _popUp.addEventListener(SandboxMouseEvent.MOUSE_WHEEL_SOMEWHERE,
+                                    popMouseDownOutsideHandler);
+            //weak reference to stage
+             var sm:ISystemManager = systemManager.topLevelSystemManager;
+            sm.getSandboxRoot().addEventListener(Event.RESIZE, stage_resizeHandler, false, 0, true);
                 
             _popUp.owner = this;
             
@@ -491,6 +502,10 @@ public class PopUpButton extends Button
             
             popUpChanged = false;
         }
+        
+        // Close if we're disabled and we happen to still be showing our popup.
+        if (showingPopUp && !enabled)
+            close();
     }
 
     /**
@@ -693,7 +708,7 @@ public class PopUpButton extends Button
      */
     private function closeWithEvent(trigger:Event = null):void
     {
-        if (showingPopUp && enabled)
+        if (showingPopUp)
         {
             displayPopUp(false);
 
@@ -723,7 +738,21 @@ public class PopUpButton extends Button
         var endY:Number;
         var easingFunction:Function;
         var duration:Number;
-            
+        var sm:ISystemManager = systemManager.topLevelSystemManager;
+        var sbRoot:DisplayObject = sm.getSandboxRoot();
+        var screen:Rectangle;
+
+        if (sm != sbRoot)
+        {
+            var request:InterManagerRequest = new InterManagerRequest(InterManagerRequest.SYSTEM_MANAGER_REQUEST, 
+                                    false, false,
+                                    "getVisibleApplicationRect"); 
+            sbRoot.dispatchEvent(request);
+            screen = Rectangle(request.value);
+        }
+        else
+            screen = sm.getVisibleApplicationRect();
+
         if (show)
         {
             if (getPopUp() == null)
@@ -737,9 +766,8 @@ public class PopUpButton extends Button
             else
                 PopUpManager.bringToFront(_popUp);
 
-            point = _popUp.parent.globalToLocal(point);
-
-            if (point.y + _popUp.height > screen.height && point.y > (height + _popUp.height))
+            if (point.y + _popUp.height > screen.bottom && 
+                point.y > (screen.top + height + _popUp.height))
             { 
                 // PopUp will go below the bottom of the stage
                 // and be clipped. Instead, have it grow up.
@@ -751,8 +779,9 @@ public class PopUpButton extends Button
                 initY = _popUp.height;
             }
 
-            point.x = Math.min( point.x, screen.width - _popUp.getExplicitOrMeasuredWidth());
+            point.x = Math.min( point.x, screen.right - _popUp.getExplicitOrMeasuredWidth());
             point.x = Math.max( point.x, 0);
+            point = _popUp.parent.globalToLocal(point);
             if (_popUp.x != point.x || _popUp.y != point.y)
                 _popUp.move(point.x, point.y);
 
@@ -776,8 +805,8 @@ public class PopUpButton extends Button
 
             point = _popUp.parent.globalToLocal(point);
 
-            endY = (point.y + _popUp.height > screen.height && 
-                               point.y > (height + _popUp.height)
+            endY = (point.y + _popUp.height > screen.bottom && 
+                               point.y > (screen.top + height + _popUp.height)
                                ? -_popUp.height - 2
                                : _popUp.height + 2);
             initY = 0;
@@ -1113,21 +1142,27 @@ public class PopUpButton extends Button
     /**
      *  @private
      */    
-    private function popMouseDownOutsideHandler(event:MouseEvent):void
+    private function popMouseDownOutsideHandler(event:Event):void
     {
-        // for automated testing, since we're generating this event and
-        // can only set localX and localY, transpose those coordinates
-        // and use them for the test point.
-        var p:Point = event.target.localToGlobal(new Point(event.localX, 
-                                                           event.localY));
-        if (hitTestPoint(p.x, p.y, true))
+        if (event is MouseEvent)
         {
-            // do nothing
+            // for automated testing, since we're generating this event and
+            // can only set localX and localY, transpose those coordinates
+            // and use them for the test point.
+            var mouseEvent:MouseEvent = MouseEvent(event);
+            var p:Point = event.target.localToGlobal(new Point(mouseEvent.localX, 
+                                                               mouseEvent.localY));
+            if (hitTestPoint(p.x, p.y, true))
+            {
+                // do nothing
+            }
+            else
+            {
+                close();
+            }
         }
-        else
-        {
+        else if (event is SandboxMouseEvent)
             close();
-        }
     }    
     
     /**
@@ -1139,8 +1174,21 @@ public class PopUpButton extends Button
         // we'll be leaked.
         if (_popUp) {
             PopUpManager.removePopUp(_popUp);
+            showingPopUp = false;
         }
     }
+
+    /**
+     *  @private
+     */
+    private function stage_resizeHandler(event:Event):void 
+    {
+        // Hide the popUp and don't show tweening when popUp is closed
+        // due to resizing.
+        _popUp.visible = false;
+
+        close();
+    } 
     
     /**
      *  @private

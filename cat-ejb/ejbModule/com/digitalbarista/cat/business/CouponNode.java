@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.log4j.LogManager;
 
 import com.digitalbarista.cat.audit.Auditable;
@@ -14,6 +17,7 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
+@XmlRootElement
 public class CouponNode extends Node implements Auditable {
 
 	private static String dateFormat = "MM/dd/yyyy HH:mm:ss";
@@ -180,6 +184,7 @@ public class CouponNode extends Node implements Auditable {
 		return NodeType.Coupon;
 	}
 
+	@XmlAttribute
 	public Long getCouponId() {
 		return couponId;
 	}
@@ -189,6 +194,7 @@ public class CouponNode extends Node implements Auditable {
 		couponId = offer.getPrimaryKey();
 	}
 	
+	@XmlAttribute
 	public String getAvailableMessage() {
 		return availableMessage;
 	}
@@ -197,6 +203,7 @@ public class CouponNode extends Node implements Auditable {
 		this.availableMessage = availableMessage;
 	}
 
+	@XmlAttribute
 	public String getUnavailableMessage() {
 		return unavailableMessage;
 	}
@@ -205,6 +212,7 @@ public class CouponNode extends Node implements Auditable {
 		this.unavailableMessage = unavailableMessage;
 	}
 
+	@XmlAttribute
 	public Long getMaxCoupons() {
 		return maxCoupons;
 	}
@@ -213,6 +221,7 @@ public class CouponNode extends Node implements Auditable {
 		this.maxCoupons = maxCoupons;
 	}
 
+	@XmlAttribute
 	public Long getMaxRedemptions() {
 		return maxRedemptions;
 	}
@@ -221,6 +230,7 @@ public class CouponNode extends Node implements Auditable {
 		this.maxRedemptions = maxRedemptions;
 	}
 
+	@XmlAttribute
 	public Date getUnavailableDate() {
 		return unavailableDate;
 	}
@@ -229,6 +239,7 @@ public class CouponNode extends Node implements Auditable {
 		this.unavailableDate = unavailableDate;
 	}
 
+	@XmlAttribute
 	public String getCouponCode() {
 		return couponCode;
 	}

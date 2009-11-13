@@ -31,7 +31,6 @@ import mx.events.FlexEvent;
 import mx.managers.FocusManager;
 import mx.managers.ILayoutManager;
 import mx.managers.ISystemManager;
-import mx.managers.SystemManager;
 import mx.styles.CSSStyleDeclaration;
 import mx.styles.IStyleClient;
 import mx.styles.StyleManager;
@@ -458,6 +457,24 @@ public class Application extends LayoutContainer
     //--------------------------------------------------------------------------
 
     //----------------------------------
+    //  enabled
+    //----------------------------------
+
+    [Inspectable(category="General", enumeration="true,false", defaultValue="true")]
+
+    /**
+     *  @private
+     */
+    override public function set enabled(value:Boolean):void
+    {
+        super.enabled = value;
+
+        // controlBar must be enabled/disabled when this container is.
+        if (controlBar)
+            controlBar.enabled = value;
+    }
+
+    //----------------------------------
     //  icon
     //----------------------------------
 
@@ -852,7 +869,7 @@ public class Application extends LayoutContainer
         // no matter what.
         // This is strictly for the debugger to be able to halt.
         // Note: isDebugger is true only with a Debugger Player.
-        if (sm.isTopLevel() && Capabilities.isDebugger == true)
+        if (sm.isTopLevelRoot() && Capabilities.isDebugger == true)
             setInterval(debugTickler, 1500);
     }
     
@@ -1132,7 +1149,7 @@ public class Application extends LayoutContainer
         if (sm.isTopLevel())
         {
             focusManager = new FocusManager(this);
-            sm.activate(this);
+           	sm.activate(this);
         }
     }
 

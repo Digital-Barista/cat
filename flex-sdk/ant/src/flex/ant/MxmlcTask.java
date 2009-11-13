@@ -333,9 +333,7 @@ public final class MxmlcTask extends FlexTask implements DynamicConfigurator
         
         if(output != null)
         {
-            // see FlexTask.execute() for explanation
-            final String tmpOutput = (fork ? "\"" + output + "\"" : output);
-            (new ConfigString(new OptionSpec(null, "output", "o"), tmpOutput)).addToCommandline(cmdl);
+            (new ConfigString(new OptionSpec(null, "output", "o"), output)).addToCommandline(cmdl);
         }
         
         // end of arguments
@@ -344,9 +342,7 @@ public final class MxmlcTask extends FlexTask implements DynamicConfigurator
         // file-spec may not be specified if building, e.g. a resource bundle SWF
         if (file != null)
         {
-            // see FlexTask.execute() for explanation
-            final String tmpFile = (fork ? "\"" + file + "\"" : file);
-            cmdl.createArgument().setValue(tmpFile);
+            cmdl.createArgument().setValue(file);
         }
     }
 

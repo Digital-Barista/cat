@@ -12,6 +12,7 @@ package com.dbi.cat.event
 		public static const COMMUNICATIONS:String = "communicationsNavEvent";
 		public static const USERS:String = "usersNavEvent";
 		public static const PROFILE:String = "profileNavEvent";
+		public static const REPORTING:String = "reportingNavEvent";
 		
 		public static const CHANGE_PASSWORD:String = "changePasswordNavEvent";
 		public static const RECOVER_PASSWORD:String = "recoverPasswordNavEvent";

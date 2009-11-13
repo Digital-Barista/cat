@@ -12,6 +12,7 @@
 package mx.controls
 {
 
+import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.KeyboardEvent;
@@ -37,11 +38,15 @@ import mx.events.DateChooserEvent;
 import mx.events.DropdownEvent;
 import mx.events.FlexEvent;
 import mx.events.FlexMouseEvent;
+import mx.events.InterManagerRequest;
+import mx.events.SandboxMouseEvent;
 import mx.managers.IFocusManagerComponent;
+import mx.managers.ISystemManager;
 import mx.managers.PopUpManager;
 import mx.styles.CSSStyleDeclaration;
 import mx.styles.StyleManager;
 import mx.styles.StyleProxy;
+import mx.utils.ObjectUtil;
 
 use namespace mx_internal;
 
@@ -533,13 +538,21 @@ public class DateField extends ComboBase
 
             if (mask == "M")
             {
-                output += month;
-                i++;
+            	if ( outputFormat.charAt(i+1) == "/" && value.getMonth() < 9 ) {
+	            	output += month.substring(1) + "/";
+	            } else {
+	            	output += month;
+	            }
+	            i++;	
             }
             else if (mask == "D")
             {
-                output += date;
-                i++;
+            	if ( outputFormat.charAt(i+1) == "/" && value.getDate() < 10 ) {
+	            	output += date.substring(1) + "/";
+	            } else {	
+	            	output += date;	                		
+	            }
+	            i++;
             }
             else if (mask == "Y")
             {
@@ -575,6 +588,8 @@ public class DateField extends ComboBase
     public function DateField()
     {
         super();
+
+        addEventListener(Event.REMOVED_FROM_STAGE, removedFromStageHandler);
     }
 
     //--------------------------------------------------------------------------
@@ -1615,6 +1630,7 @@ public class DateField extends ComboBase
 
     [Bindable("change")]
     [Bindable("valueCommit")]
+    [Bindable("selectedDateChanged")]
     [Inspectable(category="General")]
 
     /**
@@ -1639,12 +1655,20 @@ public class DateField extends ComboBase
      */
     public function set selectedDate(value:Date):void
     {
+        if (ObjectUtil.dateCompare(_selectedDate, value) == 0) 
+            return;
+
         selectedDateSet = true;
         _selectedDate = scrubTimeValue(value) as Date;
         updateDateFiller = true;
         selectedDateChanged = true;
 
         invalidateProperties();
+
+        // Trigger bindings to 'selectedData'.
+        dispatchEvent(new Event("selectedDateChanged"));
+       
+        dispatchEvent(new FlexEvent(FlexEvent.VALUE_COMMIT));    
     }
 
     //----------------------------------
@@ -1906,7 +1930,6 @@ public class DateField extends ComboBase
         {
             selectedDateChanged = false;
             dropdown.selectedDate = _selectedDate;
-            dispatchEvent(new FlexEvent(FlexEvent.VALUE_COMMIT));
         }
 
         if (showTodayChanged)
@@ -2126,7 +2149,6 @@ public class DateField extends ComboBase
                 _dropdown.displayedMonth = _dropdown.selectedDate.getMonth();
                 _dropdown.displayedYear = _dropdown.selectedDate.getFullYear();
             }
-            point = dd.parent.globalToLocal(point);
             dd.visible = show;
             dd.scaleX = scaleX;
             dd.scaleY = scaleY;
@@ -2138,24 +2160,37 @@ public class DateField extends ComboBase
             // A. Bottom Left Placment
             // B. Bottom Right Placement
             // C. Top Right Placement
-            var screen:Rectangle = systemManager.screen;
+            var sm:ISystemManager = systemManager.topLevelSystemManager;
+            var sbRoot:DisplayObject = sm.getSandboxRoot();
+            var screen:Rectangle;
 
-            if (screen.width > dd.getExplicitOrMeasuredWidth() + point.x &&
-                screen.height < dd.getExplicitOrMeasuredHeight() + point.y)
+            if (sm != sbRoot)
+            {
+                var request:InterManagerRequest = new InterManagerRequest(InterManagerRequest.SYSTEM_MANAGER_REQUEST, 
+                                        false, false,
+                                        "getVisibleApplicationRect"); 
+                sbRoot.dispatchEvent(request);
+                screen = Rectangle(request.value);
+            }
+            else
+                screen = sm.getVisibleApplicationRect();
+
+            if (screen.right > dd.getExplicitOrMeasuredWidth() + point.x &&
+                screen.bottom < dd.getExplicitOrMeasuredHeight() + point.y)
             {
                 xVal = point.x
                 yVal = point.y - dd.getExplicitOrMeasuredHeight();
                 openPos = 1;
             }
-            else if (screen.width < dd.getExplicitOrMeasuredWidth() + point.x &&
-                     screen.height < dd.getExplicitOrMeasuredHeight() + point.y)
+            else if (screen.right < dd.getExplicitOrMeasuredWidth() + point.x &&
+                     screen.bottom < dd.getExplicitOrMeasuredHeight() + point.y)
             {
                 xVal = point.x - dd.getExplicitOrMeasuredWidth() + downArrowButton.width;
                 yVal = point.y - dd.getExplicitOrMeasuredHeight();
                 openPos = 2;
             }
-            else if (screen.width < dd.getExplicitOrMeasuredWidth() + point.x &&
-                     screen.height > dd.getExplicitOrMeasuredHeight() + point.y)
+            else if (screen.right < dd.getExplicitOrMeasuredWidth() + point.x &&
+                     screen.bottom > dd.getExplicitOrMeasuredHeight() + point.y)
             {
                 xVal = point.x - dd.getExplicitOrMeasuredWidth() + downArrowButton.width;
                 yVal = point.y + unscaledHeight;
@@ -2166,8 +2201,11 @@ public class DateField extends ComboBase
                 //downArrowButton.enabled = false;
                 openPos = 0;
 
+            point.x = xVal;
+            point.y = yVal;
+            point = dd.parent.globalToLocal(point);
             UIComponentGlobals.layoutManager.validateClient(dd, true);
-            dd.move(xVal, yVal);
+            dd.move(point.x, point.y);
             Object(dd).setActualSize(dd.getExplicitOrMeasuredWidth(),dd.getExplicitOrMeasuredHeight());
 
         }
@@ -2226,6 +2264,10 @@ public class DateField extends ComboBase
         _dropdown.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE,
                                    dropdown_mouseDownOutsideHandler);
         _dropdown.addEventListener(FlexMouseEvent.MOUSE_WHEEL_OUTSIDE,
+                                   dropdown_mouseDownOutsideHandler);
+        _dropdown.addEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE,
+                                   dropdown_mouseDownOutsideHandler);
+        _dropdown.addEventListener(SandboxMouseEvent.MOUSE_WHEEL_SOMEWHERE,
                                    dropdown_mouseDownOutsideHandler);
         
         creatingDropdown = false;
@@ -2423,11 +2465,20 @@ public class DateField extends ComboBase
     /**
      *  @private
      */
+    private function removedFromStageHandler(event:Event):void
+    {
+        // Ensure we've unregistered ourselves from PopupManager, else
+        // we'll be leaked.
+        addedToPopupManager = false;
+        PopUpManager.removePopUp(_dropdown);
+    }
+
+    /**
+     *  @private
+     */
     private function dropdown_changeHandler(
                         event:CalendarLayoutChangeEvent):void
     {
-        _selectedDate = dropdown.selectedDate;
-
         // If this was generated by the dropdown as a result of a keystroke,
         // it is likely a Page-Up or Page-Down, or Arrow-Up or Arrow-Down.
         // If the selection changes due to a keystroke,
@@ -2436,6 +2487,12 @@ public class DateField extends ComboBase
         // we close the dropdown.
         if (!inKeyDown)
             displayDropdown(false);
+
+        // Nothing to do if the dates are the same.
+        if (ObjectUtil.dateCompare(_selectedDate, dropdown.selectedDate) == 0)
+            return;
+
+        _selectedDate = dropdown.selectedDate;
 
         if (_selectedDate)
             dateFiller(_selectedDate);
@@ -2460,10 +2517,18 @@ public class DateField extends ComboBase
     /**
      *  @private
      */
-    private function dropdown_mouseDownOutsideHandler(event:MouseEvent):void
+    private function dropdown_mouseDownOutsideHandler(event:Event):void
     {
-        if (! hitTestPoint(event.stageX, event.stageY, true))
+        if (event is MouseEvent)
+        {
+            var mouseEvent:MouseEvent = MouseEvent(event);
+
+            if (! hitTestPoint(mouseEvent.stageX, mouseEvent.stageY, true))
+                displayDropdown(false, event);
+        }
+        else if (event is SandboxMouseEvent) 
             displayDropdown(false, event);
+            
     }
 
     /**

@@ -16,10 +16,12 @@ import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.ui.Keyboard;
+
+import mx.core.FlexVersion;
 import mx.core.IFlexDisplayObject;
+import mx.core.IToggleButton;
 import mx.core.mx_internal;
 import mx.events.FlexEvent;
-import mx.core.FlexVersion;
 import mx.events.ItemClickEvent;
 import mx.managers.IFocusManager;
 import mx.managers.IFocusManagerGroup;
@@ -103,7 +105,7 @@ include "../styles/metadata/IconColorStyles.as"
  *
  *  @see mx.controls.RadioButtonGroup
  */
-public class RadioButton extends Button implements IFocusManagerGroup
+public class RadioButton extends Button implements IFocusManagerGroup, IToggleButton
 {
     include "../core/Version.as";
 
@@ -395,6 +397,8 @@ public class RadioButton extends Button implements IFocusManagerGroup
         _value = value;
 
         dispatchEvent(new Event("valueChanged"));
+        if (selected && group)
+        	group.dispatchEvent(new FlexEvent(FlexEvent.VALUE_COMMIT));
     }
 
     //--------------------------------------------------------------------------
@@ -604,6 +608,9 @@ public class RadioButton extends Button implements IFocusManagerGroup
      */
     override protected function keyDownHandler(event:KeyboardEvent):void
     {
+    	if (!enabled)
+    		return;
+    		
         switch (event.keyCode)
         {
             case Keyboard.DOWN:

@@ -120,6 +120,7 @@ public class NodeDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(mappedBy="node",targetEntity=NodeInfoDO.class,cascade=CascadeType.ALL)
+	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
 	public Set<NodeInfoDO> getNodeInfo() {
 		return nodeInfo;

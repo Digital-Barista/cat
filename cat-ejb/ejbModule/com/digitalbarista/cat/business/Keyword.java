@@ -2,9 +2,13 @@ package com.digitalbarista.cat.business;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.KeywordDO;
 
+@XmlRootElement
 public class Keyword implements
 		BusinessObject<KeywordDO>, Serializable {
 
@@ -35,6 +39,7 @@ public class Keyword implements
 		dataObject.setKeyword(keyword);
 	}
 
+	@XmlAttribute
 	public Long getEntryPointId() {
 		return entryPointId;
 	}
@@ -43,6 +48,7 @@ public class Keyword implements
 		this.entryPointId = entryPointId;
 	}
 
+	@XmlAttribute
 	public Long getClientId() {
 		return clientId;
 	}
@@ -51,6 +57,7 @@ public class Keyword implements
 		this.clientId = clientId;
 	}
 
+	@XmlAttribute
 	public String getKeyword() {
 		return keyword;
 	}
@@ -59,6 +66,7 @@ public class Keyword implements
 		this.keyword = keyword;
 	}
 
+	@XmlAttribute(name="ID")
 	public Long getPrimaryKey() {
 		return primaryKey;
 	}
@@ -67,18 +75,22 @@ public class Keyword implements
 		this.primaryKey = primaryKey;
 	}
 
+	@XmlAttribute
 	public String getIncomingAddress() {
 		return incomingAddress;
 	}
 
+	@XmlAttribute
 	public EntryPointType getIncomingAddressType() {
 		return incomingAddressType;
 	}
 
+	@XmlAttribute
 	public String getClientName() {
 		return clientName;
 	}
 
+	@XmlAttribute
 	public String getCampaignUID() {
 		return campaignUID;
 	}

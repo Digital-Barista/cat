@@ -5,7 +5,9 @@
 	horizontalScrollPolicy="off"
 	xmlns:vo="com.dbi.cat.vo.*" 
 	xmlns:workspace="com.dbi.cat.view.workspace.*"
-	creationComplete="init()">
+	creationComplete="init()"
+	borderSides="right"
+	borderStyle="solid">
 	<mx:Script>
 		<![CDATA[
 			import mx.events.ListEvent;
@@ -111,7 +113,7 @@
 		styleName="componentTree"
 		width="100%" top="35" bottom="0"
 		dragEnabled="true"
-		indentation="0"
+		indentation="5"
 		iconField="@icon"
 		labelField="@label"
 		dragStart="onDragStart(event)"

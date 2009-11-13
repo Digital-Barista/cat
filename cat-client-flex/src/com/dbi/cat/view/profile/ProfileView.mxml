@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:ns1="com.dbi.cat.view.profile.*">
+	<mx:TabNavigator
+		horizontalCenter="0"
+		width="90%"
+		maxWidth="1000"
+		top="10" bottom="10"
+		tabOffset="-10"
+		horizontalAlign="right"
+		borderStyle="none"
+		paddingTop="0">
+		<ns1:ProfileDetailsView label="Details" />
+		<ns1:EntryPointDefinitionView label="Accounts" />
+		<ns1:KeywordView  label="Keywords" />
+	</mx:TabNavigator>
+	
+</mx:Canvas>

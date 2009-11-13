@@ -182,6 +182,40 @@ public class AbstractConsumer extends MessageAgent
         }
 	}
 
+    //----------------------------------
+    //  maxFrequency
+    //----------------------------------
+
+    /**
+     *  @private
+     */
+    private var _maxFrequency:uint = 0;
+
+    [Bindable(event="propertyChange")]
+    /**
+     *  Determines the maximum number of messages per second the Consumer wants
+     *  to receive. A server that understands this value will use it as an input
+     *  while it determines how fast to send messages to the Consumer. Default is 0 
+     *  which means Consumer does not have a preference for the message rate. 
+     *  Note that this property should be set before the Consumer subscribes and
+     *  any changes after Consumer subscription will not have any effect until 
+     *  Consumer unsubscribes and resubscribes.
+     */ 
+    public function get maxFrequency():uint
+    {
+        return _maxFrequency;
+    }
+
+    /**
+     *  @private
+     */
+    public function set maxFrequency(value:uint):void
+    {
+        var event:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(this, "maxFrequency", _maxFrequency, value);
+        _maxFrequency = value;
+        dispatchEvent(event);
+    }
+
 	//----------------------------------
 	//  resubscribeAttempts
 	//----------------------------------
@@ -505,23 +539,27 @@ public class AbstractConsumer extends MessageAgent
 	override public function fault(errMsg:ErrorMessage, msg:IMessage):void
     {
         // Ignore faults for any outstanding messages that return after disconnect() is invoked.
-        if (_disconnectBarrier)
-            return;
-
-        // If this error correlates to our current subscribe message,
-        // we should no longer be subscribed.
-        if ((_subscribeMsg != null) && (errMsg.correlationId == _subscribeMsg.messageId))
-            _shouldBeSubscribed = false;
-
-        // If the error is not retryable, or there is no resubscribe timer running,
-        // dispatch a fault event. Otherwise, the resubscribe timer is running and
-        // will generate a fault when it runs out of allowed resubscribe attempts.
-        if (!errMsg.headers[ErrorMessage.RETRYABLE_HINT_HEADER] || _resubscribeTimer == null)
-        {
-            // Stop the resubscribe timer in case it is running.
-            stopResubscribeTimer();
-            super.fault(errMsg, msg);
-        }
+	    if (_disconnectBarrier)
+	        return;
+        
+        if (errMsg.headers[ErrorMessage.RETRYABLE_HINT_HEADER])
+        {	
+            if (_resubscribeTimer == null)
+            {                   
+    	        // If this error correlates to our current subscribe message,
+    	        // we should no longer be subscribed.
+    	        if ((_subscribeMsg != null) && (errMsg.correlationId == _subscribeMsg.messageId))
+    	            _shouldBeSubscribed = false;
+    	        super.fault(errMsg, msg);
+    	    }
+    	    // Else, suppress the fault dispatch because the resubscribe
+    	    // timer is running and will generate a fault when it runs out of
+    	    // allowed resubscribe attempts.
+	    }
+	    else
+	    {
+	        super.fault(errMsg, msg);
+	    }
     }
 
     /**
@@ -746,6 +784,8 @@ public class AbstractConsumer extends MessageAgent
         msg.operation = CommandMessage.SUBSCRIBE_OPERATION;
         msg.clientId = clientId;
         msg.destination = destination;
+        if (maxFrequency > 0)
+            msg.headers[CommandMessage.MAX_FREQUENCY_HEADER] = maxFrequency;
         return msg;
 	}
 

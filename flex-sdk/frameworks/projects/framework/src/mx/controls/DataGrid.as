@@ -14,7 +14,6 @@ package mx.controls
 
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
-import flash.display.GradientType;
 import flash.display.Graphics;
 import flash.display.Shape;
 import flash.display.Sprite;
@@ -22,12 +21,11 @@ import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
-import flash.geom.Matrix;
 import flash.geom.Point;
-import flash.geom.Rectangle;
 import flash.ui.Keyboard;
-import flash.utils.describeType;
 import flash.utils.Dictionary;
+import flash.utils.describeType;
+
 import mx.collections.CursorBookmark;
 import mx.collections.ICollectionView;
 import mx.collections.ItemResponder;
@@ -52,13 +50,12 @@ import mx.core.EventPriority;
 import mx.core.FlexShape;
 import mx.core.FlexSprite;
 import mx.core.FlexVersion;
-import mx.core.IChildList;
 import mx.core.IFactory;
 import mx.core.IFlexDisplayObject;
+import mx.core.IFlexModuleFactory;
 import mx.core.IIMESupport;
 import mx.core.IInvalidating;
 import mx.core.IPropertyChangeNotifier;
-import mx.core.IRawChildrenContainer;
 import mx.core.IRectangularBorder;
 import mx.core.IUIComponent;
 import mx.core.ScrollPolicy;
@@ -67,24 +64,20 @@ import mx.core.UIComponentGlobals;
 import mx.core.mx_internal;
 import mx.events.CollectionEvent;
 import mx.events.CollectionEventKind;
-import mx.events.ListEvent;
 import mx.events.DataGridEvent;
 import mx.events.DataGridEventReason;
 import mx.events.DragEvent;
-import mx.events.FlexEvent;
 import mx.events.IndexChangedEvent;
+import mx.events.ListEvent;
+import mx.events.SandboxMouseEvent;
 import mx.events.ScrollEvent;
 import mx.events.ScrollEventDetail;
-import mx.managers.CursorManager;
-import mx.managers.CursorManagerPriority;
 import mx.managers.IFocusManager;
 import mx.managers.IFocusManagerComponent;
 import mx.skins.halo.ListDropIndicator;
 import mx.styles.ISimpleStyleClient;
 import mx.styles.StyleManager;
 import mx.utils.ObjectUtil;
-import mx.managers.ISystemManager;
-import mx.core.IFlexModuleFactory;
 import mx.utils.StringUtil;
 
 use namespace mx_internal;
@@ -109,6 +102,13 @@ use namespace mx_internal;
  *  @eventType mx.events.DataGridEvent.ITEM_EDIT_BEGIN
  */
 [Event(name="itemEditBegin", type="mx.events.DataGridEvent")]
+
+/**
+ *  Dispatched when the item editor has just been instantiated.
+ *
+ *  @eventType mx.events.DataGridEvent.ITEM_EDITOR_CREATE
+ */
+[Event(name="itemEditorCreate", type="mx.events.DataGridEvent")]
 
 /**
  *  Dispatched when an item editing session ends for any reason.
@@ -1052,7 +1052,7 @@ public class DataGrid extends DataGridBase implements IIMESupport
     private var _columns:Array; // the array of our DataGridColumns
 
     [Bindable("columnsChanged")]
-    [Inspectable(arrayType="mx.controls.dataGridClasses.DataGridColumn")]
+    [Inspectable(category="General", arrayType="mx.controls.dataGridClasses.DataGridColumn")]
 
     /**
      *  An array of DataGridColumn objects, one for each column that
@@ -1099,6 +1099,13 @@ public class DataGrid extends DataGridBase implements IIMESupport
             var column:DataGridColumn = _columns[i];
             column.owner = this;
             column.colNum = i;
+            if (column.cachedHeaderRenderer)
+            {
+                var item:DisplayObject = column.cachedHeaderRenderer as DisplayObject
+                if (item.parent)
+                    item.parent.removeChild(item);
+                column.cachedHeaderRenderer = null;
+            }
         }
 
         updateSortIndexAndDirection();
@@ -1180,7 +1187,9 @@ public class DataGrid extends DataGridBase implements IIMESupport
 
     /**
      *  @private
-     *  the last editedItemPosition.  We restore editing
+     *  the last editedItemPosition and the last
+     *  position where editing was attempted if editing
+     *  was cancelled.  We restore editing
      *  to this point if we get focus from the TAB key
      */
     private var lastEditedItemPosition:*;
@@ -1538,9 +1547,11 @@ public class DataGrid extends DataGridBase implements IIMESupport
         {
             actualContentHolder.setChildIndex(DisplayObject(itemEditorInstance),
                                       actualContentHolder.numChildren - 1);
-            var col:DataGridColumn = editedItemPosition.columnIndex < lockedColumnCount ?
-                                        visibleLockedColumns[actualColIndex] : 
-                                        visibleColumns[actualColIndex];
+            var col:DataGridColumn;
+            if (lockedColumnCount && editedItemPosition.columnIndex && visibleLockedColumns[lockedColumnCount - 1].colNum)
+                col = visibleLockedColumns[actualColIndex];
+            else
+                col = visibleColumns[actualColIndex];
 
             var item:IListItemRenderer = actualContentHolder.listItems[actualRowIndex][actualColIndex];
             var rowData:ListRowInfo = actualContentHolder.rowInfo[actualRowIndex];
@@ -2027,12 +2038,10 @@ public class DataGrid extends DataGridBase implements IIMESupport
         // if the last column is visible and partially offscreen (but it isn't the only
         // column) then adjust the column count so we can scroll to see it
         if (collectionHasRows && rowCount > 0 && colCount > 1 && 
-            visibleColumns[colCount - 1] == displayableColumns[displayableColumns.length - 1]
-            && listItems[0][colCount - 1].x + 
+            listItems[0][colCount - 1].x + 
             visibleColumns[colCount - 1].width > (displayWidth - listContent.x + viewMetrics.left))
             colCount--;
-        else if (colCount > 1 && !collectionHasRows && 
-            visibleColumns[colCount - 1] == displayableColumns[displayableColumns.length - 1])
+        else if (colCount > 1 && !collectionHasRows)
         {
             // the slower computation requires adding up the previous columns
             var colX:int = 0;
@@ -2551,12 +2560,12 @@ public class DataGrid extends DataGridBase implements IIMESupport
                     {
                         if (i < lockedColumnCount)
                         {
-                            lockedColumnWidth += isNaN(col.explicitWidth) ? col.preferredWidth : col.explicitWidth;
+                            lockedColumnWidth += Math.max(isNaN(col.explicitWidth) ? col.preferredWidth : col.explicitWidth, col.minWidth);
                             visibleLockedColumns.push(col);
                         }
                         else
                             visibleColumns.push(col);
-                        totalWidth += isNaN(col.explicitWidth) ? col.preferredWidth : col.explicitWidth;
+                        totalWidth += Math.max(isNaN(col.explicitWidth) ? col.preferredWidth : col.explicitWidth, col.minWidth);
                         if (col.width != col.preferredWidth)
                             col.setWidth(col.preferredWidth);
                     }
@@ -3886,9 +3895,17 @@ public class DataGrid extends DataGridBase implements IIMESupport
         // listen for keyStrokes on the itemEditorInstance (which lets the grid supervise for ESC/ENTER)
         DisplayObject(itemEditorInstance).addEventListener(KeyboardEvent.KEY_DOWN, editorKeyDownHandler);
         // we disappear on any mouse down outside the editor
-        stage.addEventListener(MouseEvent.MOUSE_DOWN, editorMouseDownHandler, true, 0, true);
+        systemManager.getSandboxRoot().
+            addEventListener(MouseEvent.MOUSE_DOWN, editorMouseDownHandler, true, 0, true);
+        systemManager.getSandboxRoot().
+            addEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE, editorMouseDownHandler, false, 0, true);
         // we disappear if stage is resized
-        stage.addEventListener(Event.RESIZE, editorStageResizeHandler, true, 0, true);
+        systemManager.addEventListener(Event.RESIZE, editorStageResizeHandler, true, 0, true);
+
+	// Dispatch our item editor created event
+        var event:DataGridEvent =
+        		new DataGridEvent(DataGridEvent.ITEM_EDITOR_CREATE, false, true, colIndex, null, rowIndex);
+        dispatchEvent(event);
     }
 
     /**
@@ -3953,13 +3970,7 @@ public class DataGrid extends DataGridBase implements IIMESupport
                 if (!itemEditorInstance || endEdit(reason))
                 {
                     // send event to create the new one
-                    var dataGridEvent:DataGridEvent =
-                        new DataGridEvent(DataGridEvent.ITEM_EDIT_BEGINNING, false, true);
-                        // ITEM_EDIT events are cancelable
-                    dataGridEvent.columnIndex = colIndex;
-                    dataGridEvent.dataField = _columns[colIndex].dataField;
-                    dataGridEvent.rowIndex = index;
-                    dispatchEvent(dataGridEvent);
+                    beginningEdit(colIndex, index);
                 }
             }
         }
@@ -3979,11 +3990,11 @@ public class DataGrid extends DataGridBase implements IIMESupport
         if (itemEditorInstance)
         {
             DisplayObject(itemEditorInstance).removeEventListener(KeyboardEvent.KEY_DOWN, editorKeyDownHandler);
-            if (stage)
-            {
-                stage.removeEventListener(MouseEvent.MOUSE_DOWN, editorMouseDownHandler, true);
-                stage.removeEventListener(Event.RESIZE, editorStageResizeHandler, true);
-            }
+            systemManager.getSandboxRoot().
+                removeEventListener(MouseEvent.MOUSE_DOWN, editorMouseDownHandler, true);
+            systemManager.getSandboxRoot().
+                removeEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE, editorMouseDownHandler);
+            systemManager.removeEventListener(Event.RESIZE, editorStageResizeHandler, true);
 
             var event:DataGridEvent =
                 new DataGridEvent(DataGridEvent.ITEM_FOCUS_OUT);
@@ -4007,6 +4018,24 @@ public class DataGrid extends DataGridBase implements IIMESupport
             itemEditorInstance = null;
             _editedItemPosition = null;
         }
+    }
+
+    /**
+     *  @private
+     *  dispatch an ITEM_EDIT_BEGINNING event;
+     */
+    private function beginningEdit(columnIndex:int, rowIndex:int, itemRenderer:IListItemRenderer = null):void
+    {
+        var dataGridEvent:DataGridEvent =
+            new DataGridEvent(DataGridEvent.ITEM_EDIT_BEGINNING, false, true);
+            // ITEM_EDIT events are cancelable
+        dataGridEvent.columnIndex = columnIndex;
+        dataGridEvent.dataField = _columns[columnIndex].dataField;
+        dataGridEvent.rowIndex = rowIndex;
+        dataGridEvent.itemRenderer = itemRenderer;
+        if (!dispatchEvent(dataGridEvent))
+            lastEditedItemPosition = { columnIndex: columnIndex, rowIndex: rowIndex };
+
     }
 
     /**
@@ -4117,6 +4146,11 @@ public class DataGrid extends DataGridBase implements IIMESupport
                 }
             }
         }
+
+        item = c.cachedHeaderRenderer as DisplayObject;
+        if (item && item.parent)
+            item.parent.removeChild(item);
+        c.cachedHeaderRenderer = null;
 
         rendererChanged = true;
         invalidateDisplayList();
@@ -4284,11 +4318,23 @@ public class DataGrid extends DataGridBase implements IIMESupport
                 if (itemEditorInstance)
                 {
                     if (displayableColumns[pos.x].editable == false)
+                    {
                         bEndedEdit = endEdit(DataGridEventReason.OTHER);
+                    }
                     else
-                        bEndedEdit = endEdit(editedItemPosition.rowIndex == pos.y ?
+                    {
+                        //Possible to get here and not have an editedItemPosition
+                        if (editedItemPosition)
+                        {
+                            bEndedEdit = endEdit(editedItemPosition.rowIndex == pos.y ?
                                          DataGridEventReason.NEW_COLUMN :
                                          DataGridEventReason.NEW_ROW);
+                        }
+                        else
+                        {
+                            bEndedEdit = false;
+                        }
+                    }
                 }
 
                 // if we didn't end edit session, don't do default behavior (call super)
@@ -4339,18 +4385,12 @@ public class DataGrid extends DataGridBase implements IIMESupport
             {
                 if (displayableColumns[pos.x].editable)
                 {
-                    dataGridEvent = new DataGridEvent(DataGridEvent.ITEM_EDIT_BEGINNING, false, true);
-                    // ITEM_EDIT events are cancelable
-                    dataGridEvent.columnIndex = displayableColumns[pos.x].colNum;
-                    dataGridEvent.dataField = displayableColumns[pos.x].dataField;
-                    dataGridEvent.rowIndex = pos.y;
-                    dataGridEvent.itemRenderer = r;
-                    dispatchEvent(dataGridEvent);
+                    beginningEdit(displayableColumns[pos.x].colNum, pos.y, r);
                 }
                 else
-                    // if the item is not editable, set lastPosition to it any
+                    // if the item is not editable, set lastPosition to it anyways
                     // so future tabbing starts from there
-                    lastEditedItemPosition = { columnIndex: pos.x, rowIndex: pos.y };
+                    lastEditedItemPosition = { columnIndex: displayableColumns[pos.x].colNum, rowIndex: pos.y };
             }
         }
         else if (lastItemDown && lastItemDown != itemEditorInstance)
@@ -4361,18 +4401,12 @@ public class DataGrid extends DataGridBase implements IIMESupport
             {
                 if (displayableColumns[pos.x].editable)
                 {
-                    dataGridEvent = new DataGridEvent(DataGridEvent.ITEM_EDIT_BEGINNING, false, true);
-                    // ITEM_EDIT events are cancelable
-                    dataGridEvent.columnIndex = displayableColumns[pos.x].colNum;
-                    dataGridEvent.dataField = displayableColumns[pos.x].dataField;
-                    dataGridEvent.rowIndex = pos.y;
-                    dataGridEvent.itemRenderer = lastItemDown;
-                    dispatchEvent(dataGridEvent);
+                    beginningEdit(displayableColumns[pos.x].colNum, pos.y, lastItemDown);
                 }
                 else
-                    // if the item is not editable, set lastPosition to it any
+                    // if the item is not editable, set lastPosition to it anyways
                     // so future tabbing starts from there
-                    lastEditedItemPosition = { columnIndex: pos.x, rowIndex: pos.y };
+                    lastEditedItemPosition = { columnIndex: displayableColumns[pos.x].colNum, rowIndex: pos.y };
             }
         }
 
@@ -4430,13 +4464,7 @@ public class DataGrid extends DataGridBase implements IIMESupport
                 var pos:Point = itemRendererToIndices(IListItemRenderer(target));
                 if (pos && pos.y >= 0 && editable && displayableColumns[pos.x].editable && !dontEdit)
                 {
-                    dataGridEvent = new DataGridEvent(DataGridEvent.ITEM_EDIT_BEGINNING, false, true);
-                    // ITEM_EDIT events are cancelable
-                    dataGridEvent.columnIndex = displayableColumns[pos.x].colNum;
-                    dataGridEvent.dataField = displayableColumns[pos.x].dataField;
-                    dataGridEvent.rowIndex = pos.y;
-                    dataGridEvent.itemRenderer = IListItemRenderer(target);
-                    dispatchEvent(dataGridEvent);
+                    beginningEdit(displayableColumns[pos.x].colNum, pos.y, IListItemRenderer(target));
                 }
             }
             // trace("subcomponent got focus ignoring");
@@ -4477,12 +4505,7 @@ public class DataGrid extends DataGridBase implements IIMESupport
             if (foundOne)
             {
                 // trace("setting focus", _editedItemPosition.columnIndex, _editedItemPosition.rowIndex);
-                dataGridEvent = new DataGridEvent(DataGridEvent.ITEM_EDIT_BEGINNING, false, true);
-                // ITEM_EDIT events are cancelable
-                dataGridEvent.columnIndex = _editedItemPosition.columnIndex;
-                dataGridEvent.dataField = _columns[_editedItemPosition.columnIndex].dataField;
-                dataGridEvent.rowIndex = _editedItemPosition.rowIndex;
-                dispatchEvent(dataGridEvent);
+                beginningEdit(_editedItemPosition.columnIndex, _editedItemPosition.rowIndex);
             }
 
         }
@@ -4599,10 +4622,16 @@ public class DataGrid extends DataGridBase implements IIMESupport
     /**
      *  @private
      */
-    private function editorMouseDownHandler(event:MouseEvent):void
+    private function editorMouseDownHandler(event:Event):void
     {
-        if (!owns(DisplayObject(event.target)))
-            endEdit(DataGridEventReason.OTHER);
+        if (event is MouseEvent && owns(DisplayObject(event.target)))
+			return;
+
+        endEdit(DataGridEventReason.OTHER);
+        // set focus back to the grid so grid logic will deal if focus doesn't
+        // end up somewhere else
+        losingFocus = true;
+        setFocus();
     }
 
     /**
@@ -4622,6 +4651,9 @@ public class DataGrid extends DataGridBase implements IIMESupport
         else if (event.charCode == Keyboard.ENTER && event.keyCode != 229)
         {
             // multiline editors can take the enter key.
+            if (!_editedItemPosition)
+                return;
+
             if (columns[_editedItemPosition.columnIndex].editorUsesEnterKey)
                 return;
 
@@ -4657,6 +4689,12 @@ public class DataGrid extends DataGridBase implements IIMESupport
 
         _editedItemPosition = lastEditedItemPosition;
 
+        // though endEdit checks this, an ITEM_EDIT_END event handler can, in
+        // the meantime, wipe out the item editor (e.g. by setting a new data
+        // provider). so we add another check here.
+        if (!_editedItemPosition)
+            return;
+
         var rowIndex:int = _editedItemPosition.rowIndex;
         var columnIndex:int = _editedItemPosition.columnIndex;
         // modify direction with SHIFT (up or down)
@@ -4667,13 +4705,7 @@ public class DataGrid extends DataGridBase implements IIMESupport
             rowIndex = newIndex;
 
         // send event to create the new one
-        var dataGridEvent:DataGridEvent =
-            new DataGridEvent(DataGridEvent.ITEM_EDIT_BEGINNING, false, true);
-            // ITEM_EDIT events are cancelable
-        dataGridEvent.columnIndex = columnIndex;
-        dataGridEvent.dataField = _columns[columnIndex].dataField;
-        dataGridEvent.rowIndex = rowIndex;
-        dispatchEvent(dataGridEvent);
+        beginningEdit(columnIndex, rowIndex);
     }
 
     /**
@@ -4751,9 +4783,8 @@ public class DataGrid extends DataGridBase implements IIMESupport
      */
     private function itemEditorItemEditBeginHandler(event:DataGridEvent):void
     {
-        // weak reference for deactivation
-        if (stage)
-            stage.addEventListener(Event.DEACTIVATE, deactivateHandler, false, 0, true);
+		if (root)
+	        systemManager.addEventListener(Event.DEACTIVATE, deactivateHandler, false, 0, true);
 
         // if not prevented and if data is not null (might be from dataservices)
         if (!event.isDefaultPrevented() && actualContentHolder.listItems[actualRowIndex][actualColIndex].data != null)
@@ -4851,10 +4882,12 @@ public class DataGrid extends DataGridBase implements IIMESupport
                     if (!(newData is int))
                         newData = Number(newData);
                 }
-                if (property != null && data[property] !== newData)
+                /** Old code assumed that the property would be a simply name that could be dereferenced
+                  * through array notation. Using a method call here provides, minimally, an override
+                  * point where developers could extend this functionality in their own datagrid subclass **/
+                if (property != null && getCurrentDataValue( data, property ) !== newData)
                 {
-                    bChanged = true;
-                    data[property] = newData;
+                    bChanged = setNewValue( data, property, newData, event.columnIndex );
                 }
                 if (bChanged && !(data is IPropertyChangeNotifier || data is XML))
                 {
@@ -4890,6 +4923,59 @@ public class DataGrid extends DataGridBase implements IIMESupport
         {
             destroyItemEditor();
         }
+    }
+
+	protected function isComplexColumn( property:String ):Boolean
+    {
+        return ( property.indexOf( "." ) != -1 );
+    }
+
+	//Gets the reference to the parent object where a property will be updated
+    protected function deriveComplexFieldReference( data:Object, complexFieldNameComponents:Array ):Object
+    {
+        var currentRef:Object = data;
+        if ( complexFieldNameComponents ) 
+        {
+            for ( var i:int=0; i<complexFieldNameComponents.length; i++ ) 
+                currentRef = currentRef[ complexFieldNameComponents[ i ] ];
+        }
+        
+        return currentRef;   	
+    }
+
+    //default implementations of these two methods, intended for subclassing
+    //not checking if it really is a complex value here as the performance hit of doing this here is negligible
+    //compared with every display
+    protected function getCurrentDataValue( data:Object, property:String ):String
+    {
+        if ( !isComplexColumn( property ) )
+            return data[ property ];
+        
+        var complexFieldNameComponents:Array = property.split( "." );
+        var obj:Object = deriveComplexFieldReference( data, complexFieldNameComponents );
+
+        return String( obj );
+    }
+
+	//Passing all of these parameters as it basically allows everything you would need to subclass for all sorts of fun implementations
+    protected function setNewValue( data:Object, property:String, value:Object, columnIndex:int ):Boolean 
+    {
+        if ( !isComplexColumn( property ) )
+        {
+        	data[ property ] = value;
+        } 
+        else 
+        {
+            var complexFieldNameComponents:Array = property.split( "." );
+            var lastProp:String = complexFieldNameComponents.pop();
+            var parent:Object = deriveComplexFieldReference( data, complexFieldNameComponents );
+            parent[ lastProp ] = value;
+        }
+        
+        //The value they typed in is always converted to a string, but is the value actually a string in the dataprovider?
+        //unknown as it is cast by datagridcolumn before datagrid ever gets to know...
+        //control if this really causes an update in subclass
+        return true;
     }
 
     /**

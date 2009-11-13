@@ -1,5 +1,6 @@
 package com.dbi.cat.view.workspace
 {
+	import com.dbi.cat.common.constants.CampaignMode;
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
@@ -26,8 +27,6 @@ package com.dbi.cat.view.workspace
 	
 	import mx.binding.utils.BindingUtils;
 	import mx.collections.ArrayCollection;
-	import mx.collections.Sort;
-	import mx.collections.SortField;
 	import mx.containers.Canvas;
 	import mx.core.Application;
 	import mx.events.DragEvent;
@@ -66,14 +65,8 @@ package com.dbi.cat.view.workspace
 		}
 		public function set campaign(c:CampaignVO):void
 		{
-			if (campaign == null ||
-				c == null ||
-				campaign.uid != c.uid ||
-				campaign.currentVersion != c.currentVersion )
-				loadCampaign(c);
-				
 			_campaign = c;
-			buildKeywordList();
+			loadCampaign(campaign);
 		}
 	
 		// Workspace item properties
@@ -96,11 +89,7 @@ package com.dbi.cat.view.workspace
 		public function set clientMap(value:Object):void
 		{
 			_clientMap = value;
-			buildKeywordList();
 		}
-		
-		[Bindable]
-		public var campaignKeywords:ArrayCollection
 		
 		public function WorkspaceView()
 		{
@@ -143,33 +132,42 @@ package com.dbi.cat.view.workspace
 		}
 		
 		
-		private function buildKeywordList():void
+		
+		//
+		// Entry point methods
+		//
+		public function getClientEntryPoints(entryPointType:String):ArrayCollection
 		{
-			campaignKeywords = new ArrayCollection();
-			
+			var ret:ArrayCollection = new ArrayCollection();
 			if (campaign != null &&
 				clientMap != null &&
 				clientMap[campaign.clientPK] != null)
 			{
 				for each (var e:EntryPointDefinitionVO in clientMap[campaign.clientPK].entryPoints)
 				{
-					if (e.type == campaign.type &&
-						e.value == campaign.defaultFromAddress)
+					if (e.type == entryPointType)
 					{
-						campaignKeywords = e.keywords;
-						break;
+						ret.addItem(e);
 					}
 				}
-				
-				// Sort keywords
-//				var sort:Sort = new Sort();
-//				sort.fields = [new SortField("keyword")];
-//				campaignKeywords.sort = sort;
-//				campaignKeywords.refresh();
 			}
+			return ret;
+		}
+		public function getClientKeywords(entryPointType:String, address:String):ArrayCollection
+		{
+			var ret:ArrayCollection = new ArrayCollection();
+			for each (var e:EntryPointDefinitionVO in getClientEntryPoints(entryPointType))
+			{
+				if (e.value == address)
+				{
+					ret = new ArrayCollection(e.keywords.toArray().slice());
+					break;
+				}
+			}
+			return ret;
 		}
 		
-		public function fitContent():void
+		public function fitContent(e:LayoutInfoEvent=null):void
 		{
 			zoomContainer.fitComponents();
 		}
@@ -269,8 +267,6 @@ package com.dbi.cat.view.workspace
             {
             	var entryPoint:EntryPointVO = new EntryPointVO();
             	entryPoint.campaignUID = campaign.uid;
-            	entryPoint.entryType = campaign.type;
-            	entryPoint.entryPoint = campaign.defaultFromAddress;
             	layout.UUID = entryPoint.uid;
             	entryPoint.layoutInfo = layout;
             	
@@ -326,8 +322,6 @@ package com.dbi.cat.view.workspace
             {
             	var response:ResponseConnectorVO = new ResponseConnectorVO();
             	response.campaignUID = campaign.uid;
-            	response.entryPointType = campaign.type;
-            	response.entryPoint = campaign.defaultFromAddress;
             	layout.UUID = response.uid;
             	response.layoutInfo = layout;
             	
@@ -345,6 +339,7 @@ package com.dbi.cat.view.workspace
 			
 			// Dispatch event to add layout info
 			var event:LayoutInfoEvent = new LayoutInfoEvent(LayoutInfoEvent.SAVE_LAYOUT_INFO);
+			layout.version = campaign.currentVersion;
 			event.layoutInfo = layout;
 			dispatchEvent(event);
 			
@@ -352,7 +347,7 @@ package com.dbi.cat.view.workspace
 		private function addNodeToWorkspace(node:NodeVO):void
 		{
 			// Create new WorkspaceItem based on type
-            var newItem:WorkspaceItem;
+            var newItem:Node;
             
 			if (node is MessageVO)
             {
@@ -372,6 +367,11 @@ package com.dbi.cat.view.workspace
             	c.couponVO = node as CouponNodeVO;
 				newItem = c;
             }
+            
+            // Hide some icons for template campaigns
+            newItem.showInvalidWarning = campaign.mode != CampaignMode.TEMPLATE;
+            newItem.showStatistics = campaign.mode != CampaignMode.TEMPLATE;
+            
             addItemToWorkspace(newItem);
 		}
 		private function addConnectorToWorkspace(connector:ConnectorVO):void
@@ -399,9 +399,12 @@ package com.dbi.cat.view.workspace
             else if (connector is ResponseConnectorVO)
             {
             	var rc:ResponseConnection = new ResponseConnection();
-            	rc.connectorVO = connector as ResponseConnectorVO;
+            	rc.responseConnectorVO = connector as ResponseConnectorVO;
             	newItem = rc;
             }
+            
+            // Hide some icons for template campaigns
+            newItem.showInvalidWarning = campaign.mode != CampaignMode.TEMPLATE;
             
             // Associate connected nodes
             if (connector.sourceNodeUID != null)
@@ -437,6 +440,7 @@ package com.dbi.cat.view.workspace
 			// Bind readonly flag to items
 			item.readonly = readonly;
 			changeWatcherMap[item.uid] = BindingUtils.bindProperty(item, "readonly", this, "readonly");
+			
 			
 			// Size item
 			item.width = WORKSPACE_ITEM_WIDTH;
@@ -571,6 +575,9 @@ package com.dbi.cat.view.workspace
 		}
 		public function loadCampaign(campaign:CampaignVO):void
 		{
+			// Close any open menus
+			closeMenuItems();
+			
 			// Remove any existing components
 			for each (var item:WorkspaceItem in zoomContainer.getComponents())
 				removeWorkspaceItem(item);

@@ -37,11 +37,6 @@
 					method="saveLayoutInfo"
 					arguments="{event.layoutInfo}" />
 			</resultHandlers>
-			<faultHandlers>
-				<MethodInvoker generator="{AppManager}"
-					method="hideFault"
-					arguments="{fault}" />
-			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{LayoutInfoEvent.SYNC_LAYOUT_INFO}">

@@ -1,8 +1,11 @@
 package com.digitalbarista.cat.business;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.digitalbarista.cat.data.LayoutInfoDO;
 
-
+@XmlRootElement
 public class LayoutInfo implements BusinessObject<LayoutInfoDO> {
 
 	private String UUID;
@@ -29,6 +32,7 @@ public class LayoutInfo implements BusinessObject<LayoutInfoDO> {
 		dataObject.setYLoc(y);
 	}
 
+	@XmlAttribute
 	public String getUUID() {
 		return UUID;
 	}
@@ -37,6 +41,7 @@ public class LayoutInfo implements BusinessObject<LayoutInfoDO> {
 		UUID = uuid;
 	}
 
+	@XmlAttribute
 	public Integer getX() {
 		return x;
 	}
@@ -45,6 +50,7 @@ public class LayoutInfo implements BusinessObject<LayoutInfoDO> {
 		this.x = x;
 	}
 
+	@XmlAttribute
 	public Integer getY() {
 		return y;
 	}
@@ -53,6 +59,7 @@ public class LayoutInfo implements BusinessObject<LayoutInfoDO> {
 		this.y = y;
 	}
 
+	@XmlAttribute
 	public String getCampaignUUID() {
 		return campaignUUID;
 	}
@@ -61,6 +68,7 @@ public class LayoutInfo implements BusinessObject<LayoutInfoDO> {
 		this.campaignUUID = campaignUUID;
 	}
 
+	@XmlAttribute
 	public Integer getVersion() {
 		return version;
 	}
