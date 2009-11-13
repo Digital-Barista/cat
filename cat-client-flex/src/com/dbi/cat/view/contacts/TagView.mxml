@@ -84,6 +84,7 @@
 			click="addTag()" />
 	</mx:HBox>
 	<mx:Spacer height="5" />
+	<mx:Label text="Tags" fontWeight="bold" />
 	<mx:AdvancedDataGrid id="Tags"
 		dataProvider="{tagTreeData}" 
 		displayItemsExpanded="true"

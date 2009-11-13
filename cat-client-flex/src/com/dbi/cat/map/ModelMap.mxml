@@ -3,6 +3,7 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.contacts.EditContactView;
 			import com.dbi.cat.view.contacts.ContactListView;
 			import com.dbi.cat.business.ContactManager;
 			import com.dbi.cat.view.contacts.TagView;
@@ -323,5 +324,19 @@
 			source="{ClientManager}"
 			sourceKey="clients"
 			targetKey="clients" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contacts"
+			targetKey="contacts" />
+	</Injectors>
+	<Injectors target="{EditContactView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="currentContact"
+			targetKey="currentContact" />
 	</Injectors>
 </EventMap>

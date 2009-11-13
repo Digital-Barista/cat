@@ -14,6 +14,9 @@
 			[Bindable]
 			public var clients:ArrayCollection;
 			
+			[Bindable]
+			public var contacts:ArrayCollection;
+			
 			private function createDateLabel(contact:ContactVO, column:DataGridColumn):String
 			{
 				return DateUtil.formatDate(contact.createDate);
@@ -31,30 +34,33 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:HBox width="100%" verticalAlign="middle"
-		top="5">
-		<mx:Label text="Client:"/>
-		<components:FormattedComboBox
-			id="Client"
-			top="4" left="55"
-			bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
-			labelField="name"
-			dataProvider="{clients}" />
-		<mx:Label text="Type:" />
-		<mx:ComboBox id="ContactType"
-			dataProvider="{EntryPointType.getAllTypes()}" />
-		<mx:Label text="Contact:" />
-		<mx:TextInput id="Contact" />
-	</mx:HBox>
-	<mx:HDividedBox left="0" right="0" top="30" bottom="0">
-		<mx:DataGrid id="Contacts"
-			width="100%" height="100%">
-			<mx:columns>
-				<mx:DataGridColumn headerText="Contact" dataField="address" />
-				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" />
-				<mx:DataGridColumn headerText="Tags" labelFunction="tagListLabel" />
-			</mx:columns>
-		</mx:DataGrid>
+	<mx:HDividedBox left="0" right="0" top="0" bottom="0">
+		<mx:Canvas width="100%" height="100%">
+			<mx:HBox width="100%" verticalAlign="middle"
+				top="5">
+				<mx:Label text="Client:"/>
+				<components:FormattedComboBox
+					id="Client"
+					top="4" left="55"
+					bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
+					labelField="name"
+					dataProvider="{clients}" />
+				<mx:Label text="Type:" />
+				<mx:ComboBox id="ContactType"
+					dataProvider="{EntryPointType.getAllTypes()}" />
+				<mx:Label text="Contact:" />
+				<mx:TextInput id="Contact" />
+			</mx:HBox>
+			<mx:DataGrid id="Contacts"
+				width="100%" height="100%" top="30"
+				dataProvider="{contacts}">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Contact" dataField="address" />
+					<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" />
+					<mx:DataGridColumn headerText="Tags" labelFunction="tagListLabel" />
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:Canvas>
 		<contacts:TagView top="0" bottom="0" right="0"
 			selectedClient="{Client.selectedItem as ClientVO}"
 			width="150" />

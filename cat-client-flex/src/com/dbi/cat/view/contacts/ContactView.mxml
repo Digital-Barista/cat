@@ -2,6 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:contacts="com.dbi.cat.view.contacts.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.vo.ContactVO;
 			import com.dbi.cat.event.ContactEvent;
 			import com.dbi.cat.common.vo.UserVO;
 			import mx.collections.ArrayCollection;
@@ -14,6 +15,12 @@
 			private function refresh():void
 			{
 				dispatchEvent(new UserEvent(ContactEvent.LIST_CONTACTS));
+			}
+			private function addContact():void
+			{
+				var event:ContactEvent = new ContactEvent(ContactEvent.EDIT_CONTACT);
+				event.contact = new ContactVO();
+				dispatchEvent(event);
 			}
 		]]>	
 	</mx:Script>
@@ -32,7 +39,8 @@
 				width="25" height="25"
 				toolTip="Refresh"
 				click="refresh()" />
-			<mx:Button label="Add Contact" />
+			<mx:Button label="Add Contact"
+				click="addContact()" />
 			<mx:Button label="Import Contacts" />
 		</mx:HBox>
 	</mx:Canvas>

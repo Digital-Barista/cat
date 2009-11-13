@@ -64,5 +64,26 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
-	
+	<EventHandlers type="{ContactEvent.EDIT_CONTACT}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="editContact"
+			arguments="{event.contact}" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContact" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.SAVE_CONTACT}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="save"
+			arguments="{event.contact}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="saveContact"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 </EventMap>

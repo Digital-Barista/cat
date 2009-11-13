@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -151,6 +152,7 @@ public class ContactManagerImpl implements ContactManager {
 		// Copy all properties to DO
 		contact.copyTo(c);
 		c.setClient(em.find(ClientDO.class, contact.getClientId()));
+		c.setCreateDate(Calendar.getInstance());
 
 		em.persist(c);
 		em.flush();

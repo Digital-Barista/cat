@@ -7,10 +7,12 @@
 		<class>com.digitalbarista.cat.data.SubscriberBlacklistDO</class>
 		<class>com.digitalbarista.cat.data.ScheduledTaskDO</class>
 		<class>com.digitalbarista.cat.data.RoleDO</class>
+		<class>com.digitalbarista.cat.data.ReservedKeywordDO</class>
 		<class>com.digitalbarista.cat.data.NodeInfoDO</class>
 		<class>com.digitalbarista.cat.data.NodeDO</class>
 		<class>com.digitalbarista.cat.data.NodeConnectorLinkDO</class>
 		<class>com.digitalbarista.cat.data.LayoutInfoDO</class>
+		<class>com.digitalbarista.cat.data.KeywordLimitDO</class>
 		<class>com.digitalbarista.cat.data.KeywordDO</class>
 		<class>com.digitalbarista.cat.data.EntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CouponResponseDO</class>
@@ -26,11 +28,11 @@
 		<class>com.digitalbarista.cat.data.CampaignEntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CampaignDO</class>
 		<class>com.digitalbarista.cat.data.CampaignConnectorLinkDO</class>
-		<class>com.digitalbarista.cat.data.KeywordLimitDO</class>
-		<class>com.digitalbarista.cat.data.ReservedKeywordDO</class>
 		<class>com.digitalbarista.cat.audit.OutgoingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.IncomingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.AuditDO</class>
+		<class>com.digitalbarista.cat.data.ContactDO</class>
+		<class>com.digitalbarista.cat.data.ContactTagDO</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
 		</properties>

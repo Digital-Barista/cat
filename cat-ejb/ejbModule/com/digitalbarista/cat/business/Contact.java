@@ -70,11 +70,14 @@ public class Contact implements BusinessObject<ContactDO>{
 		type = dataObject.getType();
 		
 		contactTags = new HashSet<ContactTag>();
-		for (ContactTagDO tag : dataObject.getContactTags())
+		if (dataObject.getContactTags() != null)
 		{
-			ContactTag temp = new ContactTag();
-			temp.copyFrom(tag);
-			contactTags.add(temp);
+			for (ContactTagDO tag : dataObject.getContactTags())
+			{
+				ContactTag temp = new ContactTag();
+				temp.copyFrom(tag);
+				contactTags.add(temp);
+			}
 		}
 	}
 	@Override

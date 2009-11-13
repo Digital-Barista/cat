@@ -1,10 +1,17 @@
 package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.ContactTagVO;
+	import com.dbi.cat.common.vo.ContactVO;
+	import com.dbi.cat.view.contacts.EditContactView;
 	
+	import flash.display.DisplayObject;
 	import flash.events.IEventDispatcher;
 	
 	import mx.collections.ArrayCollection;
+	import mx.core.Application;
+	import mx.core.IFlexDisplayObject;
+	import mx.managers.PopUpManager;
+	import mx.utils.ObjectUtil;
 	
 	[Bindable]
 	public class ContactManager
@@ -13,6 +20,9 @@ package com.dbi.cat.business
 
 		public var contacts:ArrayCollection;
 		public var contactTags:ArrayCollection;
+		public var currentContact:ContactVO;
+		
+		private var editContactPopup:IFlexDisplayObject;
 		
 		public function ContactManager(dispatcher:IEventDispatcher)
 		{
@@ -34,6 +44,29 @@ package com.dbi.cat.business
 			{
 				contactTags.addItem(tag);
 			}
+		}
+		
+		public function editContact(contact:ContactVO):void
+		{
+			currentContact = ObjectUtil.copy(contact) as ContactVO;
+			
+			if (editContactPopup == null)
+				editContactPopup = new EditContactView();
+				
+			PopUpManager.addPopUp(editContactPopup, DisplayObject(Application.application), true);
+			PopUpManager.centerPopUp(editContactPopup);
+		}
+		public function closeContact():void
+		{
+			PopUpManager.removePopUp(editContactPopup);
+		}
+		public function saveContact(contact:ContactVO):void
+		{
+			if (contact != null)
+			{
+				contacts.addItem(contact);
+			}
+			closeContact();
 		}
 	}
 }
