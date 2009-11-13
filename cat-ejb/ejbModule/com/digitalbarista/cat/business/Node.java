@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -88,7 +89,8 @@ public abstract class Node implements BusinessObject<NodeDO> {
 		throw new IllegalArgumentException("Unknown node type specified.  Cannot create a NodeDO Business Object.");
 	}
 	
-	@XmlElement
+	@XmlElementWrapper(name="DownstreamConnectors")
+	@XmlElement(name="UUID")
 	public List<String> getDownstreamConnections() {
 		return downstreamConnections;
 	}
@@ -96,7 +98,8 @@ public abstract class Node implements BusinessObject<NodeDO> {
 		this.downstreamConnections = downstreamConnections;
 	}
 	
-	@XmlElement
+	@XmlElementWrapper(name="DownstreamConnectors")
+	@XmlElement(name="UUID")
 	public List<String> getUpstreamConnections() {
 		return upstreamConnections;
 	}

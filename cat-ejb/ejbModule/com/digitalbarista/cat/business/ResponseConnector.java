@@ -10,9 +10,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.ConnectorDO;
@@ -169,6 +169,7 @@ public class ResponseConnector extends Connector implements Auditable {
 		return ConnectorType.Response;
 	}
 
+	@XmlTransient
 	public EntryPointType getEntryPointType() {
 		if(entryTypes!=null && entryTypes.size()==1)
 			return entryTypes.get(0);
@@ -180,6 +181,7 @@ public class ResponseConnector extends Connector implements Auditable {
 		entryTypes.add(entryType);
 	}
 
+	@XmlTransient
 	public String getEntryPoint() {
 		if(entryPoints!=null && entryPoints.size()==1)
 			return entryPoints.get(0);
@@ -191,6 +193,7 @@ public class ResponseConnector extends Connector implements Auditable {
 		entryPoints.add(entryPoint);
 	}
 
+	@XmlTransient
 	public String getKeyword() {
 		if(keywords!=null && keywords.size()==1)
 			return keywords.get(0);
@@ -202,6 +205,8 @@ public class ResponseConnector extends Connector implements Auditable {
 		keywords.add(keyword);
 	}
 
+	@XmlElementWrapper(name="EntryDataList")
+	@XmlElement(name="EntryData")
 	public List<EntryData> getEntryData()
 	{
 		int maxSize = entryTypes.size();
