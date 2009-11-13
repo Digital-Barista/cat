@@ -3,7 +3,7 @@
 	width="400" height="260"
 	showCloseButton="true"
 	close="onClose()" xmlns:controls="com.dbi.controls.*"
-	title="{isNaN(currentEntryPointDefinition.primaryKey) ? 'Create Entry Point' : 'Edit Entry Point'}">
+	title="{currentEntryPointDefinition.primaryKey == null ? 'Create Entry Point' : 'Edit Entry Point'}">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryRestrictionType;
@@ -39,6 +39,7 @@
 					<mx:ArrayCollection>
 						<mx:Object label="{EntryPointType.EMAIL}" value="{EntryPointType.EMAIL}" />
 						<mx:Object label="{EntryPointType.SMS}" value="{EntryPointType.SMS}" />
+						<mx:Object label="{EntryPointType.TWITTER}" value="{EntryPointType.TWITTER}" />
 					</mx:ArrayCollection>
 				</controls:dataProvider>
 			</controls:AdvancedComboBox>
