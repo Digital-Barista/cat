@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.digitalbarista.cat.data.RoleDO;
 import com.digitalbarista.cat.data.UserDO;
@@ -51,6 +52,7 @@ public class User implements BusinessObject<UserDO>{
 	public void setUsername(String username) {
 		this.username = username;
 	}
+	@XmlTransient
 	public String getPassword() {
 		return password;
 	}
@@ -71,7 +73,8 @@ public class User implements BusinessObject<UserDO>{
 	public void setPrimaryKey(Long primaryKey) {
 		this.primaryKey = primaryKey;
 	}
-	@Wrapped(element="Roles")
+	@XmlElementWrapper(name="Roles")
+	@XmlElement(name="Role")
 	public List<Role> getRoles() {
 		return roles;
 	}

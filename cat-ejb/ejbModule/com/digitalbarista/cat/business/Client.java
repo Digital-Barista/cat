@@ -6,9 +6,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
@@ -143,8 +143,10 @@ public class Client implements
 		this.userAddInMessage = userAddInMessage;
 	}
 	
-	@Wrapped(element="EntryPoints")
+	@XmlElementWrapper(name="EntryPoints")
+	@XmlElement(name="EntryPoint")
 	public Set<EntryPointDefinition> getEntryPoints() {
+		
 		return entryPoints;
 	}
 
@@ -152,6 +154,8 @@ public class Client implements
 		this.entryPoints = entryPoints;
 	}
 
+	@XmlElementWrapper(name="KeywordLimits")
+	@XmlElement(name="KeywordLimit")
 	public Set<KeywordLimit> getKeywordLimits() {
 		return keywordLimits;
 	}

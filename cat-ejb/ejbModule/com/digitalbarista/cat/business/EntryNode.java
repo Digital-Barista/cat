@@ -9,9 +9,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.EntryPointType;
@@ -166,6 +167,7 @@ public class EntryNode extends Node implements Auditable{
 		return NodeType.Entry;
 	}
 	
+	@XmlTransient
 	public EntryPointType getEntryType() {
 		if(entryTypes!=null && entryTypes.size()==1)
 			return entryTypes.get(0);
@@ -177,6 +179,7 @@ public class EntryNode extends Node implements Auditable{
 		entryTypes.add(entryType);
 	}
 
+	@XmlTransient
 	public String getEntryPoint() {
 		if(entryPoints!=null && entryPoints.size()==1)
 			return entryPoints.get(0);
@@ -188,6 +191,7 @@ public class EntryNode extends Node implements Auditable{
 		entryPoints.add(entryPoint);
 	}
 
+	@XmlTransient
 	public String getKeyword() {
 		if(keywords!=null && keywords.size()==1)
 			return keywords.get(0);
@@ -199,6 +203,8 @@ public class EntryNode extends Node implements Auditable{
 		keywords.add(keyword);
 	}
 
+	@XmlElementWrapper(name="EntryDataList")
+	@XmlElement(name="EntryData")
 	public List<EntryData> getEntryData()
 	{
 		int maxSize = entryTypes.size();

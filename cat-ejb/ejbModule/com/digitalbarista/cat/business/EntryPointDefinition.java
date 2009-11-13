@@ -8,9 +8,8 @@ import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
@@ -145,7 +144,8 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.restriction = restriction;
 	}
 
-	@Wrapped(element="ClientIDs")
+	@XmlElementWrapper(name="ClientIDList")
+	@XmlElement(name="ClientID")
 	public Set<Integer> getClientIDs() {
 		return clientIDs;
 	}
@@ -163,7 +163,8 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 		this.restrictionID = restrictionID;
 	}
 
-	@XmlElement
+	@XmlElementWrapper(name="Keywords")
+	@XmlElement(name="Keyword")
 	public Set<Keyword> getKeywords() {
 		return keywords;
 	}

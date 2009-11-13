@@ -5,9 +5,8 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
@@ -112,7 +111,8 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.uid = uid;
 	}
 
-	@Wrapped(element="Nodes")
+	@XmlElementWrapper(name="Nodes")
+	@XmlElement(name="Node")
 	public Set<Node> getNodes() {
 		return nodes;
 	}
@@ -121,7 +121,8 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.nodes = nodes;
 	}
 
-	@Wrapped(element="Connectors")
+	@XmlElementWrapper(name="Connectors")
+	@XmlElement(name="Connector")
 	public Set<Connector> getConnectors() {
 		return connectors;
 	}

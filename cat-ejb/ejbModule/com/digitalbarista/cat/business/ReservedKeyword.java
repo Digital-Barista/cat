@@ -2,6 +2,7 @@ package com.digitalbarista.cat.business;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.digitalbarista.cat.data.ReservedKeywordDO;
@@ -25,6 +26,7 @@ public class ReservedKeyword implements
 		dataObject.setKeyword(keyword);
 	}
 
+	@XmlAttribute(name="ID")
 	public Long getReservedKeywordId() {
 		return reservedKeywordId;
 	}
@@ -33,6 +35,7 @@ public class ReservedKeyword implements
 		this.reservedKeywordId = reservedKeywordId;
 	}
 
+	@XmlAttribute
 	public String getKeyword() {
 		return keyword;
 	}
