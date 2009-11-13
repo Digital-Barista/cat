@@ -3,6 +3,7 @@
   <includeClasses>
     <classEntry path="com.dbi.cat.common.vo.CampaignVO"/>
     <classEntry path="com.dbi.cat.common.vo.NodeVO"/>
+    <classEntry path="com.dbi.cat.common.vo.ContactVO"/>
     <classEntry path="com.dbi.cat.common.controls.DisabledList"/>
     <classEntry path="com.dbi.cat.common.vo.CouponReportVO"/>
     <classEntry path="com.dbi.cat.common.vo.MessageVO"/>
@@ -21,6 +22,7 @@
     <classEntry path="com.dbi.cat.common.vo.ImmediateConnectorVO"/>
     <classEntry path="com.dbi.cat.common.vo.UserProfileVO"/>
     <classEntry path="com.dbi.cat.common.vo.KeywordVO"/>
+    <classEntry path="com.dbi.cat.common.vo.ContactTagVO"/>
     <classEntry path="com.dbi.cat.common.vo.LayoutInfoVO"/>
     <classEntry path="com.dbi.cat.common.vo.RoleVO"/>
   </includeClasses>

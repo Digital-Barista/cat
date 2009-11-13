@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*" xmlns:events="com.asfusion.mate.events.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.view.contacts.TagView;
+			import com.dbi.cat.business.ContactManager;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.constants.ServiceStatusMessage;
+			import com.dbi.cat.business.NavigationManager;
+			import com.dbi.cat.business.LayoutInfoManager;
+			import mx.managers.LayoutManager;
+			import com.dbi.cat.business.ClientManager;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.business.CampaignManager;
+			import com.dbi.cat.event.LoadDataEvent;
+			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.event.ChangePasswordEvent;
+			import com.dbi.cat.business.LoginManager;
+			import com.dbi.cat.event.LoginEvent;
+			import com.dbi.cat.event.NavigationEvent;
+			import com.dbi.cat.business.UserManager;
+			import com.dbi.cat.event.UserEvent;
+			import com.dbi.cat.business.AppManager;
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<services:Services id="services" />
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	
+	<EventHandlers type="{ContactEvent.LIST_CONTACTS}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="getContacts">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="loadContacts"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.LIST_CONTACT_TAGS}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="getContactTags">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="loadContactTags"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.SAVE_CONTACT_TAG}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="save"
+			arguments="{event.contactTag}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="saveTag"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+</EventMap>

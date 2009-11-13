@@ -26,16 +26,4 @@
 		<nature>com.adobe.flexbuilder.project.flexnature</nature>
 		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>[source path] cat-common-flex-src</name>
-			<type>2</type>
-			<locationURI>DOCUMENTS/cat/cat-common-flex/src</locationURI>
-		</link>
-		<link>
-			<name>[source path] flex-common-lib-src</name>
-			<type>2</type>
-			<locationURI>DOCUMENTS/cat/flex-common-lib/src</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>

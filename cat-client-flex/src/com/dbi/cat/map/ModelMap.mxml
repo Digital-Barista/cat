@@ -3,6 +3,9 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.contacts.ContactListView;
+			import com.dbi.cat.business.ContactManager;
+			import com.dbi.cat.view.contacts.TagView;
 			import com.dbi.cat.view.profile.ProfileDetailsView;
 			import com.dbi.cat.view.profile.ProfileView;
 			import com.dbi.cat.view.profile.EntryPointDefinitionView;
@@ -309,5 +312,16 @@
 			sourceKey="redemptionClass"
 			targetKey="redemptionClass" />
 	</Injectors>
-	
+	<Injectors target="{TagView}">
+		<PropertyInjector 
+			source="{ContactManager}"
+			sourceKey="contactTags"
+			targetKey="contactTags" />
+	</Injectors>
+	<Injectors target="{ContactListView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+	</Injectors>
 </EventMap>

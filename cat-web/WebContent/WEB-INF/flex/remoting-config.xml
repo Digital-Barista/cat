@@ -75,4 +75,15 @@
 					<scope>request</scope>
 			</properties>
 	</destination>
+	
+	<destination id="contactManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>ejb.ContactManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
 </service>
