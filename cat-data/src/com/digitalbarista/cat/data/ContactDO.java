@@ -54,7 +54,7 @@ public class ContactDO implements DataObject,Serializable {
 	}
 
 
-	@ManyToMany(targetEntity=ClientDO.class,fetch=FetchType.LAZY)
+	@ManyToMany(targetEntity=ContactTagDO.class,fetch=FetchType.LAZY)
 	@JoinTable(
 		name="contact_tag_link",
 		joinColumns=@JoinColumn(name="contact_id"),

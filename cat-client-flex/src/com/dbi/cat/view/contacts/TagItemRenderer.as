@@ -1,9 +1,11 @@
 package com.dbi.cat.view.contacts
 {
 	import com.dbi.cat.common.vo.ContactTagVO;
+	import com.dbi.cat.event.ContactEvent;
+	
+	import flash.events.MouseEvent;
 	
 	import mx.containers.HBox;
-	import mx.controls.CheckBox;
 	import mx.controls.Image;
 	import mx.controls.Label;
 
@@ -12,13 +14,13 @@ package com.dbi.cat.view.contacts
 		[Embed("/assets/swf/delete.swf")]
 		private var deleteIcon:Class;
 		
-		private var hbox:HBox;
-		private var check:CheckBox;
+		private var count:Label;
 		private var tag:Label;
 		private var remove:Image;
 			
 		public function TagItemRenderer()
 		{
+			horizontalScrollPolicy = "off";
 			percentWidth = 100;
 			super();
 		}
@@ -28,11 +30,11 @@ package com.dbi.cat.view.contacts
         {
         	super.updateDisplayList(w, h);
 				
-			if (check == null)
+			if (count == null)
 			{
-				check = new CheckBox();
-				check.setStyle("paddingLeft", 20);
-				addChild(check);
+				count = new Label();
+				count.setStyle("paddingLeft", 20);
+				addChild(count);
 			}
 			
 			if (tag == null)
@@ -48,6 +50,7 @@ package com.dbi.cat.view.contacts
 				remove.source = deleteIcon;
 				remove.width = 18;
 				remove.height = 18;
+				remove.addEventListener(MouseEvent.CLICK, onRemoveClick);
 				addChild(remove);
 			}
         	
@@ -55,12 +58,18 @@ package com.dbi.cat.view.contacts
         	{
 	            var isTag:Boolean = data is ContactTagVO
 	            
-	            check.visible = isTag;
+	            count.visible = isTag;
 	            remove.visible = isTag;
-	            
-	            if (tag)
-					tag.text = data.tag;
+	            count.text = "(" + data.contactCount + ")";
+				tag.text = data.tag;
 	        }
+        }
+        
+        private function onRemoveClick(e:MouseEvent):void
+        {
+        	var event:ContactEvent = new ContactEvent(ContactEvent.DELETE_CONTACT_TAG);
+        	event.contactTag = data as ContactTagVO;
+        	dispatchEvent(event);
         }
 
 		

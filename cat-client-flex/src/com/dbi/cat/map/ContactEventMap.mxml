@@ -64,6 +64,19 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	<EventHandlers type="{ContactEvent.DELETE_CONTACT_TAG}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="delete"
+			arguments="{event.contactTag}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="deleteTag"
+					arguments="{event.contactTag}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	
 	<EventHandlers type="{ContactEvent.EDIT_CONTACT}">
 		<MethodInvoker
 			generator="{ContactManager}"
@@ -75,6 +88,12 @@
 			generator="{ContactManager}"
 			method="closeContact" />
 	</EventHandlers>
+	<EventHandlers type="{ContactEvent.SELECT_CONTACTS}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="selectContacts"
+			arguments="{event.contacts}" />
+	</EventHandlers>
 	<EventHandlers type="{ContactEvent.SAVE_CONTACT}">
 		<RemoteObjectInvoker destination="contactManager"
 			method="save"
@@ -83,6 +102,28 @@
 				<MethodInvoker generator="{ContactManager}"
 					method="saveContact"
 					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.DELETE_CONTACT}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="delete"
+			arguments="{event.contact}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="deleteContact"
+					arguments="{event.contact}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.ADD_TAGS_TO_CONTACTS}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="addTagsToContacts"
+			arguments="{[event.contacts, event.contactTags]}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="addTagsToContacts"
+					arguments="{[event.contacts, event.contactTags]}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>

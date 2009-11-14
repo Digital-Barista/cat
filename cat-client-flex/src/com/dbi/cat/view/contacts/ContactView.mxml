@@ -14,7 +14,8 @@
 			
 			private function refresh():void
 			{
-				dispatchEvent(new UserEvent(ContactEvent.LIST_CONTACTS));
+				dispatchEvent(new ContactEvent(ContactEvent.LIST_CONTACTS));
+				dispatchEvent(new ContactEvent(ContactEvent.LIST_CONTACT_TAGS));
 			}
 			private function addContact():void
 			{

@@ -318,6 +318,10 @@
 			source="{ContactManager}"
 			sourceKey="contactTags"
 			targetKey="contactTags" />
+		<PropertyInjector 
+			source="{ContactManager}"
+			sourceKey="selectedContacts"
+			targetKey="selectedContacts" />
 	</Injectors>
 	<Injectors target="{ContactListView}">
 		<PropertyInjector

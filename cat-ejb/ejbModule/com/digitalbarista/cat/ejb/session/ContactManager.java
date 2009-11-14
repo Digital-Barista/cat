@@ -23,4 +23,5 @@ public interface ContactManager {
 	public Contact save(Contact contact);
 	public void delete(ContactTag tag);
 	public void delete(Contact contact);
+	public void addTagsToContacts(List<Contact> contacts, List<ContactTag> tags);
 }

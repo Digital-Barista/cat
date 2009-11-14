@@ -2,13 +2,10 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
@@ -16,41 +13,20 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditType;
-import com.digitalbarista.cat.business.Client;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
-import com.digitalbarista.cat.business.EntryNode;
-import com.digitalbarista.cat.business.Node;
-import com.digitalbarista.cat.business.User;
-import com.digitalbarista.cat.data.CampaignDO;
-import com.digitalbarista.cat.data.CampaignEntryPointDO;
-import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
-import com.digitalbarista.cat.data.EntryPointDO;
-import com.digitalbarista.cat.data.EntryPointType;
-import com.digitalbarista.cat.data.KeywordDO;
-import com.digitalbarista.cat.data.NodeDO;
-import com.digitalbarista.cat.data.NodeType;
-import com.digitalbarista.cat.data.RoleDO;
-import com.digitalbarista.cat.data.SubscriberBlacklistDO;
-import com.digitalbarista.cat.data.SubscriberDO;
-import com.digitalbarista.cat.data.UserDO;
-import com.digitalbarista.cat.message.event.CATEvent;
 
 /**
  * Session Bean implementation class ContactManagerImpl
@@ -189,5 +165,22 @@ public class ContactManagerImpl implements ContactManager {
 			throw new IllegalArgumentException("Cannot find contact to delete with contactId: " + contact.getContactId());
 		
 		em.remove(contactDO);
+	}
+
+	@Override
+	public void addTagsToContacts(List<Contact> contacts, List<ContactTag> tags) 
+	{
+		for (Contact c : contacts)
+		{
+			ContactDO cDO = em.find(ContactDO.class, c.getContactId());
+			for (ContactTag tag : tags)
+			{
+				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
+				if (!cDO.getContactTags().contains(tagDO))
+					cDO.getContactTags().add(tagDO);
+			}
+			em.persist(cDO);
+		}
+		
 	}
 }
