@@ -13,6 +13,8 @@ package com.dbi.cat.event
 		public static const LIST_CONTACT_TAGS:String = "listContactTagsEvent";
 		public static const SAVE_CONTACT_TAG:String = "saveContactTagEvent";
 		public static const DELETE_CONTACT_TAG:String = "deleteContactTagEvent";
+		public static const EDIT_CONTACT_TAG_ASSIGNMENT:String = "editContactTagAssignmentEvent";
+		public static const CLOSE_CONTACT_TAG_ASSIGNMENT:String = "closeContactTagAssignmentEvent";
 		
 		
 		public static const EDIT_CONTACT:String = "editContactEvent";

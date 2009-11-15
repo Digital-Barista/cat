@@ -1,11 +1,14 @@
 package com.dbi.cat.view.contacts
 {
+	import com.dbi.cat.common.constants.ContactTagType;
 	import com.dbi.cat.common.vo.ContactTagVO;
 	import com.dbi.cat.event.ContactEvent;
 	
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
 	import mx.containers.HBox;
+	import mx.controls.CheckBox;
 	import mx.controls.Image;
 	import mx.controls.Label;
 
@@ -17,6 +20,7 @@ package com.dbi.cat.view.contacts
 		private var count:Label;
 		private var tag:Label;
 		private var remove:Image;
+		private var check:CheckBox;
 			
 		public function TagItemRenderer()
 		{
@@ -30,16 +34,23 @@ package com.dbi.cat.view.contacts
         {
         	super.updateDisplayList(w, h);
 				
+			if (check == null)
+			{
+				check = new CheckBox();
+				check.addEventListener(Event.CHANGE, onCheckChanged);
+				addChild(check);
+			}
+			
 			if (count == null)
 			{
 				count = new Label();
-				count.setStyle("paddingLeft", 20);
 				addChild(count);
 			}
 			
 			if (tag == null)
         	{
         		tag = new Label();
+        		tag.setStyle("textAlign", "left");
         		tag.percentWidth = 100;
 				addChild(tag);
         	}
@@ -51,20 +62,21 @@ package com.dbi.cat.view.contacts
 				remove.width = 18;
 				remove.height = 18;
 				remove.addEventListener(MouseEvent.CLICK, onRemoveClick);
-				addChild(remove);
+//				addChild(remove);
 			}
         	
         	if (data)
         	{
-	            var isTag:Boolean = data is ContactTagVO
-	            
-	            count.visible = isTag;
-	            remove.visible = isTag;
+        		remove.visible = data.type == ContactTagType.USER;
 	            count.text = "(" + data.contactCount + ")";
 				tag.text = data.tag;
 	        }
         }
         
+        private function onCheckChanged(e:Event):void
+        {
+        	data.selected = check.selected;
+        }
         private function onRemoveClick(e:MouseEvent):void
         {
         	var event:ContactEvent = new ContactEvent(ContactEvent.DELETE_CONTACT_TAG);

@@ -23,6 +23,10 @@
 				event.contact = new ContactVO();
 				dispatchEvent(event);
 			}
+			private function addTags():void
+			{
+				dispatchEvent(new ContactEvent(ContactEvent.EDIT_CONTACT_TAG_ASSIGNMENT));
+			}
 		]]>	
 	</mx:Script>
 	<mx:Canvas
@@ -40,6 +44,8 @@
 				width="25" height="25"
 				toolTip="Refresh"
 				click="refresh()" />
+			<mx:Button label="Add Tags"
+				click="addTags()" />
 			<mx:Button label="Add Contact"
 				click="addContact()" />
 			<mx:Button label="Import Contacts" />

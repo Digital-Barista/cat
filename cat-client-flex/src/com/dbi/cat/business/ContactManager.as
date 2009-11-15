@@ -2,6 +2,7 @@ package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.ContactTagVO;
 	import com.dbi.cat.common.vo.ContactVO;
+	import com.dbi.cat.view.contacts.AddTagView;
 	import com.dbi.cat.view.contacts.EditContactView;
 	
 	import flash.display.DisplayObject;
@@ -21,13 +22,15 @@ package com.dbi.cat.business
 
 		public var contacts:ArrayCollection;
 		public var contactMap:Object;
+		public var currentContact:ContactVO;
 		
 		public var contactTags:ArrayCollection;
-		public var currentContact:ContactVO;
+		public var contactTagMap:Object;
 		
 		public var selectedContacts:ArrayCollection;
 		
 		private var editContactPopup:IFlexDisplayObject;
+		private var editContactTagAssignmentPopup:IFlexDisplayObject;
 		
 		public function ContactManager(dispatcher:IEventDispatcher)
 		{
@@ -91,6 +94,22 @@ package com.dbi.cat.business
 		public function loadContactTags(contactTags:ArrayCollection):void
 		{
 			this.contactTags = contactTags;
+			contactTagMap = new Object();
+			for each (var c:ContactTagVO in this.contactTags)
+				contactTagMap[c.contactTagId] = c;
+		}
+		
+		public function editContactTagAssignment():void
+		{
+			if (editContactTagAssignmentPopup == null)
+				editContactTagAssignmentPopup = new AddTagView();
+				
+			PopUpManager.addPopUp(editContactTagAssignmentPopup, DisplayObject(Application.application), true);
+			PopUpManager.centerPopUp(editContactTagAssignmentPopup);
+		}
+		public function closeContactTagAssignment():void
+		{
+			PopUpManager.removePopUp(editContactTagAssignmentPopup);
 		}
 		public function saveTag(tag:ContactTagVO):void
 		{
@@ -119,6 +138,7 @@ package com.dbi.cat.business
 						existing.contactTags.addItem(tag);
 				}
 			}
+			closeContactTagAssignment();
 		}
 		public function deleteTag(tag:ContactTagVO):void
 		{

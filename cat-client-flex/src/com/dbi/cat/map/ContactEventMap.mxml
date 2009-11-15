@@ -75,6 +75,16 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	<EventHandlers type="{ContactEvent.EDIT_CONTACT_TAG_ASSIGNMENT}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="editContactTagAssignment" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT_TAG_ASSIGNMENT}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactTagAssignment" />
+	</EventHandlers>
 	
 	
 	<EventHandlers type="{ContactEvent.EDIT_CONTACT}">

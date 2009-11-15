@@ -5,6 +5,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.CampaignTestEvent;
 	import com.dbi.cat.event.ClientEvent;
+	import com.dbi.cat.event.ContactEvent;
 	import com.dbi.cat.event.LoadDataEvent;
 	import com.dbi.cat.event.NavigationEvent;
 	import com.dbi.cat.event.UserEvent;
@@ -113,6 +114,8 @@ package com.dbi.cat.business
 			dispatcher.dispatchEvent(new UserEvent(UserEvent.CANCEL_EDIT));
 			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_ENTRY_POINT));
 			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_KEYWORD));
+			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_CONTACT));
+			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_CONTACT_TAG_ASSIGNMENT));
 		}
 		
 		/**

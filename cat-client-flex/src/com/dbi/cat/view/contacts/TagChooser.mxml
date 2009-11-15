@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.constants.ContactTagType;
+			import com.dbi.cat.common.vo.ContactTagVO;
+			import mx.collections.HierarchicalData;
+			import mx.events.CollectionEvent;
+			
+			
+			private var _contactTags:ArrayCollection;
+			[Bindable]
+			public function get contactTags():ArrayCollection
+			{
+				return _contactTags;
+			}
+			public function set contactTags(value:ArrayCollection):void
+			{
+//				if (contactTags != null)
+//					contactTags.removeEventListener(CollectionEvent.COLLECTION_CHANGE, contactUpdate);
+				
+				_contactTags = value;
+//				contactTags.addEventListener(CollectionEvent.COLLECTION_CHANGE, contactUpdate);
+				setupTagLists();
+			}
+			
+			
+			private var userTags:ArrayCollection;
+			private var systemTags:ArrayCollection;
+			
+			[Bindable(event="dataUpdated")]
+			private var tagTreeData:ArrayCollection;
+			
+			private function setupTagLists():void
+			{
+				userTags = new ArrayCollection();
+				systemTags = new ArrayCollection();
+				
+				for each (var ct:ContactTagVO in contactTags)
+				{
+					if (ct.type == ContactTagType.USER)
+						userTags.addItem(ct);
+					else
+						systemTags.addItem(ct);
+				}
+				
+				tagTreeData = new ArrayCollection(
+					[{tag:'User Defined', children:userTags},
+					{tag:'System', children:systemTags}]);
+			
+				dispatchEvent(new Event("dataUpdated"));			
+			}
+			
+			public function get selectedTags():ArrayCollection
+			{
+				var ret:ArrayCollection = new ArrayCollection();
+				for each (var tag:ContactTagVO in contactTags)
+				{
+					if (tag.selected)
+						ret.addItem(tag);
+				}
+				return ret;
+			}
+			private function contactUpdate(e:CollectionEvent):void
+			{
+				setupTagLists();
+			}
+		]]>
+	</mx:Script>
+	<mx:Repeater id="TagRepeater"
+		dataProvider="{tagTreeData}">
+		<mx:Label text="{TagRepeater.currentItem.tag}"
+			fontWeight="bold" fontSize="14" />
+		<mx:TileList id="TagTileList"
+			dataProvider="{TagRepeater.currentItem.children}"
+			borderStyle="none"
+			selectable="false"
+			columnCount="3" rowHeight="30"
+			itemRenderer="com.dbi.cat.view.contacts.TagItemRenderer"
+			width="100%" />
+	</mx:Repeater>
+</mx:VBox>
