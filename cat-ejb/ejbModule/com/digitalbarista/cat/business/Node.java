@@ -6,8 +6,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
@@ -17,7 +17,6 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
-@XmlRootElement
 @XmlSeeAlso({CouponNode.class,EntryNode.class,MessageNode.class,TerminationNode.class})
 public abstract class Node implements BusinessObject<NodeDO> {
 
@@ -98,7 +97,7 @@ public abstract class Node implements BusinessObject<NodeDO> {
 		this.downstreamConnections = downstreamConnections;
 	}
 	
-	@XmlElementWrapper(name="DownstreamConnectors")
+	@XmlElementWrapper(name="UpstreamConnectors")
 	@XmlElement(name="UUID")
 	public List<String> getUpstreamConnections() {
 		return upstreamConnections;
@@ -107,7 +106,7 @@ public abstract class Node implements BusinessObject<NodeDO> {
 		this.upstreamConnections = upstreamConnections;
 	}
 	
-	@XmlAttribute
+	@XmlTransient
 	public abstract NodeType getType();
 	public final void setType(NodeType type) {
 		return;

@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.EntryPointType;
@@ -20,7 +21,8 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
-@XmlRootElement
+@XmlRootElement(name="EntryNode")
+@XmlType(name="EntryNode")
 public class EntryNode extends Node implements Auditable{
 	
 	public static final String INFO_PROPERTY_ENTRY_TYPE="EntryType";

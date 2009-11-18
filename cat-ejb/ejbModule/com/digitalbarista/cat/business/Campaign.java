@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -14,7 +15,7 @@ import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignMode;
 
-@XmlRootElement
+@XmlRootElement(name="Campaign")
 public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 
 	private Long primaryKey;
@@ -112,7 +113,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	}
 
 	@XmlElementWrapper(name="Nodes")
-	@XmlElement(name="Node")
+	@XmlElementRef
 	public Set<Node> getNodes() {
 		return nodes;
 	}
@@ -122,7 +123,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	}
 
 	@XmlElementWrapper(name="Connectors")
-	@XmlElement(name="Connector")
+	@XmlElementRef
 	public Set<Connector> getConnectors() {
 		return connectors;
 	}

@@ -33,15 +33,16 @@ public interface CampaignManager {
 	public Campaign getDetailedCampaign(@PathParam("uid") String campaignUUID);
 	public CampaignDO getSimpleCampaign(String campaignUUID);
 	@GET
-	@Path("/{uid}")
-	public Campaign getSpecificCampaignVersion(@PathParam("uid") String campaignUUID, @QueryParam("version") int version);
+	@Path("/{uid}/versions/{version}")
+	public Campaign getSpecificCampaignVersion(@PathParam("uid") String campaignUUID, @PathParam("version") int version);
 	@Path("/{uid}/published")
 	@GET
 	public Campaign getLastPublishedCampaign(@PathParam("uid") String campaignUUID);
 	@POST
 	public void save(Campaign campaign);
+	@Path("/{template-uid}")
 	@POST
-	public void createFromTemplate(Campaign campaign, @QueryParam("template") String campaignTemplateUUID);
+	public void createFromTemplate(Campaign campaign, @QueryParam("template-uid") String campaignTemplateUUID);
 	@DELETE
 	public void delete(Campaign campaign);
 	@GET
@@ -56,8 +57,8 @@ public interface CampaignManager {
 	@Path("/nodes/{uid}")
 	public Node getNode(@PathParam("uid") String nodeUUID);
 	@GET
-	@Path("/nodes/{uid}")
-	public Node getSpecificNodeVersion(@PathParam("uid") String nodeUUID,@QueryParam("version") Integer version);
+	@Path("/nodes/{uid}/versions/{version}")
+	public Node getSpecificNodeVersion(@PathParam("uid") String nodeUUID,@PathParam("version") Integer version);
 	public NodeDO getSimpleNode(String nodeUUID);
 	@Path("/nodes")
 	@POST
@@ -70,8 +71,8 @@ public interface CampaignManager {
 	@Path("/connectors/{uid}")
 	public Connector getConnector(@PathParam("uid") String connectorUUID);
 	@GET
-	@Path("/connectors/{uid}")
-	public Connector getSpecificConnectorVersion(@PathParam("uid") String connectorUUID, @QueryParam("version") Integer version);
+	@Path("/connectors/{uid}/versions/{version}")
+	public Connector getSpecificConnectorVersion(@PathParam("uid") String connectorUUID, @PathParam("version") Integer version);
 	public ConnectorDO getSimpleConnector(String connectorUUID);
 	@Path("/connectors")
 	@POST
@@ -86,6 +87,7 @@ public interface CampaignManager {
 	
 	@GET
 	@Path("/{uid}/nodes")
+	@Wrapped
 	@WrappedMap(map="nodeSubscriberCount",key="nodeUID",entry="count")
 	public Map<String,Long> getNodeSubscriberCount(@PathParam("uid") String campaignUUID);
 }

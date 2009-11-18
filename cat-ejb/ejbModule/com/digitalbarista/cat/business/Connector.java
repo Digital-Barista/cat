@@ -1,8 +1,8 @@
 package com.digitalbarista.cat.business;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
@@ -12,8 +12,7 @@ import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.NodeConnectorLinkDO;
 
-@XmlRootElement
-@XmlSeeAlso({CalendarConnector.class,ImmediateConnector.class,IntervalConnector.class,ResponseConnector.class})
+@XmlSeeAlso({CalendarConnector.class,ImmediateConnector.class,ResponseConnector.class,IntervalConnector.class})
 public abstract class Connector implements
 		BusinessObject<ConnectorDO> {
 
@@ -86,7 +85,7 @@ public abstract class Connector implements
 		throw new IllegalArgumentException("Unknown connector type specified.  Cannot create a ConnectorDO Business Object.");
 	}
 	
-	@XmlAttribute
+	@XmlTransient
 	public abstract ConnectorType getType();
 	public final void setType(ConnectorType type) {
 		return;

@@ -31,7 +31,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
-import org.jboss.resteasy.annotations.providers.jaxb.WrappedMap;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
@@ -599,6 +598,8 @@ public class CampaignManagerImpl implements CampaignManager {
 			camp.setClient(em.find(ClientDO.class, campaign.getClientPK()));
 			camp.setUID(campaign.getUid());
 			camp.setMode(campaign.getMode());
+			if(camp.getUID()==null || camp.getUID().trim().length()==0)
+				camp.setUID(UUID.randomUUID().toString());
 		}
 		campaign.copyTo(camp);
 		em.persist(camp);
@@ -807,6 +808,8 @@ public class CampaignManagerImpl implements CampaignManager {
 			n.getVersionedNodes().put(camp.getCurrentVersion(), cnl);
 			n.setCampaign(camp);
 			n.setUID(node.getUid());
+			if(n.getUID()==null || n.getUID().trim().length()==0)
+				n.setUID(UUID.randomUUID().toString());
 						
 			node.copyTo(n);
 			
@@ -1028,6 +1031,9 @@ public class CampaignManagerImpl implements CampaignManager {
 			ccl.setVersion(camp.getCurrentVersion());
 			c.getVersionedConnectors().put(camp.getCurrentVersion(), ccl);
 			c.setUID(connector.getUid());
+			if(c.getUID()==null || c.getUID().trim().length()==0)
+				c.setUID(UUID.randomUUID().toString());
+			
 			
 			c.setCampaign(camp);
 			connector.copyTo(c);
@@ -1285,7 +1291,6 @@ public class CampaignManagerImpl implements CampaignManager {
 
 	@Override
 	@PermitAll
-	@WrappedMap
 	public Map<String, Long> getNodeSubscriberCount(String campaignUUID) {
 		getSimpleCampaign(campaignUUID); // Do nothing with this except invoke security checks.
 		
@@ -1293,7 +1298,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		Query q = em.createQuery(queryString);
 		q.setParameter("campaignUID", campaignUUID);
 		List<Object[]> result = q.getResultList();
-		Map<String,Long> ret = new HashMap<String,Long>();
+		HashMap<String,Long> ret = new HashMap<String,Long>();
 		for(Object[] row : result)
 			ret.put((String)row[0], (Long)row[1]);
 		return ret;

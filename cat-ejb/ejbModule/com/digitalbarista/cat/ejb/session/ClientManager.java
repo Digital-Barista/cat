@@ -11,6 +11,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+
 import com.digitalbarista.cat.business.Client;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
@@ -26,12 +28,15 @@ public interface ClientManager {
     @GET
 	public Client getClientById(@PathParam("id") long id);
     @GET
+    @Wrapped(element="Clients")
 	public List<Client> getVisibleClients();
 	@GET
 	@Path("/entryPoints")
+	@Wrapped(element="EntryPoints")
 	public List<EntryPointDefinition> getEntryPointDefinitions();
 	@GET
 	@Path("/entryPoints")
+	@Wrapped(element="EntryPoints")
 	public EntryPointDefinition getEntryPointDefinition(@QueryParam("type") EntryPointType type, @QueryParam("account") String account);
 	@POST
 	public Client save(Client client);
@@ -45,20 +50,32 @@ public interface ClientManager {
 	@Path("/keywords")
 	public void delete(Keyword kwd);
 	@Path("/keywords")
-	@POST
+	@GET
+	@Wrapped(element="Keywords")
 	public List<Keyword> getAllKeywords();
 	@Path("/entryPoints/{id}/keywords")
 	@GET
+	@Wrapped(element="Keywords")
 	public List<Keyword> getAllKeywordsForEntryPoint(@PathParam("id") Long entryPointID);
 	@Path("/{id}/keywords")
 	@GET
+	@Wrapped(element="Keywords")
 	public List<Keyword> getAllKeywordsForClient(@PathParam("id") Long clientID);
 	@Path("/{cid}/entryPoints/{eid}/keywords")
 	@GET
+	@Wrapped(element="Keywords")
 	public List<Keyword> getAllKeywordsForClientAndEntryPoint(@PathParam("cid") Long clientID, @PathParam("eid") Long entryPointID);
-
+	@Path("/reservedKeywords")
+	@GET
+	@Wrapped(element="Keywords")
 	public List<ReservedKeyword> getAllReservedKeywords();
+	@Path("/reservedKeywords")
+	@POST
 	public ReservedKeyword save(ReservedKeyword keyword);
+	@Path("/reservedKeywords")
+	@DELETE
 	public void delete(ReservedKeyword keyword);
+	@Path("/reservedKeywords/available")
+	@GET
 	public Boolean checkKeywordAvailability(Keyword keyword);
 }
