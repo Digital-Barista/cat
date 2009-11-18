@@ -13,6 +13,26 @@ package com.dbi.cat.common.vo
 		public var createDate:Date;
 		public var contactTags:ArrayCollection;
 		
+		private var _tagListLabel:String;
+		public function get tagListLabel():String
+		{
+			if (_tagListLabel == null)
+			{
+				_tagListLabel = "";
+				for each (var tag:ContactTagVO in contactTags)
+				{
+					if (_tagListLabel.length > 0)
+						_tagListLabel += ", ";
+					_tagListLabel += tag.tag;
+				}
+			}
+			return _tagListLabel;
+		}
+		public function set tagListLabel(value:String):void
+		{
+			_tagListLabel = value;
+		}
+		
 		public function ContactVO()
 		{
 		}

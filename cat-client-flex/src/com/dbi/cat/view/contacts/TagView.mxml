@@ -69,7 +69,6 @@
 					var tag:ContactTagVO = new ContactTagVO();
 					tag.tag = Tag.text;
 					tag.type = ContactTagType.USER;
-					tag.clientId = selectedClient.clientId;
 					
 					var event:ContactEvent = new ContactEvent(ContactEvent.SAVE_CONTACT_TAG);
 					event.contactTag = tag;

@@ -1,5 +1,6 @@
 package com.dbi.cat.business
 {
+	import com.dbi.cat.common.constants.ContactTagType;
 	import com.dbi.cat.common.vo.ContactTagVO;
 	import com.dbi.cat.common.vo.ContactVO;
 	import com.dbi.cat.view.contacts.AddTagView;
@@ -10,6 +11,8 @@ package com.dbi.cat.business
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.IViewCursor;
+	import mx.collections.Sort;
+	import mx.collections.SortField;
 	import mx.core.Application;
 	import mx.core.IFlexDisplayObject;
 	import mx.managers.PopUpManager;
@@ -26,6 +29,7 @@ package com.dbi.cat.business
 		
 		public var contactTags:ArrayCollection;
 		public var contactTagMap:Object;
+		public var contactTagLists:ArrayCollection;
 		
 		public var selectedContacts:ArrayCollection;
 		
@@ -47,6 +51,8 @@ package com.dbi.cat.business
 			contactMap = new Object();
 			for each (var c:ContactVO in this.contacts)
 				contactMap[c.contactId] = c;
+				
+			updateTagCounts();
 		}
 		public function editContact(contact:ContactVO):void
 		{
@@ -94,11 +100,41 @@ package com.dbi.cat.business
 		public function loadContactTags(contactTags:ArrayCollection):void
 		{
 			this.contactTags = contactTags;
+			
+			// Sort tags
+			var sort:Sort = new Sort();
+			sort.fields = [new SortField("tag", true)];
+			contactTags.sort = sort;
+			contactTags.refresh();
+			
+			// Build map
 			contactTagMap = new Object();
 			for each (var c:ContactTagVO in this.contactTags)
 				contactTagMap[c.contactTagId] = c;
+				
+			// Build lists for interface
+			var userTags:ArrayCollection = new ArrayCollection();
+			var systemTags:ArrayCollection = new ArrayCollection();
+			for each (var ct:ContactTagVO in contactTags)
+			{
+				if (ct.type == ContactTagType.USER)
+					userTags.addItem(ct);
+				else
+					systemTags.addItem(ct);
+			}
+			
+			// Sort user tag list which can change
+			sort = new Sort();
+			sort.fields = [new SortField("tag", true)];
+			userTags.sort = sort;
+			userTags.refresh();
+			
+			contactTagLists = new ArrayCollection(
+				[{tag:'User Defined', children:userTags},
+				{tag:'System', children:systemTags}]);
+				
+			updateTagCounts();
 		}
-		
 		public function editContactTagAssignment():void
 		{
 			if (editContactTagAssignmentPopup == null)
@@ -116,6 +152,8 @@ package com.dbi.cat.business
 			if (tag != null)
 			{
 				contactTags.addItem(tag);
+				contactTagMap[tag.contactTagId] = tag;
+				contactTagLists.getItemAt(0).children.addItem(tag);
 			}
 		}
 		public function addTagsToContacts(contacts:ArrayCollection, tags:ArrayCollection):void
@@ -135,7 +173,13 @@ package com.dbi.cat.business
 						}
 					}
 					if (!found)
+					{
+						// Add new tag
 						existing.contactTags.addItem(tag);
+						existing.tagListLabel = null;
+						
+						// Increment tag count
+					}
 				}
 			}
 			closeContactTagAssignment();
@@ -151,6 +195,28 @@ package com.dbi.cat.business
 					break;
 				}
 				cur.moveNext();
+			}
+		}
+		public function updateTagCounts():void
+		{
+			if (contacts != null &&
+				contactTags != null)
+			{
+				// Zero counts
+				for each (var zero:ContactTagVO in contactTags)
+				{
+					zero.contactCount = 0;
+				}
+				
+				// Increment counts
+				for each (var c:ContactVO in contacts)
+				{
+					for each (var tag:ContactTagVO in c.contactTags)
+					{
+						var t:ContactTagVO = contactTagMap[tag.contactTagId];
+						t.contactCount++;
+					}
+				}
 			}
 		}
 	}

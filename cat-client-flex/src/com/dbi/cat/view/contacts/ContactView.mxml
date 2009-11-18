@@ -12,6 +12,8 @@
 			[Bindable]
 			public var contacts:ArrayCollection;
 			
+			public var selectedContacts:ArrayCollection;
+			
 			private function refresh():void
 			{
 				dispatchEvent(new ContactEvent(ContactEvent.LIST_CONTACTS));
@@ -25,7 +27,15 @@
 			}
 			private function addTags():void
 			{
-				dispatchEvent(new ContactEvent(ContactEvent.EDIT_CONTACT_TAG_ASSIGNMENT));
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+					dispatchEvent(new ContactEvent(ContactEvent.ASSIGN_CONTACT_TAGS));
+			}
+			private function removeTags():void
+			{
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+					dispatchEvent(new ContactEvent(ContactEvent.UNASSIGN_CONTACT_TAGS));
 			}
 		]]>	
 	</mx:Script>
@@ -36,7 +46,8 @@
 		top="10" bottom="10">
 		<mx:TitleWindow 
 			width="100%" height="100%"
-			layout="absolute">
+			layout="absolute"
+			title="Contacts">
 			<contacts:ContactListView />
 		</mx:TitleWindow>
 		<mx:HBox right="10" top="7" verticalAlign="middle">
@@ -46,6 +57,8 @@
 				click="refresh()" />
 			<mx:Button label="Add Tags"
 				click="addTags()" />
+			<mx:Button label="Remove Tags"
+				click="removeTags()" />
 			<mx:Button label="Add Contact"
 				click="addContact()" />
 			<mx:Button label="Import Contacts" />

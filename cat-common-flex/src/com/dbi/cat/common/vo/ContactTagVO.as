@@ -7,7 +7,7 @@ package com.dbi.cat.common.vo
 	{
 		public var contactTagId:String;
 		public var tag:String;
-		public var clientId:Number;
+		public var clientId:String;
 		public var type:String;
 		public var contactCount:Number = 0;
 		public var selected:Boolean = false;

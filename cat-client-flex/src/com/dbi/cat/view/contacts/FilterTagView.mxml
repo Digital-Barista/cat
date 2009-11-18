@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	width="600" height="500" xmlns:contacts="com.dbi.cat.view.contacts.*"
+	showCloseButton="true"
+	close="onClose()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.ContactTagVO;
+			import com.dbi.cat.common.constants.ContactTagType;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.event.ContactEvent;
+			
+			private var _selectedContacts:ArrayCollection;
+			public function get selectedContacts():ArrayCollection
+			{
+				return _selectedContacts
+			}
+			public function set selectedContacts(value:ArrayCollection):void
+			{
+				_selectedContacts = value;
+			}
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ContactEvent(ContactEvent.CLOSE_CONTACT_TAG_FILTER));
+			}
+			private function doFilter():void
+			{
+				
+			}
+		]]>
+	</mx:Script>
+	<contacts:TagChooser id="Tags"
+		width="100%" height="100%" />
+	<mx:ControlBar>
+		<mx:Button label="Filter By Tags"
+			click="{doFilter()}" />
+	</mx:ControlBar>
+</mx:TitleWindow>

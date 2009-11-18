@@ -13,8 +13,13 @@ package com.dbi.cat.event
 		public static const LIST_CONTACT_TAGS:String = "listContactTagsEvent";
 		public static const SAVE_CONTACT_TAG:String = "saveContactTagEvent";
 		public static const DELETE_CONTACT_TAG:String = "deleteContactTagEvent";
-		public static const EDIT_CONTACT_TAG_ASSIGNMENT:String = "editContactTagAssignmentEvent";
+		public static const ASSIGN_CONTACT_TAGS:String = "assignContactTagsEvent";
+		public static const UNASSIGN_CONTACT_TAGS:String = "unassignContactTagsEvent";
 		public static const CLOSE_CONTACT_TAG_ASSIGNMENT:String = "closeContactTagAssignmentEvent";
+		
+		public static const OPEN_CONTACT_TAG_FILTER:String = "openContactTagFiltertEvent";
+		public static const CLOSE_CONTACT_TAG_FILTER:String = "closeContactTagFiltertEvent";
+		public static const FILTER_CONTACTS:String = "filterContactsEvent";
 		
 		
 		public static const EDIT_CONTACT:String = "editContactEvent";
@@ -29,6 +34,9 @@ package com.dbi.cat.event
 		
 		public var contactTags:ArrayCollection;
 		public var contacts:ArrayCollection;
+		
+		public var clientId:String;
+		public var contactType:String;
 		
 		public function ContactEvent(type:String)
 		{

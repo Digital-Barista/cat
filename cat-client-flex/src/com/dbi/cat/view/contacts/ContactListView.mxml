@@ -63,17 +63,17 @@
 			<mx:Label text="Type:" />
 			<mx:ComboBox id="ContactType"
 				dataProvider="{EntryPointType.getAllTypes()}" />
-			<mx:Label text="Contact:" />
-			<mx:TextInput id="Contact" />
+			<mx:Label text="Tags" />
+			<mx:Button label="Select (0)" />
 		</mx:HBox>
 		<mx:DataGrid id="Contacts"
 			width="100%" height="100%" top="30"
 			dataProvider="{contacts}"
 			allowMultipleSelection="true">
 			<mx:columns>
-				<mx:DataGridColumn headerText="Contact" dataField="address" />
-				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" />
-				<mx:DataGridColumn headerText="Tags" labelFunction="tagListLabel" />
+				<mx:DataGridColumn headerText="Contact" dataField="address" width="150" />
+				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" width="80" />
+				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" />
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Canvas>

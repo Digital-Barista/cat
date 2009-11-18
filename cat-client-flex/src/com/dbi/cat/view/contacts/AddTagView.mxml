@@ -11,8 +11,6 @@
 			import mx.collections.ArrayCollection;
 			import com.dbi.cat.event.ContactEvent;
 			
-			public var selectedClient:ClientVO;
-			
 			private var _selectedContacts:ArrayCollection;
 			public function get selectedContacts():ArrayCollection
 			{
@@ -35,10 +33,14 @@
 			{
 				if (NewTag.text.length > 0)
 				{
+					// All contacts must be from the same client so get the
+					// clientId from the first one
+					var clientId:String = selectedContacts.getItemAt(0).clientId;
+					
 					var tag:ContactTagVO = new ContactTagVO();
 					tag.tag = NewTag.text;
 					tag.type = ContactTagType.USER;
-					tag.clientId = selectedClient.clientId;
+					tag.clientId = clientId;
 					
 					var event:ContactEvent = new ContactEvent(ContactEvent.SAVE_CONTACT_TAG);
 					event.contactTag = tag;
@@ -64,10 +66,11 @@
 		<mx:Label id="TagMessage" verticalCenter="0" horizontalCenter="0" />
 	</mx:Canvas>
 	<mx:HBox width="100%" verticalAlign="middle"
-		borderStyle="solid" cornerRadius="5">
+		horizontalAlign="center"
+		borderStyle="solid" cornerRadius="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
 		<mx:Label text="New Tag" fontWeight="bold" />
 		<mx:TextInput id="NewTag" width="100%" />
-		<mx:Button label="Add Tag"
+		<mx:Button label="Create Tag"
 			click="addTag()" />
 	</mx:HBox>
 	<contacts:TagChooser id="Tags"
