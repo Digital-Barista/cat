@@ -46,7 +46,7 @@ package com.dbi.cat.view.contacts
 			if (count == null)
 			{
 				count = new Label();
-				addChild(count);
+//				addChild(count);
 			}
 			
 			if (tag == null)

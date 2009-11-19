@@ -2,14 +2,26 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:contacts="com.dbi.cat.view.contacts.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.utils.ObjectUtil;
 			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.constants.ContactTagType;
 			import com.dbi.cat.common.vo.ContactTagVO;
 			import mx.collections.HierarchicalData;
 			import mx.events.CollectionEvent;
 			
+			
+			private var _contactTagLists:ArrayCollection;
 			[Bindable]
-			public var contactTagLists:ArrayCollection;
+			public function get contactTagLists():ArrayCollection
+			{
+				return _contactTagLists;
+			}
+			public function set contactTagLists(value:ArrayCollection):void
+			{
+				// Make a local copy so "selected" flag is per TagChooser
+				_contactTagLists = ObjectUtil.copy(value) as ArrayCollection;
+			}
+			
 			
 			public function unselectAll():void
 			{

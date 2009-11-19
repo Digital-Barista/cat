@@ -13,9 +13,6 @@
 			import com.dbi.cat.event.ContactEvent;
 			
 			
-			[Bindable]
-			public var contactTagLists:ArrayCollection;
-			
 			private function onClose():void
 			{
 				dispatchEvent(new ContactEvent(ContactEvent.CLOSE_CONTACT_TAG_FILTER));
@@ -33,8 +30,7 @@
 		]]>
 	</mx:Script>
 	<contacts:TagChooser id="Tags"
-		width="100%" height="100%"
-		contactTagLists="{contactTagLists}" />
+		width="100%" height="100%" />
 	<mx:ControlBar>
 		<mx:Button label="UnSelect All"
 			click="unselectAll()" />

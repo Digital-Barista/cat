@@ -33,6 +33,9 @@
 			public function set filterContactTags(value:ArrayCollection):void
 			{
 				_filterContactTags = value;
+				
+				// Clear selected items
+				Contacts.selectedIndex = -1;
 				dispatchEvent(new Event("filterUpdate"));
 			}
 			
@@ -74,10 +77,12 @@
 				var event:ContactEvent = new ContactEvent(ContactEvent.FILTER_CONTACTS);
 				event.clientId = Client.selectedItem.clientId;
 				event.contactType = ContactType.selectedLabel;
-				event.contactTags = selectedFilterContacts;
 				dispatchEvent(event);
 				
 				dispatchEvent(new Event("filterUpdate"));
+				
+				// Clear selected items
+				Contacts.selectedIndex = -1;
 			}
 			
 			[Bindable(event="filterUpdate")]

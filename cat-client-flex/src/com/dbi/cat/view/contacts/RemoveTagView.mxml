@@ -3,7 +3,7 @@
 	width="600" height="500" xmlns:contacts="com.dbi.cat.view.contacts.*"
 	showCloseButton="true"
 	close="onClose()"
-	title="Add Tags">
+	title="Remove Tags">
 	<mx:Script>
 		<![CDATA[
 			import mx.utils.ObjectUtil;
@@ -24,38 +24,20 @@
 				var count:Number = 0;
 				if (selectedContacts != null)
 					count = selectedContacts.length;
-				TagMessage.htmlText =  'Tags will be applied to the <b>' + count + '</b> selected contacts';
+				TagMessage.htmlText =  'Tags will be removed from the <b>' + count + '</b> selected contacts';
 			}
 			
 			private function onClose():void
 			{
-				dispatchEvent(new ContactEvent(ContactEvent.CLOSE_ASSIGN_CONTACT_TAG));
+				dispatchEvent(new ContactEvent(ContactEvent.CLOSE_UNASSIGN_CONTACT_TAG));
 			}
-			private function addTag():void
-			{
-				if (NewTag.text.length > 0)
-				{
-					// All contacts must be from the same client so get the
-					// clientId from the first one
-					var clientId:String = selectedContacts.getItemAt(0).clientId;
-					
-					var tag:ContactTagVO = new ContactTagVO();
-					tag.tag = NewTag.text;
-					tag.type = ContactTagType.USER;
-					tag.clientId = clientId;
-					
-					var event:ContactEvent = new ContactEvent(ContactEvent.SAVE_CONTACT_TAG);
-					event.contactTag = tag;
-					dispatchEvent(event);
-				}
-			}
-			private function assignTags():void
+			private function unassignTags():void
 			{
 				if (selectedContacts != null &&
 					selectedContacts.length > 0 &&
 					Tags.selectedTags.length > 0)
 				{
-					var event:ContactEvent = new ContactEvent(ContactEvent.ADD_TAGS_TO_CONTACTS);
+					var event:ContactEvent = new ContactEvent(ContactEvent.REMOVE_TAGS_FROM_CONTACTS);
 					event.contacts = selectedContacts;
 					event.contactTags = Tags.selectedTags;
 					dispatchEvent(event);
@@ -71,21 +53,13 @@
 		styleName="tagMessage">
 		<mx:Label id="TagMessage" verticalCenter="0" horizontalCenter="0" />
 	</mx:Canvas>
-	<mx:HBox width="100%" verticalAlign="middle"
-		horizontalAlign="center"
-		borderStyle="solid" cornerRadius="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-		<mx:Label text="New Tag" fontWeight="bold" />
-		<mx:TextInput id="NewTag" width="100%" />
-		<mx:Button label="Create Tag"
-			click="addTag()" />
-	</mx:HBox>
 	<contacts:TagChooser id="Tags"
 		width="100%" height="100%" />
 	<mx:ControlBar>
 		<mx:Button label="UnSelect All"
 			click="unselectAll()" />
 		<mx:Spacer width="100%" />
-		<mx:Button label="Assign Tags"
-			click="{assignTags()}" />
+		<mx:Button label="Unassign Tags"
+			click="{unassignTags()}" />
 	</mx:ControlBar>
 </mx:TitleWindow>

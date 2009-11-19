@@ -115,7 +115,8 @@ package com.dbi.cat.business
 			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_ENTRY_POINT));
 			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_KEYWORD));
 			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_CONTACT));
-			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_CONTACT_TAG_ASSIGNMENT));
+			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_ASSIGN_CONTACT_TAG));
+			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_UNASSIGN_CONTACT_TAG));
 		}
 		
 		/**

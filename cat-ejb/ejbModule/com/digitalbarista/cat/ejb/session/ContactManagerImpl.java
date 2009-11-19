@@ -191,6 +191,21 @@ public class ContactManagerImpl implements ContactManager {
 			}
 			em.persist(cDO);
 		}
-		
+	}
+
+	@Override
+	public void removeTagsFromContacts(List<Contact> contacts, List<ContactTag> tags) 
+	{
+		for (Contact c : contacts)
+		{
+			ContactDO cDO = em.find(ContactDO.class, c.getContactId());
+			for (ContactTag tag : tags)
+			{
+				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
+				if (cDO.getContactTags().contains(tagDO))
+					cDO.getContactTags().remove(tagDO);
+			}
+			em.persist(cDO);
+		}
 	}
 }

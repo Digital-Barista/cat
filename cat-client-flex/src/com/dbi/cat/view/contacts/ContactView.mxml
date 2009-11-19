@@ -12,6 +12,7 @@
 			[Bindable]
 			public var contacts:ArrayCollection;
 			
+			[Bindable]
 			public var selectedContacts:ArrayCollection;
 			
 			private function refresh():void
@@ -29,13 +30,13 @@
 			{
 				if (selectedContacts != null &&
 					selectedContacts.length > 0)
-					dispatchEvent(new ContactEvent(ContactEvent.ASSIGN_CONTACT_TAGS));
+					dispatchEvent(new ContactEvent(ContactEvent.OPEN_ASSIGN_CONTACT_TAGS));
 			}
 			private function removeTags():void
 			{
 				if (selectedContacts != null &&
 					selectedContacts.length > 0)
-					dispatchEvent(new ContactEvent(ContactEvent.UNASSIGN_CONTACT_TAGS));
+					dispatchEvent(new ContactEvent(ContactEvent.OPEN_UNASSIGN_CONTACT_TAGS));
 			}
 		]]>	
 	</mx:Script>
@@ -56,8 +57,10 @@
 				toolTip="Refresh"
 				click="refresh()" />
 			<mx:Button label="Add Tags"
+				enabled="{selectedContacts != null &amp;&amp; selectedContacts.length > 0}"
 				click="addTags()" />
 			<mx:Button label="Remove Tags"
+				enabled="{selectedContacts != null &amp;&amp; selectedContacts.length > 0}"
 				click="removeTags()" />
 			<mx:Button label="Add Contact"
 				click="addContact()" />

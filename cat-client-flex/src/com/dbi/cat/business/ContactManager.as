@@ -6,6 +6,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.view.contacts.AddTagView;
 	import com.dbi.cat.view.contacts.EditContactView;
 	import com.dbi.cat.view.contacts.FilterTagView;
+	import com.dbi.cat.view.contacts.RemoveTagView;
 	
 	import flash.display.DisplayObject;
 	import flash.events.IEventDispatcher;
@@ -36,6 +37,7 @@ package com.dbi.cat.business
 		
 		private var editContactPopup:IFlexDisplayObject;
 		private var editContactTagAssignmentPopup:IFlexDisplayObject;
+		private var editContactTagUnassignmentPopup:IFlexDisplayObject;
 		private var contactTagFilterPopup:IFlexDisplayObject;
 		
 		// Filter properties
@@ -54,7 +56,17 @@ package com.dbi.cat.business
 		//
 		public function loadContacts(contacts:ArrayCollection):void
 		{
+			// Preserve filter if it exists
+			if (this.contacts != null)
+				var filter:Function = this.contacts.filterFunction;
 			this.contacts = contacts;
+			
+			if (filter != null)
+			{
+				this.contacts.filterFunction = filter;
+				this.contacts.refresh();
+			}
+			
 			contactMap = new Object();
 			for each (var c:ContactVO in this.contacts)
 				contactMap[c.contactId] = c;
@@ -142,7 +154,7 @@ package com.dbi.cat.business
 				
 			updateTagCounts();
 		}
-		public function editContactTagAssignment():void
+		public function openContactTagAssignment():void
 		{
 			if (editContactTagAssignmentPopup == null)
 				editContactTagAssignmentPopup = new AddTagView();
@@ -153,6 +165,18 @@ package com.dbi.cat.business
 		public function closeContactTagAssignment():void
 		{
 			PopUpManager.removePopUp(editContactTagAssignmentPopup);
+		}
+		public function openContactTagUnassignment():void
+		{
+			if (editContactTagUnassignmentPopup == null)
+				editContactTagUnassignmentPopup = new RemoveTagView();
+				
+			PopUpManager.addPopUp(editContactTagUnassignmentPopup, DisplayObject(Application.application), true);
+			PopUpManager.centerPopUp(editContactTagUnassignmentPopup);
+		}
+		public function closeContactTagUnassignment():void
+		{
+			PopUpManager.removePopUp(editContactTagUnassignmentPopup);
 		}
 		public function saveTag(tag:ContactTagVO):void
 		{
@@ -191,6 +215,30 @@ package com.dbi.cat.business
 			}
 			closeContactTagAssignment();
 		}
+		public function removeTagsFromContacts(contacts:ArrayCollection, tags:ArrayCollection):void
+		{
+			for each (var c:ContactVO in contacts)
+			{
+				var existing:ContactVO = contactMap[c.contactId];
+				for each (var tag:ContactTagVO in tags)
+				{
+					var cur:IViewCursor = existing.contactTags.createCursor();
+					while (cur.current != null)
+					{
+						if (cur.current.contactTagId == tag.contactTagId)
+						{
+							cur.remove();
+							existing.tagListLabel = null;
+						}
+						else
+						{
+							cur.moveNext();
+						}
+					}
+				}
+			}
+			closeContactTagUnassignment();
+		}
 		public function deleteTag(tag:ContactTagVO):void
 		{
 			var cur:IViewCursor = contactTags.createCursor();
@@ -206,6 +254,9 @@ package com.dbi.cat.business
 		}
 		public function updateTagCounts():void
 		{
+			// FIX THIS AT SOME POINT
+			return;
+			
 			if (contacts != null &&
 				contactTags != null)
 			{

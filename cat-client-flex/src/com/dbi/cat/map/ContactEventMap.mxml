@@ -74,15 +74,25 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
-	<EventHandlers type="{ContactEvent.ASSIGN_CONTACT_TAGS}">
+	<EventHandlers type="{ContactEvent.OPEN_ASSIGN_CONTACT_TAGS}">
 		<MethodInvoker
 			generator="{ContactManager}"
-			method="editContactTagAssignment" />
+			method="openContactTagAssignment" />
 	</EventHandlers>
-	<EventHandlers type="{ContactEvent.CLOSE_CONTACT_TAG_ASSIGNMENT}">
+	<EventHandlers type="{ContactEvent.CLOSE_ASSIGN_CONTACT_TAG}">
 		<MethodInvoker
 			generator="{ContactManager}"
 			method="closeContactTagAssignment" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.OPEN_UNASSIGN_CONTACT_TAGS}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="openContactTagUnassignment" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CLOSE_UNASSIGN_CONTACT_TAG}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactTagUnassignment" />
 	</EventHandlers>
 	
 	
@@ -132,6 +142,17 @@
 			<resultHandlers>
 				<MethodInvoker generator="{ContactManager}"
 					method="addTagsToContacts"
+					arguments="{[event.contacts, event.contactTags]}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.REMOVE_TAGS_FROM_CONTACTS}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="removeTagsFromContacts"
+			arguments="{[event.contacts, event.contactTags]}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="removeTagsFromContacts"
 					arguments="{[event.contacts, event.contactTags]}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
