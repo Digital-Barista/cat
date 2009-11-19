@@ -17,6 +17,7 @@ import javax.persistence.PersistenceContext;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
@@ -57,6 +58,10 @@ public class ContactManagerImpl implements ContactManager {
 		List<Contact> ret = new ArrayList<Contact>();
 		crit = session.createCriteria(ContactDO.class);
 
+		// Limit query by allowed clients if necessary
+    	if(!ctx.isCallerInRole("admin"))
+    		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+		
 		for(ContactDO contact : (List<ContactDO>)crit.list())
 		{
 			Contact c = new Contact();
@@ -73,6 +78,11 @@ public class ContactManagerImpl implements ContactManager {
 		Criteria crit = null;
 		List<ContactTag> ret = new ArrayList<ContactTag>();
 		crit = session.createCriteria(ContactTagDO.class);
+
+		// Limit query by allowed clients if necessary
+    	if(!ctx.isCallerInRole("admin"))
+    		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+		
 		for (ContactTagDO tag : (List<ContactTagDO>)crit.list())
 		{
 			ContactTag t = new ContactTag();

@@ -5,6 +5,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.ContactVO;
 	import com.dbi.cat.view.contacts.AddTagView;
 	import com.dbi.cat.view.contacts.EditContactView;
+	import com.dbi.cat.view.contacts.FilterTagView;
 	
 	import flash.display.DisplayObject;
 	import flash.events.IEventDispatcher;
@@ -35,6 +36,12 @@ package com.dbi.cat.business
 		
 		private var editContactPopup:IFlexDisplayObject;
 		private var editContactTagAssignmentPopup:IFlexDisplayObject;
+		private var contactTagFilterPopup:IFlexDisplayObject;
+		
+		// Filter properties
+		private var filterClientId:String;
+		private var filterContactType:String;
+		public var filterContactTags:ArrayCollection;
 		
 		public function ContactManager(dispatcher:IEventDispatcher)
 		{
@@ -130,8 +137,8 @@ package com.dbi.cat.business
 			userTags.refresh();
 			
 			contactTagLists = new ArrayCollection(
-				[{tag:'User Defined', children:userTags},
-				{tag:'System', children:systemTags}]);
+				[{tag:'User Defined Tags', children:userTags},
+				{tag:'System Tags', children:systemTags}]);
 				
 			updateTagCounts();
 		}
@@ -218,6 +225,69 @@ package com.dbi.cat.business
 					}
 				}
 			}
+		}
+		public function openContactTagFilter():void
+		{
+			if (contactTagFilterPopup == null)
+				contactTagFilterPopup = new FilterTagView();
+				
+			PopUpManager.addPopUp(contactTagFilterPopup, DisplayObject(Application.application), true);
+			PopUpManager.centerPopUp(contactTagFilterPopup);
+		}
+		public function closeContactTagFilter():void
+		{
+			PopUpManager.removePopUp(contactTagFilterPopup);
+		}
+		public function filterContacts(clientId:String, contactType:String, contactTags:ArrayCollection):void
+		{
+			// Set filters
+			if (clientId != null)
+				filterClientId = clientId;
+			if (contactType != null)
+				filterContactType = contactType;
+			if (contactTags != null)
+				filterContactTags = contactTags;
+			
+			// Do filter
+			contacts.filterFunction = filterContactsFunction;
+			contacts.refresh();
+			
+			closeContactTagFilter();
+		}
+		private function filterContactsFunction(contact:ContactVO):Boolean
+		{
+			if (filterClientId != null &&
+				filterClientId.length > 0 &&
+				filterClientId != contact.clientId)
+				return false;
+				
+			if (filterContactType != null &&
+				filterContactType.length > 0 &&
+				filterContactType != contact.type)
+				return false;
+				
+			if (filterContactTags != null &&
+				filterContactTags.length > 0)
+			{
+				for each (var filterTag:ContactTagVO in filterContactTags)
+				{
+					var found:Boolean = false;
+					for each (var tag:ContactTagVO in contact.contactTags)
+					{
+						if (tag.tag.toLowerCase() == filterTag.tag.toLowerCase())
+						{
+							found = true;
+							break;
+						}
+					}
+					if (found)
+						break;
+				}
+				if (!found)
+					return false;
+			}
+			
+			return true;
 		}
 	}
 }

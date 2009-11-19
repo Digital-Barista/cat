@@ -17,5 +17,15 @@ package com.dbi.cat.common.vo
 		public var password:String;
 		public var isActive:Boolean;
 		public var roles:ArrayCollection = new ArrayCollection();
+		
+		public function hasRole(role:String):Boolean
+		{
+			for each (var r:RoleVO in roles)
+			{
+				if (r.roleName == role)
+					return true;
+			}
+			return false;
+		}
 	}
 }

@@ -7,6 +7,7 @@ package com.dbi.cat.view.contacts
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
+	import mx.binding.utils.BindingUtils;
 	import mx.containers.HBox;
 	import mx.controls.CheckBox;
 	import mx.controls.Image;
@@ -38,6 +39,7 @@ package com.dbi.cat.view.contacts
 			{
 				check = new CheckBox();
 				check.addEventListener(Event.CHANGE, onCheckChanged);
+				BindingUtils.bindProperty(check, "selected", data, "selected");
 				addChild(check);
 			}
 			

@@ -11,6 +11,19 @@
 			[Bindable]
 			public var contactTagLists:ArrayCollection;
 			
+			public function unselectAll():void
+			{
+				if (contactTagLists != null)
+				{
+					for each (var o:Object in contactTagLists)
+					{
+						for each (var tag:ContactTagVO in o.children)
+						{
+							tag.selected = false;
+						}
+					}
+				}
+			}
 			public function get selectedTags():ArrayCollection
 			{
 				var ret:ArrayCollection = new ArrayCollection();

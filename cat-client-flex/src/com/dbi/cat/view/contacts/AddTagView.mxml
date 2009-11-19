@@ -5,6 +5,7 @@
 	close="onClose()">
 	<mx:Script>
 		<![CDATA[
+			import mx.utils.ObjectUtil;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.ContactTagVO;
 			import com.dbi.cat.common.constants.ContactTagType;
@@ -24,6 +25,9 @@
 					count = selectedContacts.length;
 				TagMessage.htmlText =  'Tags will be applied to the <b>' + count + '</b> selected contacts';
 			}
+			
+			[Bindable]
+			public var contactTagLists:ArrayCollection;
 			
 			private function onClose():void
 			{
@@ -74,7 +78,8 @@
 			click="addTag()" />
 	</mx:HBox>
 	<contacts:TagChooser id="Tags"
-		width="100%" height="100%" />
+		width="100%" height="100%"
+		contactTagLists="{contactTagLists}" />
 	<mx:ControlBar>
 		<mx:Button label="Assign Tags"
 			click="{assignTags()}" />

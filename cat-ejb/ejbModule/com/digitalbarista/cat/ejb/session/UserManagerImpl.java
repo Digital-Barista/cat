@@ -21,8 +21,10 @@ import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
@@ -324,6 +326,7 @@ public class UserManagerImpl implements UserManager {
 		return new HashSet<String>(q.getResultList());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> getAllVisibleUsers() {
 		Criteria crit = null;
@@ -331,6 +334,7 @@ public class UserManagerImpl implements UserManager {
 		if(ctx.isCallerInRole("admin"))
 		{
 			crit = session.createCriteria(UserDO.class);
+			crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		} else {
 			Set<Long> clientIDs = extractClientIds(ctx.getCallerPrincipal().getName());
 			crit = session.createCriteria(RoleDO.class);
@@ -339,9 +343,10 @@ public class UserManagerImpl implements UserManager {
 			crit.createAlias("user", "user");
 			crit.setProjection(Projections.distinct(Projections.groupProperty("user")));
 		}
-		Set<Long> userClientIDs;
+
 		User u;
-		for(UserDO user : (List<UserDO>)crit.list())
+		List<UserDO> list = (List<UserDO>)crit.list();
+		for(UserDO user : list)
 		{
 			u = new User();
 			u.copyFrom(user);

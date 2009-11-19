@@ -54,7 +54,7 @@
 				editUser.emailAddress = EmailAddress.text;
 				editUser.name = EmailAddress.text;
 				editUser.isActive = IsActive.selected;
-				editUser.roles = currentUser.roles;
+				editUser.roles = new ArrayCollection([Roles.CLIENT]);
 				
 				if(Password.text != "" && Password.text == ConfirmPassword.text)
 				{
@@ -209,10 +209,12 @@
 				</mx:HBox>
 			</mx:FormItem>
 			<mx:FormItem label="Password" required="{isNewUser}">
-				<mx:TextInput id="Password" displayAsPassword="true"  width="333"/>
+				<mx:TextInput id="Password" displayAsPassword="true"  width="333"
+					text="{editUser.password}" />
 			</mx:FormItem>	
 			<mx:FormItem label="Confirm Password" required="{isNewUser}">
-				<mx:TextInput id="ConfirmPassword" displayAsPassword="true"  width="333"/>				
+				<mx:TextInput id="ConfirmPassword" displayAsPassword="true"  width="333"
+					text="{editUser.password}"/>				
 			</mx:FormItem>
 		</mx:Form>
 		<mx:ControlBar horizontalAlign="right">

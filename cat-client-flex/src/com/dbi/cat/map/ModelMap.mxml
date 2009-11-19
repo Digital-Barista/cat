@@ -3,13 +3,13 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.contacts.FilterTagView;
 			import com.dbi.cat.view.contacts.ContactView;
 			import com.dbi.cat.view.contacts.AddTagView;
 			import com.dbi.cat.view.contacts.TagChooser;
 			import com.dbi.cat.view.contacts.EditContactView;
 			import com.dbi.cat.view.contacts.ContactListView;
 			import com.dbi.cat.business.ContactManager;
-			import com.dbi.cat.view.contacts.TagView;
 			import com.dbi.cat.view.profile.ProfileDetailsView;
 			import com.dbi.cat.view.profile.ProfileView;
 			import com.dbi.cat.view.profile.EntryPointDefinitionView;
@@ -66,6 +66,10 @@
 			targetKey="currentView" />
 	</Injectors>
 	<Injectors target="{MainView}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
 		<PropertyInjector 
 			source="{NavigationManager}"
 			sourceKey="mainCurrentView"
@@ -316,23 +320,11 @@
 			sourceKey="redemptionClass"
 			targetKey="redemptionClass" />
 	</Injectors>
-	<Injectors target="{TagView}">
-		<PropertyInjector 
-			source="{ContactManager}"
-			sourceKey="contactTags"
-			targetKey="contactTags" />
-		<PropertyInjector 
-			source="{ContactManager}"
-			sourceKey="selectedContacts"
-			targetKey="selectedContacts" />
-	</Injectors>
 	<Injectors target="{AddTagView}">
 		<PropertyInjector 
 			source="{ContactManager}"
 			sourceKey="selectedContacts"
 			targetKey="selectedContacts" />
-	</Injectors>
-	<Injectors target="{TagChooser}">
 		<PropertyInjector 
 			source="{ContactManager}"
 			sourceKey="contactTagLists"
@@ -353,6 +345,10 @@
 			source="{ContactManager}"
 			sourceKey="contacts"
 			targetKey="contacts" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="filterContactTags"
+			targetKey="filterContactTags" />
 	</Injectors>
 	<Injectors target="{EditContactView}">
 		<PropertyInjector
@@ -363,5 +359,11 @@
 			source="{ContactManager}"
 			sourceKey="currentContact"
 			targetKey="currentContact" />
+	</Injectors>
+	<Injectors target="{FilterTagView}">
+		<PropertyInjector 
+			source="{ContactManager}"
+			sourceKey="contactTagLists"
+			targetKey="contactTagLists" />
 	</Injectors>
 </EventMap>

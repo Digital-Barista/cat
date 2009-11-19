@@ -5,7 +5,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.view.contacts.TagView;
 			import com.dbi.cat.business.ContactManager;
 			import com.dbi.cat.event.ContactEvent;
 			import com.dbi.cat.constants.ServiceStatusMessage;
@@ -136,5 +135,24 @@
 					arguments="{[event.contacts, event.contactTags]}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.OPEN_CONTACT_TAG_FILTER}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="openContactTagFilter" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT_TAG_FILTER}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactTagFilter" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.FILTER_CONTACTS}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="filterContacts"
+			arguments="{[event.clientId, event.contactType, event.contactTags]}" />
 	</EventHandlers>
 </EventMap>
