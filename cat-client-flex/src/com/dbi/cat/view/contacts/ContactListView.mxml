@@ -126,6 +126,7 @@
 			dataProvider="{contacts}"
 			allowMultipleSelection="true">
 			<mx:columns>
+				<mx:DataGridColumn width="30" itemRenderer="com.dbi.controls.RowIndex" />
 				<mx:DataGridColumn headerText="Contact" dataField="address" width="150" />
 				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" width="80" />
 				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" />

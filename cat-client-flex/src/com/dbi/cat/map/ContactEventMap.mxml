@@ -136,6 +136,9 @@
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ContactEvent.ADD_TAGS_TO_CONTACTS}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Assigning Tags']}" />
 		<RemoteObjectInvoker destination="contactManager"
 			method="addTagsToContacts"
 			arguments="{[event.contacts, event.contactTags]}">
@@ -143,10 +146,22 @@
 				<MethodInvoker generator="{ContactManager}"
 					method="addTagsToContacts"
 					arguments="{[event.contacts, event.contactTags]}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
 			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ContactEvent.REMOVE_TAGS_FROM_CONTACTS}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Removing Tags']}" />
 		<RemoteObjectInvoker destination="contactManager"
 			method="removeTagsFromContacts"
 			arguments="{[event.contacts, event.contactTags]}">
@@ -154,7 +169,16 @@
 				<MethodInvoker generator="{ContactManager}"
 					method="removeTagsFromContacts"
 					arguments="{[event.contacts, event.contactTags]}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
 			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	

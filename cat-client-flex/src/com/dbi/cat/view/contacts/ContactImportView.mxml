@@ -66,6 +66,7 @@
 			<mx:DataGrid width="284" height="100%"
 				dataProvider="{importedContacts}">
 				<mx:columns>
+					<mx:DataGridColumn width="30" itemRenderer="com.dbi.controls.RowIndex" />
 					<mx:DataGridColumn headerText="Contact" dataField="address" />
 				</mx:columns>
 			</mx:DataGrid>
