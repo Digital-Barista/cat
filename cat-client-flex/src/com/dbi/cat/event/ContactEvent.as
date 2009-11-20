@@ -22,7 +22,6 @@ package com.dbi.cat.event
 		public static const CLOSE_CONTACT_TAG_FILTER:String = "closeContactTagFiltertEvent";
 		public static const FILTER_CONTACTS:String = "filterContactsEvent";
 		
-		
 		public static const EDIT_CONTACT:String = "editContactEvent";
 		public static const CLOSE_CONTACT:String = "closeContactEvent";
 		public static const SAVE_CONTACT:String = "saveContactEvent";
@@ -30,6 +29,11 @@ package com.dbi.cat.event
 		public static const ADD_TAGS_TO_CONTACTS:String = "addTagsToContactEvent";
 		public static const REMOVE_TAGS_FROM_CONTACTS:String = "removeTagsFromContactEvent";
 		public static const DELETE_CONTACT:String = "deleteContactEvent";
+		
+		public static const SELECT_CONTACT_IMPORT_FILE:String = "selectContactImportFileEvent";
+		public static const OPEN_CONTACT_IMPORT:String = "openContactImportEvent";
+		public static const CLOSE_CONTACT_IMPORT:String = "openContactImportEvent";
+		public static const DO_CONTACT_IMPORT:String = "doContactImportEvent";
 		
 		public var contactTag:ContactTagVO;
 		public var contact:ContactVO;

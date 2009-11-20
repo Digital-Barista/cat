@@ -41,8 +41,10 @@ public interface ContactManager {
 	@POST
 	@Path("/tags/assign")
 	public void addTagsToContacts(@FormParam("contacts") List<Contact> contacts, @FormParam("tags") List<ContactTag> tags);
+	@POST
+	@Path("/tags/unassign")
+	public void removeTagsFromContacts(@FormParam("contacts") List<Contact> contacts, @FormParam("tags") List<ContactTag> tags);
 
 	@POST
-	@Path("/tags/assign")
-	public void removeTagsFromContacts(@FormParam("contacts") List<Contact> contacts, @FormParam("tags") List<ContactTag> tags);
+	public List<Contact> importContacts(@FormParam("contacts") List<Contact> contacts);
 }

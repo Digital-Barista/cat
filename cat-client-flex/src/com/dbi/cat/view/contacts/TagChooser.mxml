@@ -19,7 +19,33 @@
 			public function set contactTagLists(value:ArrayCollection):void
 			{
 				// Make a local copy so "selected" flag is per TagChooser
-				_contactTagLists = ObjectUtil.copy(value) as ArrayCollection;
+				if (value != null)
+				{
+					// Preserve selected flags of current tag list
+					var old:ArrayCollection = _contactTagLists;
+					_contactTagLists = ObjectUtil.copy(value) as ArrayCollection;
+					
+					if (old != null)
+					{
+						for each (var newObject:Object in contactTagLists)
+						{
+							for each (var newTag:ContactTagVO in newObject.children)
+							{
+								for each (var oldObject:Object in old)
+								{
+									for each (var oldTag:ContactTagVO in oldObject.children)
+									{
+										if (oldTag.contactTagId == newTag.contactTagId)
+										{
+											newTag.selected = oldTag.selected;
+											break;
+										}
+									}
+								}
+							}	
+						}
+					}
+				}
 			}
 			
 			

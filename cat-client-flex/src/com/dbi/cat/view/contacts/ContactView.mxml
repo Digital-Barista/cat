@@ -38,6 +38,10 @@
 					selectedContacts.length > 0)
 					dispatchEvent(new ContactEvent(ContactEvent.OPEN_UNASSIGN_CONTACT_TAGS));
 			}
+			private function importContacts():void
+			{
+				dispatchEvent(new ContactEvent(ContactEvent.SELECT_CONTACT_IMPORT_FILE));
+			}
 		]]>	
 	</mx:Script>
 	<mx:Canvas
@@ -64,7 +68,8 @@
 				click="removeTags()" />
 			<mx:Button label="Add Contact"
 				click="addContact()" />
-			<mx:Button label="Import Contacts" />
+			<mx:Button label="Import Contacts"
+				click="importContacts()" />
 		</mx:HBox>
 	</mx:Canvas>
 </mx:Canvas>

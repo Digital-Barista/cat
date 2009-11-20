@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.components.LoadingMessageView;
 			import com.dbi.cat.business.ContactManager;
 			import com.dbi.cat.event.ContactEvent;
 			import com.dbi.cat.constants.ServiceStatusMessage;
@@ -95,7 +96,6 @@
 			method="closeContactTagUnassignment" />
 	</EventHandlers>
 	
-	
 	<EventHandlers type="{ContactEvent.EDIT_CONTACT}">
 		<MethodInvoker
 			generator="{ContactManager}"
@@ -176,4 +176,44 @@
 			method="filterContacts"
 			arguments="{[event.clientId, event.contactType, event.contactTags]}" />
 	</EventHandlers>
+	
+	
+	<!--
+		Contact Import Events
+	-->
+	
+	<EventHandlers type="{ContactEvent.SELECT_CONTACT_IMPORT_FILE}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="selectContactImportFile"  />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT_IMPORT}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactImport"  />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.DO_CONTACT_IMPORT}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Importing Contacts']}" />
+		<RemoteObjectInvoker destination="contactManager"
+			method="importContacts"
+			arguments="{event.contacts}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="importContacts"
+					arguments="{[event.contacts, resultObject]}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
 </EventMap>

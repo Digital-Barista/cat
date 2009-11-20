@@ -25,6 +25,9 @@
 			[Bindable]
 			public var selectedFilterContacts:ArrayCollection;
 			
+			[Bindable]
+			public var filterLabel:String;
+			
 			private var _filterContactTags:ArrayCollection;
 			public function get filterContactTags():ArrayCollection
 			{
@@ -86,17 +89,6 @@
 			}
 			
 			[Bindable(event="filterUpdate")]
-			private function get resultsLabel():String
-			{
-				var ret:String = "Showing 0/0";
-				if (contacts != null)
-				{
-					ret = "Showing " + contacts.length + "/" + contacts.source.length;
-				}
-				return ret;
-			}
-			
-			[Bindable(event="filterUpdate")]
 			private function get tagLabel():String
 			{
 				var ret:String = "Select (0)";
@@ -127,7 +119,7 @@
 			<mx:Button label="{tagLabel}"
 				click="openTagFilter()" />
 			<mx:Spacer width="100%" />
-			<mx:Label text="{resultsLabel}" />
+			<mx:Label text="{filterLabel}" />
 		</mx:HBox>
 		<mx:DataGrid id="Contacts"
 			width="100%" height="100%" top="30"

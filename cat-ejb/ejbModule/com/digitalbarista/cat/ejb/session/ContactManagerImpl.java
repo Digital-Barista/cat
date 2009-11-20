@@ -2,6 +2,7 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -207,5 +208,39 @@ public class ContactManagerImpl implements ContactManager {
 			}
 			em.persist(cDO);
 		}
+	}
+
+	@Override
+	public List<Contact> importContacts(List<Contact> contacts) 
+	{
+		List<Contact> ret = new ArrayList<Contact>();
+		
+		for (Contact c : contacts)
+		{
+			// Create contact
+			ContactDO cDO = new ContactDO();
+			c.copyTo(cDO);
+			cDO.setClient(em.find(ClientDO.class, c.getClientId()));
+			cDO.setCreateDate(Calendar.getInstance());
+
+			em.persist(cDO);
+			
+			// Add tags
+			for (ContactTag tag : c.getContactTags())
+			{
+				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
+				if (cDO.getContactTags() == null)
+					cDO.setContactTags(new HashSet<ContactTagDO>());
+				
+				if (!cDO.getContactTags().contains(tagDO))
+					cDO.getContactTags().add(tagDO);
+			}
+			
+			// Add persisted contact to return list
+			Contact retContact = new Contact();
+			retContact.copyFrom(cDO);
+			ret.add(retContact);
+		}
+		return ret;
 	}
 }

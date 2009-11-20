@@ -4,12 +4,15 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.ContactTagVO;
 	import com.dbi.cat.common.vo.ContactVO;
 	import com.dbi.cat.view.contacts.AddTagView;
+	import com.dbi.cat.view.contacts.ContactImportView;
 	import com.dbi.cat.view.contacts.EditContactView;
 	import com.dbi.cat.view.contacts.FilterTagView;
 	import com.dbi.cat.view.contacts.RemoveTagView;
+	import com.dbi.controls.CustomMessage;
 	
 	import flash.display.DisplayObject;
 	import flash.events.IEventDispatcher;
+	import flash.net.FileReference;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.IViewCursor;
@@ -19,6 +22,7 @@ package com.dbi.cat.business
 	import mx.core.IFlexDisplayObject;
 	import mx.managers.PopUpManager;
 	import mx.utils.ObjectUtil;
+	import mx.utils.StringUtil;
 	
 	[Bindable]
 	public class ContactManager
@@ -39,11 +43,17 @@ package com.dbi.cat.business
 		private var editContactTagAssignmentPopup:IFlexDisplayObject;
 		private var editContactTagUnassignmentPopup:IFlexDisplayObject;
 		private var contactTagFilterPopup:IFlexDisplayObject;
+		private var contactImportPopup:IFlexDisplayObject;
+		
+		// Import file reference
+		private var fileRef:FileReference;
+		public var importedContacts:ArrayCollection;
 		
 		// Filter properties
 		private var filterClientId:String;
 		private var filterContactType:String;
 		public var filterContactTags:ArrayCollection;
+		public var filterLabel:String = "Showing 0/0";
 		
 		public function ContactManager(dispatcher:IEventDispatcher)
 		{
@@ -93,6 +103,7 @@ package com.dbi.cat.business
 			{
 				contacts.addItem(contact);
 			}
+			filterContacts();
 			closeContact();
 		}
 		public function selectContacts(contacts:ArrayCollection):void
@@ -185,6 +196,12 @@ package com.dbi.cat.business
 				contactTags.addItem(tag);
 				contactTagMap[tag.contactTagId] = tag;
 				contactTagLists.getItemAt(0).children.addItem(tag);
+				
+				// Force rebinding of contactTagLists
+				var temp:ArrayCollection = contactTagLists;
+				contactTagLists = null;
+				contactTagLists = temp;
+				
 			}
 		}
 		public function addTagsToContacts(contacts:ArrayCollection, tags:ArrayCollection):void
@@ -208,11 +225,10 @@ package com.dbi.cat.business
 						// Add new tag
 						existing.contactTags.addItem(tag);
 						existing.tagListLabel = null;
-						
-						// Increment tag count
 					}
 				}
 			}
+			filterContacts();
 			closeContactTagAssignment();
 		}
 		public function removeTagsFromContacts(contacts:ArrayCollection, tags:ArrayCollection):void
@@ -237,6 +253,7 @@ package com.dbi.cat.business
 					}
 				}
 			}
+			filterContacts();
 			closeContactTagUnassignment();
 		}
 		public function deleteTag(tag:ContactTagVO):void
@@ -289,7 +306,7 @@ package com.dbi.cat.business
 		{
 			PopUpManager.removePopUp(contactTagFilterPopup);
 		}
-		public function filterContacts(clientId:String, contactType:String, contactTags:ArrayCollection):void
+		public function filterContacts(clientId:String=null, contactType:String=null, contactTags:ArrayCollection=null):void
 		{
 			// Set filters
 			if (clientId != null)
@@ -303,6 +320,12 @@ package com.dbi.cat.business
 			contacts.filterFunction = filterContactsFunction;
 			contacts.refresh();
 			
+			// Update filter label
+			filterLabel = "Showing 0/0";
+			if (contacts != null)
+				filterLabel = "Showing " + contacts.length + "/" + contacts.source.length;
+			
+			// Close the filter popup		
 			closeContactTagFilter();
 		}
 		private function filterContactsFunction(contact:ContactVO):Boolean
@@ -339,6 +362,61 @@ package com.dbi.cat.business
 			}
 			
 			return true;
+		}
+	
+		//
+		// Contact import methods
+		//
+		public function openContactImport():void
+		{
+			if (contactImportPopup == null)
+				contactImportPopup = new ContactImportView();
+				
+			PopUpManager.addPopUp(contactImportPopup, DisplayObject(Application.application), true);
+			PopUpManager.centerPopUp(contactImportPopup);
+		}
+		public function closeContactImport():void
+		{
+			PopUpManager.removePopUp(contactImportPopup);
+		}
+		public function importContacts(contactImportList:ArrayCollection, successfulContactImportList:ArrayCollection):void
+		{
+			for each (var contact:ContactVO in successfulContactImportList)
+				contacts.addItem(contact);
+
+			filterContacts();
+			closeContactImport();
+			CustomMessage.show("Successfully imported " + successfulContactImportList.length +
+				" of " + contactImportList.length + " contacts");
+		}
+		public function selectContactImportFile():void
+		{
+			fileRef = new FileReference();
+			fileRef.addEventListener(Event.SELECT, selectFile);
+			fileRef.browse();
+		}
+		private function selectFile(e:Event):void
+		{
+			fileRef.load();
+			fileRef.addEventListener(Event.COMPLETE, fileUploaded);
+		}
+		private function fileUploaded(e:Event):void
+		{
+			importedContacts = new ArrayCollection();
+			var lines:Array = fileRef.data.toString().split("\n");
+			for each (var s:String in lines)
+			{
+				importedContacts.addItem({address:StringUtil.trim(s)});
+			}
+			
+			if (importedContacts.length > 0)
+			{
+				openContactImport();
+			}
+			else
+			{
+				CustomMessage.show("No contacts were imported");
+			}
 		}
 	}
 }
