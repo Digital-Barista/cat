@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="400" height="300"
+	showCloseButton="true" xmlns:contacts="com.dbi.cat.view.contacts.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.NodeVO;
+			import com.dbi.cat.view.workspace.Node;
+			import com.dbi.cat.common.vo.ContactVO;
+			import mx.collections.ArrayCollection;
+			import com.dbi.event.CustomMessageEvent;
+			import com.dbi.controls.CustomMessage;
+			
+			[Bindable]
+			public var currentNode:NodeVO;
+			
+			private function doImport(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes")
+				{
+					// Build list of addresses
+					var importList:ArrayCollection = new ArrayCollection();
+					for each (var contact:ContactVO in Contacts.Contacts.selectedItems)
+						importList.addItem(contact.address);
+					
+					var event:ImportEvent = new ImportEvent(ImportEvent.DO_IMPORT);
+					event.addresses = importList;
+					event.entryPointUID = currentNode.uid;
+					event.entryPointType = Contacts.ContactType.selectedLabel;
+					dispatchEvent(event);
+				}
+			}
+			private function confirmImport():void
+			{
+				CustomMessage.show("Subscribe the " + Contacts.Contacts.selectedItems.length + " selected contacts?",
+					["Yes", "No"],
+					doImport);
+			}
+		]]>
+	</mx:Script>
+	<contacts:ContactListView id="Contacts"
+		width="100%" height="100%" />
+	<mx:ControlBar>
+		<mx:Button label="Subscribe Selected Contacts"
+			click="confirmImport()" />
+	</mx:ControlBar>
+</mx:TitleWindow>
