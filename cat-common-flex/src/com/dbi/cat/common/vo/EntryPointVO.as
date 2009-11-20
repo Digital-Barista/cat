@@ -1,5 +1,7 @@
 package com.dbi.cat.common.vo
 {
+	import mx.collections.ArrayCollection;
+	
 	
 	[Bindable]
 	[RemoteClass(alias="com.digitalbarista.cat.business.EntryNode")]
@@ -10,18 +12,19 @@ package com.dbi.cat.common.vo
 			super();
 		}
 		
-		public var entryPoint:String;
-		public var entryType:String;
-		public var keyword:String;
+		public var entryData:ArrayCollection = new ArrayCollection();
 		
 		override public function get valid():Boolean
 		{
-			return entryPoint != null &&
-				entryPoint.length > 0 &&
-				entryType != null &&
-				entryType.length > 0 &&
-				keyword != null &&
-				keyword.length > 0;
+			if (entryData != null)
+			{
+				for each (var ed:EntryDataVO in entryData)
+				{
+					if (ed.valid)
+						return true;
+				}
+			}
+			return false;
 		}
 	}
 }

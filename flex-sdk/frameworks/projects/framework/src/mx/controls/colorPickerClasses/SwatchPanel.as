@@ -974,8 +974,11 @@ public class SwatchPanel extends UIComponent implements IFocusManagerContainer
     {
         updateStyleCache();
         updateDisplayList(unscaledWidth, unscaledHeight);
+
+        // Changes may have invalidated the size, so make sure we re-measure - SDK-13855
+        invalidateSize();
     }
- 
+
     /**
      *  @private
 	 *  Update color values in preview

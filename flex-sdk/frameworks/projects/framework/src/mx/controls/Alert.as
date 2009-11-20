@@ -12,16 +12,22 @@
 package mx.controls
 {
 
+import flash.display.DisplayObject;
+import flash.geom.Rectangle;
 import flash.display.Sprite;
 import flash.events.Event;
+import flash.events.EventPhase;
 import mx.containers.Panel;
 import mx.controls.alertClasses.AlertForm;
 import mx.core.Application;
 import mx.core.EdgeMetrics;
 import mx.core.FlexVersion;
+import mx.core.IFlexDisplayObject;
 import mx.core.mx_internal;
 import mx.core.UIComponent;
 import mx.events.CloseEvent;
+import mx.events.FlexEvent;
+import mx.graphics.RadialGradient;
 import mx.managers.ISystemManager;
 import mx.managers.PopUpManager;
 import mx.managers.SystemManager;
@@ -473,7 +479,13 @@ public class Alert extends Panel
         var modal:Boolean = (flags & Alert.NONMODAL) ? false : true;
 
         if (!parent)
-            parent = Sprite(Application.application);   
+        {
+            var sm:ISystemManager = ISystemManager(Application.application.systemManager);
+            if (sm.useSWFBridge())
+                parent = Sprite(sm.getSandboxRoot());
+            else
+                parent = Sprite(Application.application);
+        }
         
         var alert:Alert = new Alert();
 
@@ -508,6 +520,7 @@ public class Alert extends Panel
 
         alert.setActualSize(alert.getExplicitOrMeasuredWidth(),
                             alert.getExplicitOrMeasuredHeight());
+        alert.addEventListener(FlexEvent.CREATION_COMPLETE, static_creationCompleteHandler);
         
         return alert;
     }
@@ -557,6 +570,19 @@ public class Alert extends Panel
 		static_resourcesChanged();
 	}
 
+ 
+    /**
+     *  @private
+     */
+    private static function static_creationCompleteHandler(event:FlexEvent):void
+    {
+        if (event.target is IFlexDisplayObject && event.eventPhase == EventPhase.AT_TARGET)
+        {
+            event.target.removeEventListener(FlexEvent.CREATION_COMPLETE, static_creationCompleteHandler);
+            PopUpManager.centerPopUp(IFlexDisplayObject(event.target));
+        }
+    }
+    
     //--------------------------------------------------------------------------
     //
     //  Constructor
@@ -573,17 +599,6 @@ public class Alert extends Panel
         // Panel properties.
         title = "";
     }
-
-    //--------------------------------------------------------------------------
-    //
-    //  Variables
-    //
-    //--------------------------------------------------------------------------
-
-    /**
-     *  @private
-     */ 
-    private var init:Boolean = false;
 
     //--------------------------------------------------------------------------
     //
@@ -734,27 +749,6 @@ public class Alert extends Panel
                                 unscaledHeight - vm.top - vm.bottom -
                                 getStyle("paddingTop") -
                                 getStyle("paddingBottom"));
-
-        // Choose an (x,y) position that centers me in my parent.       
-        if (!init)
-        {
-            var x:Number;
-            var y:Number;
-            if (parent == systemManager)
-            {
-                x = (screen.width - measuredWidth) / 2;
-                y = (screen.height - measuredHeight) / 2;
-            }
-            else
-            {
-                x = (parent.width - measuredWidth) / 2;
-                y = (parent.height - measuredHeight) / 2;
-            }
-
-            // Set my position, because my parent won't do it for me.
-            move(Math.round(x), Math.round(y));
-            init = true;
-        }
     }
 
     /**

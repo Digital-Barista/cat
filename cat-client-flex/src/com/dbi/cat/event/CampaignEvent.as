@@ -19,15 +19,18 @@ package com.dbi.cat.event
 		public static const DELETE_NODE:String = "deleteNodeEvent";
 		public static const DELETE_CONNECTOR:String = "deleteConnectorEvent";
 		public static const SAVE_CAMPAIGN:String = "saveCampaignEvent";
+		public static const SAVE_CAMPAIGN_FROM_TEMPLATE:String = "saveCampaignFromTemplateEvent";
 		public static const SAVE_NODE:String = "saveNodeEvent";
 		public static const SAVE_NODE_FAIL:String = "saveNodeFailEvent";
 		public static const SAVE_CONNECTOR:String = "saveConnector";
 		public static const SAVE_CONNECTOR_FAIL:String = "saveConnectorFail";
 		public static const FILTER_CAMPAIGNS:String = "filterCampaignsEvent";
+		public static const FILTER_CAMPAIGN_TEMPLATES:String = "filterCampaignTemplatesEvent";
 		public static const PUBLISH_CAMPAIGN:String = "publishCampaignEvent";
 		public static const LOAD_SUBSCRIBER_STATISTICS:String = "loadSubscriberStatisticsEvent";
 	
 		public var campaign:CampaignVO;
+		public var campaignTemplateUID:String;
 		public var node:NodeVO;
 		public var connector:ConnectorVO;
 		public var filterText:String;

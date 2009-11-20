@@ -9,6 +9,12 @@ List
 	dropIndicatorSkin:ClassReference("com.dbi.skins.BlankSkin");
 }
 
+FormattedComboBox
+{
+	disabledSkin:ClassReference("com.dbi.skins.BlankSkin");
+	disabledColor:#000000;
+}
+
 .navBar
 {
 }
@@ -32,4 +38,46 @@ List
 }
 .filterBox
 {
+}
+
+.successMessage
+{
+	fontSize:20;
+	color:#00CC00;
+}
+.failMessage
+{
+	fontSize:20;
+	color:#CC0000;
+}
+.workspaceStatusMessage
+{
+	padding-left:5;
+	padding-right:5;
+	backgroundColor:#00AA00;
+	color:#FFFFFF;
+}
+.generalStatusMessage
+{
+	padding-left:5;
+	padding-right:5;
+	backgroundColor:#00AA00;
+	color:#FFFFFF;
+}
+.componentTree
+{
+	backgroundColor:#FFFFFF;
+	borderStyle:none;
+}
+.componentHeader
+{
+	color: #5a5c59;
+	fontSize:14;
+	fontWeight:bold;
+	backgroundColor:#CCCCCC;
+}
+.treeFolder
+{
+	fontSize:12;
+	fontWeight:bold;
 }

@@ -17,6 +17,18 @@ public class CATEvent implements Serializable{
 	
 	private CATEvent(){}
 	
+	public static CATEvent buildIncomingTwitterEvent(String fromAddress, String toAddress, String subject)
+	{
+		CATEvent ret = new CATEvent();
+		ret.source=toAddress;
+		ret.sourceType=CATEventSource.TwitterEndpoint;
+		ret.type=CATEventType.IncomingMessage;
+		ret.target=fromAddress;
+	    ret.targetType=CATTargetType.SpecificSubscriber;
+	    ret.args.put("message", subject);
+	    return ret;
+	}
+	
 	public static CATEvent buildIncomingEmailEvent(String fromAddress, String toAddress, String subject)
 	{
 		CATEvent ret = new CATEvent();
@@ -34,6 +46,18 @@ public class CATEvent implements Serializable{
 		CATEvent ret = new CATEvent();
 		ret.source=toAddress;
 		ret.sourceType=CATEventSource.SMSEndpoint;
+		ret.type=CATEventType.IncomingMessage;
+		ret.target=fromAddress;
+	    ret.targetType=CATTargetType.SpecificSubscriber;
+	    ret.args.put("message", message);
+	    return ret;
+	}
+	
+	public static CATEvent buildIncomingTwitterDMEvent(String fromAddress, String toAddress, String message)
+	{
+		CATEvent ret = new CATEvent();
+		ret.source=toAddress;
+		ret.sourceType=CATEventSource.TwitterEndpoint;
 		ret.type=CATEventType.IncomingMessage;
 		ret.target=fromAddress;
 	    ret.targetType=CATTargetType.SpecificSubscriber;
@@ -85,6 +109,10 @@ public class CATEvent implements Serializable{
 				
 			case SMS:
 				ret.sourceType=CATEventSource.SMSEndpoint;
+				break;
+				
+			case Twitter:
+				ret.sourceType=CATEventSource.TwitterEndpoint;
 				break;
 		}
 		ret.type=CATEventType.MessageSendRequested;

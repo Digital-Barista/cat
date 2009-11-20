@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <flexLibProperties version="1">
   <includeClasses>
-    <classEntry path="com.dbi.cat.common.vo.NodeVO"/>
     <classEntry path="com.dbi.cat.common.vo.CampaignVO"/>
+    <classEntry path="com.dbi.cat.common.vo.NodeVO"/>
     <classEntry path="com.dbi.cat.common.controls.DisabledList"/>
+    <classEntry path="com.dbi.cat.common.vo.CouponReportVO"/>
     <classEntry path="com.dbi.cat.common.vo.MessageVO"/>
     <classEntry path="com.dbi.cat.common.vo.EntryPointVO"/>
-    <classEntry path="com.dbi.cat.common.vo.IntervalConnectorVO"/>
     <classEntry path="com.dbi.cat.common.controls.DisabledListItemRenderer"/>
-    <classEntry path="com.dbi.cat.common.vo.UserVO"/>
-    <classEntry path="com.dbi.cat.common.vo.ResponseConnectorVO"/>
+    <classEntry path="com.dbi.cat.common.vo.IntervalConnectorVO"/>
     <classEntry path="com.dbi.cat.common.vo.ClientVO"/>
-    <classEntry path="com.dbi.cat.common.constants.EntryRestrictionType"/>
-    <classEntry path="com.dbi.cat.common.vo.ConnectorVO"/>
+    <classEntry path="com.dbi.cat.common.vo.ResponseConnectorVO"/>
+    <classEntry path="com.dbi.cat.common.vo.UserVO"/>
+    <classEntry path="com.dbi.cat.common.vo.CodedMessageVO"/>
     <classEntry path="com.dbi.cat.common.vo.CalendarConnectorVO"/>
+    <classEntry path="com.dbi.cat.common.vo.ConnectorVO"/>
+    <classEntry path="com.dbi.cat.common.constants.EntryRestrictionType"/>
+    <classEntry path="com.dbi.cat.common.exception.FlexException"/>
+    <classEntry path="com.dbi.cat.common.constants.KeywordConstants"/>
     <classEntry path="com.dbi.cat.common.vo.ImmediateConnectorVO"/>
     <classEntry path="com.dbi.cat.common.vo.UserProfileVO"/>
     <classEntry path="com.dbi.cat.common.vo.KeywordVO"/>
-    <classEntry path="com.dbi.cat.common.constants.SMSConstants"/>
-    <classEntry path="com.dbi.cat.common.vo.RoleVO"/>
     <classEntry path="com.dbi.cat.common.vo.LayoutInfoVO"/>
+    <classEntry path="com.dbi.cat.common.vo.RoleVO"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

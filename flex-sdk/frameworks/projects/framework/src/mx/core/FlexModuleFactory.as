@@ -13,6 +13,7 @@ package mx.core
 {
 
 import flash.display.MovieClip;
+import flash.events.ErrorEvent;
 import flash.events.Event;
 import flash.events.IOErrorEvent;
 import flash.events.SecurityErrorEvent;
@@ -20,10 +21,12 @@ import flash.events.TimerEvent;
 import flash.system.ApplicationDomain;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
+import flash.utils.Dictionary;
 import flash.utils.Timer;
 import flash.utils.getDefinitionByName;
 import mx.core.RSLItem;
 import mx.core.RSLListLoader;
+import mx.events.ModuleEvent;
 import mx.resources.IResourceManager;
 import mx.resources.ResourceManager;
 
@@ -137,22 +140,39 @@ public class FlexModuleFactory extends MovieClip implements IFlexModuleFactory
 		loaderInfo.addEventListener(Event.COMPLETE, moduleCompleteHandler);
 
 	    var docFrame:int = totalFrames == 1 ? 0 : 1;
-
-		addFrameScript(docFrame, docFrameHandler);
-
-		// Frame 1: module factory
-		// Frame 2: document class
-		// Frame 3+: extra classes
-	    for (i = docFrame + 1; i < totalFrames; i++)
-	    {
-		    addFrameScript(i, extraFrameHandler);
-		}
+        
+        addEventListener(Event.ENTER_FRAME, docFrameListener);
 
 		timer = new Timer(100);
 		timer.addEventListener(TimerEvent.TIMER, timerHandler);
 		timer.start();
 
         update();
+    }
+    
+    private function docFrameListener(event:Event):void
+    {
+        if (currentFrame == 2)
+        {
+            removeEventListener(Event.ENTER_FRAME, docFrameListener);
+            if (totalFrames > 2)
+                addEventListener(Event.ENTER_FRAME, extraFrameListener);
+
+            docFrameHandler();
+        }
+    }
+
+    private function extraFrameListener(event:Event):void
+    {
+        if (lastFrame == currentFrame)
+            return;
+
+        lastFrame = currentFrame;
+
+        if (currentFrame + 1 > totalFrames)
+            removeEventListener(Event.ENTER_FRAME, extraFrameListener);
+
+        extraFrameHandler();
     }
 
 	//--------------------------------------------------------------------------
@@ -190,6 +210,13 @@ public class FlexModuleFactory extends MovieClip implements IFlexModuleFactory
 	 *  @private
 	 */
 	private var timer:Timer = null;
+
+    /**
+     *  @private
+     *  Track which frame was last processed
+     */
+    private var lastFrame:int;
+
     /**
 	 *  @private
 	 */
@@ -200,6 +227,23 @@ public class FlexModuleFactory extends MovieClip implements IFlexModuleFactory
 	 */
 	private var errorMessage:String = null;
 
+    //----------------------------------
+    //  preloadedRSLs
+    //----------------------------------
+
+    /**
+     *  The RSLs loaded by this FlexModuleFactory before the application 
+     *  starts. RSLs loaded by the application are not included in this list.
+     * 
+     *  Information about preloadedRSLs is stored in a Dictionary. The key is
+     *  the RSL's LoaderInfo. The value is the url the RSL was loaded from.
+     */
+    public function  get preloadedRSLs():Dictionary
+    {
+       // Overriden by compiler generate code.
+        return null;                
+    }
+        
 	//--------------------------------------------------------------------------
 	//
 	//  Methods
@@ -233,6 +277,26 @@ public class FlexModuleFactory extends MovieClip implements IFlexModuleFactory
     public function info():Object
     {
         return {};
+    }
+
+    /**
+     *  Calls Security.allowDomain() for the SWF associated with this FlexModuleFactory.
+     *  plus all the SWFs assocatiated with RSLs preloaded by this FlexModuleFactory.
+     * 
+     */  
+    public function allowDomain(... domains):void
+    {
+       // Overridden by compiler generated code.
+    }
+
+    /**
+     *  Calls Security.allowInsecureDomain() for the SWF associated with this FlexModuleFactory
+     *  plus all the SWFs assocatiated with RSLs preloaded by this FlexModuleFactory.
+     * 
+     */  
+    public function allowInsecureDomain(... domains):void
+    {
+       // Overridden by compiler generated code.
     }
 
    /**
@@ -323,6 +387,8 @@ public class FlexModuleFactory extends MovieClip implements IFlexModuleFactory
         			timer.reset();
 
                     dispatchEvent(new Event("ready"));
+
+                    loaderInfo.removeEventListener(Event.COMPLETE, moduleCompleteHandler);
                 }
                 break;
 			}
@@ -342,6 +408,11 @@ public class FlexModuleFactory extends MovieClip implements IFlexModuleFactory
                 tf.y = 0;
                 tf.autoSize = TextFieldAutoSize.LEFT;
                 addChild(tf);
+                
+                dispatchEvent(new ModuleEvent(ModuleEvent.ERROR, false, false, 
+                              0, 0, errorMessage));
+
+                loaderInfo.removeEventListener(Event.COMPLETE, moduleCompleteHandler);
                 break;
 			}
         }
@@ -505,6 +576,8 @@ public class FlexModuleFactory extends MovieClip implements IFlexModuleFactory
 	 */
     private function rslCompleteHandler(event:Event):void
     {
+        var rsl:RSLItem = rslListLoader.getItem(rslListLoader.getIndex());
+        preloadedRSLs[event.target] = rsl.urlRequest.url;
         update();
     }
 
@@ -514,9 +587,18 @@ public class FlexModuleFactory extends MovieClip implements IFlexModuleFactory
     private function rslErrorHandler(event:Event):void
     {
         var rsl:RSLItem = rslListLoader.getItem(rslListLoader.getIndex());
+        var detailedError:String;
+        var message:String;
         
-        trace("RSL " + rsl.urlRequest.url + " failed to load.");
-        displayError("RSL " + rsl.urlRequest.url + " failed to load.");
+        if (event is ErrorEvent)
+            detailedError = ErrorEvent(event).text;
+        
+        if (!detailedError)
+            detailedError = "";
+            
+        message = "RSL " + rsl.urlRequest.url + " failed to load. " + detailedError;              
+        trace(message);
+        displayError(message);
     }
 
     /**

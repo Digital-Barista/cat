@@ -7,11 +7,11 @@
 	editWindowWidth="290"
 	displayIcon="{intervalConnectorWorkspace}"
 	workspaceIcon="{intervalConnector}"
-	x="{connectorVO.layoutInfo.x}"
-	y="{connectorVO.layoutInfo.y}" xmlns:controls="com.dbi.controls.*"
+	xmlns:controls="com.dbi.controls.*"
 	label="Interval Connector">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.IntervalType;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			import com.dbi.cat.common.vo.IntervalConnectorVO;
@@ -20,18 +20,6 @@
 			public function get intervalConnectorVO():IntervalConnectorVO
 			{
 				return editConnectorVO as IntervalConnectorVO;
-			}
-			public function get layoutInfo():LayoutInfoVO
-			{
-				return connectorVO.layoutInfo;
-			}
-			public function set layoutInfo(info:LayoutInfoVO):void
-			{
-				connectorVO.layoutInfo = info;
-			}
-			public function get voUID():String
-			{
-				return connectorVO.uid;
 			}
 			
 			override public function get valid():Boolean
@@ -56,7 +44,8 @@
 					text="{intervalConnectorVO.name}"
 					change="{intervalConnectorVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="Interval" required="true">
+			<mx:FormItem label="Interval" required="true"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<mx:Canvas width="100%">
 					<mx:TextInput id="IntervalNumber" width="40"
 						restrict="[0-9]"

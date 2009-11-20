@@ -24,6 +24,11 @@ package com.dbi.cat.business
 		 */
 		public var campaignList:ArrayCollection;
 		
+		/**
+		 * References campaign template list from CampaignTemplateManager
+		 */
+		public var campaignTemplateList:ArrayCollection;
+		 
 		public function LayoutInfoManager(dispatcher:IEventDispatcher)
 		{
 			layoutMap = new Object();
@@ -65,30 +70,41 @@ package com.dbi.cat.business
 		 */
 		public function syncLayoutInfo():void
 		{
-			if (layoutMap != null &&
-				campaignList != null)
+			if (layoutMap != null)
 			{
-				for each (var campaign:CampaignVO in campaignList)
+				if(campaignList != null)
 				{
-					if (campaign.nodes != null)
-					{
-						for each (var node:NodeVO in campaign.nodes)
-						{
-							var key:String = node.uid + ":" + campaign.currentVersion;
-							if (node.layoutInfo == null)
-								node.layoutInfo = layoutMap[key];
-						}
-					}
-					
-					if (campaign.connectors != null)
-					{
-						for each (var connector:ConnectorVO in campaign.connectors)
-						{
-							key = connector.uid + ":" + campaign.currentVersion;
-							if (connector.layoutInfo == null)
-								connector.layoutInfo = layoutMap[key];
-						}
-					}
+					for each (var campaign:CampaignVO in campaignList)
+						setLayouts(campaign);
+				}
+				
+				if (campaignTemplateList != null)
+				{
+					for each (campaign in campaignTemplateList)
+						setLayouts(campaign);
+				}
+			}
+		}
+		
+		private function setLayouts(campaign:CampaignVO):void
+		{
+			if (campaign.nodes != null)
+			{
+				for each (var node:NodeVO in campaign.nodes)
+				{
+					var key:String = node.uid + ":" + campaign.currentVersion;
+//					if (node.layoutInfo == null)
+						node.layoutInfo = layoutMap[key];
+				}
+			}
+			
+			if (campaign.connectors != null)
+			{
+				for each (var connector:ConnectorVO in campaign.connectors)
+				{
+					key = connector.uid + ":" + campaign.currentVersion;
+//					if (connector.layoutInfo == null)
+						connector.layoutInfo = layoutMap[key];
 				}
 			}
 		}

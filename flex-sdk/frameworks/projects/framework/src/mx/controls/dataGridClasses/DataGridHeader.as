@@ -17,6 +17,7 @@ import flash.display.GradientType;
 import flash.display.Graphics;
 import flash.display.Shape;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Matrix;
 import flash.geom.Point;
@@ -31,6 +32,7 @@ import mx.core.IFlexDisplayObject;
 import mx.core.UIComponent;
 import mx.core.UIComponentGlobals;
 import mx.events.DataGridEvent;
+import mx.events.SandboxMouseEvent;
 import mx.managers.CursorManager;
 import mx.managers.CursorManagerPriority;
 import mx.skins.halo.DataGridColumnDropIndicator;
@@ -171,24 +173,28 @@ public class DataGridHeader extends DataGridHeaderBase
             var c:DataGridColumn;
 
             var maxHeaderHeight:Number = 0;
+            // copy current list of renderers
+            var oldHeaderItems:Array = headerItems.slice();
 
             while (cols && colNum < cols.length)
             {
                 c = cols[colNum];
-                item = dataGrid.createColumnItemRenderer(c, true, c);
+                item = c.cachedHeaderRenderer;
+                if (!item)
+                {
+                    item = dataGrid.createColumnItemRenderer(c, true, c);
+                    item.styleName = c;
+                    c.cachedHeaderRenderer = item;
+                }
                 rowData = new DataGridListData((c.headerText != null) ? c.headerText : c.dataField, 
                                                                 c.dataField, colNum, uid, dataGrid, 0);
                 if (item is IDropInListItemRenderer)
                     IDropInListItemRenderer(item).listData = rowData;
                 item.data = c;
                 item.visible = true;
-                item.styleName = c;
-                addChild(DisplayObject(item));
-                var oldHeader:DisplayObject = headerItems[colNum];
-                if (oldHeader)
-                {
-                    removeChild(oldHeader);
-                }
+                // if it isn't parented by us, add it (could be in lockedColumns header)
+                if (item.parent != this)
+                    addChild(DisplayObject(item));
                 headerItems[colNum] = item;
                 // set prefW so we can compute prefH
                 item.explicitWidth = ww = c.width;
@@ -210,11 +216,23 @@ public class DataGridHeader extends DataGridHeaderBase
             for (var i:int = 0; i < headerItems.length; i++)
                 headerItems[i].setActualSize(headerItems[i].width, maxHeaderHeight);
 
+            for (i = 0; i < oldHeaderItems.length; i++)
+            {
+                item = oldHeaderItems[i];
+                if (item && headerItems.indexOf(item) == -1)
+                {
+                    // if it is parented by us, remove it (could be in lockedColumns header)
+                    if (item.parent == this)
+                        removeChild(DisplayObject(item));
+                }
+            }
             while (headerItems.length > colNum)
             {
                 // remove extra columns
                 extraItem = headerItems.pop();
-                removeChild(DisplayObject(extraItem));
+                // if it is parented by us, remove it (could be in lockedColumns header)
+                if (extraItem.parent == this)
+                    removeChild(DisplayObject(extraItem));
             }
         }
         var headerBG:UIComponent =
@@ -401,6 +419,7 @@ public class DataGridHeader extends DataGridHeaderBase
                 sep = new UIComponent();
                 sep.addChild(DisplayObject(sepSkin));
                 lines.addChild(sep);
+                UIComponentGlobals.layoutManager.validateClient(sep, true);
                 
                 separators.push(sep);
             }
@@ -461,6 +480,7 @@ public class DataGridHeader extends DataGridHeaderBase
             lines.removeChildAt(lines.numChildren - 1);
             separators.pop();
         }
+        UIComponentGlobals.layoutManager.validateClient(lines, true);
     }
     
      /**
@@ -614,7 +634,8 @@ public class DataGridHeader extends DataGridHeaderBase
             return;
 
         startX = DisplayObject(event.target).x + x;
-
+        lastPt = new Point(event.stageX, event.stageY);
+        lastPt = dataGrid.globalToLocal(lastPt);
         var n:int = separators.length;
 		var colIndex:int = 0;
         for (var i:int = 0; i < n; i++)
@@ -632,8 +653,11 @@ public class DataGridHeader extends DataGridHeaderBase
 
         minX = headerItems[colIndex].x + x + resizingColumn.minWidth;
 
-        systemManager.addEventListener(MouseEvent.MOUSE_MOVE, columnResizingHandler, true);
-        systemManager.addEventListener(MouseEvent.MOUSE_UP, columnResizeMouseUpHandler, true);
+        var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+        sbRoot.addEventListener(MouseEvent.MOUSE_MOVE, columnResizingHandler, true);
+        sbRoot.addEventListener(MouseEvent.MOUSE_UP, columnResizeMouseUpHandler, true);
+        sbRoot.addEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, columnResizeMouseUpHandler);
+        systemManager.deployMouseShields(true);
 
         var resizeSkinClass:Class = getStyle("columnResizeSkin");
         resizeGraphic = new resizeSkinClass();
@@ -661,6 +685,7 @@ public class DataGridHeader extends DataGridHeaderBase
 
         var pt:Point = new Point(event.stageX, event.stageY);
         pt = dataGrid.globalToLocal(pt);
+        lastPt = pt;
         resizeGraphic.move(Math.min(Math.max(minX, pt.x),
                            (dataGrid.width / dataGrid.scaleX) - separators[0].width - vsw), 0);
     }
@@ -669,7 +694,7 @@ public class DataGridHeader extends DataGridHeaderBase
      *  @private
      *  Determines how much to resize the column.
      */
-    private function columnResizeMouseUpHandler(event:MouseEvent):void
+    private function columnResizeMouseUpHandler(event:Event):void
     {
         if (!enabled || !dataGrid.resizableColumns)
             return;
@@ -677,8 +702,11 @@ public class DataGridHeader extends DataGridHeaderBase
         // Set this to null so sort doesn't happen.
         lastItemDown = null;
 
-        systemManager.removeEventListener(MouseEvent.MOUSE_MOVE, columnResizingHandler, true);
-        systemManager.removeEventListener(MouseEvent.MOUSE_UP, columnResizeMouseUpHandler, true);
+        var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+        sbRoot.removeEventListener(MouseEvent.MOUSE_MOVE, columnResizingHandler, true);
+        sbRoot.removeEventListener(MouseEvent.MOUSE_UP, columnResizeMouseUpHandler, true);
+        sbRoot.removeEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, columnResizeMouseUpHandler);
+        systemManager.deployMouseShields(false);
 
         dataGrid.removeChild(DisplayObject(resizeGraphic));
         resizeGraphic = null;
@@ -690,9 +718,17 @@ public class DataGridHeader extends DataGridHeaderBase
 
         var vsw:int = dataGrid.vScrollBar ? dataGrid.vScrollBar.width : 0;
 
-        var pt:Point = new Point(event.stageX, event.stageY);
-        pt = dataGrid.globalToLocal(pt);
-
+        var mouseEvent:MouseEvent = event as MouseEvent;
+        var pt:Point;
+        
+        if (mouseEvent)
+        {
+            pt = new Point(mouseEvent.stageX, mouseEvent.stageY);
+            pt = dataGrid.globalToLocal(pt);
+        }
+        else
+            pt = lastPt;
+            
         // resize the column
         var widthChange:Number = Math.min(Math.max(minX, pt.x),
             (dataGrid.width / dataGrid.scaleX) - separators[0].width - vsw) - startX;
@@ -821,7 +857,7 @@ public class DataGridHeader extends DataGridHeaderBase
         var allVisibleColumns:Array = dataGrid.getAllVisibleColumns();
         var pt:Point = new Point(event.stageX, event.stageY);
         pt = dataGrid.globalToLocal(pt);
-
+        lastPt = pt;
         n = allVisibleColumns.length;
         var xx:Number = dataGrid.viewMetrics.left;
         var ww:Number;
@@ -887,8 +923,10 @@ public class DataGridHeader extends DataGridHeaderBase
 
     /**
      *  @private
+     * 
+     *  @param event MouseEvent or SandboxMouseEvent.
      */
-    private function columnDraggingMouseUpHandler(event:MouseEvent):void
+    private function columnDraggingMouseUpHandler(event:Event):void
     {
         if (!dataGrid.movingColumn)
             return;
@@ -914,10 +952,13 @@ public class DataGridHeader extends DataGridHeaderBase
         }
 
         // Shift columns.
-        dataGrid.shiftColumns(origIndex, dropColumnIndex, event);
+        dataGrid.shiftColumns(origIndex, dropColumnIndex, event as MouseEvent);
 
-        systemManager.removeEventListener(MouseEvent.MOUSE_MOVE, columnDraggingMouseMoveHandler, true);
-        systemManager.removeEventListener(MouseEvent.MOUSE_UP, columnDraggingMouseUpHandler, true);
+        var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+        sbRoot.removeEventListener(MouseEvent.MOUSE_MOVE, columnDraggingMouseMoveHandler, true);
+        sbRoot.removeEventListener(MouseEvent.MOUSE_UP, columnDraggingMouseUpHandler, true);
+        sbRoot.removeEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, columnDraggingMouseUpHandler);
+        systemManager.deployMouseShields(false);
 
         var dgSelectionLayer:Sprite = Sprite(dataGrid.getChildByName("columnDragSelectionLayer"));
         if (!dgSelectionLayer)
@@ -1074,10 +1115,10 @@ public class DataGridHeader extends DataGridHeaderBase
                     }
                 }
                 if (i >= headerItems.length)
-                    return;
+                    i = headerItems.length - 1;
             }
 
-            if (visibleColumns[i].sortable)
+            if (visibleColumns.length > 0 && visibleColumns[i].sortable)
             {
                 var s:Sprite = Sprite(
                     selectionLayer.getChildByName("headerSelection"));
@@ -1162,8 +1203,12 @@ public class DataGridHeader extends DataGridHeaderBase
             if (dataGrid.draggableColumns && visibleColumns[i].draggable)
             {
                 startX = NaN;
-                systemManager.addEventListener(MouseEvent.MOUSE_MOVE, columnDraggingMouseMoveHandler, true);
-                systemManager.addEventListener(MouseEvent.MOUSE_UP, columnDraggingMouseUpHandler, true);
+                
+                var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+                sbRoot.addEventListener(MouseEvent.MOUSE_MOVE, columnDraggingMouseMoveHandler, true);
+                sbRoot.addEventListener(MouseEvent.MOUSE_UP, columnDraggingMouseUpHandler, true);
+                sbRoot.addEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, columnDraggingMouseUpHandler);
+                systemManager.deployMouseShields(true);
                 dataGrid.movingColumn = visibleColumns[i];
             }
         }
@@ -1427,6 +1472,13 @@ public class DataGridHeader extends DataGridHeaderBase
      *  A tmp var to store the stretching col's min X coord for column's minWidth.
      */
     private var minX:Number;
+
+    /**
+     *  @private
+     *  A tmp var to store the last point (in dataGrid coords) received while dragging.
+     */
+    private var lastPt:Point;
+
 
     /**
      *  @private

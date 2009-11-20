@@ -36,6 +36,7 @@ public class CampaignEntryPointDO implements Serializable {
 	private String keyword;
 	private EntryPointType type;
 	private Integer quantity = 0;
+	private boolean published;
 	private static final long serialVersionUID = 1L;
 
 	public CampaignEntryPointDO() {
@@ -98,5 +99,13 @@ public class CampaignEntryPointDO implements Serializable {
 	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
 	}
-   
+	 
+	@Column(name="published")
+	public boolean isPublished() {
+		return published;
+	}
+
+	public void setPublished(boolean published) {
+		this.published = published;
+	} 
 }

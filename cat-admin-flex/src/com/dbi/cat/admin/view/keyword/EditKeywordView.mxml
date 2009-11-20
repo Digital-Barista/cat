@@ -3,7 +3,7 @@
 	width="350" height="178"
 	showCloseButton="true"
 	close="onClose()"
-	title="{isNaN(currentKeyword.primaryKey) ? 'Create Keyword' : 'Edit Keyword'}">
+	title="{currentKeyword.primaryKey == null ? 'Create Keyword' : 'Edit Keyword'}">
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;

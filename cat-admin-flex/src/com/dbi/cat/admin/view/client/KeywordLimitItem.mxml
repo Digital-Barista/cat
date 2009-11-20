@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="30">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.vo.KeywordLimitVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			
+			private var _currentClient:ClientVO;
+			[Bindable]
+			public function get currentClient():ClientVO
+			{
+				return _currentClient;
+			}
+			public function set currentClient(c:ClientVO):void
+			{
+				_currentClient = c;
+				dispatchEvent(new Event("dataUpdate"));	
+			}
+			
+			private var _entryType:String;
+			[Bindable]
+			public function get entryType():String
+			{
+				return _entryType;
+			}
+			public function set entryType(value:String):void
+			{
+				_entryType = value;
+				dispatchEvent(new Event("dataUpdate"));	
+			}
+			
+			[Bindable(event="dataUpdate")]
+			private function get maxKeywords():String
+			{
+				if (keywordLimit != null &&
+					!isNaN(keywordLimit.maxKeywords))
+					return keywordLimit.maxKeywords.toString();
+				return "";
+			}
+			
+			private function get keywordLimit():KeywordLimitVO
+			{
+				if (currentClient != null &&
+					currentClient.keywordLimits != null &&
+					entryType != null)
+				{
+					for each (var limit:KeywordLimitVO in currentClient.keywordLimits)
+					{
+						if (limit.entryType == entryType)
+							return limit;
+					}
+				}
+				return null;
+			}
+			
+			[Bindable(event="dataUpdate")]
+			private function get isInfinite():Boolean
+			{
+				return maxKeywords == "0";
+			}
+			
+			private function changeMax():void
+			{
+				if (keywordLimit != null)
+				{
+					keywordLimit.maxKeywords = new Number(MaxKeywords.text);
+				}
+				else
+				{
+					var key:KeywordLimitVO = new KeywordLimitVO();
+					key.clientId = currentClient.clientId;
+					key.entryType = entryType;
+					key.maxKeywords = new Number(MaxKeywords.text);
+					
+					if (currentClient.keywordLimits == null)
+						currentClient.keywordLimits = new ArrayCollection();
+					currentClient.keywordLimits.addItem(key);
+				}
+				dispatchEvent(new Event("dataUpdate"));	
+			}
+			private function changeInfinite():void
+			{
+				if (Infinite.selected)
+					MaxKeywords.text = "0";
+				else
+					MaxKeywords.text = "5";
+				changeMax();
+			}
+		]]>
+	</mx:Script>
+	<mx:Label text="{entryType}" width="60" textAlign="right" />
+	<mx:TextInput id="MaxKeywords"
+		text="{maxKeywords}"
+		change="{changeMax()}"
+		restrict="0-9"
+		width="50"
+		enabled="{!isInfinite}" />
+	<mx:CheckBox id="Infinite"
+		label="Infinite"
+		change="{changeInfinite()}"
+		selected="{isInfinite}" />
+</mx:HBox>

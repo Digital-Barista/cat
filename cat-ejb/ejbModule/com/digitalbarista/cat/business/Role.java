@@ -1,25 +1,32 @@
 package com.digitalbarista.cat.business;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.digitalbarista.cat.data.RoleDO;
 
+@XmlRootElement
 public class Role implements BusinessObject<RoleDO>{
 
 	private String roleName;
 	private String roleType;
 	private Long refId;
 	
+	@XmlAttribute
 	public String getRoleName() {
 		return roleName;
 	}
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
 	}
+	@XmlAttribute
 	public String getRoleType() {
 		return roleType;
 	}
 	public void setRoleType(String roleType) {
 		this.roleType = roleType;
 	}
+	@XmlAttribute
 	public Long getRefId() {
 		return refId;
 	}

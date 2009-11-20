@@ -4,11 +4,16 @@
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	displayIcon="{entryPointIcon}"
 	workspaceIcon="{entryPointIcon}"
-	x="{nodeVO.layoutInfo.x}"
-	y="{nodeVO.layoutInfo.y}" xmlns:controls="com.dbi.controls.*"
-	label="Entry Point" xmlns:components="com.dbi.cat.view.components.*">
+	editWindowWidth="500"
+	editWindowHeight="170"
+	xmlns:controls="com.dbi.controls.*"
+	label="Entry Point" 
+	xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.IViewCursor;
+			import com.dbi.cat.common.vo.EntryDataVO;
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
 			import com.dbi.cat.common.vo.KeywordVO;
 			import mx.collections.ArrayCollection;
@@ -19,6 +24,7 @@
 			
 			
 			[Bindable(event="nodeUpdate")]
+			[Bindable(event="entryPointLoaded")]
 			public function get entryPointVO():EntryPointVO
 			{
 				return editNodeVO as EntryPointVO;
@@ -26,45 +32,32 @@
 			public function set entryPointVO(ep:EntryPointVO):void
 			{
 				nodeVO = ep;
-			}
-			public function get layoutInfo():LayoutInfoVO
-			{
-				return entryPointVO.layoutInfo;
-			}
-			public function set layoutInfo(info:LayoutInfoVO):void
-			{
-				entryPointVO.layoutInfo = info;
-			}
-			public function get voUID():String
-			{
-				return entryPointVO.uid;
+				dispatchEvent(new Event("entryPointLoaded"));
 			}
 			
 			override public function get valid():Boolean
 			{
 				return entryPointVO != null && entryPointVO.valid;
 			}
+			
+			
 		]]>
 	</mx:Script>
 	<editContent>
-		<mx:Form right="0" left="0" top="0" bottom="0"   
+		<mx:Form width="100%" 
 			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
-			<mx:FormItem label="Title">
+			<mx:FormItem label="Title" 
+				labelWidth="70" width="100%">
 				<mx:TextInput id="Title"
+					width="100%"
 					text="{entryPointVO.name}"
 					change="{entryPointVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="{entryPointVO.entryType}" required="true">
-				<mx:Label text="{entryPointVO.entryPoint}" />
-			</mx:FormItem>
-			<mx:FormItem label="Keyword" required="true">
-				<components:KeywordComboBox id="SubscribeKeyword"
-					labelField="keyword"
-					dataProvider="{workspace.campaignKeywords}"
-					selectedBindingProperty="keyword"
-					selectedBindingValue="{entryPointVO.keyword}"
-					change="{entryPointVO.keyword = SubscribeKeyword.selectedItem.keyword}" />
-			</mx:FormItem>
 		</mx:Form>
+		<AddressSelection 
+			workspace="{workspace}"
+			entryData="{entryPointVO.entryData}"
+			right="0" left="0" top="0" bottom="0"   
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5" />
 	</editContent>
 </Node>

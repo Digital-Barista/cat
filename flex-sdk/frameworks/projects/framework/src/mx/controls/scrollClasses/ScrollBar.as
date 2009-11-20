@@ -25,8 +25,10 @@ import mx.core.FlexVersion;
 import mx.core.UIComponent;
 import mx.core.mx_internal;
 import mx.events.FlexEvent;
+import mx.events.SandboxMouseEvent;
 import mx.events.ScrollEvent;
 import mx.events.ScrollEventDetail;
+import mx.managers.ISystemManager;
 import mx.styles.ISimpleStyleClient;
 import mx.styles.StyleProxy;
 
@@ -620,6 +622,7 @@ public class ScrollBar extends UIComponent
     public function set maxScrollPosition(value:Number):void
     {
         _maxScrollPosition = value;
+        invalidateDisplayList();
     }
 
     //----------------------------------
@@ -665,6 +668,7 @@ public class ScrollBar extends UIComponent
     public function set minScrollPosition(value:Number):void
     {
         _minScrollPosition = value;
+        invalidateDisplayList();
     }
 
     //----------------------------------
@@ -1096,7 +1100,7 @@ public class ScrollBar extends UIComponent
      *  @param minScrollPosition Number which represents the bottom of the 
      *  scrolling range.
      *
-     *  @param maxScrollPosition Number which represetns the top of the 
+     *  @param maxScrollPosition Number which represents the top of the 
      *  scrolling range.
      *
      *  @param pageScrollSize Number which represents the increment to move when 
@@ -1355,16 +1359,15 @@ public class ScrollBar extends UIComponent
 
         trackScrolling = true;
         
-        systemManager.addEventListener(
+        var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+        sbRoot.addEventListener(
             MouseEvent.MOUSE_UP, scrollTrack_mouseUpHandler, true);
-        systemManager.addEventListener(
+        sbRoot.addEventListener(
             MouseEvent.MOUSE_MOVE, scrollTrack_mouseMoveHandler, true);
         // in case we go offscreen
-        systemManager.stage.addEventListener(MouseEvent.MOUSE_MOVE, 
-                            stage_scrollTrack_mouseMoveHandler);
-        // in case we go offscreen
-        systemManager.stage.addEventListener(Event.MOUSE_LEAVE, 
-                            scrollTrack_mouseLeaveHandler);
+        sbRoot.addEventListener(
+			SandboxMouseEvent.MOUSE_UP_SOMEWHERE, scrollTrack_mouseLeaveHandler);
+        systemManager.deployMouseShields(true);
         
         var pt:Point = new Point(event.localX, event.localY);
         pt = event.target.localToGlobal(pt);
@@ -1424,17 +1427,16 @@ public class ScrollBar extends UIComponent
     {
         trackScrolling = false;
 
-        systemManager.removeEventListener(
+        var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+        sbRoot.removeEventListener(
             MouseEvent.MOUSE_UP, scrollTrack_mouseUpHandler, true);
-        systemManager.removeEventListener(
+        sbRoot.removeEventListener(
             MouseEvent.MOUSE_MOVE, scrollTrack_mouseMoveHandler, true);
         // in case we go offscreen
-        systemManager.stage.removeEventListener(MouseEvent.MOUSE_MOVE, 
-                            stage_scrollTrack_mouseMoveHandler);
-        // in case we go offscreen
-        systemManager.stage.removeEventListener(Event.MOUSE_LEAVE, 
-                            scrollTrack_mouseLeaveHandler);
-
+        sbRoot.removeEventListener(
+			SandboxMouseEvent.MOUSE_UP_SOMEWHERE, scrollTrack_mouseLeaveHandler);
+        systemManager.deployMouseShields(false);
+        
         if (trackScrollTimer)
             trackScrollTimer.reset();
 
@@ -1447,14 +1449,6 @@ public class ScrollBar extends UIComponent
         dispatchScrollEvent(oldPosition, detail);
         
         oldPosition = NaN;
-    }
-
-    private function stage_scrollTrack_mouseMoveHandler(event:MouseEvent):void
-    {
-        if (event.target != stage)
-            return;
-
-        scrollTrack_mouseMoveHandler(event);
     }
 
     /**

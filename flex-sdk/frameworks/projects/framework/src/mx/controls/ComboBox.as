@@ -12,6 +12,7 @@
 package mx.controls
 {
 
+import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.KeyboardEvent;
@@ -45,9 +46,12 @@ import mx.events.CollectionEventKind;
 import mx.events.DropdownEvent;
 import mx.events.FlexEvent;
 import mx.events.FlexMouseEvent;
+import mx.events.InterManagerRequest;
 import mx.events.ListEvent;
+import mx.events.SandboxMouseEvent;
 import mx.events.ScrollEvent;
 import mx.events.ScrollEventDetail;
+import mx.managers.ISystemManager;
 import mx.managers.PopUpManager;
 import mx.styles.CSSStyleDeclaration;
 import mx.styles.StyleManager;
@@ -838,8 +842,11 @@ public class ComboBox extends ComboBase
     override public function set selectedItem(value:Object):void
     {
         selectedItemSet = true;
-
-        super.selectedItem = value
+        
+        // We do not want to apply an implicit default index in this case.
+        implicitSelectedIndex = false;
+        
+        super.selectedItem = value;
     }
 
     //----------------------------------
@@ -1237,9 +1244,6 @@ public class ComboBox extends ComboBase
 
         if (labelFunctionChanged)
         {
-            if (_dropdown)
-                _dropdown.labelFunction = _labelFunction;
-
             selectionChanged = true;
             if (!explicitText)
                 textInput.text = selectedLabel;
@@ -1474,16 +1478,14 @@ public class ComboBox extends ComboBase
             _oldIndex = selectedIndex;
             _dropdown.verticalScrollPolicy = ScrollPolicy.AUTO;
             _dropdown.labelField = _labelField;
-            _dropdown.labelFunction = _labelFunction;
+            _dropdown.labelFunction = itemToLabel;
             _dropdown.allowDragSelection = true;
 
             _dropdown.addEventListener("change", dropdown_changeHandler);
             _dropdown.addEventListener(ScrollEvent.SCROLL, dropdown_scrollHandler);
             _dropdown.addEventListener(ListEvent.ITEM_ROLL_OVER, dropdown_itemRollOverHandler);
             _dropdown.addEventListener(ListEvent.ITEM_ROLL_OUT, dropdown_itemRollOutHandler);
-            _dropdown.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, dropdown_mouseDownOutsideHandler);
-            _dropdown.addEventListener(FlexMouseEvent.MOUSE_WHEEL_OUTSIDE, dropdown_mouseWheelOutsideHandler);
-
+            
             // the drop down should close if the user clicks on any item.
             // add a handler to detect a click in the list
             _dropdown.addEventListener(ListEvent.ITEM_CLICK, dropdown_itemClickHandler);
@@ -1497,7 +1499,7 @@ public class ComboBox extends ComboBase
             // weak reference to stage
             systemManager.addEventListener(Event.RESIZE, stage_resizeHandler, false, 0, true);
         }
-
+            
         _dropdown.scaleX = scaleX;
         _dropdown.scaleY = scaleY;
 
@@ -1525,6 +1527,21 @@ public class ComboBox extends ComboBase
         var point:Point = new Point(0, unscaledHeight);
         point = localToGlobal(point);
         
+        var sm:ISystemManager = systemManager.topLevelSystemManager;
+        var sbRoot:DisplayObject = sm.getSandboxRoot();
+        var screen:Rectangle;
+
+        if (sm != sbRoot)
+        {
+            var request:InterManagerRequest = new InterManagerRequest(InterManagerRequest.SYSTEM_MANAGER_REQUEST, 
+                                    false, false,
+                                    "getVisibleApplicationRect"); 
+            sbRoot.dispatchEvent(request);
+            screen = Rectangle(request.value);
+        }
+        else
+            screen = sm.getVisibleApplicationRect();
+
         //opening the dropdown 
         if (show)
         {
@@ -1534,19 +1551,21 @@ public class ComboBox extends ComboBase
 
             getDropdown();
 
-
+            _dropdown.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, dropdown_mouseOutsideHandler);
+            _dropdown.addEventListener(FlexMouseEvent.MOUSE_WHEEL_OUTSIDE, dropdown_mouseOutsideHandler);
+            _dropdown.addEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE, dropdown_mouseOutsideHandler);
+            _dropdown.addEventListener(SandboxMouseEvent.MOUSE_WHEEL_SOMEWHERE, dropdown_mouseOutsideHandler);
+            
             if (_dropdown.parent == null)  // was popped up then closed
                 PopUpManager.addPopUp(_dropdown, this);
             else
                 PopUpManager.bringToFront(_dropdown);
 
-            point = _dropdown.parent.globalToLocal(point);
-
             // if we donot have enough space in the bottom display the dropdown
             // at the top. But if the space there is also less than required
             // display it below.
-            if (point.y + _dropdown.height > screen.height &&
-                point.y > _dropdown.height)
+            if (point.y + _dropdown.height > screen.bottom &&
+                point.y > screen.top + _dropdown.height)
             {
                 // Dropdown will go below the bottom of the stage
                 // and be clipped. Instead, have it grow up.
@@ -1560,6 +1579,8 @@ public class ComboBox extends ComboBase
                 tweenUp = false;
             }
         
+            point = _dropdown.parent.globalToLocal(point);
+
             var sel:int = _dropdown.selectedIndex;
             if (sel == -1)
                 sel = 0;
@@ -1593,9 +1614,8 @@ public class ComboBox extends ComboBase
         // closing the dropdown 
         else if (_dropdown)
         {
-            point = _dropdown.parent.globalToLocal(point);
             // Set up the tween and relevant variables. 
-            endY = (point.y + _dropdown.height > screen.height || tweenUp
+            endY = (point.y + _dropdown.height > screen.bottom || tweenUp
                                ? -_dropdown.height
                                : _dropdown.height);
             _showingDropdown = show;
@@ -1687,7 +1707,8 @@ public class ComboBox extends ComboBase
                 // Special case: Empty dataProvider.
                 if (!selectedIndexChanged && !selectedItemChanged)
                 {
-                    super.selectedIndex = -1;
+                	if (super.selectedIndex != -1)
+                    	super.selectedIndex = -1;
                     implicitSelectedIndex = true;
                     invalidateDisplayList();
                 }
@@ -1790,25 +1811,27 @@ public class ComboBox extends ComboBase
     /**
      *  @private
      */
-    private function dropdown_mouseDownOutsideHandler(event:MouseEvent):void
+    private function dropdown_mouseOutsideHandler(event:Event):void
     {
-        if (event.target != _dropdown)
-            // the dropdown's items can dispatch a mouseDownOutside
-            // event which then bubbles up to us
-            return;
-
-        if (!hitTestPoint(event.stageX, event.stageY, true))
+        // trace("dropdown_mouseOutsideHandler: " + event);
+        
+        if (event is MouseEvent)
+        {
+            var mouseEvent:MouseEvent = MouseEvent(event);
+            if (mouseEvent.target != _dropdown)
+                // the dropdown's items can dispatch a mouseDownOutside
+                // event which then bubbles up to us
+                return;
+    
+            if (!hitTestPoint(mouseEvent.stageX, mouseEvent.stageY, true))
+            {
+                close(event);
+            }
+        }
+        else if (event is SandboxMouseEvent) 
         {
             close(event);
         }
-    }
-
-    /**
-     *  @private
-     */
-    private function dropdown_mouseWheelOutsideHandler(event:MouseEvent):void
-    {
-        dropdown_mouseDownOutsideHandler(event);
     }
 
     /**
@@ -1920,6 +1943,10 @@ public class ComboBox extends ComboBase
      */
     override protected function keyDownHandler(event:KeyboardEvent):void
     {
+        // If the combo box is disabled, don't do anything
+        if(!enabled)
+            return;
+            
         // If a the editable field currently has focus, it is handling
         // all arrow keys. We shouldn't also scroll this selection.
         if (event.target == textInput)
@@ -2043,6 +2070,11 @@ public class ComboBox extends ComboBase
 
         if (bRemoveDropdown)
         {
+            _dropdown.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, dropdown_mouseOutsideHandler);
+            _dropdown.removeEventListener(FlexMouseEvent.MOUSE_WHEEL_OUTSIDE, dropdown_mouseOutsideHandler);
+            _dropdown.removeEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE, dropdown_mouseOutsideHandler);
+            _dropdown.removeEventListener(SandboxMouseEvent.MOUSE_WHEEL_SOMEWHERE, dropdown_mouseOutsideHandler);
+
             PopUpManager.removePopUp(_dropdown);
             _dropdown = null;
             bRemoveDropdown = false;

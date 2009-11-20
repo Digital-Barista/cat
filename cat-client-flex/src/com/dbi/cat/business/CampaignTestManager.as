@@ -4,6 +4,8 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
+	import com.dbi.cat.common.vo.CouponNodeVO;
+	import com.dbi.cat.common.vo.EntryDataVO;
 	import com.dbi.cat.common.vo.EntryPointVO;
 	import com.dbi.cat.common.vo.ImmediateConnectorVO;
 	import com.dbi.cat.common.vo.IntervalConnectorVO;
@@ -26,6 +28,7 @@ package com.dbi.cat.business
 		private var currentDate:Date;
 		private var startDate:Date;
 		private var uidMap:Object;
+		private var visitedImmediateConnectors:Object = new Object();
 		
 		public var currentNode:NodeVO;
 		public var testCampaign:CampaignVO;
@@ -83,14 +86,23 @@ package com.dbi.cat.business
 					if (node is EntryPointVO)
 					{
 						var entry:EntryPointVO = node as EntryPointVO;
-						if (entry.valid &&
-							entry.keyword.toLowerCase() == response.toLowerCase())
+						if (entry.valid)
 						{
-							match = true;
-							currentNode = entry;
-							out("Response: ", response);
-							out("Matched entry point with keyword: ", entry.keyword);
-							break;
+							// Search each entry data and return the first match
+							for each (var ed:EntryDataVO in entry.entryData)
+							{
+								if (ed.valid &&
+									matchKeyword(response, ed.keyword) )
+								{
+									match = true;
+									currentNode = entry;
+									out("Response: ", response);
+									out("Matched entry point with keyword: ", ed.keyword);
+									break;
+								}
+							}
+							if (match)
+								break;
 						}
 					}
 				}
@@ -110,16 +122,26 @@ package com.dbi.cat.business
 					if (connector is ResponseConnectorVO)
 					{
 						var rConnector:ResponseConnectorVO = connector as ResponseConnectorVO;
-						if (rConnector.valid &&
-							rConnector.keyword.toLowerCase() == response.toLowerCase())
+						
+						if (rConnector.valid)
 						{
-							match = true;
-							out("Response: ", response);
-							out("Matched response connector with keyword: ", rConnector.keyword);
-							
-							// Find destination node of this matching response connector
-							followConnector(rConnector);
-							break;
+							match = false;
+							for each (ed in rConnector.entryData)
+							{
+								if (ed.valid &&
+									matchKeyword(response, ed.keyword) )
+								{
+									match = true;
+									out("Response: ", response);
+									out("Matched response connector with keyword: ", ed.keyword);
+									
+									// Find destination node of this matching response connector
+									followConnector(rConnector);
+									break;
+								}
+							}
+							if (match)
+								break;
 						}
 					}
 				}
@@ -131,6 +153,15 @@ package com.dbi.cat.business
 			}
 			nextStep();
 		}
+		private function matchKeyword(input:String, keyword:String):Boolean
+		{
+			// Strip all white space to a single space and ignore case for compare
+			var reg:RegExp = /\s+/g;
+			var responseText:String = input.replace(reg, " ").toLowerCase();
+			var keywordText:String = keyword.replace(reg, " ").toLowerCase();
+			return responseText == keywordText;
+		}
+		
 		public function followNextTimeConnector():void
 		{
 			if (currentNode == null)
@@ -237,6 +268,30 @@ package com.dbi.cat.business
 						out("Invalid message: ", message.name, COLOR_RED);
 					}
 				}
+				// Handle coupon messages
+				else if (currentNode is CouponNodeVO)
+				{
+					var coupon:CouponNodeVO = currentNode as CouponNodeVO;
+				
+					// Make sure required fields are filled
+					if (coupon.valid)
+					{
+						// Determine message by unavailable date
+						if (coupon.unavailableDate != null &&
+							coupon.unavailableDate.time < adjustedDate.time)
+						{
+							out("Sending coupon unavailable message: ", coupon.unavailableMessage);
+						}
+						else
+						{
+							out("Sending coupon available message: ", coupon.availableMessage);
+						}
+					}
+					else
+					{
+						out("Invalid message: ", coupon.name, COLOR_RED);
+					}
+				}
 				nextStep();
 			}
 			else
@@ -274,8 +329,19 @@ package com.dbi.cat.business
 					{
 						if (connector is ImmediateConnectorVO)
 						{
-							out("", "Following immediate connector", COLOR_BLUE);
-							followConnector(connector);
+							if (visitedImmediateConnectors[connector.uid] != null)
+							{
+								out("", "LOOP DETECTED! CANNOT CONTINUE", COLOR_RED);
+							}
+							else
+							{
+								visitedImmediateConnectors[connector.uid] = connector.uid;
+								out("", "Following immediate connector", COLOR_BLUE);
+								followConnector(connector);
+							}
+							
+							// Clear visited connectors
+							visitedImmediateConnectors = new Object();
 							break;
 						}
 					}

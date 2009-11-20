@@ -7,11 +7,10 @@
 	editWindowWidth="300"
 	displayIcon="{dateConnectorWorkspace}"
 	workspaceIcon="{dateConnector}"
-	x="{connectorVO.layoutInfo.x}"
-	y="{connectorVO.layoutInfo.y}"
 	label="Calendar Connector" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			import com.dbi.cat.common.vo.CalendarConnectorVO;
 			import mx.events.ListEvent;
@@ -20,18 +19,6 @@
 			public function get calendarConnectorVO():CalendarConnectorVO
 			{
 				return editConnectorVO as CalendarConnectorVO;
-			}
-			public function get layoutInfo():LayoutInfoVO
-			{
-				return connectorVO.layoutInfo;
-			}
-			public function set layoutInfo(info:LayoutInfoVO):void
-			{
-				connectorVO.layoutInfo = info;
-			}
-			public function get voUID():String
-			{
-				return connectorVO.uid;
 			}
 			override public function get valid():Boolean
 			{
@@ -65,7 +52,8 @@
 					text="{calendarConnectorVO.name}"
 					change="{calendarConnectorVO.name = Title.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="Execute" required="true">
+			<mx:FormItem label="Execute" required="true"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 				<components:TimeChooser id="Time"
 					selectedTime="{calendarConnectorVO.targetDate}"
 					timeChange="{calendarConnectorVO.targetDate = selectedTime}" />

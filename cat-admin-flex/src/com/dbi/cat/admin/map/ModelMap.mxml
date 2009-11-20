@@ -3,9 +3,11 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.admin.view.keyword.ReservedKeywordView;
+			import com.dbi.cat.admin.view.client.KeywordLimitItem;
 			import com.dbi.cat.admin.view.client.EditClientView;
 			import com.dbi.cat.admin.view.keyword.EditKeywordView;
-			import com.dbi.cat.admin.view.keyword.KeywordView;
+			import com.dbi.cat.admin.view.keyword.KeywordListView;
 			import com.dbi.cat.admin.view.Header;
 			import com.dbi.cat.admin.view.user.EditUserView;
 			import com.dbi.cat.admin.view.user.UsersView;
@@ -124,10 +126,22 @@
 			sourceKey="clientMap"
 			targetKey="clientMap" />
 	</Injectors>
-	<Injectors target="{KeywordView}">
+	<Injectors target="{KeywordListView}">
 		<PropertyInjector
 			source="{ClientManager}"
 			sourceKey="keywords"
 			targetKey="keywords" />
+	</Injectors>
+	<Injectors target="{KeywordLimitItem}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentClient"
+			targetKey="currentClient" />
+	</Injectors>
+	<Injectors target="{ReservedKeywordView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="reservedKeywords"
+			targetKey="reservedKeywords" />
 	</Injectors>
 </EventMap>

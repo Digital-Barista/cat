@@ -12,10 +12,14 @@
 package mx.managers
 {
 
+import flash.display.Stage;
+import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.external.ExternalInterface;
-import mx.events.BrowserChangeEvent;
+import flash.net.navigateToURL;
+import flash.net.URLRequest;
 import mx.core.ApplicationGlobals;
+import mx.events.BrowserChangeEvent;
 
 /**
  *  Dispatched when the fragment property is changed either
@@ -79,6 +83,12 @@ public class BrowserManagerImpl extends EventDispatcher implements IBrowserManag
 
     private var _defaultFragment:String = "";
     
+    private var _browserUserAgent:String;
+    
+    private var _browserPlatform:String;
+    
+    private var _isFirefoxMac:Boolean;
+    
     //--------------------------------------------------------------------------
     //
     //  Class methods
@@ -108,6 +118,46 @@ public class BrowserManagerImpl extends EventDispatcher implements IBrowserManag
     public function BrowserManagerImpl()
     {
         super();
+
+		// we want to reduce dependencies for non-flex apps that use resources (e.g. rpc)
+		var systemManager:Object = SystemManagerGlobals.topLevelSystemManagers;
+		if (systemManager)
+			systemManager = systemManager[0];
+
+		if (systemManager)
+		{
+			// figure out if we're top level, even if bootstrapped
+			var sandboxRoot:Object = systemManager.getSandboxRoot();
+			if (!sandboxRoot.dispatchEvent(new Event("mx.managers::BrowserManager", false, true)))
+			{
+				// if someone answered, then we're not the first BM
+				browserMode = false;
+				return;
+			}
+			
+			try
+			{
+				// see if we can walk to the stage
+				var parent:Object = sandboxRoot.parent;
+				while (parent)
+				{
+					if (sandboxRoot.parent is Stage)
+					{
+						break;
+					}
+					else
+					{
+						parent = parent.parent;
+					}
+				}
+			}
+			catch (e:Error)
+			{
+				browserMode = false;
+				return;
+			}
+			sandboxRoot.addEventListener("mx.managers::BrowserManager", sandboxBrowserManagerHandler, false, 0, true);
+		}    
 
         try
         {
@@ -239,7 +289,7 @@ public class BrowserManagerImpl extends EventDispatcher implements IBrowserManag
 
         _defaultFragment = defaultFragment;
         _url = ExternalInterface.call("BrowserHistory.getURL");
-    
+        
 		// probably no support in html wrapper
 		if (!_url)
 		{
@@ -247,6 +297,15 @@ public class BrowserManagerImpl extends EventDispatcher implements IBrowserManag
 			return;
 		}
 
+        _browserUserAgent = ExternalInterface.call("BrowserHistory.getUserAgent");
+        _browserPlatform = ExternalInterface.call("BrowserHistory.getPlatform");
+        
+        // Unlike browser.js we specifically test for the Firefox browser (vs. other
+        // Gecko or Mozilla derivatives), as the bug fix included in this file that
+        // leverages this flag is very specific to Firefox/Mac.
+        _isFirefoxMac = (_browserUserAgent && _browserPlatform && 
+            _browserUserAgent.indexOf("Firefox") > -1 && _browserPlatform.indexOf("Mac") > -1);
+        
         var pos:int = _url.indexOf('#');
         if (pos == -1 || pos == _url.length - 1)
         {
@@ -301,7 +360,19 @@ public class BrowserManagerImpl extends EventDispatcher implements IBrowserManag
         
         if (dispatchEvent(new BrowserChangeEvent(BrowserChangeEvent.APPLICATION_URL_CHANGE, false, true, _url, lastURL)))
         {
-            ExternalInterface.call("BrowserHistory.setBrowserURL", value, ExternalInterface.objectID);
+            if (!_isFirefoxMac)
+            {
+                ExternalInterface.call("BrowserHistory.setBrowserURL", value, ExternalInterface.objectID);
+            }
+            else
+            {
+                // We need to avoid updating our browser URL with ExternalInterface, when we are 
+                // running within Firefox/Mac.  Player rendering bug logged 2276859. 
+                var urlReq:URLRequest = new URLRequest("javascript:BrowserHistory.setBrowserURL('" + 
+                    value + "','" + ExternalInterface.objectID + "');");
+                navigateToURL( urlReq , "_self" );
+            }
+            
             dispatchEvent(new BrowserChangeEvent(BrowserChangeEvent.URL_CHANGE, false, false, _url, lastURL));
         }
         else
@@ -344,8 +415,8 @@ public class BrowserManagerImpl extends EventDispatcher implements IBrowserManag
     private function browserURLChange(fragment:String, force:Boolean = false):void
     {
         //trace("browserURLChange: |" + decodeURI(fragment) + "|, |" + decodeURI(_fragment) + "|" + ", " + force.toString());
-        if ((decodeURI(_fragment) != decodeURI(fragment)) || force)
-		{
+        if (((fragment != null) && (decodeURI(_fragment) != decodeURI(fragment))) || force)
+	{
             _fragment = fragment;
 
             var lastURL:String = url;
@@ -356,6 +427,12 @@ public class BrowserManagerImpl extends EventDispatcher implements IBrowserManag
             dispatchEvent(new BrowserChangeEvent(BrowserChangeEvent.URL_CHANGE, false, false, url, lastURL));
         }
     }
+
+	private function sandboxBrowserManagerHandler(event:Event):void
+	{
+		// cancel event to indicate that the message was heard
+		event.preventDefault();
+	}
 
     //--------------------------------------------------------------------------
     //

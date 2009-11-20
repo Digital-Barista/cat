@@ -9,11 +9,15 @@
 		<property name="cat.home" value="../campaign-administration-tool"/>
 	</target>
 	
+	<target name="set.cat.utils.home" unless="cat.utils.home">
+		<property name="cat.utils.home" value="../cat-utils"/>
+	</target>
+	
 	<target name="set.cat.data.home" unless="cat.data.home">
 		<property name="cat.data.home" value="../cat-data"/>
 	</target>
 	
-	<target name="init" depends="set.cat.home,set.cat.data.home">
+	<target name="init" depends="set.cat.home,set.cat.data.home,set.cat.utils.home">
 		<path id="ear.classpath">
 			<fileset dir="${cat.home}">
 				<include name="lib/*.jar"/>
@@ -22,6 +26,9 @@
 			</fileset>
 			<fileset dir="${cat.data.home}">
 				<include name="deploy/cat-data.jar"/>
+			</fileset>
+			<fileset dir="${cat.utils.home}">
+				<include name="deploy/cat-utils.jar"/>
 			</fileset>
 		</path>
 	</target>
@@ -34,7 +41,8 @@
 	</target>
 	
 	<target name="build" depends="clean">
-		<javac classpathref="ear.classpath" srcdir="${src.home}" destdir="${build.dir}"/>
+		<javac classpathref="ear.classpath" srcdir="${src.home}" destdir="${build.dir}"
+			debug="true" debuglevel="lines,vars,source"/>
 	</target>
 	
 	<target name="make-jar" depends="build">

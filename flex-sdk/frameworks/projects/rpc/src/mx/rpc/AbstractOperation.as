@@ -91,6 +91,12 @@ public class AbstractOperation extends AbstractInvoker
     public var arguments:Object;
 
     /**
+     * This is a hook primarily for framework developers to register additional user 
+     * specified properties for your operation.
+     */
+    public var properties:Object;
+
+    /**
      *  @private
      */
     private var resourceManager:IResourceManager =
@@ -168,7 +174,7 @@ public class AbstractOperation extends AbstractInvoker
      * are no arguments passed, the arguments object is used as the source of 
      * parameters.
      *
-     * @return AsyncToken Call using the asynchronous completion token pattern.
+     * @return AsyncToken object.
      * The same object is available in the <code>result</code> and
      * <code>fault</code> events from the <code>token</code> property.
      *
@@ -199,8 +205,9 @@ public class AbstractOperation extends AbstractInvoker
             }
             else
             {
+                if (_service != null)
                 _service.dispatchEvent(event);
-            }
+            }            
         }
     }
 

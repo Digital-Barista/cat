@@ -499,11 +499,20 @@ public class ObjectUtil
                         refs = new Dictionary(true);
 
                     // Check to be sure we haven't processed this object before
-                    var id:Object = refs[value];
-                    if (id != null)
+                    // Dictionary has some bugs, so we want to work around them as best we can
+                    try
                     {
-                        str += "#" + int(id);
-                        return str;
+                        var id:Object = refs[value];
+                        if (id != null)
+                        {
+                            str += "#" + int(id);
+                            return str;
+                        }
+                    }
+                    catch (e:Error)
+                    {
+                        //Since we can't test for infinite loop, we simply return toString.
+                        return String(value);
                     }
                     
                     if (value != null)
@@ -1104,7 +1113,10 @@ public class ObjectUtil
                             if (existing is Array)
                                 existingArray = existing as Array;
                             else
-                                existingArray = [];
+                            {
+                                existingArray = [existing];
+                                delete metadata[mdName];
+                            }
                             existingArray.push(value);
                             existing = existingArray;
                         }
@@ -1208,6 +1220,10 @@ public class ObjectUtil
     private static function byteArrayCompare(a:ByteArray, b:ByteArray):int
     {
         var result:int = 0;
+        
+        if (a == b)
+            return result;
+            
         if (a.length != b.length)
         {
             if (a.length < b.length)
@@ -1217,11 +1233,9 @@ public class ObjectUtil
         }
         else
         {
-            a.position = 0;
-            b.position = 0;
             for (var i:int = 0; i < a.length; i++)
             {
-                result = numericCompare(a.readByte(), b.readByte());
+                result = numericCompare(a[i], b[i]);
                 if (result != 0)
                 {
                     i = a.length;

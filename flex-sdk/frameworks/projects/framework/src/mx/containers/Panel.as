@@ -16,6 +16,7 @@ import flash.display.DisplayObject;
 import flash.display.Graphics;
 import flash.events.Event;
 import flash.events.MouseEvent;
+import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.text.TextLineMetrics;
 import flash.utils.getQualifiedClassName;
@@ -44,6 +45,7 @@ import mx.core.UITextFormat;
 import mx.core.mx_internal;
 import mx.effects.EffectManager;
 import mx.events.CloseEvent;
+import mx.events.SandboxMouseEvent;
 import mx.managers.ISystemManager;
 import mx.styles.ISimpleStyleClient;
 import mx.styles.IStyleClient;
@@ -485,7 +487,7 @@ public class Panel extends Container
      *  @private
      */
     private var autoSetRoundedCorners:Boolean;
-    
+
     //--------------------------------------------------------------------------
     //
     //  Overridden properties
@@ -1395,6 +1397,25 @@ public class Panel extends Container
             g.drawRect(0, 0, titleBarWidth, headerHeight);
             g.endFill();
             
+            // Also draw an invisible unfilled rect whose height
+			// is the height of the entire Panel, not just the headerHeight.
+            // This is for accessibility; the titlebar of the Panel
+            // has an AccessibilityImplementation (see PanelAccImpl)
+            // which makes it act like a grouping (ROLE_SYSTEM_GROUPING)
+            // for the controls inside the panel.
+            // Drawing this rect makes the accLocation rect of the grouping
+            // enclose the controls inside the grouping,
+            // even though it is a sibling of them, not their parent.
+            // (This is because the Player doesn't support Sprites
+            // with AccessibilityImplementations inside other Sprites
+            // with AccessibilityImplementations; the accessible objects
+            // in a Flash SWF are a flat list, not a hierarchy.)
+            // This rectangle must be unfilled because the titleBar is
+            // actually on top of the content area and would otherwise
+            // block mouse events to the controls in the Panel.
+            g.lineStyle(0, 0x000000, 0);
+            g.drawRect(0, 0, titleBarWidth, unscaledHeight);
+            
             // Position the titleBar.
             titleBar.move(x, y);
             titleBar.setActualSize(titleBarWidth, headerHeight);
@@ -1768,15 +1789,19 @@ public class Panel extends Container
     {
         regX = event.stageX - x;
         regY = event.stageY - y;
-        
-        systemManager.addEventListener(
+
+        var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+        sbRoot.addEventListener(
             MouseEvent.MOUSE_MOVE, systemManager_mouseMoveHandler, true);
 
-        systemManager.addEventListener(
+        sbRoot.addEventListener(
             MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);
 
-        systemManager.stage.addEventListener(
-            Event.MOUSE_LEAVE, stage_mouseLeaveHandler);
+        sbRoot.addEventListener(
+            SandboxMouseEvent.MOUSE_UP_SOMEWHERE, stage_mouseLeaveHandler);
+
+        // add the mouse shield so we can drag over untrusted applications.
+        systemManager.deployMouseShields(true);
     }
 
     /**
@@ -1785,17 +1810,20 @@ public class Panel extends Container
      */
     protected function stopDragging():void
     {
-        systemManager.removeEventListener(
+        var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+        sbRoot.removeEventListener(
             MouseEvent.MOUSE_MOVE, systemManager_mouseMoveHandler, true);
 
-        systemManager.removeEventListener(
+        sbRoot.removeEventListener(
             MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);
 
-        systemManager.stage.removeEventListener(
-            Event.MOUSE_LEAVE, stage_mouseLeaveHandler);
+        sbRoot.removeEventListener(
+            SandboxMouseEvent.MOUSE_UP_SOMEWHERE, stage_mouseLeaveHandler);
 
         regX = NaN;
         regY = NaN;
+
+        systemManager.deployMouseShields(false);
     }
 
     /**
@@ -1878,6 +1906,13 @@ public class Panel extends Container
         // changes a lot -- but this listener only exists during a drag.
         event.stopImmediatePropagation();
         
+    	if (isNaN(regX) || isNaN(regY))
+    	{
+    		// trace("all the mouse moves were not turned off");
+    		return;
+    	}
+    	
+    	// trace("systemManager_mouseMoveHandler " + event);
         move(event.stageX - regX, event.stageY - regY);
     }
 
@@ -1886,6 +1921,7 @@ public class Panel extends Container
      */
     private function systemManager_mouseUpHandler(event:MouseEvent):void
     {
+        // trace("systemManager_mouseUpHandler: " + event);
         if (!isNaN(regX))
             stopDragging();
     }
@@ -1895,6 +1931,7 @@ public class Panel extends Container
      */
     private function stage_mouseLeaveHandler(event:Event):void
     {
+        // trace("stage_mouseLeaveHandler: " + event);
         if (!isNaN(regX))
             stopDragging();
     }

@@ -500,6 +500,35 @@ public class ListCollectionView extends Proxy
         }
         list.addItemAt(item, listIndex);
     }
+    
+    /**
+     *  Adds a list of items to the current list, placing them at the end of
+     *  the list in the order they are passed.
+     * 
+     *  @param IList The list of items to add to the current list
+     */
+    public function addAll(addList:IList):void
+    {
+        addAllAt(addList, length);
+    }
+    
+    /**
+     *  Adds a list of items to the current list, placing them at the position
+     *  index passed in to the function.  The items are placed at the index location
+     *  and placed in the order they are recieved.
+     * 
+     *  @param IList The list of items to add to the current list
+     *  @param index The location of the current list to place the new items.
+     *  @throws RangeError if index is less than 0 or greater than the length of the list. 
+     */
+    public function addAllAt(addList:IList, index:int):void
+    {
+        var length:int = addList.length;
+        for(var i:int=0; i < length; i++)
+        {
+            this.addItemAt(addList.getItemAt(i), i+index);
+        }
+    }
 
     /**
      * @inheritDoc 
@@ -1114,8 +1143,24 @@ public class ListCollectionView extends Proxy
                 var j:int = 0;
                 for (; j < updatedItems.length; j++)
                 {
-                     if (updatedItems[j].item == item)
+					if (updatedItems[j].item == item)
+					{
+						// even if it is, if a different property changed, track that too.
+						var events:Array = updatedItems[j].events;
+						var l:int = events.length;
+						for (var k:int = 0; k < l; k++)
+						{
+							if (events[k].property != updateInfo.property)
+							{
+								events.push(updateInfo);
+								break;
+							}
+							// we could also merge events for changes to the same
+							// property but that's hopefully low probability
+							// and leads to questions of event order.
+						}
                         break;
+					}
                 }
 
                 if (j < updatedItems.length)
@@ -1124,7 +1169,7 @@ public class ListCollectionView extends Proxy
                 }
                 else
                 {
-                    updateEntry = { item: item, move: defaultMove, event:updateInfo};
+                    updateEntry = { item: item, move: defaultMove, events: [ updateInfo ] };
                     updatedItems.push(updateEntry);
                 }
 
@@ -1140,6 +1185,8 @@ public class ListCollectionView extends Proxy
                     || (sort && sort.propertyAffectsSort(String(updateInfo.property)));
             }
 
+			// go through the items and move and send move events for ones that moved
+			// and build the list of remaining items we need to send UPDATE events for
             eventItems = [];
             for (i = 0; i < updatedItems.length; i++)
             {
@@ -1153,11 +1200,17 @@ public class ListCollectionView extends Proxy
                     eventItems.push(updateEntry.item);
                 }
             }
+
+			// now go through the updated items and add all events for all 
+			// properties that changed in that item (except for those items
+			// we moved
             var temp:Array = [];
             for (var ctr:int = 0; ctr < eventItems.length; ctr++)
                 for (var ctr1:int = 0; ctr1 < updatedItems.length; ctr1++)
                     if (eventItems[ctr] == updatedItems[ctr1].item)
-                        temp.push(updatedItems[ctr1].event);
+					{
+                        temp = temp.concat(updatedItems[ctr1].events);
+					}
             eventItems = temp;
         }
 

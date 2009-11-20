@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.digitalbarista.cat.audit.IncomingMessageEntryDO;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
@@ -63,6 +64,11 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			input = e.getArgs().get("message");
 			auditEntry.setIncomingType(EntryPointType.SMS);
 		}
+		else if (e.getSourceType().equals(CATEventSource.TwitterEndpoint))
+		{
+			input = e.getArgs().get("message");
+			auditEntry.setIncomingType(EntryPointType.Twitter);
+		}
 		
 		//Finish setting up the audit entry.  And save it.
 		//  The only way this WON'T save is if we roll back the transaction.
@@ -90,6 +96,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			case SMSEndpoint:
 				q=getEntityManager().createNamedQuery("subscriber.by.phone");
 				break;
+			
+			case TwitterEndpoint:
+				q=getEntityManager().createNamedQuery("subscriber.by.twitter");
+				break;
 				
 			default:
 				throw new IllegalArgumentException("Invalid endpoint type specified.");
@@ -115,6 +125,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				case SMSEndpoint:
 					sub.setPhoneNumber(e.getTarget());
 					break;
+					
+				case TwitterEndpoint:
+					sub.setTwitterUsername(e.getTarget());
+					break;
 			}
 			getEntityManager().persist(sub);
 		}
@@ -133,6 +147,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			case SMSEndpoint:
 				q.setParameter("type", EntryPointType.SMS);
 				break;
+				
+			case TwitterEndpoint:
+				q.setParameter("type", EntryPointType.Twitter);
+				break;
 		}
 		q.setParameter("entryPoint", e.getSource());
 		List<CampaignEntryPointDO> entries = (List<CampaignEntryPointDO>)q.getResultList();
@@ -141,13 +159,13 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		//  that there's at least one non-whitespace letter, because of
 		//  the previous .trim() length check.
 		String[] splitInput = input.split("\\s");
-		String keyword=splitInput[0]; //By definition keyword is the first word in the message.
+		String possibleGlobalStop=splitInput[0];
 		
 		//First, double-check that the keyword isn't an unsubscribe request.
 		try
 		{
 			//If this isn't an unsubscribe keyword, we'll exception out and move on.
-			GlobalUnsubscribeKeywords.valueOf(keyword.toUpperCase());
+			GlobalUnsubscribeKeywords.valueOf(possibleGlobalStop.toUpperCase());
 			
 			//But, since it is, we'll unsubscribe from EVERY campaign that
 			// has this incoming address.
@@ -166,6 +184,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				case SMSEndpoint:
 					newBL.setType(EntryPointType.SMS);
 					break;
+					
+				case TwitterEndpoint:
+					newBL.setType(EntryPointType.Twitter);
+					break;
 			}
 			newBL.setSubscriber(sub);
 			getEntityManager().persist(newBL);
@@ -183,30 +205,43 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			return;
 		}
 		
+		//Since we're matching potentially keyPHRASES, we'll have to put the phrase back together.
+		String keyphrase="";
+		for(String word : splitInput)
+		{
+			if(word==null)
+				continue;
+			if(keyphrase.length()>0)
+				keyphrase+=" "+word;
+			else
+				keyphrase+=word;
+		}
+		keyphrase = keyphrase.toUpperCase();
+		
 		//Now we go through the entry points 'til we find the right keyword.
-		CampaignEntryPointDO possibleEntry=null;
+		CampaignEntryPointDO mostLikelyEntry=null;
+		int longestMatch=0;
 		for(CampaignEntryPointDO entry : entries)
 		{
-			if(keyword.equalsIgnoreCase(entry.getKeyword()))
+			if(keyphrase.startsWith(entry.getKeyword().toUpperCase()))
 			{
-				if(possibleEntry!=null)
+				if(longestMatch<entry.getKeyword().length())
 				{
-					log.error("Unable to determine correct entry point based on submitted message.");
-					return;
+					mostLikelyEntry = entry;
+					longestMatch=entry.getKeyword().length();
 				}
-				possibleEntry = entry;
 			}
 		}
 
 		//If we didn't find it, they sent us a bad keyword.
-		if(possibleEntry==null)
+		if(mostLikelyEntry==null)
 			return;
 		
 		//If they are not subscribed, we check for an entry point.
-		if(!sub.getSubscriptions().containsKey(possibleEntry.getCampaign()))
+		if(!sub.getSubscriptions().containsKey(mostLikelyEntry.getCampaign()))
 		{
 			EntryNode en=null;
-			Campaign camp = getCampaignManager().getLastPublishedCampaign(possibleEntry.getCampaign().getUID());
+			Campaign camp = getCampaignManager().getLastPublishedCampaign(mostLikelyEntry.getCampaign().getUID());
 			if(camp==null)
 				return;
 			
@@ -215,11 +250,14 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			{
 				if(node.getType().equals(NodeType.Entry))
 				{
-					if(!((EntryNode)node).getKeyword().equals(possibleEntry.getKeyword())) continue;
-					if(!((EntryNode)node).getEntryPoint().equals(possibleEntry.getEntryPoint())) continue;
-					if(!((EntryNode)node).getEntryType().equals(possibleEntry.getType())) continue;
-					en=(EntryNode)node;
-					break;
+					for(EntryData data : ((EntryNode)node).getEntryData())
+					{
+						if(!data.getKeyword().equals(mostLikelyEntry.getKeyword())) continue;
+						if(!data.getEntryPoint().equals(mostLikelyEntry.getEntryPoint())) continue;
+						if(!data.getEntryType().equals(mostLikelyEntry.getType())) continue;
+						en=(EntryNode)node;
+					}
+					if(en!=null) break;
 				}
 			}
 
@@ -232,8 +270,8 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			//First . . . clear the blacklist.
 			q = getEntityManager().createNamedQuery("blacklist.entry");
 			q.setParameter("subID", sub.getPrimaryKey());
-			q.setParameter("address", possibleEntry.getEntryPoint());
-			q.setParameter("type", possibleEntry.getType());
+			q.setParameter("address", mostLikelyEntry.getEntryPoint());
+			q.setParameter("type", mostLikelyEntry.getType());
 			try
 			{
 				getEntityManager().remove(q.getSingleResult());
@@ -241,41 +279,52 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			
 			//Now . . . get that guy subscribed.
 			CampaignSubscriberLinkDO csl = new CampaignSubscriberLinkDO();
-			csl.setCampaign(possibleEntry.getCampaign());
+			csl.setCampaign(mostLikelyEntry.getCampaign());
 			csl.setSubscriber(sub);
 			csl.setLastHitNode(getCampaignManager().getSimpleNode(en.getUid()));
+			csl.setLastHitEntryType(mostLikelyEntry.getType());
+			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
 			getEntityManager().persist(csl);
 			CATEvent fireImmediateConnectorsEvent = CATEvent.buildNodeOperationCompletedEvent(en.getUid(), sub.getPrimaryKey().toString());
 			getEventManager().queueEvent(fireImmediateConnectorsEvent);
 		} else {
 			//since they're subscribed, we're going to assume we're triggering a response
 			// connector.  Otherwise we ignore it.
-			CampaignSubscriberLinkDO csl = sub.getSubscriptions().get(possibleEntry.getCampaign());
+			CampaignSubscriberLinkDO csl = sub.getSubscriptions().get(mostLikelyEntry.getCampaign());
+			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
+			csl.setLastHitEntryType(mostLikelyEntry.getType());
 			Integer publishedVersion = csl.getCampaign().getCurrentVersion()-1;
 			Node node = getCampaignManager().getSpecificNodeVersion(csl.getLastHitNode().getUID(), publishedVersion);
 			Connector conn;
 			for(String connUID : node.getDownstreamConnections())
 			{
 				conn=getCampaignManager().getSpecificConnectorVersion(connUID, publishedVersion);
+				
 				if(conn.getType().equals(ConnectorType.Response))
 				{
 					ResponseConnector rConn = (ResponseConnector)conn;
-					if(!keyword.equalsIgnoreCase(rConn.getKeyword()))
-						continue;
-					switch(e.getSourceType())
+					for(EntryData data : rConn.getEntryData())
 					{
-					case EmailEndpoint:
-						if(!rConn.getEntryPointType().equals(EntryPointType.Email)) continue;
-						break;
-					case SMSEndpoint:
-						if(!rConn.getEntryPointType().equals(EntryPointType.SMS)) continue;
-						break;
-					default:
-						continue;
+						if(!keyphrase.equalsIgnoreCase(data.getKeyword()))
+							continue;
+						switch(e.getSourceType())
+						{
+							case EmailEndpoint:
+								if(!data.getEntryType().equals(EntryPointType.Email)) continue;
+								break;
+							case SMSEndpoint:
+								if(!data.getEntryType().equals(EntryPointType.SMS)) continue;
+								break;
+							case TwitterEndpoint:
+								if(!data.getEntryType().equals(EntryPointType.Twitter)) continue;
+								break;
+							default:
+								continue;
+						}
+						CATEvent fireConnectorEvent = CATEvent.buildFireConnectorForSubscriberEvent(rConn.getUid(), sub.getPrimaryKey().toString());
+						getEventManager().queueEvent(fireConnectorEvent);
+						return;
 					}
-					CATEvent fireConnectorEvent = CATEvent.buildFireConnectorForSubscriberEvent(rConn.getUid(), sub.getPrimaryKey().toString());
-					getEventManager().queueEvent(fireConnectorEvent);
-					return;
 				}
 			}
 			//If we simply drop out of this loop, it didn't match.  And we thus ignore it.

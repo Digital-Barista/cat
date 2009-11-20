@@ -2069,6 +2069,29 @@ public class Container extends UIComponent
             }
         }
     }
+    
+    /**
+     *  @private
+     *  We're doing special behavior on addEventListener to make sure that 
+     *  we successfully capture mouse events, even when there's no background.
+     *  However, this means adding an event listener changes the behavior 
+     *  a little, and this can be troublesome for overlapping components
+     *  that now don't get any mouse events.  This is acceptable normally; 
+     *  however, automation adds certain events to the Container, and 
+     *  it'd be better if automation support didn't modify the behavior of 
+     *  the component.  For this reason, especially, we have an mx_internal 
+     *  $addEventListener to add event listeners without affecting the behavior 
+     *  of the component.
+     */
+    mx_internal function $addEventListener(
+                            type:String, listener:Function,
+                            useCapture:Boolean = false,
+                            priority:int = 0,
+                            useWeakReference:Boolean = false):void
+    {
+        super.addEventListener(type, listener, useCapture,
+                               priority, useWeakReference);
+    }
 
     /**
      *  @private
@@ -2098,6 +2121,26 @@ public class Container extends UIComponent
                 setStyle("mouseShieldChildren", false);
             }
         }
+    }
+    
+    /**
+     *  @private
+     *  We're doing special behavior on removeEventListener to make sure that 
+     *  we successfully capture mouse events, even when there's no background.
+     *  However, this means removing an event listener changes the behavior 
+     *  a little, and this can be troublesome for overlapping components
+     *  that now don't get any mouse events.  This is acceptable normally; 
+     *  however, automation adds certain events to the Container, and 
+     *  it'd be better if automation support didn't modify the behavior of 
+     *  the component.  For this reason, especially, we have an mx_internal 
+     *  $removeEventListener to remove event listeners without affecting the behavior 
+     *  of the component.
+     */
+    mx_internal function $removeEventListener(
+                              type:String, listener:Function,
+                              useCapture:Boolean = false):void
+    {
+        super.removeEventListener(type, listener, useCapture);
     }
 
     //--------------------------------------------------------------------------
@@ -2195,7 +2238,14 @@ public class Container extends UIComponent
     {
         var formerParent:DisplayObjectContainer = child.parent;
         if (formerParent && !(formerParent is Loader))
+	{
+            // Adjust index if necessary when former parent happens
+            // to be the same container.
+            if (formerParent == this)
+                index = (index == numChildren) ? index - 1 : index;
+
             formerParent.removeChild(child);
+	}
             
         addingChild(child);
 
@@ -3704,7 +3754,7 @@ public class Container extends UIComponent
         //     <VBox>
         //         <Button>
         var id:String = descriptor.id;
-        if (id != null && document[id] == null)
+        if (id != null && (id in document) && document[id] == null)
             return false;
 
         var n:int = numChildren;

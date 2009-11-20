@@ -50,5 +50,6 @@
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_KEYWORDS}" />
+		<EventAnnouncer type="{ClientEvent.LIST_RESERVED_KEYWORD}" />
 	</EventHandlers>
 </EventMap>

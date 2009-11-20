@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <actionScriptProperties mainApplicationPath="client.mxml" version="3">
-  <compiler additionalCompilerArguments="-services &quot;..\..\cat-web\WebContent\WEB-INF\flex\services-config.xml&quot; -locale en_US -default-background-color #000000" copyDependentFiles="true" enableModuleDebug="true" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersion="10.0.0" htmlPlayerVersionCheck="true" outputFolderPath="bin-debug" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
+  <compiler additionalCompilerArguments="-services &quot;..\..\cat-web\WebContent\WEB-INF\flex\services-config.xml&quot; -locale en_US  -default-background-color #000000" copyDependentFiles="true" enableModuleDebug="true" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersion="10.0.0" htmlPlayerVersionCheck="true" outputFolderPath="bin-debug" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
     <compilerSourcePath>
-      <compilerSourcePathEntry kind="1" linkType="1" path="${DOCUMENTS}/cat-common-flex/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="${DOCUMENTS}/cat/cat-common-flex/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="${DOCUMENTS}/cat/flex-common-lib/src"/>
     </compilerSourcePath>
     <libraryPath defaultLinkType="1">
       <libraryPathEntry kind="4" path=""/>
       <libraryPathEntry kind="1" linkType="1" path="libs"/>
-      <libraryPathEntry kind="3" linkType="1" path="${DOCUMENTS}/cat-web/WebContent/WEB-INF/flex/libs/fds.swc" useDefaultLinkType="false"/>
-      <libraryPathEntry kind="3" linkType="1" path="${DOCUMENTS}/cat-web/WebContent/WEB-INF/flex/libs/player/playerfds.swc" useDefaultLinkType="false"/>
-      <libraryPathEntry kind="1" linkType="1" path="${DOCUMENTS}/cat-web/WebContent/WEB-INF/flex/locale/{locale}"/>
+      <libraryPathEntry kind="3" linkType="1" path="${DOCUMENTS}/cat/cat-web/WebContent/WEB-INF/flex/libs/fds.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="${DOCUMENTS}/cat/cat-web/WebContent/WEB-INF/flex/libs/player/playerfds.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="1" linkType="1" path="${DOCUMENTS}/cat/cat-web/WebContent/WEB-INF/flex/locale/{locale}"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>

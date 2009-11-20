@@ -15,11 +15,12 @@ package mx.rpc.xml
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import mx.collections.ArrayCollection;
+import mx.collections.IList;
+import mx.messaging.config.LoaderConfig;
 import mx.utils.DescribeTypeCache;
 import mx.utils.object_proxy;
 import mx.utils.ObjectProxy;
 import mx.utils.ObjectUtil;
-import mx.collections.IList;
 
 [ExcludeClass]
 
@@ -33,6 +34,16 @@ public class XMLEncoder extends SchemaProcessor implements IXMLEncoder
     public function XMLEncoder()
     {
         super();
+        
+        // Depending on the target player version, xml characters in strings
+        // need or need not be escaped. Prior to version 10, Flex needs to
+        // do it. The version test to determine this behavior is done here, so
+        // that it's not repeated every time xml content is encoded. This is a
+        // fix for bug SDK-18326.
+        if (LoaderConfig.swfVersion >= 10)
+        {
+            _escapeXMLChars = false;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -838,6 +849,10 @@ public class XMLEncoder extends SchemaProcessor implements IXMLEncoder
         var maxOccurs:uint = getMaxOccurs(definition);
         var minOccurs:uint = getMinOccurs(definition);
 
+        // If the maximum occurence is 0 this element must not be present.
+        if (maxOccurs == 0)
+            return true;
+
         isRequired = isRequired && minOccurs > 0;
 
         // <element ref="..."> may be used to point to a top-level element definition
@@ -849,10 +864,6 @@ public class XMLEncoder extends SchemaProcessor implements IXMLEncoder
             if (definition == null)
                 throw new Error("Cannot resolve element definition for ref '" + ref + "'");
         }
-
-        // If the maximum occurence is 0 this element must not be present.
-        if (maxOccurs == 0)
-            return true;
 
         var elementName:String = definition.@name.toString();
         var elementQName:QName = schemaManager.getQNameForElement(elementName, getAttributeFromNode("form", definition));
@@ -870,6 +881,10 @@ public class XMLEncoder extends SchemaProcessor implements IXMLEncoder
             if (encodedElement != null)
                 appendValue(siblings, encodedElement);
 
+            // If we found our element by reference, we now release the schema scope
+            if (ref != null)
+                schemaManager.releaseScope();
+
             // if required, but no value was encoded, the definition is not
             // satisfied
             if (isRequired  && encodedElement == null)
@@ -879,9 +894,6 @@ public class XMLEncoder extends SchemaProcessor implements IXMLEncoder
             return true;
         }
 
-
-        
-        
         // We treat maxOccurs="1" as a special case and not check the
         // occurence because we need to pass through values to SOAP
         // encoded Arrays which do not rely on minOccurs/maxOccurs
@@ -1850,7 +1862,10 @@ public class XMLEncoder extends SchemaProcessor implements IXMLEncoder
     private function escapeXML(value:Object):String
     {
         var str:String = value.toString();
-        str = str.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+        if (_escapeXMLChars)
+        {
+            str = str.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+        }
         return str;
     }
     
@@ -1907,6 +1922,7 @@ public class XMLEncoder extends SchemaProcessor implements IXMLEncoder
 
     private var _strictNillability:Boolean = false;
     private var _xmlSpecialCharsFilter:Function = escapeXML;
+    private var _escapeXMLChars:Boolean = true;
 
 }
 

@@ -17,6 +17,7 @@ package com.dbi.cat.common.vo
 		public var adminAddInMessage:String;
 		public var userAddInMessage:String;
 		public var entryPoints:ArrayCollection;
+		public var keywordLimits:ArrayCollection;
 		
 		public function get children():ArrayCollection
 		{

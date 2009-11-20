@@ -8,11 +8,12 @@ package com.dbi.cat.constants
 		
 		public static const ENTRY_POINT:String = "Entry Point";
 		public static const MESSAGE:String = "Message";
+		public static const COUPON:String = "Coupon";
 		
-		public static const DATE_CONNECTOR:String = "Date Connector";
-		public static const INTERVAL_CONNECTOR:String = "Interval Connector";
-		public static const IMMEDIATE_CONNECTOR:String = "Immediate Connector";
-		public static const RESPONSE_CONNECTOR:String = "Response Connector";
+		public static const DATE_CONNECTOR:String = "Date";
+		public static const INTERVAL_CONNECTOR:String = "Interval";
+		public static const IMMEDIATE_CONNECTOR:String = "Immediate";
+		public static const RESPONSE_CONNECTOR:String = "Response";
 
 	}
 }

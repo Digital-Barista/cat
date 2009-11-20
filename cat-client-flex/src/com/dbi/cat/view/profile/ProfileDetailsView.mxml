@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" xmlns:profile="com.dbi.cat.view.profile.*" 
+	title="Details"  layout="absolute">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.vo.UserVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.event.UserEvent;
+			import com.dbi.cat.event.ClientEvent;
+			
+			[Bindable]
+			public var currentUser:UserVO;
+			
+			[Bindable]
+			public var currentClient:ClientVO;
+			
+			private function editUser():void
+			{
+				var event:UserEvent = new UserEvent(UserEvent.EDIT_USER);
+				event.user = currentUser;
+				dispatchEvent(event);
+			}
+			private function editClient():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_CLIENT);
+				event.client = currentClient;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Canvas width="400"  horizontalCenter="0" y="10" height="193" borderStyle="solid" cornerRadius="5" borderThickness="3">
+		<profile:UserInformationView
+			id="UserInfo"
+			user="{currentUser}"
+			right="0" left="5" top="30" bottom="54">
+		</profile:UserInformationView>
+			<mx:Button label="Edit"
+				click="editUser()"  x="320" y="155"/>
+			<mx:Label x="10" y="10" text="User Information" fontWeight="bold" fontSize="12"/>
+	</mx:Canvas>
+	<mx:Canvas width="400" horizontalCenter="0" top="211" height="225" borderStyle="solid" cornerRadius="5" borderThickness="3">
+		<profile:ClientInformationView
+			id="ClientInfo"
+			client="{currentClient}"
+			left="5" top="30" bottom="40" right="0">
+		</profile:ClientInformationView>
+			<mx:Button label="Edit"
+				click="editClient()"  x="320" y="187"/>
+			<mx:Label x="10" y="10" text="Client Information" fontWeight="bold" fontSize="12"/>
+	</mx:Canvas>
+</mx:Panel>

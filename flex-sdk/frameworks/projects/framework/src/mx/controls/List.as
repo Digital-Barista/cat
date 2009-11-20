@@ -58,10 +58,12 @@ import mx.events.CollectionEvent;
 import mx.events.CollectionEventKind;
 import mx.events.ListEvent;
 import mx.events.ListEventReason;
+import mx.events.SandboxMouseEvent;
 import mx.events.ScrollEvent;
 import mx.events.ScrollEventDetail;
 import mx.managers.IFocusManager;
 import mx.managers.IFocusManagerComponent;
+import mx.managers.ISystemManager;
 import mx.styles.StyleManager;
 import mx.collections.ItemWrapper;
 import mx.collections.ModifiedCollectionView;
@@ -2061,7 +2063,10 @@ public class List extends ListBase implements IIMESupport
         DisplayObject(itemEditorInstance).addEventListener(KeyboardEvent.KEY_DOWN, editorKeyDownHandler);
         // we disappear on any mouse down outside the editor
         // use weak reference
-        stage.addEventListener(MouseEvent.MOUSE_DOWN, editorMouseDownHandler, true, 0, true);
+        systemManager.getSandboxRoot().
+            addEventListener(MouseEvent.MOUSE_DOWN, editorMouseDownHandler, true, 0, true);
+        systemManager.getSandboxRoot().
+            addEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE, editorMouseDownHandler, false, 0, true);
 
     }
 
@@ -2125,8 +2130,10 @@ public class List extends ListBase implements IIMESupport
         if (itemEditorInstance)
         {
             DisplayObject(itemEditorInstance).removeEventListener(KeyboardEvent.KEY_DOWN, editorKeyDownHandler);
-            if (stage)
-                stage.removeEventListener(MouseEvent.MOUSE_DOWN, editorMouseDownHandler, true);
+            systemManager.getSandboxRoot().
+                removeEventListener(MouseEvent.MOUSE_DOWN, editorMouseDownHandler, true);
+            systemManager.getSandboxRoot().
+                removeEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE, editorMouseDownHandler);
 
             var event:ListEvent =
                 new ListEvent(ListEvent.ITEM_FOCUS_OUT);
@@ -2415,10 +2422,12 @@ public class List extends ListBase implements IIMESupport
     /**
      *  @private
      */
-    private function editorMouseDownHandler(event:MouseEvent):void
+    private function editorMouseDownHandler(event:Event):void
     {
-        if (!itemRendererContains(itemEditorInstance, DisplayObject(event.target)))
-            endEdit(ListEventReason.OTHER);
+        if (event is MouseEvent && itemRendererContains(itemEditorInstance, DisplayObject(event.target)))
+			return;
+
+        endEdit(ListEventReason.OTHER);
     }
 
     /**
@@ -2558,8 +2567,10 @@ public class List extends ListBase implements IIMESupport
     private function itemEditorItemEditBeginHandler(event:ListEvent):void
     {
         // trace("listening for deactivate");
-        // weak reference to stage
-        stage.addEventListener(Event.DEACTIVATE, deactivateHandler, false, 0, true);
+
+        // weak reference to stage or systemManager
+		if (root)	// we're on the display list
+    		systemManager.addEventListener(Event.DEACTIVATE, deactivateHandler, false, 0, true);
 
         if (!event.isDefaultPrevented() && listItems[actualRowIndex][actualColIndex].data != null)
         {

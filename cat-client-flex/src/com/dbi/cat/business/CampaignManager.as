@@ -1,14 +1,15 @@
 package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.CampaignVO;
+	import com.dbi.cat.common.vo.ClientVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
-	import com.dbi.cat.common.vo.EntryPointVO;
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.ClientEvent;
 	import com.dbi.cat.event.LayoutInfoEvent;
-	import com.dbi.cat.view.EditCampaignView;
+	import com.dbi.cat.event.LoginEvent;
 	import com.dbi.cat.view.EditCommunicationsView;
+	import com.dbi.cat.view.campaign.EditCampaignView;
 	import com.dbi.controls.CustomMessage;
 	
 	import flash.display.DisplayObject;
@@ -34,6 +35,12 @@ package com.dbi.cat.business
 		public var campaignMap:Object = new Object();
 		public var publishedCampaign:CampaignVO;
 		public var modifiedCampaign:CampaignVO;
+		
+		// Addin message for the loaded campaign
+		public var campaignAddInMessage:String;
+		
+		// Client map for looking up clients by ID
+		public var clientMap:Object;
 		
 		private var editCommunicationPopup:IFlexDisplayObject;
 		private var editCampaignPopup:IFlexDisplayObject;
@@ -70,34 +77,42 @@ package com.dbi.cat.business
 				var layout:LayoutInfoEvent = new LayoutInfoEvent(LayoutInfoEvent.LOAD_CAMPAIGN_LAYOUT_INFO);
 				layout.campaign = campaign;
 				dispatcher.dispatchEvent(layout);
-				
-				// Fire event to load subscriber statistics
-				var statistics:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_SUBSCRIBER_STATISTICS);
-				statistics.campaign = campaign;
-				dispatcher.dispatchEvent(statistics);
-			}
 			
-			// Move to communication screen if not open
-			if (editCommunicationPopup == null)
-			{
-				editCommunicationPopup = new EditCommunicationsView();
-				editCommunicationPopup.width = Application.application.width;
-				editCommunicationPopup.height = Application.application.height;
+				// Setup the addin message for the loaded campaign
+				campaignAddInMessage = "";
+				var client:ClientVO = clientMap[campaign.clientPK];
+					
+				if (campaign.addInMessage != null &&
+					campaign.addInMessage.length > 0)
+					campaignAddInMessage += campaign.addInMessage;
+				else if (client.userAddInMessage != null)
+					campaignAddInMessage += client.userAddInMessage;
+					
+				if (client.adminAddInMessage != null)
+					campaignAddInMessage += client.adminAddInMessage;
 			}
-			PopUpManager.removePopUp(editCommunicationPopup);
-			PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
-			PopUpManager.centerPopUp(editCommunicationPopup);
-			
 		}
 		public function loadModifiedCampaign(campaign:CampaignVO):void
 		{
 			modifiedCampaign = campaign;
 			loadCampaign(campaign);
+			
+			// Load statistics
+			getSubcriberStatistics(campaign);
+				
+			// Open edit window
+			openLoadedCampaign();
 		}
 		public function loadPublishedCampaign(campaign:CampaignVO):void
 		{
 			publishedCampaign = campaign;
 			loadCampaign(campaign);
+			
+			// Load statistics
+			getSubcriberStatistics(campaign);
+			
+			// Open edit window
+			openLoadedCampaign();
 		}
 		public function loadSubscriberStatistics(stats:Object):void
 		{
@@ -121,6 +136,32 @@ package com.dbi.cat.business
 					if (statistics.hasOwnProperty(node.uid))
 						node.subscriberCount = statistics[node.uid];
 				}
+			}
+		}
+		private function openLoadedCampaign():void
+		{
+			// Move to communication screen if not open
+			if (editCommunicationPopup == null)
+			{
+				editCommunicationPopup = new EditCommunicationsView();
+			}
+			
+			editCommunicationPopup.width = Application.application.width;
+			editCommunicationPopup.height = Application.application.height;
+				
+			// Add the popup if it currently has no parent
+			if (editCommunicationPopup.parent == null)
+				PopUpManager.addPopUp(editCommunicationPopup, UIComponent(Application.application), true);	
+			PopUpManager.centerPopUp(editCommunicationPopup);
+		}
+		private function getSubcriberStatistics(campaign:CampaignVO):void
+		{
+			if (campaign != null)
+			{
+				// Fire event to load subscriber statistics
+				var statistics:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_SUBSCRIBER_STATISTICS);
+				statistics.campaign = campaign;
+				dispatcher.dispatchEvent(statistics);
 			}
 		}
 		
@@ -217,7 +258,15 @@ package com.dbi.cat.business
 		//
 		public function campaignModificationFail(fault:Fault):void
 		{
-			CustomMessage.show(SAVE_ITEM_FAIL);
+		 	if (fault.faultCode == "Client.Authentication")
+		 	{
+		 		CustomMessage.show("Your session has ended.  Please login again");
+		 		dispatcher.dispatchEvent(new LoginEvent(LoginEvent.LOGOUT));
+		 	}
+		 	else
+		 	{
+		 		CustomMessage.show(fault.toString());
+		 	}
 			
 			// Force modified campaign to be reinjected to reload the view
 			var temp:CampaignVO = modifiedCampaign;
@@ -249,6 +298,9 @@ package com.dbi.cat.business
 				else
 					cur.moveNext();
 			}
+			
+			// Refresh client list to reflect keyword changes
+			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
 		}
 		public function deleteNode(node:NodeVO):void
 		{
@@ -279,10 +331,6 @@ package com.dbi.cat.business
 					}
 				}
 			}
-			else
-			{
-				throw new Error("There is no current campaign to remove the node from");
-			}
 		}
 		public function deleteConnector(connector:ConnectorVO):void
 		{
@@ -311,10 +359,6 @@ package com.dbi.cat.business
 							node.upstreamConnections.getItemIndex(connector.uid));
 					}
 				}
-			}
-			else
-			{
-				throw new Error("There is no current campaign to remove the connector from");
 			}
 		}
 		
@@ -383,6 +427,8 @@ package com.dbi.cat.business
 		}
 		public function publishCampaign(campaign:CampaignVO):void
 		{
+			CustomMessage.show("The campaign was published successfully");
+			
 			// After publish reload modified and published campaigns
 			var event:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_MODIFIED_CAMPAIGN);
 			event.campaign = campaign;
@@ -401,15 +447,10 @@ package com.dbi.cat.business
 			modifiedCampaign = null;
 			publishedCampaign = null;
 			PopUpManager.removePopUp(editCommunicationPopup);
-			
-			// If saved node was an entry point query for clients in case
-			// keyword assignments have changed
-			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.LIST_CLIENTS));
 		}
 		public function closeEditCampaign():void
 		{
 			PopUpManager.removePopUp(editCampaignPopup);
 		}
-		
 	}
 }

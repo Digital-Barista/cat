@@ -19,6 +19,10 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
@@ -41,6 +45,9 @@ public class UserManagerImpl implements UserManager {
 	
 	@PersistenceContext(unitName="cat-data")
 	private EntityManager em;
+	
+	@PersistenceContext(unitName="cat-data")
+	private Session session;
 	
     /**
      * Default constructor. 
@@ -87,7 +94,7 @@ public class UserManagerImpl implements UserManager {
 
 	@RolesAllowed({"admin","account.manager"})
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	protected void createUser(User newUser) {
+	protected User createUser(User newUser) {
 		UserDO user = new UserDO();
 		newUser.copyTo(user);
 		RoleDO tempRole;
@@ -106,6 +113,10 @@ public class UserManagerImpl implements UserManager {
 		}
 		em.persist(user);
 		em.flush();
+		
+		User ret = new User();
+		ret.copyFrom(user);
+		return ret;
 	}
 
 	@RolesAllowed({"admin","account.manager"})
@@ -229,16 +240,21 @@ public class UserManagerImpl implements UserManager {
 
 	@RolesAllowed({"admin","account.manager"})
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public void save(User user) {
-		UserDO ret=getSimpleUserByPK(user.getPrimaryKey());
-		if(ret==null)
+	public User save(User user) {
+		UserDO current = getSimpleUserByPK(user.getPrimaryKey());
+		User ret = null;
+		
+		if(current==null)
 		{
-			createUser(user);
+			ret = createUser(user);
 		} else {
-			user.copyTo(ret);
+			user.copyTo(current);
 			if(user.getRoles()!=null)
 				syncRoles(user.getPrimaryKey(),new HashSet<Role>(user.getRoles()));
+			ret = new User();
+			ret.copyFrom(current);
 		}
+		return ret;
 	}
 
 	@RolesAllowed({"admin","account.manager"})
@@ -310,27 +326,23 @@ public class UserManagerImpl implements UserManager {
 
 	@Override
 	public List<User> getAllVisibleUsers() {
-		Query q = em.createQuery("select u from UserDO u");
+		Criteria crit = null;
 		List<User> ret = new ArrayList<User>();
-		Set<Long> clientIDs = extractClientIds(ctx.getCallerPrincipal().getName());
+		if(ctx.isCallerInRole("admin"))
+		{
+			crit = session.createCriteria(UserDO.class);
+		} else {
+			Set<Long> clientIDs = extractClientIds(ctx.getCallerPrincipal().getName());
+			crit = session.createCriteria(RoleDO.class);
+			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
+			crit.add(Restrictions.in("refId", clientIDs));
+			crit.createAlias("user", "user");
+			crit.setProjection(Projections.distinct(Projections.groupProperty("user")));
+		}
 		Set<Long> userClientIDs;
 		User u;
-		for(UserDO user : (List<UserDO>)q.getResultList())
+		for(UserDO user : (List<UserDO>)crit.list())
 		{
-			//admins can see ALL users
-			if(!ctx.isCallerInRole("admin"))
-			{
-				//Get the clients this user belongs to
-				userClientIDs = extractClientIds(user.getUsername());
-				
-				//ONLY keep the clientIDs our caller can see.
-				userClientIDs.retainAll(clientIDs);
-				
-				//If there's nothing left, they can't see it.
-				if(userClientIDs.size()==0)
-					continue;
-			}
-			
 			u = new User();
 			u.copyFrom(user);
 			ret.add(u);
@@ -348,7 +360,7 @@ public class UserManagerImpl implements UserManager {
 	@Override
 	public Set<Long> extractClientIds(String username) {
 		Set<Long> clientIDs = new HashSet<Long>();
-		for(RoleDO role : getSimpleUserByUsername(ctx.getCallerPrincipal().getName()).getRoles())
+		for(RoleDO role : getSimpleUserByUsername(username).getRoles())
 			if(role.getRoleName().equals("account.manager") || role.getRoleName().equals("client"))
 				clientIDs.add(role.getRefId());
 		return clientIDs;

@@ -15,19 +15,15 @@ package com.dbi.cat.common.vo
 			super();
 		}
 		
-		public var primaryKey:Number;
+		public var primaryKey:String;
 		public var description:String;
 		public var value:String;
-		public var type:String = EntryPointType.SMS;
+		public var type:String;
 		public var restriction:String = EntryRestrictionType.SHARED;
 		public var clientIDs:ArrayCollection;
 		public var restrictionID:Number;
 		public var keywords:ArrayCollection;
 		
-		public function get children():ArrayCollection
-		{
-			return keywords;
-		}
 		public function get name():String
 		{
 			return value;

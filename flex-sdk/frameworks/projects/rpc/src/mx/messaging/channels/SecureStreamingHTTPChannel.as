@@ -26,11 +26,11 @@ public class SecureStreamingHTTPChannel extends StreamingHTTPChannel
     //--------------------------------------------------------------------------
     
     /**
-     *  Creates an new SecureStreamingHTTPChannel instance.
+     *  Constructor.
      *
-	 *  @param id The id of this Channel.
-	 *  
-	 *  @param uri The uri for this Channel.
+     *  @param id The id of this Channel.
+     *  
+     *  @param uri The uri for this Channel.
      */
     public function SecureStreamingHTTPChannel(id:String = null, uri:String = null)
     {

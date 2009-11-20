@@ -24,6 +24,7 @@ import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
@@ -34,10 +35,19 @@ import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.Client;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
+import com.digitalbarista.cat.business.KeywordLimit;
+import com.digitalbarista.cat.business.ReservedKeyword;
+import com.digitalbarista.cat.business.User;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
+import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.KeywordDO;
+import com.digitalbarista.cat.data.KeywordLimitDO;
+import com.digitalbarista.cat.data.ReservedKeywordDO;
+import com.digitalbarista.cat.data.RoleDO;
+import com.digitalbarista.cat.data.UserDO;
+import com.digitalbarista.cat.exception.FlexException;
 
 /**
  * Session Bean implementation class ClientDO
@@ -49,6 +59,8 @@ import com.digitalbarista.cat.data.KeywordDO;
 @Interceptors(AuditInterceptor.class)
 public class ClientManagerImpl implements ClientManager {
 
+	public static final Integer DEFAULT_MAX_KEYWORDS = 5;
+	
 	@Resource
 	private SessionContext ctx; //Used to flag rollbacks.
 	
@@ -81,17 +93,39 @@ public class ClientManagerImpl implements ClientManager {
     
     @SuppressWarnings("unchecked")
 	@RolesAllowed("admin")
-    public List<EntryPointDefinition> getEntryPointDefinitions() {
+	public List<EntryPointDefinition> getEntryPointDefinitions() {
     	List<EntryPointDefinition> ret = new ArrayList<EntryPointDefinition>();
     	Query q = em.createQuery("select e from EntryPointDO e");
     	for(EntryPointDO entry : (List<EntryPointDO>)q.getResultList())
     	{
         	EntryPointDefinition epd = new EntryPointDefinition();
     		epd.copyFrom(entry);
+        	if(ctx.isCallerInRole("admin"))
+        		epd.setCredentials(entry.getCredentials());
     		ret.add(epd);
     	}
+
     	for(EntryPointDefinition epd : ret)
     		fillInEntryPointKeywordData(epd);
+    	
+    	return ret;
+    }
+    
+    @SuppressWarnings("unchecked")
+	@RolesAllowed("admin")
+	public EntryPointDefinition getEntryPointDefinition(EntryPointType type, String account) {
+    	EntryPointDefinition ret = new EntryPointDefinition();
+    	Criteria crit = session.createCriteria(EntryPointDO.class);
+    	crit.add(Restrictions.eq("type", type));
+    	crit.add(Restrictions.eq("value", account));
+
+    	EntryPointDO result = (EntryPointDO)crit.uniqueResult();
+    	ret.copyFrom(result);
+    	
+    	if(ctx.isCallerInRole("admin"))
+    		ret.setCredentials(result.getCredentials());
+    	
+		fillInEntryPointKeywordData(ret);
 
     	return ret;
     }
@@ -115,7 +149,7 @@ public class ClientManagerImpl implements ClientManager {
     
     private void fillInEntryPointKeywordData(EntryPointDefinition epd)
     {
-		Query q=em.createQuery("select cep from CampaignEntryPointDO cep where cep.entryPoint=:epName and cep.type=:epType");
+		Query q=em.createQuery("select cep from CampaignEntryPointDO cep where cep.entryPoint=:epName and cep.type=:epType order by cep.keyword");
 		q.setParameter("epName", epd.getValue());
 		q.setParameter("epType", epd.getType());
 		List<CampaignEntryPointDO> result = q.getResultList();
@@ -152,6 +186,25 @@ public class ClientManagerImpl implements ClientManager {
 				c.getEntryPoints().add(ep);
 			}
 		}
+		
+		// Update keyword limits
+		if (client.getKeywordLimits() != null)
+		{
+			for (KeywordLimit kl : client.getKeywordLimits())
+			{
+				KeywordLimitDO keyDO = null;
+				if (kl.getKeywordLimitId() != null)
+					keyDO = em.find(KeywordLimitDO.class, kl.getKeywordLimitId());
+				if (keyDO == null)
+					keyDO = new KeywordLimitDO();
+				
+				keyDO.setClient(c);
+				kl.copyTo(keyDO);
+				em.persist(keyDO);
+				c.getKeywordLimits().add(keyDO);
+			}
+		}
+		
 		em.persist(c);
 		em.flush();
 		Client ret = new Client();
@@ -161,10 +214,49 @@ public class ClientManagerImpl implements ClientManager {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin","account.manager"})
 	public Keyword save(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
+		
+		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), kwd.getClientId()))
+			throw new SecurityException("User is not allowed to create keywords for the specified client.");
+		
+		// Check that the keyword is available
+		if (!checkKeywordAvailability(kwd))
+			throw new FlexException("The keyword you have entered is currently unavailable");
+		
+		// Make sure adding this keyword won't put the client over their limit
+		if (kwd.getPrimaryKey() == null)
+		{
+			ClientDO client = em.find(ClientDO.class, kwd.getClientId());
+			EntryPointDO entryPoint = em.find(EntryPointDO.class, kwd.getEntryPointId());
+			Integer max = DEFAULT_MAX_KEYWORDS;
+			for (KeywordLimitDO limit : client.getKeywordLimits())
+			{
+				if (limit.getEntryType().equals(entryPoint.getType()))
+				{
+					max = limit.getMaxKeywords();
+					break;
+				}
+			}
+			
+			// Zero is infinite number of keywords
+			if (max != 0)
+			{
+				// Find current count for given entry point type
+				Criteria crit = session.createCriteria(KeywordDO.class);
+				crit.add(Restrictions.eq("client.primaryKey", kwd.getClientId()));
+				crit.createAlias("entryPoint", "entryPoint");
+				crit.add(Restrictions.eq("entryPoint.type", entryPoint.getType()));
+				crit.setProjection(Projections.rowCount());
+				Integer currentCount = (Integer)crit.uniqueResult();
+				if (currentCount >= max)
+					throw new FlexException("You have already reached your maximum " + max + 
+							" keywords for " + entryPoint.getType() + " accounts.");
+			}
+		}
+		
 		KeywordDO kwdData=null;
 		if(kwd.getPrimaryKey()!=null)
 			kwdData = em.find(KeywordDO.class, kwd.getPrimaryKey());
@@ -283,11 +375,14 @@ public class ClientManagerImpl implements ClientManager {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin","account.manager"})
 	public void delete(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
 				
+		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), kwd.getClientId()))
+			throw new SecurityException("User is not allowed to delete keywords for the specified client.");
+
 		KeywordDO kwdData=null;
 		if(kwd.getPrimaryKey()!=null)
 			kwdData = em.find(KeywordDO.class, kwd.getPrimaryKey());
@@ -305,5 +400,72 @@ public class ClientManagerImpl implements ClientManager {
 		{}
 		
 		em.remove(kwdData);
+	}
+	
+
+	public List<ReservedKeyword> getAllReservedKeywords()
+	{
+		List<ReservedKeyword> ret = new ArrayList<ReservedKeyword>();
+		Criteria crit = session.createCriteria(ReservedKeywordDO.class);
+
+		for(ReservedKeywordDO keyword : (List<ReservedKeywordDO>)crit.list())
+		{
+			ReservedKeyword key = new ReservedKeyword();
+			key.copyFrom(keyword);
+			ret.add(key);
+		}
+		return ret;
+	}
+	public ReservedKeyword save(ReservedKeyword keyword)
+	{
+		ReservedKeywordDO keyDO = null;
+		
+		if (keyword.getReservedKeywordId() != null)
+			keyDO = em.find(ReservedKeywordDO.class, keyword.getReservedKeywordId());
+		if (keyDO == null)
+			keyDO = new ReservedKeywordDO();
+		
+		keyword.copyTo(keyDO);
+		em.persist(keyDO);
+		
+		ReservedKeyword ret = new ReservedKeyword();
+		ret.copyFrom(keyDO);
+		return ret;
+	}
+	public void delete(ReservedKeyword keyword)
+	{
+		ReservedKeywordDO keyDO = em.find(ReservedKeywordDO.class, keyword.getReservedKeywordId());
+		if (keyDO != null)
+			em.remove(keyDO);
+	}
+
+	@Override
+    @PermitAll
+	public Boolean checkKeywordAvailability(Keyword keyword) 
+	{
+		// A keyword is required
+		if (keyword == null ||
+			keyword.getKeyword() == null ||
+			keyword.getKeyword().length() == 0)
+			return false;
+		
+		// Make sure the keyword is not on the reserve list
+		Criteria crit = session.createCriteria(ReservedKeywordDO.class);
+		crit.add(Restrictions.eq("keyword", keyword.getKeyword()));
+		crit.setProjection(Projections.count("keyword"));
+		Integer reservedCount = (Integer)crit.uniqueResult();
+		if (reservedCount > 0)
+			return false;
+		
+		// Make sure this keyword is not used by this entry point already
+		crit = session.createCriteria(KeywordDO.class);
+		crit.add(Restrictions.eq("keyword", keyword.getKeyword()));
+		crit.add(Restrictions.eq("entryPoint.primaryKey", keyword.getEntryPointId()));
+		crit.setProjection(Projections.count("keyword"));
+		Integer usedCount = (Integer)crit.uniqueResult();
+		if (usedCount > 0)
+			return false;
+		
+		return true;
 	}
 }

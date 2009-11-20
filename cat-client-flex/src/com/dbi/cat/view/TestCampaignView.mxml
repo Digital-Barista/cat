@@ -54,7 +54,9 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:TextArea width="100%" top="175" bottom="0"
+	<mx:TextArea id="TextOutput"
+		valueCommit="{TextOutput.verticalScrollPosition = TextOutput.maxVerticalScrollPosition}"
+		width="100%" top="175" bottom="0"
 		htmlText="{campaignTestOutput}" 
 		editable="false" />
 	<mx:Canvas height="79"

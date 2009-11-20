@@ -159,6 +159,7 @@ public class StreamingConnectionHandler extends EventDispatcher
     private static const SKIP_STATE:int = 5;
     private static const DATA_STATE:int = 6;
     private static const RESET_BUFFER_STATE:int = 7;
+    private static const CLOSED_STATE:int = 8;
 
     //--------------------------------------------------------------------------
     //
@@ -167,16 +168,16 @@ public class StreamingConnectionHandler extends EventDispatcher
     //--------------------------------------------------------------------------
 
     /**
-     *  Creates an new StreamingConnectionHandler instance.
+     *  Constructor.
      *
-	 *  @param channel The Channel that uses this class.
-	 *  @param log Reference to the logger for the associated Channel.
+     *  @param channel The Channel that uses this class.
+     *  @param log Reference to the logger for the associated Channel.
      */
     public function StreamingConnectionHandler(channel:Channel, log:ILogger)
     {
         super();
-    	this.channel = channel;
-    	this._log = log;
+        this.channel = channel;
+        this._log = log;
     }
 
     //--------------------------------------------------------------------------
@@ -185,10 +186,10 @@ public class StreamingConnectionHandler extends EventDispatcher
     //
     //--------------------------------------------------------------------------
 
-  	/**
-  	 * The Channel that uses this class.
-  	 */
-  	 protected var channel:Channel;
+    /**
+     * The Channel that uses this class.
+     */
+     protected var channel:Channel;
 
     /**
      *  Byte buffer used to store the current chunk from the remote endpoint.
@@ -220,6 +221,12 @@ public class StreamingConnectionHandler extends EventDispatcher
      *  The server-assigned id for the streaming connection.
      */
     protected var streamId:String;
+    
+    /**
+     *  @private
+     *  Optional token to append to request URLs; generally contains a session token.
+     */
+    private var _appendToURL:String;
 
     /**
      *  Storage for the hex-format chunk size value from the byte stream.
@@ -241,7 +248,7 @@ public class StreamingConnectionHandler extends EventDispatcher
      *  URLStream used to close the original streaming connection opened from
      *  the server to the client over HTTP.
      */
-	private var streamingConnectionCloser:URLStream;
+    private var streamingConnectionCloser:URLStream;
 
     //--------------------------------------------------------------------------
     //
@@ -258,7 +265,10 @@ public class StreamingConnectionHandler extends EventDispatcher
      */
     public function openStreamingConnection(appendToURL:String=null):void
     {
-    	// Construct the streaming connection if needed.
+        state = INIT_STATE;
+        _appendToURL = appendToURL;
+        
+        // Construct the streaming connection if needed.
         if (streamingConnection == null)
         {
             streamingConnection = new URLStream();
@@ -275,15 +285,15 @@ public class StreamingConnectionHandler extends EventDispatcher
         {
             var request:URLRequest = new URLRequest();
             var url:String = channel.endpoint;
-            if (appendToURL != null)
-                url += appendToURL;
+            if (_appendToURL != null)
+                url += _appendToURL;
             request.url = url + "?" + COMMAND_PARAM_NAME + "=" + OPEN_COMMAND + "&" + VERSION_PARAM_NAME + "=" + VERSION_1;
             request.method = URLRequestMethod.POST;
             var postParams:URLVariables = new URLVariables();
             postParams[AbstractMessage.FLEX_CLIENT_ID_HEADER] = FlexClient.getInstance().id
             request.data = postParams;
 
-			streamingConnection.load(request);
+            streamingConnection.load(request);
         }
     }
 
@@ -292,7 +302,13 @@ public class StreamingConnectionHandler extends EventDispatcher
      */
     public function closeStreamingConnection():void
     {
-    	// First, close the existing connection.
+        state = CLOSED_STATE;
+        chunkBuffer = null;
+        hexChunkSize = null;
+        dataBytesToRead = -1;
+        dataOffset = 0;
+        
+        // First, close the existing connection.
         if (streamingConnection != null)
         {
             if (streamingConnection.connected)
@@ -302,16 +318,16 @@ public class StreamingConnectionHandler extends EventDispatcher
                     streamingConnection.close();
                 }
                 catch(ignore:Error)
-				{
-				}
+                {
+                }
             }
         }
 
-		// Then, let the server know that streaming connection can be cleaned up.
-		if (streamId != null)
-		{
-    		if (streamingConnectionCloser == null)
-    		{
+        // Then, let the server know that streaming connection can be cleaned up.
+        if (streamId != null)
+        {
+            if (streamingConnectionCloser == null)
+            {
                 var process:Function = function(event:Event):void
                 {
                     if (streamingConnectionCloser.connected)
@@ -332,27 +348,30 @@ public class StreamingConnectionHandler extends EventDispatcher
                     // Ignore.
                 }
 
-    			streamingConnectionCloser = new URLStream();
-    			streamingConnectionCloser.addEventListener(Event.COMPLETE, process);
+                streamingConnectionCloser = new URLStream();
+                streamingConnectionCloser.addEventListener(Event.COMPLETE, process);
                 streamingConnectionCloser.addEventListener(IOErrorEvent.IO_ERROR, process);
-    			// Ignore the following events.
+                // Ignore the following events.
                 streamingConnectionCloser.addEventListener(HTTPStatusEvent.HTTP_STATUS, ignore);
                 streamingConnectionCloser.addEventListener(SecurityErrorEvent.SECURITY_ERROR, ignore);
-    		}
+            }
 
-    		// Request the streaming connection close, only if not already requested to close.
-    		if (!streamingConnectionCloser.connected)
-    		{
-    			var request:URLRequest = new URLRequest();
-    			request.url = channel.endpoint + "?" + COMMAND_PARAM_NAME + "=" + CLOSE_COMMAND + "&"
-    			              + STREAM_ID_PARAM_NAME + "=" + streamId + "&" + VERSION_PARAM_NAME + "=" + VERSION_1;
-    			request.method = URLRequestMethod.POST;
-    			var postParams:URLVariables = new URLVariables();
-    			postParams[AbstractMessage.FLEX_CLIENT_ID_HEADER] = FlexClient.getInstance().id
-    			request.data = postParams;
+            // Request the streaming connection close, only if not already requested to close.
+            if (!streamingConnectionCloser.connected)
+            {
+                var request:URLRequest = new URLRequest();
+                var url:String = channel.endpoint;
+                if (_appendToURL != null)
+                    url += _appendToURL;
+                request.url = url + "?" + COMMAND_PARAM_NAME + "=" + CLOSE_COMMAND + "&"
+                              + STREAM_ID_PARAM_NAME + "=" + streamId + "&" + VERSION_PARAM_NAME + "=" + VERSION_1;
+                request.method = URLRequestMethod.POST;
+                var postParams:URLVariables = new URLVariables();
+                postParams[AbstractMessage.FLEX_CLIENT_ID_HEADER] = FlexClient.getInstance().id
+                request.data = postParams;
 
-    			streamingConnectionCloser.load(request);
-    		}
+                streamingConnectionCloser.load(request);
+            }
         }
     }
 
@@ -362,15 +381,15 @@ public class StreamingConnectionHandler extends EventDispatcher
     //
     //--------------------------------------------------------------------------
 
-	/**
-	 *  Used by the streamProgressHandler to read a message. Default implementation
-	 *  returns null and subclasses must override this method.
-	 *
-	 *  @return Returns the message that was read.
-	 */
+    /**
+     *  Used by the streamProgressHandler to read a message. Default implementation
+     *  returns null and subclasses must override this method.
+     *
+     *  @return Returns the message that was read.
+     */
     protected function readMessage():IMessage
     {
-    	return null;
+        return null;
     }
 
     //--------------------------------------------------------------------------
@@ -411,7 +430,7 @@ public class StreamingConnectionHandler extends EventDispatcher
      */
     private function streamCompleteHandler(event:Event):void
     {
-    	dispatchEvent(event);
+        dispatchEvent(event);
     }
 
     /**
@@ -422,7 +441,7 @@ public class StreamingConnectionHandler extends EventDispatcher
      */
     private function streamHttpStatusHandler(event:HTTPStatusEvent):void
     {
-		dispatchEvent(event);
+        dispatchEvent(event);
     }
 
     /**
@@ -433,7 +452,7 @@ public class StreamingConnectionHandler extends EventDispatcher
      */
     private function streamIoErrorHandler(event:IOErrorEvent):void
     {
-		dispatchEvent(event);
+        dispatchEvent(event);
     }
 
     /**
@@ -597,13 +616,20 @@ public class StreamingConnectionHandler extends EventDispatcher
                                 // shut down and not attempt to reconnect.
                                 var statusEvent:StatusEvent = new StatusEvent(StatusEvent.STATUS, false, false, DISCONNECT_CODE, "status");
                                 dispatchEvent(statusEvent);
+                                // Exit parse loop - channel shut down will reset parser state.
+                                return; 
                             }
                             else  // Regular message; dispatch it.
                             {
-							    channel.dispatchEvent(MessageEvent.createEvent(MessageEvent.MESSAGE, message));
+                                channel.dispatchEvent(MessageEvent.createEvent(MessageEvent.MESSAGE, message));
                             }
+                            // We've just finsihed the one point in the parse loop where we step outside of local control.
+                            // The connection may now be closed, so check for this case here.
+                            if (state == CLOSED_STATE)
+                                return;
+                            
                         }
-						state = RESET_BUFFER_STATE;
+                        state = RESET_BUFFER_STATE;
                     }
                     else // Wait for the rest of the chunk to arrive.
                     {
@@ -632,6 +658,10 @@ public class StreamingConnectionHandler extends EventDispatcher
                     if (chunkBuffer.bytesAvailable == 0)
                         break;
                 }
+                if (state == CLOSED_STATE)
+                {
+                    return; // Exit parse loop.
+                }
             }
         }
     }
@@ -644,7 +674,7 @@ public class StreamingConnectionHandler extends EventDispatcher
      */
     private function streamSecurityErrorHandler(event:SecurityErrorEvent):void
     {
-		dispatchEvent(event);
+        dispatchEvent(event);
     }
 }
 

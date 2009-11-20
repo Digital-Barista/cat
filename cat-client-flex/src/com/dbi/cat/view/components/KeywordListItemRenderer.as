@@ -1,7 +1,7 @@
 package com.dbi.cat.view.components
 {
-	import com.dbi.cat.view.workspace.Node;
 	import com.dbi.cat.view.workspace.WorkspaceItem;
+	import com.dbi.cat.view.workspace.WorkspaceView;
 	
 	import mx.controls.Label;
 	
@@ -15,14 +15,21 @@ package com.dbi.cat.view.components
 		
 		override public function set data(value:Object):void
 		{
-			var item:WorkspaceItem = parentDocument as WorkspaceItem;
+			var workspace:WorkspaceView;
+			var p:Object = parentDocument;
+			while(p != null &&
+				workspace == null)
+			{
+				if (p is WorkspaceView)
+					workspace = p as WorkspaceView;
+				p = p.parent;
+			}
 			
 			_enabled = value == null ||
 				value.campaignUID == null || 
-				item == null ||
-				item.workspace == null ||
-				item.workspace.campaign == null ||
-				value.campaignUID == item.workspace.campaign.uid;
+				workspace == null ||
+				workspace.campaign == null ||
+				value.campaignUID == workspace.campaign.uid;
 			super.data = value;
 		}    
 

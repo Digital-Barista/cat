@@ -471,6 +471,10 @@ public class UITextFormat extends TextFormat
         var lineMetrics:TextLineMetrics =
             measurementTextField.getLineMetrics(0);
 
+        // Account for any indenting of the text.
+        if (indent != null)
+            lineMetrics.width += indent;
+ 
         if (roundUp)
         {                               
             // Round up because embedded fonts can produce fractional values;
@@ -523,6 +527,13 @@ public class UITextFormat extends TextFormat
         rightMargin = source.rightMargin;
         indent = source.indent;
         leading = source.leading;
+        letterSpacing = source.letterSpacing;
+        blockIndent = source.blockIndent;
+        bullet = source.bullet;
+        display = source.display;
+        indent = source.indent;
+        kerning = source.kerning;
+        tabStops = source.tabStops;
     }
 }
 

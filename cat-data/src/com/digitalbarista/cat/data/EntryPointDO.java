@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,6 +16,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.OrderBy;
 
 /**
  * Entity implementation class for Entity: EntryPointDO
@@ -35,7 +38,8 @@ public class EntryPointDO implements DataObject,Serializable {
 	private Long restrictionID;
 	private static final long serialVersionUID = 1L;
 	private Set<KeywordDO> keywords;
-
+	private String credentials;
+	
 	public EntryPointDO() {
 		super();
 	}
@@ -89,7 +93,7 @@ public class EntryPointDO implements DataObject,Serializable {
 		this.restriction = restriction;
 	}
 
-	@ManyToMany(targetEntity=ClientDO.class)
+	@ManyToMany(targetEntity=ClientDO.class,fetch=FetchType.LAZY)
 	@JoinTable(
 		name="client_entry_point_link",
 		joinColumns=@JoinColumn(name="entry_point_id"),
@@ -119,5 +123,14 @@ public class EntryPointDO implements DataObject,Serializable {
 
 	public void setKeywords(Set<KeywordDO> keywords) {
 		this.keywords = keywords;
+	}
+
+	@Column(name="credentials")
+	public String getCredentials() {
+		return credentials;
+	}
+
+	public void setCredentials(String credentials) {
+		this.credentials = credentials;
 	}
 }

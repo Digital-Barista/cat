@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="532" height="380"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="506" height="270"
 	layout="absolute" showCloseButton="true"
 	close="cancel()"
 	title="{isNewUser ? 'Create User' : 'Edit User'}" xmlns:vo="com.dbi.cat.vo.*">
@@ -32,8 +32,10 @@
 			{
 				_editUser = user;
 				filterAvailableRoles();
+				dispatchEvent(new Event("userLoaded"));
 			}
 			
+			[Bindable(event="userLoaded")]
 			private function get isNewUser():Boolean
 			{
 				return editUser == null || isNaN(editUser.primaryKey);
@@ -47,9 +49,10 @@
 			{
 				var errors:ArrayCollection = new ArrayCollection();
 					
+				if (isNewUser)
+					editUser.username = Username.text;
 				editUser.emailAddress = EmailAddress.text;
 				editUser.name = EmailAddress.text;
-				editUser.username = UserName.text;
 				editUser.isActive = IsActive.selected;
 				editUser.roles = currentUser.roles;
 				
@@ -58,10 +61,6 @@
 					editUser.password = Password.text;
 				}
 				
-				// Validate manually
-				if (UserName.text.length == 0)
-					errors.addItem("Username is required");
-					
 				if (isNewUser)
 				{
 					if (Password.text.length == 0 ||
@@ -161,8 +160,15 @@
 		
 		
 		<mx:Form id="EditUser">
-			<mx:FormItem label="UserName" required="true">
-				<mx:TextInput id="UserName" 
+			<mx:FormItem label="UserName"
+				visible="{!isNewUser}"
+				includeInLayout="{!isNewUser}">
+				<mx:Label text="{editUser.username}"/>
+			</mx:FormItem >
+			<mx:FormItem label="UserName" required="true"
+				visible="{isNewUser}"
+				includeInLayout="{isNewUser}">
+				<mx:TextInput id="Username" 
 					text="{editUser.username}" width="332"/>
 			</mx:FormItem >
 			<mx:FormItem label="Name" width="450">

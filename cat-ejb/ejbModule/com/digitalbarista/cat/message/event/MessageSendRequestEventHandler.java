@@ -3,6 +3,10 @@ package com.digitalbarista.cat.message.event;
 import java.util.Date;
 
 import javax.ejb.SessionContext;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.MapMessage;
+import javax.jms.MessageProducer;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -22,6 +26,9 @@ import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
 
 public class MessageSendRequestEventHandler extends CATEventHandler {
+	
+	private String cfName = "java:/JmsXA";
+	private String twitterSendDestName = "cat/messaging/TwitterOutgoing";
 	
 	protected MessageSendRequestEventHandler(EntityManager newEM,
 			SessionContext newSC, 
@@ -46,6 +53,9 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				break;
 			case SMSEndpoint:
 				outAudit.setMessageType(EntryPointType.SMS);
+				break;
+			case TwitterEndpoint:
+				outAudit.setMessageType(EntryPointType.Twitter);
 				break;
 		}
 		getEntityManager().persist(outAudit);
@@ -94,6 +104,33 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 			}finally
 			{
 				method.releaseConnection();
+			}
+		} else if(e.getSourceType().equals(CATEventSource.TwitterEndpoint)){
+			outAudit.setMessageType(EntryPointType.Twitter);
+			outAudit.setSubjectOrMessage(e.getArgs().get("message"));
+			javax.jms.Connection conn=null;
+			javax.jms.Session sess=null;
+			try
+			{
+	    		InitialContext ic = new InitialContext();
+	    		ConnectionFactory cf = (ConnectionFactory)ic.lookup(cfName);
+	    		Destination dest = (Destination)ic.lookup(twitterSendDestName);
+				conn = cf.createConnection();
+				sess = conn.createSession(true, javax.jms.Session.SESSION_TRANSACTED);
+				MessageProducer producer = sess.createProducer(dest);
+				MapMessage message = sess.createMapMessage();
+				message.setString("source", e.getSource());
+				message.setStringProperty("source", e.getSource());
+				message.setString("target", e.getTarget());
+				message.setString("message", e.getArgs().get("message"));
+				producer.send(message);
+			}catch(Exception ex)
+			{
+				throw new RuntimeException("Could not deliver the requested message!",ex);
+			}finally
+			{
+	    		try{if(sess!=null)sess.close();}catch(Exception ex){}
+	    		try{if(conn!=null)conn.close();}catch(Exception ex){}
 			}
 		} else {
 			throw new IllegalArgumentException("Cannot process the specified message type.");

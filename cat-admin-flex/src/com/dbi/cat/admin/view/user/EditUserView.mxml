@@ -191,10 +191,12 @@
 				</mx:HBox>
 			</mx:FormItem>
 			<mx:FormItem label="Password" width="100%">
-				<mx:TextInput id="tiPassword" displayAsPassword="true"  width="100%"/>
+				<mx:TextInput id="tiPassword" displayAsPassword="true"  width="100%"
+					text="{editUser.password}" />
 			</mx:FormItem>	
 			<mx:FormItem label="Confirm Password" width="100%">
-				<mx:TextInput id="tiConfirmPassword" displayAsPassword="true"  width="100%"/>				
+				<mx:TextInput id="tiConfirmPassword" displayAsPassword="true"  width="100%"
+					text="{editUser.password}" />				
 			</mx:FormItem>
 		</mx:Form>
 		<mx:ControlBar horizontalAlign="right">

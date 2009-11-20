@@ -18,6 +18,8 @@ import flash.desktop.NativeDragOptions;
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
 import flash.display.InteractiveObject;
+import flash.events.Event;
+import flash.events.IEventDispatcher;
 import flash.events.MouseEvent;
 import flash.events.NativeDragEvent;
 import flash.geom.Point;
@@ -26,11 +28,12 @@ import flash.system.Capabilities;
 import mx.core.DragSource;
 import mx.core.IFlexDisplayObject;
 import mx.core.IUIComponent;
-import mx.core.UIComponent;
 import mx.core.UIComponentGlobals;
 import mx.core.mx_internal;
 import mx.events.DragEvent;
 import mx.events.FlexEvent;
+import mx.events.InterDragManagerEvent;
+import mx.events.InterManagerRequest;
 import mx.managers.dragClasses.DragProxy;
 import mx.styles.CSSStyleDeclaration;
 import mx.styles.StyleManager;
@@ -100,6 +103,16 @@ public class NativeDragManagerImpl implements IDragManager
 			throw new Error("Instance already exists.");
 			
 		registerSystemManager(sm);
+		sandboxRoot = sm.getSandboxRoot();
+		sandboxRoot.addEventListener(InterDragManagerEvent.DISPATCH_DRAG_EVENT, marshalDispatchEventHandler, false, 0, true);
+
+		// trace("creating DragManagerImpl", sm);
+		sandboxRoot.addEventListener(InterManagerRequest.DRAG_MANAGER_REQUEST, marshalDragManagerHandler, false, 0, true);
+		var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+		me.name = "update";
+		// trace("--->update request for DragManagerImpl", sm);
+		sandboxRoot.dispatchEvent(me);
+		// trace("<---update request for DragManagerImpl", sm);
 	}
 
 	//--------------------------------------------------------------------------
@@ -144,6 +157,12 @@ public class NativeDragManagerImpl implements IDragManager
 	
 	private var _relatedObject:InteractiveObject;
 	
+	/**
+	 *  @private
+	 *  The highest place we can listen for events in our DOM
+	 */
+	private var sandboxRoot:IEventDispatcher;
+
 	//--------------------------------------------------------------------------
 	//
 	//  Properties
@@ -226,6 +245,19 @@ public class NativeDragManagerImpl implements IDragManager
 			return;
 		}
 		
+		var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+		me.name = "isDragging";
+		me.value = true;
+		// trace("-->dispatch isDragging for DragManagerImpl", sm, true);
+		sandboxRoot.dispatchEvent(me);
+		// trace("<--dispatch isDragging for DragManagerImpl", sm, true);
+		
+		me = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+		me.name = "mouseShield";
+		me.value = true;
+		// trace("-->dispatch add mouseShield.for DragManagerImpl", sm);
+		sandboxRoot.dispatchEvent(me);
+
 		_clipboard = new Clipboard();
 		_dragInitiator = dragInitiator;
 		_offset = new Point(xOffset, yOffset);
@@ -245,8 +277,14 @@ public class NativeDragManagerImpl implements IDragManager
 		for (var i:int = 0; i < dragSource.formats.length; i++)
 		{
 			var format:String = dragSource.formats[i] as String;
-			var data:Object = dragSource.dataForFormat(format);
-			_clipboard.setData(format, data);
+			
+			// Create an object to store a reference to the format and dragSource.
+			// This delays copying over the drag data until it is needed
+			var dataFetcher:DragDataFormatFetcher = new DragDataFormatFetcher();
+			dataFetcher.dragSource = dragSource;
+			dataFetcher.format = format;
+						
+			_clipboard.setDataHandler(format, dataFetcher.getDragSourceData, false);
 		}	
 		
 		if (!dragImage)
@@ -340,10 +378,22 @@ public class NativeDragManagerImpl implements IDragManager
 	 */
 	public function acceptDragDrop(target:IUIComponent):void
 	{
-		// trace("NativeDragMgr.acceptDragDrop targ",target);
-		var dispObj:InteractiveObject = target as InteractiveObject;
-		if (dispObj)
-			flash.desktop.NativeDragManager.acceptDragDrop(dispObj);
+		if (isDragging)
+		{
+			// trace("NativeDragMgr.acceptDragDrop targ",target);
+			var dispObj:InteractiveObject = target as InteractiveObject;
+			if (dispObj)
+				flash.desktop.NativeDragManager.acceptDragDrop(dispObj);
+		}
+		else
+		{
+			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+			me.name = "acceptDragDrop";
+			me.value = target;
+			// trace("-->dispatch acceptDragDrop for DragManagerImpl", sm, target);
+			sandboxRoot.dispatchEvent(me);
+			// trace("<--dispatch acceptDragDrop for DragManagerImpl", sm, target);
+		}
 	}
 	
 	/**
@@ -355,13 +405,25 @@ public class NativeDragManagerImpl implements IDragManager
 	 */
 	public function showFeedback(feedback:String):void
 	{
-		if (feedback == DragManager.MOVE && !_allowedActions.allowMove)
-			return;
-		else if (feedback == DragManager.COPY && !_allowedActions.allowCopy)
-			return;
-		else if (feedback == DragManager.LINK && !_allowedActions.allowLink)
-			return;
-		flash.desktop.NativeDragManager.dropAction = feedback;
+		if (isDragging)
+		{
+			if (feedback == DragManager.MOVE && !_allowedActions.allowMove)
+				return;
+			else if (feedback == DragManager.COPY && !_allowedActions.allowCopy)
+				return;
+			else if (feedback == DragManager.LINK && !_allowedActions.allowLink)
+				return;
+			flash.desktop.NativeDragManager.dropAction = feedback;
+		}
+		else
+		{
+			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+			me.name = "showFeedback";
+			me.value = feedback;
+			// trace("-->dispatch showFeedback for DragManagerImpl", sm, feedback);
+			sandboxRoot.dispatchEvent(me);
+			// trace("<--dispatch showFeedback for DragManagerImpl", sm, feedback);
+		}
 	}
 	
 	/**
@@ -373,6 +435,16 @@ public class NativeDragManagerImpl implements IDragManager
 	 */
 	public function getFeedback():String
 	{
+		if (!isDragging)
+		{
+			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+			me.name = "getFeedback";
+			// trace("-->dispatch getFeedback for DragManagerImpl", sm);
+			sandboxRoot.dispatchEvent(me);
+			// trace("<--dispatch getFeedback for DragManagerImpl", sm);
+			return me.value as String;
+		}
+
 		return flash.desktop.NativeDragManager.dropAction;
 	}
 	
@@ -382,6 +454,22 @@ public class NativeDragManagerImpl implements IDragManager
 	 */
 	public function endDrag():void
 	{
+		var me:InterManagerRequest;
+
+		me = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+		me.name = "mouseShield";
+		me.value = false;
+		// trace("-->dispatch remove mouseShield.for DragManagerImpl", sm);
+		sandboxRoot.dispatchEvent(me);
+		
+		me = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+		me.name = "isDragging";
+		me.value = false;
+		// trace("-->dispatch isDragging for DragManagerImpl", sm, false);
+		sandboxRoot.dispatchEvent(me);
+		// trace("<--dispatch isDragging for DragManagerImpl", sm, false);
+		// trace("<--endDrag for DragManagerImpl", sm);
+
 	}
 			
 	/**
@@ -403,6 +491,7 @@ public class NativeDragManagerImpl implements IDragManager
 		sm.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_EXIT, nativeDragEventHandler, true);
 		sm.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_OVER, nativeDragEventHandler, true);
 		sm.stage.addEventListener(NativeDragEvent.NATIVE_DRAG_START, nativeDragEventHandler, true); 
+
 	}
 	
 	/**
@@ -424,6 +513,7 @@ public class NativeDragManagerImpl implements IDragManager
 		sm.stage.removeEventListener(NativeDragEvent.NATIVE_DRAG_EXIT, nativeDragEventHandler, true);
 		sm.stage.removeEventListener(NativeDragEvent.NATIVE_DRAG_OVER, nativeDragEventHandler, true);
 		sm.stage.removeEventListener(NativeDragEvent.NATIVE_DRAG_START, nativeDragEventHandler, true); 
+
 	}
 	
 	//--------------------------------------------------------------------------
@@ -454,6 +544,7 @@ public class NativeDragManagerImpl implements IDragManager
 		var len:int = origFormats.length;
 		var format:String;
 		var data:Object;
+		var me:InterManagerRequest;
 		
 		_allowedActions = event.allowedActions;
 		
@@ -474,8 +565,13 @@ public class NativeDragManagerImpl implements IDragManager
 				format = origFormats[i];
 				if (clipboard.hasFormat(format))
 				{
-					data = clipboard.getData(format); 
-					dragSource.addData(data,format);
+					// Create an object to store a reference to the format and clipboard.
+					// This delays copying over the drag data until it is needed					
+					var dataFetcher:DragDataFormatFetcher = new DragDataFormatFetcher();
+					dataFetcher.clipboard = clipboard;
+					dataFetcher.format = format;
+						
+					dragSource.addHandler(dataFetcher.getClipboardData, format);	
 				}
 			}
 		} 
@@ -499,9 +595,244 @@ public class NativeDragManagerImpl implements IDragManager
 		else
 			dragEvent.relatedObject = event.relatedObject;
 		// Resend the event as a DragEvent.
-		target.dispatchEvent(dragEvent);	 	
+		_dispatchDragEvent(target, dragEvent);
+			 	
+		if (newType == DragEvent.DRAG_COMPLETE)
+		{
+		    if (sm == sandboxRoot)
+		        endDrag();
+		    else 
+		    {
+    			me = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+    			me.name = "endDrag";
+    			// trace("-->dispatch endDrag for DragManagerImpl", sm);
+    			sandboxRoot.dispatchEvent(me);
+    			// trace("<--dispatch endDrag for DragManagerImpl", sm);
+    		}
+		}
+	}
+
+    /**
+     *  @private
+     */
+    private function _dispatchDragEvent(target:DisplayObject, event:DragEvent):void
+    {
+		// in trusted mode, the target could be in another application domain
+		// in untrusted mode, the mouse events shouldn't work so we shouldn't be here
+
+		// same domain
+		if (isSameOrChildApplicationDomain(target))
+			target.dispatchEvent(event);
+		else
+		{
+			// wake up all the other DragManagers
+			var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.INIT_MANAGER_REQUEST);
+			me.name = "mx.managers.IDragManagerImpl";
+			sandboxRoot.dispatchEvent(me);
+			// bounce this message off the sandbox root and hope
+			// another DragManager picks it up
+			var mde:InterDragManagerEvent = new InterDragManagerEvent(InterDragManagerEvent.DISPATCH_DRAG_EVENT, false, false,
+													event.localX,
+													event.localY,
+													event.relatedObject,
+													event.ctrlKey,
+													event.altKey,
+													event.shiftKey,
+													event.buttonDown,
+													event.delta,
+													target,
+													event.type,
+													event.dragInitiator,
+													event.dragSource,
+													event.action,
+													event.draggedItem
+													);
+			sandboxRoot.dispatchEvent(mde);
+		}
+	}
+
+	private function isSameOrChildApplicationDomain(target:Object):Boolean
+	{
+		var swfRoot:DisplayObject = SystemManager.getSWFRoot(target);
+        if (swfRoot)
+            return true;
+
+        var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.SYSTEM_MANAGER_REQUEST);
+        me.name = "hasSWFBridges";
+        sandboxRoot.dispatchEvent(me);
+        
+        // if no bridges, it might be a private/internal class so return true and hope we're right
+        if (!me.value) return true;
+
+        return false;
+    }
+
+	/**
+	 *  Marshal dispatchEvents
+	 */
+	private function marshalDispatchEventHandler(event:Event):void
+	{
+		if (event is InterDragManagerEvent)
+			return;
+
+		var marshalEvent:Object = event;
+
+		var swfRoot:DisplayObject = SystemManager.getSWFRoot(marshalEvent.dropTarget);
+		if (!swfRoot)
+			return;	// doesn't belong to this appdomain
+
+		var dragEvent:DragEvent = new DragEvent(marshalEvent.dragEventType, marshalEvent.bubbles, marshalEvent.cancelable);
+		dragEvent.localX = marshalEvent.localX;
+		dragEvent.localY = marshalEvent.localY;
+		dragEvent.action = marshalEvent.action;
+		dragEvent.ctrlKey = marshalEvent.ctrlKey;
+		dragEvent.altKey = marshalEvent.altKey;
+		dragEvent.shiftKey = marshalEvent.shiftKey;
+		dragEvent.draggedItem = marshalEvent.draggedItem;
+		dragEvent.dragSource = new DragSource();
+		var formats:Array = marshalEvent.dragSource.formats;
+		var n:int = formats.length;
+		for (var i:int = 0; i < n; i++)
+		{
+			// this will call handlers right away, so deferred clipboard will be costly
+			dragEvent.dragSource.addData(marshalEvent.dragSource.dataForFormat(formats[i]), formats[i]);
+		}
+		if (!marshalEvent.dropTarget.dispatchEvent(dragEvent))
+		{
+			event.preventDefault();
+		}
+	}
+
+	/**
+	 *  Marshal dragManager
+	 */
+	private function marshalDragManagerHandler(event:Event):void
+	{
+		if (event is InterManagerRequest)
+			return;
+
+		var marshalEvent:Object = event;
+		switch (marshalEvent.name)
+		{
+		case "isDragging":
+			// trace("--marshaled isDragging for DragManagerImpl", sm, marshalEvent.value);
+			// bDoingDrag = marshalEvent.value; // not supported in AIR right now, we'd need more info
+			break;
+		case "acceptDragDrop":
+			if (isDragging)
+			{
+				// trace("NativeDragMgr.acceptDragDrop targ",target);
+				var dispObj:InteractiveObject = marshalEvent.value as InteractiveObject;
+				if (dispObj)
+					flash.desktop.NativeDragManager.acceptDragDrop(dispObj);
+			}
+			break;
+		case "showFeedback":
+			if (isDragging)	// it is our drag
+			{
+				// trace("--marshaled showFeedback for DragManagerImpl", sm, marshalEvent.value);
+				showFeedback(marshalEvent.value);
+			}
+			break;
+		case "getFeedback":
+			if (isDragging)	// it is our drag
+			{
+				marshalEvent.value = getFeedback();
+				// trace("--marshaled getFeedback for DragManagerImpl", sm, marshalEvent.value);
+			}
+			break;
+		case "endDrag":
+			// trace("--marshaled endDrag for DragManagerImpl", sm, marshalEvent.value);
+			endDrag();
+			break;
+		case "update":
+			// if we own the drag, then redispatch to tell the new guy
+			if (isDragging)
+			{
+				// trace("-->marshaled update for DragManagerImpl", sm);
+				var me:InterManagerRequest = new InterManagerRequest(InterManagerRequest.DRAG_MANAGER_REQUEST);
+				me.name = "isDragging";
+				me.value = true;
+				// trace("-->dispatched isDragging for DragManagerImpl", sm, true);
+				sandboxRoot.dispatchEvent(me);
+				// trace("<--dispatched isDragging for DragManagerImpl", sm, true);
+				// trace("<--marshaled update for DragManagerImpl", sm);
+			}
+		}
 	}
 }
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Helper class: DragDataFormatFetcher
+//
+////////////////////////////////////////////////////////////////////////////////
+
+import flash.desktop.Clipboard;
+import mx.core.DragSource;
+
+
+/**
+ *  @private
+ *  Helper class used to provide a way to access the clipboard or dragSource data
+ *  at a later time. 
+ */
+class DragDataFormatFetcher
+{
+
+	include "../core/Version.as";
+
+	//--------------------------------------------------------------------------
+    //
+    //  Constructor
+    //
+    //--------------------------------------------------------------------------
+    
+    /**
+     *  Constructor.
+     */
+	public function DragDataFormatFetcher()
+	{
+		super();
+	}
+	
+	/**
+     *  @private
+     */
+	public var clipboard:Clipboard;
+	
+	/**
+     *  @private
+     */
+	public var dragSource:DragSource;
+	
+	/**
+     *  @private
+     */
+	public var format:String;
+	
+	/**
+     *  @private
+     */
+	public function getClipboardData():Object
+	{
+		if (clipboard)
+			return clipboard.getData(format);
+		else
+			return null;
+	}
+	
+	/**
+     *  @private
+     */
+	public function getDragSourceData():Object
+	{
+		if (dragSource)
+			return dragSource.dataForFormat(format);
+		else
+			return null;
+	}
 }
 
