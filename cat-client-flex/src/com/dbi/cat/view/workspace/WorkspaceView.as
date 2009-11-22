@@ -57,6 +57,8 @@ package com.dbi.cat.view.workspace
 			dispatchEvent(new Event("updateReadonly"));
 		}
 		
+		public var showImportIcon:Boolean = false;
+		
 		private var _campaign:CampaignVO;
 		[Bindable]
 		public function get campaign():CampaignVO
@@ -359,6 +361,7 @@ package com.dbi.cat.view.workspace
             {
             	var ep:EntryPointItem = new EntryPointItem();
             	ep.entryPointVO = node as EntryPointVO;
+            	ep.showImportIcon = showImportIcon;
 				newItem = ep;
             }
             else if(node is CouponNodeVO)

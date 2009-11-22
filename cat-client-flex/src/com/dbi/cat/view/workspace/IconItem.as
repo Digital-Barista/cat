@@ -53,6 +53,9 @@ package com.dbi.cat.view.workspace
         [Embed("/assets/swf/exclamation_point.swf")]
         public static const exclamationPointIcon:Class;
         
+        [Embed("/assets/swf/subscribe_contacts.swf")]
+        public static const subscribeContactsIcon:Class;
+        
         // UIComponents
 		private var _displayLoader:SWFLoader;
 		public function get displayLoader():SWFLoader

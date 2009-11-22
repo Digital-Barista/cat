@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,7 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
+import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.CampaignDO;
@@ -239,6 +241,32 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			CATEvent nodeCompleted = CATEvent.buildNodeOperationCompletedEvent(nodeDO.getUID(), sub.getPrimaryKey().toString());
 			eventManager.queueEvent(nodeCompleted);
 		}
+	}
+
+	@Override
+	public void subscribeContactsToEntryPoint(List<Contact> contacts, String entryPointUID) 
+	{
+
+		// Sort contacts by type
+		Collections.sort(contacts);
+		
+		EntryPointType lastType = null;
+		Set<String> addresses = new HashSet<String>();
+		for (Contact c : contacts)
+		{
+			if (lastType != null &&
+				lastType != c.getType())
+			{
+				subscribeToEntryPoint(addresses, entryPointUID, lastType);
+				addresses = new HashSet<String>();
+			}
+			
+			addresses.add(c.getAddress());
+			lastType = c.getType();
+		}
+
+		// Subscribe last type
+		subscribeToEntryPoint(addresses, entryPointUID, lastType);
 	}
 
 }

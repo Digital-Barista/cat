@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.Local;
@@ -13,6 +14,7 @@ import javax.ws.rs.QueryParam;
 
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
+import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.data.EntryPointType;
 
 @Local
@@ -27,4 +29,6 @@ public interface SubscriptionManager {
 	@Path("/{type}/{entryPointUID}")
 	@POST
 	public void subscribeToEntryPoint(@Wrapped(element="Addresses") Set<String> addresses, @PathParam("entryPointUID") String entryPointUID, @PathParam("type") EntryPointType subscriptionType);
+
+	public void subscribeContactsToEntryPoint(@Wrapped(element="Contact") List<Contact> contacts, @PathParam("entryPointUID") String entryPointUID);
 }

@@ -5,6 +5,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.components.LoadingMessageView;
+			import com.dbi.cat.business.AppManager;
 			import mx.messaging.SubscriptionInfo;
 			import com.dbi.cat.business.ImportManager;
 			import com.dbi.cat.event.ImportEvent;
@@ -16,44 +18,35 @@
 	
 	<Debugger level="{Debugger.ALL}" />
 	
-	<EventHandlers type="{ImportEvent.CLOSE_IMPORT_WINDOW}">
+	<EventHandlers type="{ImportEvent.OPEN_IMPORT_SUBSCRIBERS}">
 		<MethodInvoker generator="{ImportManager}"
-			method="closeImportWindow" />
+			method="openImportSubscribers"
+			arguments="{event.node}" />
 	</EventHandlers>
-	<EventHandlers type="{ImportEvent.OPEN_IMPORT_WINDOW}">
+	<EventHandlers type="{ImportEvent.CLOSE_IMPORT_SUBSCRIBERS}">
 		<MethodInvoker generator="{ImportManager}"
-			method="openImportWindow" />
-	</EventHandlers>
-	<EventHandlers type="{ImportEvent.CHOOSE_IMPORT_FILE}">
-		<MethodInvoker generator="{ImportManager}"
-			method="chooseImportFile" />
+			method="closeImportSubscribers" />
 	</EventHandlers>
 	<EventHandlers type="{ImportEvent.DO_IMPORT}">
-		<RemoteObjectInvoker 
-			destination="subscriptionManager"
-			method="subscribeToEntryPoint"
-			arguments="{[event.addresses, event.entryPointUID, event.entryPointType]}"
-			showBusyCursor="true">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{'Subscribing Contacts'}" />
+		<RemoteObjectInvoker destination="subscriptionManager"
+			method="subscribeContactsToEntryPoint"
+			arguments="{[event.contacts, event.node.uid]}">
 			<resultHandlers>
 				<MethodInvoker generator="{ImportManager}"
-					method="importSucceded"
-					arguments="{event.addresses}" />
+					method="importSuccessfull" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
 			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
-	
-	<EventHandlers type="{ImportEvent.LOAD_ALL_CLIENT_ADDRESSES}">
-		<RemoteObjectInvoker 
-			destination="subscriptionManager"
-			method="getAllAddresses"
-			arguments="{[event.clientId, event.entryPointType]}"
-			showBusyCursor="true">
-			<resultHandlers>
-				<MethodInvoker generator="{ImportManager}"
-					method="loadClientAddresses"
-					arguments="{resultObject}" />
-			</resultHandlers>
-		</RemoteObjectInvoker>
-	</EventHandlers>
-	
 </EventMap>

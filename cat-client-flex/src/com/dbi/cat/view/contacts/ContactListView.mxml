@@ -98,6 +98,12 @@
 				}
 				return ret;
 			}
+			
+			private function get contactTypes():Array
+			{
+				var ret:Array = [""];
+				return ret.concat(EntryPointType.getAllTypes().toArray());
+			}
 		]]>
 	</mx:Script>
 	<mx:Canvas width="100%" height="100%">
@@ -113,7 +119,7 @@
 				change="doFilter()" />
 			<mx:Label text="Type:" />
 			<mx:ComboBox id="ContactType"
-				dataProvider="{EntryPointType.getAllTypes()}"
+				dataProvider="{contactTypes}"
 				change="doFilter()" />
 			<mx:Label text="Tags" />
 			<mx:Button label="{tagLabel}"
@@ -127,6 +133,7 @@
 			allowMultipleSelection="true">
 			<mx:columns>
 				<mx:DataGridColumn width="30" itemRenderer="com.dbi.controls.RowIndex" />
+				<mx:DataGridColumn headerText="Type" dataField="type" width="60" />
 				<mx:DataGridColumn headerText="Contact" dataField="address" width="150" />
 				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" width="80" />
 				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" />

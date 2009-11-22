@@ -13,7 +13,8 @@ import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.RoleDO;
 
 @XmlRootElement
-public class Contact implements BusinessObject<ContactDO>{
+public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
+{
 
 	private Long contactId;
 	private String address;
@@ -86,6 +87,10 @@ public class Contact implements BusinessObject<ContactDO>{
 		dataObject.setAddress(address);
 		dataObject.setCreateDate(createDate);
 		dataObject.setType(type);
+	}
+	@Override
+	public int compareTo(Contact o) {
+		return getType().compareTo(o.getType());
 	}
 	
 	

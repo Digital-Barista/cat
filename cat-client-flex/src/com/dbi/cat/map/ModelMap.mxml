@@ -3,6 +3,7 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.campaign.ImportSubscribers;
 			import com.dbi.cat.view.contacts.ContactImportView;
 			import com.dbi.cat.view.contacts.RemoveTagView;
 			import com.dbi.cat.view.contacts.FilterTagView;
@@ -32,7 +33,6 @@
 			import com.dbi.cat.view.workspace.CouponItem;
 			import com.dbi.cat.view.workspace.MessageItem;
 			import com.dbi.cat.business.ImportManager;
-			import com.dbi.cat.view.address.ImportView;
 			import com.dbi.cat.view.TestCampaignView;
 			import com.dbi.cat.business.CampaignTestManager;
 			import com.dbi.cat.view.profile.ClientInformationView;
@@ -228,16 +228,6 @@
 			eventType="{LayoutInfoEvent.LAYOUT_LOADED}"
 			method="fitContent" />
 	</Injectors>
-	<Injectors target="{ImportView}">
-		<PropertyInjector
-			source="{ImportManager}"
-			sourceKey="importedAddresses"
-			targetKey="addresses" />
-		<PropertyInjector
-			source="{CampaignManager}"
-			sourceKey="publishedCampaign"
-			targetKey="publishedCampaign" />
-	</Injectors>
 	<Injectors target="{CampaignManager}">
 		<PropertyInjector
 			source="{ClientManager}"
@@ -383,5 +373,21 @@
 			source="{ContactManager}"
 			sourceKey="contactTagLists"
 			targetKey="contactTagLists" />
+	</Injectors>
+	<Injectors target="{ImportSubscribers}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="publishedCampaign"
+			targetKey="publishedCampaign" />
+		<PropertyInjector
+			source="{ImportManager}"
+			sourceKey="currentNode"
+			targetKey="currentNode" />
+	</Injectors>
+	<Injectors target="{ImportManager}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="publishedCampaign"
+			targetKey="publishedCampaign" />
 	</Injectors>
 </EventMap>
