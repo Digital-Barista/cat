@@ -117,7 +117,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			throw new IllegalArgumentException("Could not find node with UID='"+entryPointUID+"'");
 		
 		//And make sure this IS an entry node!
-		if(!entryNode.getType().equals(NodeType.Entry))
+		if(!entryNode.getType().equals(NodeType.Entry) &&
+			!entryNode.getType().equals(NodeType.OutgoingEntry))
 			throw new IllegalArgumentException("NodeDO '"+entryPointUID+"' is not an entry point.");
 		
 		//Get the raw node.

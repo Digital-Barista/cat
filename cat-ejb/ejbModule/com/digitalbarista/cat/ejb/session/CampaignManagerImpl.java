@@ -46,6 +46,7 @@ import com.digitalbarista.cat.business.IntervalConnector;
 import com.digitalbarista.cat.business.LayoutInfo;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
+import com.digitalbarista.cat.business.OutgoingEntryNode;
 import com.digitalbarista.cat.business.ResponseConnector;
 import com.digitalbarista.cat.data.CampaignConnectorLinkDO;
 import com.digitalbarista.cat.data.CampaignDO;
@@ -722,6 +723,16 @@ public class CampaignManagerImpl implements CampaignManager {
 				return ret;
 			}
 			
+			case OutgoingEntry:
+			{
+				OutgoingEntryNode ret = new OutgoingEntryNode();
+				EntryNode source = (OutgoingEntryNode)from;
+				ret.setEntryData(source.getEntryData());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+
 			case Entry:
 			{
 				EntryNode ret = new EntryNode();
@@ -731,7 +742,6 @@ public class CampaignManagerImpl implements CampaignManager {
 				ret.setUid(UUID.randomUUID().toString());
 				return ret;
 			}
-			
 			case Message:
 			{
 				MessageNode ret = new MessageNode();

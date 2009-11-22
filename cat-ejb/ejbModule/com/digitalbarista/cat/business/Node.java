@@ -78,6 +78,8 @@ public abstract class Node implements BusinessObject<NodeDO> {
 		{
 		case Entry:
 			return new EntryNode();
+		case OutgoingEntry:
+			return new OutgoingEntryNode();
 		case Message:
 			return new MessageNode();
 		case Termination:

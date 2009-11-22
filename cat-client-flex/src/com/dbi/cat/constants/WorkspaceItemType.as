@@ -7,6 +7,7 @@ package com.dbi.cat.constants
 		}
 		
 		public static const ENTRY_POINT:String = "Entry Point";
+		public static const OUTGOING_ENTRY_POINT:String = "Outgoing Entry Point";
 		public static const MESSAGE:String = "Message";
 		public static const COUPON:String = "Coupon";
 		

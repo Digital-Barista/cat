@@ -17,6 +17,9 @@ package com.dbi.cat.view.workspace
         [Embed("/assets/swf/house.swf")]
         public static const entryPointIcon:Class;
         
+        [Embed("/assets/swf/outgoing_entry_point.swf")]
+        public static const outgoingEntryPointIcon:Class;
+        
         [Embed("/assets/swf/envelope.swf")]
         public static const messageIcon:Class;
         

@@ -32,6 +32,9 @@
 	        [Embed("/assets/swf/house.swf")]
 	        public const entryPointIcon:Class;
 	        
+	        [Embed("/assets/swf/outgoing_entry_point.swf")]
+	        public const outgoingEntryPointIcon:Class;
+	        
 	        [Embed("/assets/swf/envelope.swf")]
 	        public const messageIcon:Class;
 	        
@@ -93,6 +96,7 @@
 	<mx:XMLList id="components">
 		<node label="Nodes">
 			<node label="{WorkspaceItemType.ENTRY_POINT}" icon="entryPointIcon" />
+			<node label="{WorkspaceItemType.OUTGOING_ENTRY_POINT}" icon="outgoingEntryPointIcon" />
 			<node label="{WorkspaceItemType.MESSAGE}" icon="messageIcon" />
 			<node label="{WorkspaceItemType.COUPON}" icon="couponIcon" />
 		</node>

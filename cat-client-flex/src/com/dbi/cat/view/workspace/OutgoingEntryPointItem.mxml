@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Node xmlns="com.dbi.cat.view.workspace.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
+	displayIcon="{outgoingEntryPointIcon}"
+	workspaceIcon="{outgoingEntryPointIcon}"
+	editWindowWidth="300"
+	editWindowHeight="170"
+	xmlns:controls="com.dbi.controls.*"
+	label="Outgoing Entry Point" 
+	xmlns:components="com.dbi.cat.view.components.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.OutgoingEntryPointVO;
+			import com.dbi.cat.event.ImportEvent;
+			import com.dbi.cat.event.ContactEvent;
+			import mx.controls.SWFLoader;
+			import mx.collections.IViewCursor;
+			import com.dbi.cat.common.vo.EntryDataVO;
+			import com.dbi.cat.common.constants.CampaignMode;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.vo.KeywordVO;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.vo.CampaignVO;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.LayoutInfoVO;
+			import com.dbi.cat.common.vo.EntryPointVO;
+			
+			private var importLoader:SWFLoader;
+			
+			public var showImportIcon:Boolean = false;
+			
+			[Bindable(event="nodeUpdate")]
+			[Bindable(event="entryPointLoaded")]
+			public function get outgoingEntryPointVO():OutgoingEntryPointVO
+			{
+				return editNodeVO as OutgoingEntryPointVO;
+			}
+			public function set outgoingEntryPointVO(ep:OutgoingEntryPointVO):void
+			{
+				nodeVO = ep;
+				dispatchEvent(new Event("entryPointLoaded"));
+			}
+			
+			override public function get valid():Boolean
+			{
+				return outgoingEntryPointVO != null && outgoingEntryPointVO.valid;
+			}
+			
+			override protected function childrenCreated():void
+			{
+				super.childrenCreated();
+				
+				if (showImportIcon)
+				{
+					importLoader = new SWFLoader();
+					importLoader.source = subscribeContactsIcon;
+					importLoader.toolTip = "Subscribe contacts to this entry point";
+					importLoader.width = MENU_ICON_SIZE;
+					importLoader.height = MENU_ICON_SIZE;
+					importLoader.setStyle("left", 0);
+					importLoader.setStyle("top", 0);
+					importLoader.addEventListener(MouseEvent.CLICK, importContacts);
+					addChild(importLoader);
+				}
+			}
+			
+			private function importContacts(e:MouseEvent):void
+			{
+				var event:ImportEvent = new ImportEvent(ImportEvent.OPEN_IMPORT_SUBSCRIBERS);
+				event.node = outgoingEntryPointVO;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<editContent>
+		<mx:Form width="100%" 
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
+			<mx:FormItem label="Title" 
+				labelWidth="70" width="100%">
+				<mx:TextInput id="Title"
+					width="100%"
+					text="{outgoingEntryPointVO.name}"
+					change="{outgoingEntryPointVO.name = Title.text}" />
+			</mx:FormItem>
+		</mx:Form>
+		<AddressSelection 
+			workspace="{workspace}"
+			entryData="{outgoingEntryPointVO.entryData}"
+			showAddresses="false"
+			right="0" left="0" top="0" bottom="0"   
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5" />
+	</editContent>
+</Node>
