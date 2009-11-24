@@ -14,6 +14,7 @@ import com.digitalbarista.cat.business.IntervalConnector;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
 
@@ -23,8 +24,9 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 			SessionContext newSC, 
 			EventManager newEventManager,
 			CampaignManager newCampaignManager,
+			ContactManager newContactManager,
 			EventTimerManager timer) {
-		super(newEM, newSC, newEventManager, newCampaignManager,timer);
+		super(newEM, newSC, newEventManager, newCampaignManager, newContactManager, timer);
 	}
 
 	@Override

@@ -15,12 +15,14 @@ import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
+import com.digitalbarista.cat.data.EntryPointType;
 
 @Local
 @Path("/contacts")
 @Produces({"application/xml","application/json"})
 @Consumes({"application/xml","application/json"})
 public interface ContactManager {
+	public boolean contactExists(String address, EntryPointType type, Long clientId);
 	@GET
 	@Wrapped(element="Contacts")
 	public List<Contact> getContacts();

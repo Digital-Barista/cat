@@ -29,6 +29,7 @@ import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
+import com.digitalbarista.cat.data.EntryPointType;
 
 /**
  * Session Bean implementation class ContactManagerImpl
@@ -50,6 +51,26 @@ public class ContactManagerImpl implements ContactManager {
 
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
+
+	@PermitAll
+	public boolean contactExists(String address, EntryPointType type, Long clientId)
+	{
+		if(address==null)
+			throw new IllegalArgumentException("Address must be provided.");
+		if(type==null)
+			throw new IllegalArgumentException("Type must be provided.");
+		if(clientId==null)
+			throw new IllegalArgumentException("ClientID must be provided.");
+		
+		Criteria crit = null;
+
+		crit = session.createCriteria(ContactDO.class);
+		crit.add(Restrictions.eq("address", address));
+		crit.add(Restrictions.eq("type", type));
+		crit.add(Restrictions.eq("client.id", clientId));
+
+		return crit.uniqueResult()!=null;
+	}
 	
 	@SuppressWarnings("unchecked")
 	@PermitAll
@@ -149,6 +170,7 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(ContactTag tag) {
 		if(tag == null)
 			throw new IllegalArgumentException("Cannot delete a null tag.");
@@ -164,6 +186,7 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(Contact contact) {
 		if(contact == null)
 			throw new IllegalArgumentException("Cannot delete a null contact.");
@@ -179,6 +202,7 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void addTagsToContacts(List<Contact> contacts, List<ContactTag> tags) 
 	{
 		for (Contact c : contacts)

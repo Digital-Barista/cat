@@ -25,6 +25,7 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.data.CouponResponseDO.Type;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
 import com.digitalbarista.cat.util.SequentialBitShuffler;
@@ -37,8 +38,9 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 			SessionContext newSC, 
 			EventManager newEventManager,
 			CampaignManager newCampaignManager,
+			ContactManager newContactManager,
 			EventTimerManager timer) {
-		super(newEM, newSC, newEventManager, newCampaignManager, timer);
+		super(newEM, newSC, newEventManager, newCampaignManager, newContactManager, timer);
 	}
 
 	@Override
