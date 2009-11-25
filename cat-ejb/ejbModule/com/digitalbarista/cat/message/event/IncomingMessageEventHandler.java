@@ -290,10 +290,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
 			getEntityManager().persist(csl);
 			
-			if(!getContactManager().contactExists(e.getSource(), mostLikelyEntry.getType(), mostLikelyEntry.getCampaign().getClient().getPrimaryKey()))
+			if(!getContactManager().contactExists(e.getTarget(), mostLikelyEntry.getType(), mostLikelyEntry.getCampaign().getClient().getPrimaryKey()))
 			{
 				Contact con = new Contact();
-				con.setAddress(e.getSource());
+				con.setAddress(e.getTarget());
 				con.setClientId(mostLikelyEntry.getCampaign().getClient().getPrimaryKey());
 				con.setCreateDate(Calendar.getInstance());
 				con.setType(mostLikelyEntry.getType());
