@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.message.event;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -10,13 +11,20 @@ import javax.persistence.Query;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.jboss.util.NotImplementedException;
 
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
+import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.ContactDO;
+import com.digitalbarista.cat.data.ContactTagDO;
+import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.CouponCounterDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
@@ -74,10 +82,95 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 		switch(dest.getType())
 		{
 			case Entry:
+			case OutgoingEntry:
 				throw new IllegalStateException("ConnectorDO cannot have a entry node for a destination.");
 
 			case Termination:
 				throw new NotImplementedException("Haven't built this type of node yet.");
+			
+			case Tagging:
+			{
+				TaggingNode tNode = (TaggingNode)dest;
+				NodeDO simpleNode=getCampaignManager().getSimpleNode(tNode.getUid());
+				List<ContactTagDO> tags;
+				Criteria crit = ((Session)this.getEntityManager().getDelegate()).createCriteria(ContactTagDO.class);
+				crit.add(Restrictions.in("tag", tNode.getTags()));
+				crit.add(Restrictions.eq("type", ContactTagType.USER));
+				crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
+				tags = (List<ContactTagDO>)crit.list();
+				if(e.getTargetType().equals(CATTargetType.SpecificSubscriber))
+				{
+					SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
+					ContactDO con;
+					crit = ((Session)this.getEntityManager().getDelegate()).createCriteria(ContactDO.class);
+					EntryPointType ept = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+					String address=null;
+					switch(ept)
+					{
+						case Email:
+							address=s.getEmail();
+							break;
+						case SMS:
+							address=s.getPhoneNumber();
+							break;
+						case Twitter:
+							address=s.getTwitterUsername();
+							break;
+					}
+					crit.add(Restrictions.eq("address",address));
+					crit.add(Restrictions.eq("entryPointType", ept));
+					crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
+					con = (ContactDO)crit.uniqueResult();
+					if(con==null)
+					{
+						con=new ContactDO();
+						con.setAddress(address);
+						con.setType(ept);
+						con.setCreateDate(Calendar.getInstance());
+						getEntityManager().persist(con);
+					}
+					con.getContactTags().addAll(tags);
+					getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
+				} else if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers)){
+					Query q = getEntityManager().createNamedQuery("all.subscribers.on.node");
+					q.setParameter("nodeUID", conn.getSourceNodeUID());
+					List<SubscriberDO> subs = (List<SubscriberDO>)q.getResultList();
+					for(SubscriberDO s : subs)
+					{
+						ContactDO con;
+						crit = ((Session)this.getEntityManager().getDelegate()).createCriteria(ContactDO.class);
+						EntryPointType ept = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+						String address=null;
+						switch(ept)
+						{
+							case Email:
+								address=s.getEmail();
+								break;
+							case SMS:
+								address=s.getPhoneNumber();
+								break;
+							case Twitter:
+								address=s.getTwitterUsername();
+								break;
+						}
+						crit.add(Restrictions.eq("address",address));
+						crit.add(Restrictions.eq("entryPointType", ept));
+						crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
+						con = (ContactDO)crit.uniqueResult();
+						if(con==null)
+						{
+							con=new ContactDO();
+							con.setAddress(address);
+							con.setType(ept);
+							con.setCreateDate(Calendar.getInstance());
+							getEntityManager().persist(con);
+						}
+						con.getContactTags().addAll(tags);
+						getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
+					}
+				}
+			}
+			break; //End Tagging node type.
 				
 			case Message:
 			{
@@ -122,7 +215,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					}
 					s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 					getEventManager().queueEvent(sendMessageEvent);
-					getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), e.getTarget()));
+					getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 				} else if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers)){
 					Query q = getEntityManager().createNamedQuery("all.subscribers.on.node");
 					q.setParameter("nodeUID", conn.getSourceNodeUID());
@@ -162,7 +255,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 						s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 						getEntityManager().persist(simpleNode);
 						getEventManager().queueEvent(sendMessageEvent);
-						getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), e.getTarget()));
+						getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 					}
 				}
 			}
@@ -256,7 +349,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					}
 					s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 					getEventManager().queueEvent(sendMessageEvent);
-					getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), e.getTarget()));
+					getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 				} else if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers)){
 					Query q = getEntityManager().createNamedQuery("all.subscribers.on.node");
 					q.setParameter("nodeUID", conn.getSourceNodeUID());
@@ -341,7 +434,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 						s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 						getEntityManager().persist(simpleNode);
 						getEventManager().queueEvent(sendMessageEvent);
-						getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), e.getTarget()));
+						getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 					}
 				}
 			}

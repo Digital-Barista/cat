@@ -17,7 +17,7 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
-@XmlSeeAlso({CouponNode.class,EntryNode.class,MessageNode.class,TerminationNode.class})
+@XmlSeeAlso({CouponNode.class,EntryNode.class,MessageNode.class,TerminationNode.class,OutgoingEntryNode.class,TaggingNode.class})
 public abstract class Node implements BusinessObject<NodeDO> {
 
 	private List<String> downstreamConnections=new ArrayList<String>();
