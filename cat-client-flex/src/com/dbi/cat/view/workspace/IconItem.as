@@ -23,6 +23,9 @@ package com.dbi.cat.view.workspace
         [Embed("/assets/swf/envelope.swf")]
         public static const messageIcon:Class;
         
+        [Embed("/assets/swf/tagging_node.swf")]
+        public static const taggingIcon:Class;
+        
         [Embed("/assets/swf/barcode.swf")]
         public static const couponIcon:Class;
         

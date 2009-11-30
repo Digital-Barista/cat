@@ -33,7 +33,7 @@ public class TaggingNode extends Node {
 
 	@Override
 	public void copyFrom(NodeDO dataObject, Integer version) {
-		super.copyFrom(dataObject);
+		super.copyFrom(dataObject, version);
 		
 		for(NodeInfoDO ni : dataObject.getNodeInfo())
 		{
@@ -62,18 +62,21 @@ public class TaggingNode extends Node {
 		}
 		
 		Set<NodeInfoDO> finalNodes = new HashSet<NodeInfoDO>();
-		for(int loop=0; loop<tags.size(); loop++)
+		if (tags != null)
 		{
-			if(tags.get(loop)==null)
-				continue;
-			if(nodes.containsKey(INFO_PROPERTY_TAG+"["+loop+"]"))
+			for(int loop=0; loop<tags.size(); loop++)
 			{
-				nodes.get(INFO_PROPERTY_TAG+"["+loop+"]").setValue(tags.get(loop).toString());
-				finalNodes.add(nodes.get(INFO_PROPERTY_TAG+"["+loop+"]"));
-			}
-			else
-			{
-				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_TAG+"["+loop+"]", tags.get(loop).toString(), version);
+				if(tags.get(loop)==null)
+					continue;
+				if(nodes.containsKey(INFO_PROPERTY_TAG+"["+loop+"]"))
+				{
+					nodes.get(INFO_PROPERTY_TAG+"["+loop+"]").setValue(tags.get(loop).toString());
+					finalNodes.add(nodes.get(INFO_PROPERTY_TAG+"["+loop+"]"));
+				}
+				else
+				{
+					buildAndAddNodeInfo(dataObject, INFO_PROPERTY_TAG+"["+loop+"]", tags.get(loop).toString(), version);
+				}
 			}
 		}
 		Set<NodeInfoDO> removeNodes = new HashSet<NodeInfoDO>();

@@ -48,6 +48,7 @@ import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.OutgoingEntryNode;
 import com.digitalbarista.cat.business.ResponseConnector;
+import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.data.CampaignConnectorLinkDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
@@ -748,6 +749,15 @@ public class CampaignManagerImpl implements CampaignManager {
 				MessageNode source = new MessageNode();
 				ret.setMessage(source.getMessage());
 				ret.setMessageType(source.getMessageType());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+			case Tagging:
+			{
+				TaggingNode ret = new TaggingNode();
+				TaggingNode source = new TaggingNode();
+				ret.setTags(source.getTags());
 				ret.setName(source.getName());
 				ret.setUid(UUID.randomUUID().toString());
 				return ret;

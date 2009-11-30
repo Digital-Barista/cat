@@ -41,6 +41,9 @@
 	        [Embed("/assets/swf/barcode.swf")]
 	        public const couponIcon:Class;
 	        
+	        [Embed("/assets/swf/tagging_node.swf")]
+	        public const taggingIcon:Class;
+	        
 	        [Embed("/assets/swf/date_connector_workspace.swf")]
 	        public const dateConnector:Class;
 	        
@@ -99,6 +102,7 @@
 			<node label="{WorkspaceItemType.OUTGOING_ENTRY_POINT}" icon="outgoingEntryPointIcon" />
 			<node label="{WorkspaceItemType.MESSAGE}" icon="messageIcon" />
 			<node label="{WorkspaceItemType.COUPON}" icon="couponIcon" />
+			<node label="{WorkspaceItemType.TAGGING}" icon="taggingIcon" />
 		</node>
 		<node label="Connectors">
 			<node label="{WorkspaceItemType.IMMEDIATE_CONNECTOR}" icon="immediateConnector" />

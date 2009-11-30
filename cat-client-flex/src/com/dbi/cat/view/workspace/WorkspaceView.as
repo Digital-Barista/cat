@@ -14,6 +14,7 @@ package com.dbi.cat.view.workspace
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.common.vo.OutgoingEntryPointVO;
 	import com.dbi.cat.common.vo.ResponseConnectorVO;
+	import com.dbi.cat.common.vo.TaggingNodeVO;
 	import com.dbi.cat.constants.WorkspaceItemType;
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.LayoutInfoEvent;
@@ -299,6 +300,17 @@ package com.dbi.cat.view.workspace
 				saveEvent.node = coupon;
 				addNodeToWorkspace(coupon);
             }
+            else if(type == WorkspaceItemType.TAGGING)
+            {
+            	var tagging:TaggingNodeVO = new TaggingNodeVO();
+            	tagging.campaignUID = campaign.uid;
+            	layout.UUID = tagging.uid;
+            	tagging.layoutInfo = layout;
+            	
+            	saveEvent = new CampaignEvent(CampaignEvent.SAVE_NODE);
+				saveEvent.node = tagging;
+				addNodeToWorkspace(tagging);
+            }
             else if(type == WorkspaceItemType.IMMEDIATE_CONNECTOR)
             {
             	var immediate:ImmediateConnectorVO = new ImmediateConnectorVO();
@@ -388,6 +400,12 @@ package com.dbi.cat.view.workspace
             	var c:CouponItem = new CouponItem();
             	c.couponVO = node as CouponNodeVO;
 				newItem = c;
+            }
+            else if(node is TaggingNodeVO)
+            {
+            	var t:TaggingItem = new TaggingItem();
+            	t.taggingNodeVO = node as TaggingNodeVO;
+				newItem = t;
             }
             
             // Hide some icons for template campaigns

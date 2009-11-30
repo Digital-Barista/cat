@@ -349,7 +349,6 @@ package com.dbi.cat.view.workspace
 				editWindowEffect.addEventListener(EffectEvent.EFFECT_END, closeEditEffectEnd, false, 0, true);
 				editWindowEffect.addChild(resize);
 				editWindowEffect.addChild(move);
-				editWindowEffect.addChild(move);
 				
 				// Setup resize
 				resize.widthTo = 0;
