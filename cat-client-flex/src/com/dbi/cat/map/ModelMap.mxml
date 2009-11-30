@@ -3,6 +3,7 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.workspace.TaggingItem;
 			import com.dbi.cat.view.campaign.ImportSubscribers;
 			import com.dbi.cat.view.contacts.ContactImportView;
 			import com.dbi.cat.view.contacts.RemoveTagView;
@@ -369,6 +370,12 @@
 			targetKey="currentContact" />
 	</Injectors>
 	<Injectors target="{TagChooser}">
+		<PropertyInjector 
+			source="{ContactManager}"
+			sourceKey="contactTagLists"
+			targetKey="contactTagLists" />
+	</Injectors>
+	<Injectors target="{TaggingItem}">
 		<PropertyInjector 
 			source="{ContactManager}"
 			sourceKey="contactTagLists"

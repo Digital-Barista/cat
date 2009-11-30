@@ -89,6 +89,7 @@
 			borderStyle="none"
 			selectable="false"
 			columnCount="3" rowHeight="30"
+			horizontalScrollPolicy="off"
 			itemRenderer="com.dbi.cat.view.contacts.TagItemRenderer"
 			width="100%"  />
 	</mx:Repeater>

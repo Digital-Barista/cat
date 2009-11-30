@@ -9,9 +9,11 @@
 	displayIcon="{taggingIcon}"
 	workspaceIcon="{taggingIcon}"
 	label="Message"
-	xmlns:contacts="com.dbi.cat.view.contacts.*">
+	xmlns:contacts="com.dbi.cat.view.contacts.*"
+	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.vo.TaggingNodeVO;
 			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.EntryPointType;
@@ -21,6 +23,10 @@
 			import com.dbi.cat.common.vo.MessageVO;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			
+			public function set contactTagLists(value:ArrayCollection):void
+			{
+				Tags.contactTagLists = value;	
+			}
 			
 			[Bindable(event="nodeUpdate")]
 			public function get taggingNodeVO():TaggingNodeVO
@@ -36,19 +42,23 @@
 			{
 				return taggingNodeVO != null && taggingNodeVO.valid;
 			}
+			
+			private function init():void
+			{
+				editWindow.verticalScrollPolicy = "on";
+			}
 		]]>
 	</mx:Script>
 	<editContent>
-		<mx:Form right="0" left="0" top="0"
-			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
-			<mx:FormItem label="Title" width="100%">
+		<mx:VBox width="500" height="100%">
+			<mx:HBox width="100%">
+				<mx:Label text="Title" />
 				<mx:TextInput id="Title" width="100%"
 					text="{taggingNodeVO.name}"
 					change="{taggingNodeVO.name = Title.text}" />
-			</mx:FormItem>
-		</mx:Form>
-		<contacts:TagChooser id="Tags" 
-			top="100"
-			width="100%" height="100%" />
+			</mx:HBox>
+			<contacts:TagChooser id="Tags"
+				width="500" />
+		</mx:VBox>
 	</editContent>
 </Node>
