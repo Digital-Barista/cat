@@ -10,7 +10,6 @@ package com.dbi.cat.common.vo
 		public var clientId:String;
 		public var type:String;
 		public var contactCount:Number = 0;
-		public var selected:Boolean = false;
 		
 		public function ContactTagVO()
 		{

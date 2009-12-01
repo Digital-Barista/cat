@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.business;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,8 @@ public class TaggingNode extends Node {
 						
 			if(ni.getName().startsWith(INFO_PROPERTY_TAG+"["))
 			{
+				if (tags == null)
+					tags = new ArrayList<String>();
 				Matcher r = Pattern.compile(INFO_PROPERTY_TAG+"\\[([\\d]+)\\]").matcher(ni.getName());
 				r.matches();
 				fillListAndSet(tags,new Integer(r.group(1)), ni.getValue());

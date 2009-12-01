@@ -4,6 +4,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
+	import com.dbi.cat.common.vo.ContactTagVO;
 	import com.dbi.cat.common.vo.CouponNodeVO;
 	import com.dbi.cat.common.vo.EntryDataVO;
 	import com.dbi.cat.common.vo.EntryPointVO;
@@ -12,6 +13,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.MessageVO;
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.common.vo.ResponseConnectorVO;
+	import com.dbi.cat.common.vo.TaggingNodeVO;
 	
 	import mx.formatters.DateFormatter;
 	
@@ -289,8 +291,27 @@ package com.dbi.cat.business
 					}
 					else
 					{
-						out("Invalid message: ", coupon.name, COLOR_RED);
+						out("Invalid coupon: ", coupon.name, COLOR_RED);
 					}
+				}
+				// Handle taggin node
+				else if (currentNode is TaggingNodeVO)
+				{
+					var tagging:TaggingNodeVO = currentNode as TaggingNodeVO;
+					
+					if (tagging.valid)
+					{
+						var tags:String = "";
+						for each (var ct:ContactTagVO in tagging.tags)
+						{
+							if (tags.length > 0)
+								tags += ", ";
+							tags += ct.tag;
+						}
+						out("Tagging contact:  ", "Tags - " + tags);
+					}
+					else
+						out("Invalid tagging node: ", tagging.name, COLOR_RED);
 				}
 				nextStep();
 			}

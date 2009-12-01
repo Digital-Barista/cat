@@ -2,6 +2,7 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:contacts="com.dbi.cat.view.contacts.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ListEvent;
 			import mx.utils.ObjectUtil;
 			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.constants.ContactTagType;
@@ -9,6 +10,7 @@
 			import mx.collections.HierarchicalData;
 			import mx.events.CollectionEvent;
 			
+			[Event(name="checkboxChanged", type="flash.events.Event")]
 			
 			private var _contactTagLists:ArrayCollection;
 			[Bindable]
@@ -18,65 +20,27 @@
 			}
 			public function set contactTagLists(value:ArrayCollection):void
 			{
-				// Make a local copy so "selected" flag is per TagChooser
-				if (value != null)
-				{
-					// Preserve selected flags of current tag list
-					var old:ArrayCollection = _contactTagLists;
-					_contactTagLists = ObjectUtil.copy(value) as ArrayCollection;
-					
-					if (old != null)
-					{
-						for each (var newObject:Object in contactTagLists)
-						{
-							for each (var newTag:ContactTagVO in newObject.children)
-							{
-								for each (var oldObject:Object in old)
-								{
-									for each (var oldTag:ContactTagVO in oldObject.children)
-									{
-										if (oldTag.contactTagId == newTag.contactTagId)
-										{
-											newTag.selected = oldTag.selected;
-											break;
-										}
-									}
-								}
-							}	
-						}
-					}
-				}
+				_contactTagLists = value;
 			}
 			
+			public var selectedTags:ArrayCollection = new ArrayCollection();
 			
 			public function unselectAll():void
 			{
-				if (contactTagLists != null)
-				{
-					for each (var o:Object in contactTagLists)
-					{
-						for each (var tag:ContactTagVO in o.children)
-						{
-							tag.selected = false;
-						}
-					}
-				}
+				selectedTags.removeAll();
 			}
-			public function get selectedTags():ArrayCollection
+			
+			private function tagChange(e:Event):void
 			{
-				var ret:ArrayCollection = new ArrayCollection();
-				if (contactTagLists != null)
+				var item:TagItemRenderer = e.target as TagItemRenderer;
+				if (item.selected)
 				{
-					for each (var o:Object in contactTagLists)
-					{
-						for each (var tag:ContactTagVO in o.children)
-						{
-							if (tag.selected)
-								ret.addItem(tag);
-						}
-					}
+					selectedTags.addItem(item.data);
 				}
-				return ret;
+				else if (selectedTags.contains(item.data))
+				{
+					selectedTags.removeItemAt(selectedTags.getItemIndex(item.data))
+				}
 			}
 		]]>
 	</mx:Script>
@@ -84,12 +48,14 @@
 		dataProvider="{contactTagLists}">
 		<mx:Label text="{TagRepeater.currentItem.tag}"
 			fontWeight="bold" fontSize="14" />
-		<contacts:TagTileList id="TagTileList"
+		<contacts:TagTileList id="TagTileListControl" 
 			dataProvider="{TagRepeater.currentItem.children}"
 			borderStyle="none"
 			selectable="false"
 			columnCount="3" rowHeight="30"
 			horizontalScrollPolicy="off"
+			selectedTags="{selectedTags}"
+			checkboxChanged="tagChange(event)"
 			itemRenderer="com.dbi.cat.view.contacts.TagItemRenderer"
 			width="100%"  />
 	</mx:Repeater>

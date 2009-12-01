@@ -7,14 +7,16 @@ package com.dbi.cat.view.contacts
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
-	import mx.binding.utils.BindingUtils;
 	import mx.containers.HBox;
 	import mx.controls.CheckBox;
 	import mx.controls.Image;
 	import mx.controls.Label;
+	import mx.events.ListEvent;
 
 	public class TagItemRenderer extends HBox
 	{
+		[Event(name="checkboxChanged", type="flash.events.Event")]
+	
 		[Embed("/assets/swf/delete.swf")]
 		private var deleteIcon:Class;
 		
@@ -23,6 +25,11 @@ package com.dbi.cat.view.contacts
 		private var remove:Image;
 		private var check:CheckBox;
 			
+		public function get selected():Boolean
+		{
+			return check != null && check.selected;
+		}
+		
 		public function TagItemRenderer()
 		{
 			horizontalScrollPolicy = "off";
@@ -39,7 +46,6 @@ package com.dbi.cat.view.contacts
 			{
 				check = new CheckBox();
 				check.addEventListener(Event.CHANGE, onCheckChanged);
-				BindingUtils.bindProperty(check, "selected", data, "selected");
 				addChild(check);
 			}
 			
@@ -72,12 +78,18 @@ package com.dbi.cat.view.contacts
         		remove.visible = data.type == ContactTagType.USER;
 	            count.text = "(" + data.contactCount + ")";
 				tag.text = data.tag;
+				
+				var list:TagTileList = owner as TagTileList;
+				check.selected = list != null && 
+					list.selectedTags != null && 
+					list.selectedTags.contains(data);
 	        }
         }
         
         private function onCheckChanged(e:Event):void
         {
-        	data.selected = check.selected;
+        	var event:Event = new Event("checkboxChanged", true);
+        	dispatchEvent(event);
         }
         private function onRemoveClick(e:MouseEvent):void
         {
