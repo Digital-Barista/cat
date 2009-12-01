@@ -29,6 +29,7 @@ import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
+import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
 
 /**
@@ -265,6 +266,17 @@ public class ContactManagerImpl implements ContactManager {
 			retContact.copyFrom(cDO);
 			ret.add(retContact);
 		}
+		return ret;
+	}
+
+	@Override
+	public ContactTag findContactTag(Integer clientID, String tag, ContactTagType type) {
+		Criteria crit = session.createCriteria(ContactTagDO.class);
+		crit.add(Restrictions.eq("client.id", clientID.longValue()));
+		crit.add(Restrictions.eq("tag", tag));
+		crit.add(Restrictions.eq("type", type));
+		ContactTag ret = new ContactTag();
+		ret.copyFrom((ContactTagDO)crit.uniqueResult());
 		return ret;
 	}
 }

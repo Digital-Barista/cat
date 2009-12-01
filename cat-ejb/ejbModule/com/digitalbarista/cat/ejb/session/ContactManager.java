@@ -15,6 +15,7 @@ import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
+import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
 
 @Local
@@ -30,6 +31,7 @@ public interface ContactManager {
 	@GET
 	@Wrapped(element="ContactTags")
 	public List<ContactTag> getContactTags();
+	public ContactTag findContactTag(Integer clientID, String tag, ContactTagType type);
 	@POST
 	@Path("/tags")
 	public ContactTag save(ContactTag tag);

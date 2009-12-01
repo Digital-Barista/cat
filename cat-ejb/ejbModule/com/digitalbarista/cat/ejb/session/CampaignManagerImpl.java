@@ -68,6 +68,7 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberDO;
+import com.digitalbarista.cat.ejb.session.interceptor.NodeFillInterceptor;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
 import com.digitalbarista.cat.util.MultiValueMap;
@@ -80,7 +81,7 @@ import com.digitalbarista.cat.util.MultiValueMap;
 @LocalBinding(jndiBinding = "ejb/cat/CampaignManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
-@Interceptors(AuditInterceptor.class)
+@Interceptors({AuditInterceptor.class,NodeFillInterceptor.class})
 public class CampaignManagerImpl implements CampaignManager {
 
 	Logger log = LogManager.getLogger(getClass());

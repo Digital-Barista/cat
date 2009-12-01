@@ -22,9 +22,9 @@ import com.digitalbarista.cat.data.NodeType;
 @XmlType(name="TaggingNode")
 public class TaggingNode extends Node {
 
-	private static final String INFO_PROPERTY_TAG="Tag";
+	public static final String INFO_PROPERTY_TAG="Tag";
 	
-	private List<String> tags;
+	private List<ContactTag> tags;
 	
 	@Override
 	public NodeType getType() {
@@ -34,22 +34,7 @@ public class TaggingNode extends Node {
 
 	@Override
 	public void copyFrom(NodeDO dataObject, Integer version) {
-		super.copyFrom(dataObject, version);
-		
-		for(NodeInfoDO ni : dataObject.getNodeInfo())
-		{
-			if(!ni.getVersion().equals(version))
-				continue;
-						
-			if(ni.getName().startsWith(INFO_PROPERTY_TAG+"["))
-			{
-				if (tags == null)
-					tags = new ArrayList<String>();
-				Matcher r = Pattern.compile(INFO_PROPERTY_TAG+"\\[([\\d]+)\\]").matcher(ni.getName());
-				r.matches();
-				fillListAndSet(tags,new Integer(r.group(1)), ni.getValue());
-			}
-		}
+		super.copyFrom(dataObject, version);		
 	}
 
 	@Override
@@ -73,12 +58,12 @@ public class TaggingNode extends Node {
 					continue;
 				if(nodes.containsKey(INFO_PROPERTY_TAG+"["+loop+"]"))
 				{
-					nodes.get(INFO_PROPERTY_TAG+"["+loop+"]").setValue(tags.get(loop).toString());
+					nodes.get(INFO_PROPERTY_TAG+"["+loop+"]").setValue(tags.get(loop).getTag());
 					finalNodes.add(nodes.get(INFO_PROPERTY_TAG+"["+loop+"]"));
 				}
 				else
 				{
-					buildAndAddNodeInfo(dataObject, INFO_PROPERTY_TAG+"["+loop+"]", tags.get(loop).toString(), version);
+					buildAndAddNodeInfo(dataObject, INFO_PROPERTY_TAG+"["+loop+"]", tags.get(loop).getTag(), version);
 				}
 			}
 		}
@@ -95,13 +80,13 @@ public class TaggingNode extends Node {
 		theList.set(pos, value);
 	}
 	
-	@XmlElementWrapper(name="Tags")
-	@XmlElement(name="Tag")
-	public List<String> getTags() {
+	@XmlElementWrapper(name="ContactTags")
+	@XmlElement(name="ContactTag")
+	public List<ContactTag> getTags() {
 		return tags;
 	}
 
-	public void setTags(List<String> tags) {
+	public void setTags(List<ContactTag> tags) {
 		this.tags = tags;
 	}
 }
