@@ -8,11 +8,14 @@ import java.util.regex.Pattern;
 import javax.ejb.EJB;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.TaggingNode;
+import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
@@ -26,6 +29,9 @@ public class NodeFillInterceptor {
 		
 	@EJB(name="ejb/cat/ContactManager")
 	ContactManager contactManager;
+	
+	@PersistenceContext(unitName="cat-data")
+	private EntityManager em;
 		
 	@AroundInvoke
 	public Object fillNodes(InvocationContext ic) throws Exception
@@ -57,6 +63,7 @@ public class NodeFillInterceptor {
 			if (ret.getTags() == null)
 				ret.setTags(new ArrayList<ContactTag>());
 			ret.getTags().clear();
+			ContactTag ct;
 			for(NodeInfoDO ni : simpleNode.getNodeInfo())
 			{
 				if(!ni.getVersion().equals(version))
@@ -66,7 +73,9 @@ public class NodeFillInterceptor {
 				{
 					Matcher r = Pattern.compile(TaggingNode.INFO_PROPERTY_TAG+"\\[([\\d]+)\\]").matcher(ni.getName());
 					r.matches();
-					fillListAndSet(ret.getTags(),new Integer(r.group(1)), contactManager.findContactTag(simpleNode.getCampaign().getClient().getPrimaryKey().intValue(), ni.getValue(), ContactTagType.USER));
+					ct = new ContactTag();
+					ct.copyFrom(em.find(ContactTagDO.class, new Long(ni.getValue())));
+					fillListAndSet(ret.getTags(),new Integer(r.group(1)), ct);
 				}
 			}
 		}

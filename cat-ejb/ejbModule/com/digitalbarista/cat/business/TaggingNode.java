@@ -58,12 +58,12 @@ public class TaggingNode extends Node {
 					continue;
 				if(nodes.containsKey(INFO_PROPERTY_TAG+"["+loop+"]"))
 				{
-					nodes.get(INFO_PROPERTY_TAG+"["+loop+"]").setValue(tags.get(loop).getTag());
+					nodes.get(INFO_PROPERTY_TAG+"["+loop+"]").setValue(""+tags.get(loop).getContactTagId());
 					finalNodes.add(nodes.get(INFO_PROPERTY_TAG+"["+loop+"]"));
 				}
 				else
 				{
-					buildAndAddNodeInfo(dataObject, INFO_PROPERTY_TAG+"["+loop+"]", tags.get(loop).getTag(), version);
+					buildAndAddNodeInfo(dataObject, INFO_PROPERTY_TAG+"["+loop+"]", ""+tags.get(loop).getContactTagId(), version);
 				}
 			}
 		}
