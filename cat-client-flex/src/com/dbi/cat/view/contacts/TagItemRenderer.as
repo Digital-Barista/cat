@@ -11,7 +11,6 @@ package com.dbi.cat.view.contacts
 	import mx.controls.CheckBox;
 	import mx.controls.Image;
 	import mx.controls.Label;
-	import mx.events.ListEvent;
 
 	public class TagItemRenderer extends HBox
 	{
@@ -80,9 +79,24 @@ package com.dbi.cat.view.contacts
 				tag.text = data.tag;
 				
 				var list:TagTileList = owner as TagTileList;
-				check.selected = list != null && 
-					list.selectedTags != null && 
-					list.selectedTags.contains(data);
+				if (list != null && 
+					list.selectedTags != null)
+				{
+					var found:Boolean = false;
+					for each (var tag:ContactTagVO in list.selectedTags)
+					{
+						if (tag.contactTagId == data.contactTagId)
+						{
+							found = true;
+							break;
+						}
+					}
+					check.selected = found;
+				}
+				else
+				{
+					check.selected = false
+				}
 	        }
         }
         

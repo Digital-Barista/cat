@@ -308,7 +308,7 @@ package com.dbi.cat.business
 								tags += ", ";
 							tags += ct.tag;
 						}
-						out("Tagging contact:  ", "Tags - " + tags);
+						out("Tagging contact:  ", tags);
 					}
 					else
 						out("Invalid tagging node: ", tagging.name, COLOR_RED);
