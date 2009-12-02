@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.message.event;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.util.NotImplementedException;
 
 import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
@@ -24,7 +26,6 @@ import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
-import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.CouponCounterDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
@@ -92,17 +93,14 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 			{
 				TaggingNode tNode = (TaggingNode)dest;
 				NodeDO simpleNode=getCampaignManager().getSimpleNode(tNode.getUid());
-				List<ContactTagDO> tags;
-				Criteria crit = ((Session)this.getEntityManager().getDelegate()).createCriteria(ContactTagDO.class);
-				crit.add(Restrictions.in("tag", tNode.getTags()));
-				crit.add(Restrictions.eq("type", ContactTagType.USER));
-				crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
-				tags = (List<ContactTagDO>)crit.list();
+				List<ContactTagDO> tags = new ArrayList<ContactTagDO>();
+				for(ContactTag cTag : tNode.getTags())
+					tags.add(getEntityManager().find(ContactTagDO.class, cTag.getContactTagId()));
 				if(e.getTargetType().equals(CATTargetType.SpecificSubscriber))
 				{
 					SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
 					ContactDO con;
-					crit = ((Session)this.getEntityManager().getDelegate()).createCriteria(ContactDO.class);
+					Criteria crit = ((Session)this.getEntityManager().getDelegate()).createCriteria(ContactDO.class);
 					EntryPointType ept = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
 					String address=null;
 					switch(ept)
@@ -118,7 +116,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 							break;
 					}
 					crit.add(Restrictions.eq("address",address));
-					crit.add(Restrictions.eq("entryPointType", ept));
+					crit.add(Restrictions.eq("type", ept));
 					crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
 					con = (ContactDO)crit.uniqueResult();
 					if(con==null)
@@ -130,6 +128,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 						getEntityManager().persist(con);
 					}
 					con.getContactTags().addAll(tags);
+					s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 					getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 				} else if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers)){
 					Query q = getEntityManager().createNamedQuery("all.subscribers.on.node");
@@ -138,7 +137,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					for(SubscriberDO s : subs)
 					{
 						ContactDO con;
-						crit = ((Session)this.getEntityManager().getDelegate()).createCriteria(ContactDO.class);
+						Criteria crit = ((Session)this.getEntityManager().getDelegate()).createCriteria(ContactDO.class);
 						EntryPointType ept = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
 						String address=null;
 						switch(ept)
@@ -166,6 +165,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 							getEntityManager().persist(con);
 						}
 						con.getContactTags().addAll(tags);
+						s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 						getEventManager().queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 					}
 				}
