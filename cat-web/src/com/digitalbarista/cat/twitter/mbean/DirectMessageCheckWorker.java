@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.twitter.bindings.DirectMessage;
 import com.digitalbarista.cat.twitter.bindings.DirectMessageCollection;
+import com.digitalbarista.cat.twitter.bindings.ErrorMessage;
 import com.digitalbarista.cat.twitter.bindings.Tweeter;
 import com.digitalbarista.cat.twitter.bindings.extras.DMComparator;
 
@@ -50,11 +51,20 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 			client.getParams().setAuthenticationPreemptive(true);
 			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
 			
-			client.executeMethod(get);
+			int result = client.executeMethod(get);
+			if(result!=200)
+			{
+				ps.directMessageCheckFailed();
+				updateRateLimitInfo(get, ps);
+				throw new OperationFailedException("Could not check for direct messages.  response="+result);
+			}
 
 			updateRateLimitInfo(get, ps);
-			
-			DirectMessageCollection dmc = (DirectMessageCollection)decoder.unmarshal(get.getResponseBodyAsStream());
+
+			Object ret = decoder.unmarshal(get.getResponseBodyAsStream());
+			if(ret instanceof ErrorMessage)
+				throw new OperationFailedException("Could not check for direct messages.  "+((ErrorMessage)ret).getErrorMessage());
+			DirectMessageCollection dmc = (DirectMessageCollection)ret;
 			deleteMessages(registerMessages(dmc,ps),ps);
 			
 			getAccountPollManager().directMessageCheckSucceeded();
