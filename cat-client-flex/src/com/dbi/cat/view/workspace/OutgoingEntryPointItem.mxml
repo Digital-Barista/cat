@@ -87,7 +87,7 @@
 		<AddressSelection 
 			workspace="{workspace}"
 			entryData="{outgoingEntryPointVO.entryData}"
-			showAddresses="false"
+			showKeywords="false"
 			right="0" left="0" top="0" bottom="0"   
 			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5" />
 	</editContent>

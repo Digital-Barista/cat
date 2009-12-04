@@ -9,7 +9,7 @@
 			import mx.collections.ArrayCollection;
 			
 			[Bindable]
-			public var showAddresses:Boolean = true;
+			public var showKeywords:Boolean = true;
 			
 			private var _workspace:WorkspaceView;
 			public function get workspace():WorkspaceView
@@ -190,18 +190,16 @@
 				<mx:CheckBox id="EntryPointTypes"
 					change="changeType()"  />
 				<mx:ComboBox id="EntryPoints"
-					visible="{showAddresses}"
-					includeInLayout="{showAddresses}"
 					width="150"
 					labelField="name"
 					dataProvider="{getEntryPoints(EntryPointRepeater.currentItem.toString())}"
 					change="{changeType()}" />
 				<mx:Label text="Keyword"
-					visible="{showAddresses}"
-					includeInLayout="{showAddresses}" />
+					visible="{showKeywords}"
+					includeInLayout="{showKeywords}" />
 				<components:KeywordComboBox id="Keywords"
-					visible="{showAddresses}"
-					includeInLayout="{showAddresses}"
+					visible="{showKeywords}"
+					includeInLayout="{showKeywords}"
 					width="150"
 					labelField="keyword"
 					change="{changeType()}" />
