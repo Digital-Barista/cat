@@ -62,7 +62,7 @@ public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, Appl
 			}
 		} catch (Exception e)
 		{
-			log.error("Couldn't register Twitter Poll Coordinator MBean");
+			log.error("Couldn't register Twitter Poll Coordinator MBean",e);
 		}
 	}
 
