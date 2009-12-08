@@ -54,7 +54,6 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 			int result = client.executeMethod(get);
 			if(result!=200)
 			{
-				ps.directMessageCheckFailed();
 				updateRateLimitInfo(get, ps);
 				throw new OperationFailedException("Could not check for direct messages.  response="+result);
 			}
