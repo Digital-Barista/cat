@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -83,7 +84,7 @@ public class TwitterAccountPollManager {
 	
 	private DateFormat df()
 	{
-		return new ISO8601DateFormat();
+		return new ISO8601DateFormat(TimeZone.getDefault());
 	}
 	
 	public TwitterAccountPollManager(String account, String credentials, ApplicationContext appCtx)
