@@ -1,12 +1,12 @@
 package com.digitalbarista.cat.twitter.mbean;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.helpers.ISO8601DateFormat;
 import org.springframework.context.ApplicationContext;
 
 public class TwitterAccountPollManager {
@@ -84,7 +83,7 @@ public class TwitterAccountPollManager {
 	
 	private DateFormat df()
 	{
-		return new ISO8601DateFormat(TimeZone.getDefault());
+		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
 	}
 	
 	public TwitterAccountPollManager(String account, String credentials, ApplicationContext appCtx)
