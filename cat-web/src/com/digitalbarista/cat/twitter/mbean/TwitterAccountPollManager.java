@@ -88,10 +88,10 @@ public class TwitterAccountPollManager {
 	
 	public TwitterAccountPollManager(String account, String credentials, ApplicationContext appCtx)
 	{
-		log("Created Poll Manager");
 		this.account=account;
 		this.credentials=credentials;
 		this.applicationContext=appCtx;
+		log("Created Poll Manager");
 		startPolling();
 	}
 	
@@ -231,12 +231,12 @@ public class TwitterAccountPollManager {
 		temp.removeAll(followerList);
 		needToUnsubscribe.addAll(temp);
 		needToUnsubscribe.retainAll(temp);
-		if(polling && (subscribeTask==null || subscribeTask.isDone() || subscribeTask.isCancelled()))
+		if(polling)
 		{
 			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
 			log("Subscribe Task Scheduled:10s(registerFollowerList)");
 		}
-		if(polling && (followerCheckTask==null || followerCheckTask.isDone() || followerCheckTask.isCancelled()))
+		if(polling)
 		{
 			followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
 			log("Follower Check Task Scheduled:1m(registerFollowerList)");
@@ -244,7 +244,7 @@ public class TwitterAccountPollManager {
 	}
 	public void followerCheckFailed()
 	{
-		if(polling && (followerCheckTask==null || followerCheckTask.isDone() || followerCheckTask.isCancelled()))
+		if(polling)
 		{
 			followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);		
 			log("Follower Check Task Scheduled:10m(followerCheckFailed)");
@@ -281,7 +281,7 @@ public class TwitterAccountPollManager {
 	}
 	public void subscribeChangeFailed()
 	{
-		if(polling && (subscribeTask==null || subscribeTask.isDone() || subscribeTask.isCancelled()))
+		if(polling)
 		{
 			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.MINUTES);
 			log("Modify Subscriptions Task Scheduled:10m(subscribeChangeFailed)");
@@ -289,7 +289,7 @@ public class TwitterAccountPollManager {
 	}
 	public void directMessageCheckSucceeded()
 	{
-		if(polling && (directMessageCheckTask==null || directMessageCheckTask.isDone() || directMessageCheckTask.isCancelled()))
+		if(polling)
 		{
 			directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
 			log("Direct Message Check Task Scheduled:1m(directMessageCheckSucceeded)");
@@ -297,7 +297,7 @@ public class TwitterAccountPollManager {
 	}
 	public void directMessageCheckFailed()
 	{
-		if(polling && (directMessageCheckTask==null || directMessageCheckTask.isDone() || directMessageCheckTask.isCancelled()))
+		if(polling)
 		{
 			directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);
 			log("Direct Message Check Task Scheduled:10m(directMessageCheckFailed)");
@@ -305,7 +305,7 @@ public class TwitterAccountPollManager {
 	}	
 	public void directMessageSendSucceeded()
 	{
-		if(polling && (sendDirectMessageTask==null || sendDirectMessageTask.isDone() || sendDirectMessageTask.isCancelled()))
+		if(polling)
 		{
 			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
 			log("Direct Message Send Task Scheduled:5s(directMessageSendSucceeded)");
@@ -313,7 +313,7 @@ public class TwitterAccountPollManager {
 	}
 	public void directMessageSendSucceededNoMessages()
 	{
-		if(polling && (sendDirectMessageTask==null || sendDirectMessageTask.isDone() || sendDirectMessageTask.isCancelled()))
+		if(polling)
 		{
 			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
 			log("Direct Message Send Task Scheduled:5s(directMessageSendSucceededNoMessage)");
@@ -321,7 +321,7 @@ public class TwitterAccountPollManager {
 	}
 	public void directMessageSendFailed()
 	{
-		if(polling && (sendDirectMessageTask==null || sendDirectMessageTask.isDone() || sendDirectMessageTask.isCancelled()))
+		if(polling)
 		{
 			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 10, TimeUnit.MINUTES);
 			log("Direct Message Send Task Scheduled:10m(directMessageSendFailed)");
