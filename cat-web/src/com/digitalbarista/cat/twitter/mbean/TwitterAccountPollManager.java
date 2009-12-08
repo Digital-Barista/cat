@@ -100,15 +100,30 @@ public class TwitterAccountPollManager {
 		log("Poll STOP requested");
 		polling=false;
 		if(friendCheckTask!=null && !friendCheckTask.isDone())
+		{
 			friendCheckTask.cancel(false);
+			friendCheckTask=null;
+		}
 		if(followerCheckTask!=null && !followerCheckTask.isDone())
+		{
 			followerCheckTask.cancel(false);
+			followerCheckTask=null;
+		}
 		if(directMessageCheckTask!=null && !directMessageCheckTask.isDone())
+		{
 			directMessageCheckTask.cancel(false);
+			directMessageCheckTask=null;
+		}
 		if(sendDirectMessageTask!=null && !sendDirectMessageTask.isDone())
+		{
 			sendDirectMessageTask.cancel(false);
+			sendDirectMessageTask=null;
+		}
 		if(subscribeTask!=null && !subscribeTask.isDone())
+		{
 			subscribeTask.cancel(false);
+			subscribeTask=null;
+		}
 		return true;
 	}
 	

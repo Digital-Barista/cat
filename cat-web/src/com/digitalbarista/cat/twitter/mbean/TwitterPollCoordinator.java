@@ -49,17 +49,8 @@ public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, Appl
 				server.unregisterMBean(new ObjectName("dbi.config:service=TwitterPollCoordinator"));
 				server.registerMBean(this, new ObjectName("dbi.config:service=TwitterPollCoordinator"));
 			}
-
-			Map<String,String> accountList = new TwitterAccountRefresher(ctx).call();
-			Set<String> toBeRemoved = new HashSet<String>(accountManagers.keySet());
-			toBeRemoved.removeAll(accountList.keySet());
-			for(String account : toBeRemoved)
-				accountManagers.remove(account);
-			for(Map.Entry<String, String> entry : accountList.entrySet())
-			{
-				if(!accountManagers.containsKey(entry.getKey()))
-					accountManagers.put(entry.getKey(), new TwitterAccountPollManager(entry.getKey(),entry.getValue(),ctx));
-			}
+			
+			
 		} catch (Exception e)
 		{
 			log.error("Couldn't register Twitter Poll Coordinator MBean",e);
@@ -111,6 +102,34 @@ public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, Appl
 			return accountManagers.get(account).stopPolling();
 		} else {
 			return false;
+		}
+	}
+
+	@Override
+	public String refreshTwitterAccounts() {
+		try
+		{
+			Map<String,String> accountList = new TwitterAccountRefresher(ctx).call();
+			Set<String> toBeRemoved = new HashSet<String>(accountManagers.keySet());
+			toBeRemoved.removeAll(accountList.keySet());
+			int added=0;
+			for(String account : toBeRemoved)
+			{
+				accountManagers.remove(account).stopPolling();
+			}
+			for(Map.Entry<String, String> entry : accountList.entrySet())
+			{
+				if(!accountManagers.containsKey(entry.getKey()))
+				{
+					accountManagers.put(entry.getKey(), new TwitterAccountPollManager(entry.getKey(),entry.getValue(),ctx));
+					added++;
+				}
+			}
+			return "Success - removed "+toBeRemoved.size()+", added "+added;
+		}
+		catch(Exception e)
+		{
+			return "Unable to refresh twitter accounts: "+e.getMessage()+": check logs.";
 		}
 	}
 }

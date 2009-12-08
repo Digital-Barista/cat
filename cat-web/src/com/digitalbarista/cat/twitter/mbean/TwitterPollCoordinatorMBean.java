@@ -27,4 +27,6 @@ public interface TwitterPollCoordinatorMBean {
 	public boolean stopAllPolling(String account);
 	
 	public boolean startPolling(String account);
+	
+	public String refreshTwitterAccounts();
 }
