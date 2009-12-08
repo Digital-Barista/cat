@@ -98,6 +98,7 @@ public class TwitterAccountPollManager {
 	public boolean stopPolling()
 	{
 		log("Poll STOP requested");
+		polling=false;
 		if(friendCheckTask!=null && !friendCheckTask.isDone())
 			friendCheckTask.cancel(false);
 		if(followerCheckTask!=null && !followerCheckTask.isDone())
@@ -108,18 +109,17 @@ public class TwitterAccountPollManager {
 			sendDirectMessageTask.cancel(false);
 		if(subscribeTask!=null && !subscribeTask.isDone())
 			subscribeTask.cancel(false);
-		polling=false;
 		return true;
 	}
 	
 	public boolean startPolling()
 	{
 		log("poll START requested");
+		polling=true;
 		friendCheckTask = executor.submit(new FriendCheckWorker(applicationContext,this));
 		followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), (long)10, TimeUnit.SECONDS);
 		directMessageCheckTask = executor.submit(new DirectMessageCheckWorker(applicationContext,this));
 		sendDirectMessageTask = executor.submit(new SendDirectMessageWorker(applicationContext,this));		
-		polling=true;
 		return true;
 	}
 	
