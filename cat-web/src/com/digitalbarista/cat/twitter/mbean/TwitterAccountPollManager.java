@@ -331,7 +331,7 @@ public class TwitterAccountPollManager {
 		if(polling)
 		{
 			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
-			log("Direct Message Send Task Scheduled:5s(directMessageSendSucceededNoMessage)");
+			//log("Direct Message Send Task Scheduled:5s(directMessageSendSucceededNoMessage)");
 		}
 	}
 	public void directMessageSendFailed()
