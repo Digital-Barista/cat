@@ -231,18 +231,24 @@ public class TwitterAccountPollManager {
 		temp.removeAll(followerList);
 		needToUnsubscribe.addAll(temp);
 		needToUnsubscribe.retainAll(temp);
-		if(subscribeTask==null || subscribeTask.isDone())
+		if(polling && (subscribeTask==null || subscribeTask.isDone() || subscribeTask.isCancelled()))
 		{
 			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
 			log("Subscribe Task Scheduled:10s(registerFollowerList)");
 		}
-		followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
-		log("Follower Check Task Scheduled:1m(registerFollowerList)");
+		if(polling && (followerCheckTask==null || followerCheckTask.isDone() || followerCheckTask.isCancelled()))
+		{
+			followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
+			log("Follower Check Task Scheduled:1m(registerFollowerList)");
+		}
 	}
 	public void followerCheckFailed()
 	{
-		followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);		
-		log("Follower Check Task Scheduled:10m(followerCheckFailed)");
+		if(polling && (followerCheckTask==null || followerCheckTask.isDone() || followerCheckTask.isCancelled()))
+		{
+			followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);		
+			log("Follower Check Task Scheduled:10m(followerCheckFailed)");
+		}
 	}
 	public SubscribeAction getNextSubscribeAction()
 	{
@@ -267,38 +273,59 @@ public class TwitterAccountPollManager {
 			friendList.remove(action.getSubscriberId());
 			log("UNFOLLOWED "+action.getSubscriberId());
 		}
-		subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
-		log("Modify Subscriptions Task Scheduled:1m(registerSubscribeChange)");
+		if(polling && (subscribeTask==null || subscribeTask.isDone() || subscribeTask.isCancelled()))
+		{
+			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
+			log("Modify Subscriptions Task Scheduled:1m(registerSubscribeChange)");
+		}
 	}
 	public void subscribeChangeFailed()
 	{
-		subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.MINUTES);
-		log("Modify Subscriptions Task Scheduled:10m(subscribeChangeFailed)");
+		if(polling && (subscribeTask==null || subscribeTask.isDone() || subscribeTask.isCancelled()))
+		{
+			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+			log("Modify Subscriptions Task Scheduled:10m(subscribeChangeFailed)");
+		}
 	}
 	public void directMessageCheckSucceeded()
 	{
-		directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
-		log("Direct Message Check Task Scheduled:1m(directMessageCheckSucceeded)");
+		if(polling && (directMessageCheckTask==null || directMessageCheckTask.isDone() || directMessageCheckTask.isCancelled()))
+		{
+			directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
+			log("Direct Message Check Task Scheduled:1m(directMessageCheckSucceeded)");
+		}
 	}
 	public void directMessageCheckFailed()
 	{
-		directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);
-		log("Direct Message Check Task Scheduled:10m(directMessageCheckFailed)");
-	}
+		if(polling && (directMessageCheckTask==null || directMessageCheckTask.isDone() || directMessageCheckTask.isCancelled()))
+		{
+			directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+			log("Direct Message Check Task Scheduled:10m(directMessageCheckFailed)");
+		}
+	}	
 	public void directMessageSendSucceeded()
 	{
-		sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
-		log("Direct Message Send Task Scheduled:5s(directMessageSendSucceeded)");
+		if(polling && (sendDirectMessageTask==null || sendDirectMessageTask.isDone() || sendDirectMessageTask.isCancelled()))
+		{
+			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
+			log("Direct Message Send Task Scheduled:5s(directMessageSendSucceeded)");
+		}
 	}
 	public void directMessageSendSucceededNoMessages()
 	{
-		sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
-		log("Direct Message Send Task Scheduled:5s(directMessageSendSucceededNoMessage)");
+		if(polling && (sendDirectMessageTask==null || sendDirectMessageTask.isDone() || sendDirectMessageTask.isCancelled()))
+		{
+			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
+			log("Direct Message Send Task Scheduled:5s(directMessageSendSucceededNoMessage)");
+		}
 	}
 	public void directMessageSendFailed()
 	{
-		sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 10, TimeUnit.MINUTES);
-		log("Direct Message Send Task Scheduled:10m(directMessageSendFailed)");
+		if(polling && (sendDirectMessageTask==null || sendDirectMessageTask.isDone() || sendDirectMessageTask.isCancelled()))
+		{
+			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+			log("Direct Message Send Task Scheduled:10m(directMessageSendFailed)");
+		}
 	}
 	void log(String anyMessage)
 	{
