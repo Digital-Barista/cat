@@ -50,7 +50,7 @@ public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, Appl
 				server.registerMBean(this, new ObjectName("dbi.config:service=TwitterPollCoordinator"));
 			}
 			
-			
+			refreshTwitterAccounts();
 		} catch (Exception e)
 		{
 			log.error("Couldn't register Twitter Poll Coordinator MBean",e);
