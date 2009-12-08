@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationContext;
 
 public class TwitterAccountPollManager {
 
-	Logger log = LogManager.getLogger(TwitterAccountPollManager.class);
+	Logger log = LogManager.getLogger("TwitterStats");
 	
 	public enum SubscribeType
 	{
