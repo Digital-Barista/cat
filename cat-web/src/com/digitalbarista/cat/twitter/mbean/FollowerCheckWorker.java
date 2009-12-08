@@ -42,7 +42,6 @@ public class FollowerCheckWorker extends TwitterPollWorker<Set<Long>> {
 			int response = client.executeMethod(get);
 			if(response!=200)
 			{
-				ps.followerCheckFailed();
 				updateRateLimitInfo(get, ps);
 				throw new OperationFailedException("Could not check for followers.  response="+response);
 			}

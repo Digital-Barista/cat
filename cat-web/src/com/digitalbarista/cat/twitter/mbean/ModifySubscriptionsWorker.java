@@ -52,7 +52,6 @@ public class ModifySubscriptionsWorker extends TwitterPollWorker<String> {
 			
 			if(client.executeMethod(post)!=200)
 			{
-				ps.subscribeChangeFailed();
 				updateRateLimitInfo(post, ps);
 				return "Failed to "+sa.getAction().toString()+" user #"+sa.getSubscriberId();
 			}
@@ -64,7 +63,7 @@ public class ModifySubscriptionsWorker extends TwitterPollWorker<String> {
 		}
 		catch(Exception e)
 		{
-			log.error("Can't get friend list for account "+getAccountPollManager().getAccount(),e);
+			log.error("Can't "+sa.getAction()+" a user :account="+getAccountPollManager().getAccount(),e);
 			getAccountPollManager().subscribeChangeFailed();
 			return null;
 		}

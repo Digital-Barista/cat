@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.twitter.mbean;
 
+import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -11,10 +12,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.helpers.ISO8601DateFormat;
 import org.springframework.context.ApplicationContext;
 
 public class TwitterAccountPollManager {
 
+	Logger log = LogManager.getLogger(TwitterAccountPollManager.class);
+	
 	public enum SubscribeType
 	{
 		Subscribe,
@@ -72,10 +78,17 @@ public class TwitterAccountPollManager {
 	private Future sendDirectMessageTask=null;
 	private Future friendCheckTask=null;
 	private Future followerCheckTask=null;
+	private boolean polling=false;
 	private ApplicationContext applicationContext;
+	
+	private DateFormat df()
+	{
+		return new ISO8601DateFormat();
+	}
 	
 	public TwitterAccountPollManager(String account, String credentials, ApplicationContext appCtx)
 	{
+		log("Created Poll Manager");
 		this.account=account;
 		this.credentials=credentials;
 		this.applicationContext=appCtx;
@@ -84,6 +97,7 @@ public class TwitterAccountPollManager {
 	
 	public boolean stopPolling()
 	{
+		log("Poll STOP requested");
 		if(friendCheckTask!=null && !friendCheckTask.isDone())
 			friendCheckTask.cancel(false);
 		if(followerCheckTask!=null && !followerCheckTask.isDone())
@@ -94,15 +108,18 @@ public class TwitterAccountPollManager {
 			sendDirectMessageTask.cancel(false);
 		if(subscribeTask!=null && !subscribeTask.isDone())
 			subscribeTask.cancel(false);
+		polling=false;
 		return true;
 	}
 	
 	public boolean startPolling()
 	{
+		log("poll START requested");
 		friendCheckTask = executor.submit(new FriendCheckWorker(applicationContext,this));
 		followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), (long)10, TimeUnit.SECONDS);
 		directMessageCheckTask = executor.submit(new DirectMessageCheckWorker(applicationContext,this));
 		sendDirectMessageTask = executor.submit(new SendDirectMessageWorker(applicationContext,this));		
+		polling=true;
 		return true;
 	}
 	
@@ -194,6 +211,7 @@ public class TwitterAccountPollManager {
 	}
 	public void registerFriendsList(Set<Long> newFriendList)
 	{
+		log("Friend List Retrieved");
 		friendList.addAll(newFriendList);
 		friendList.retainAll(newFriendList);
 		needToSubscribe.removeAll(newFriendList);
@@ -214,12 +232,17 @@ public class TwitterAccountPollManager {
 		needToUnsubscribe.addAll(temp);
 		needToUnsubscribe.retainAll(temp);
 		if(subscribeTask==null || subscribeTask.isDone())
+		{
 			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
+			log("Subscribe Task Scheduled:10s(registerFollowerList)");
+		}
 		followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
+		log("Follower Check Task Scheduled:1m(registerFollowerList)");
 	}
 	public void followerCheckFailed()
 	{
 		followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);		
+		log("Follower Check Task Scheduled:10m(followerCheckFailed)");
 	}
 	public SubscribeAction getNextSubscribeAction()
 	{
@@ -238,30 +261,47 @@ public class TwitterAccountPollManager {
 		{
 			needToSubscribe.remove(action.getSubscriberId());
 			friendList.add(action.getSubscriberId());
+			log("FOLLOWED "+action.getSubscriberId());
 		}else{
 			needToUnsubscribe.remove(action.getSubscriberId());
 			friendList.remove(action.getSubscriberId());
+			log("UNFOLLOWED "+action.getSubscriberId());
 		}
 		subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
+		log("Modify Subscriptions Task Scheduled:1m(registerSubscribeChange)");
 	}
 	public void subscribeChangeFailed()
 	{
 		subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+		log("Modify Subscriptions Task Scheduled:10m(subscribeChangeFailed)");
 	}
 	public void directMessageCheckSucceeded()
 	{
 		directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
+		log("Direct Message Check Task Scheduled:1m(directMessageCheckSucceeded)");
 	}
 	public void directMessageCheckFailed()
 	{
 		directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+		log("Direct Message Check Task Scheduled:10m(directMessageCheckFailed)");
 	}
 	public void directMessageSendSucceeded()
 	{
 		sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
+		log("Direct Message Send Task Scheduled:5s(directMessageSendSucceeded)");
+	}
+	public void directMessageSendSucceededNoMessages()
+	{
+		sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
+		log("Direct Message Send Task Scheduled:5s(directMessageSendSucceededNoMessage)");
 	}
 	public void directMessageSendFailed()
 	{
 		sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+		log("Direct Message Send Task Scheduled:10m(directMessageSendFailed)");
+	}
+	void log(String anyMessage)
+	{
+		log.info(account+","+anyMessage+","+remainingQueries+","+maxQueries+","+df().format(resetTime));
 	}
 }

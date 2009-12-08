@@ -44,7 +44,7 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			MapMessage msg = (MapMessage)consumer.receiveNoWait();
 			if(msg==null)
 			{
-				getAccountPollManager().directMessageSendSucceeded();
+				getAccountPollManager().directMessageSendSucceededNoMessages();
 				return "No messages to send";
 			}
 			msg.acknowledge();
