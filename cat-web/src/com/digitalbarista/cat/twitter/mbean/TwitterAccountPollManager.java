@@ -1,7 +1,6 @@
 package com.digitalbarista.cat.twitter.mbean;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.helpers.ISO8601DateFormat;
 import org.springframework.context.ApplicationContext;
 
 public class TwitterAccountPollManager {
@@ -66,10 +66,10 @@ public class TwitterAccountPollManager {
 	private Queue<Date> followChangeHistory = new ConcurrentLinkedQueue();
 	private Date lastSentMessage;
 	private Queue<Date> messageSendHistory = new ConcurrentLinkedQueue();
-	private Date lastPollTime;
-	private int remainingQueries;
-	private int maxQueries;
-	private Date resetTime;
+	private Date lastPollTime=new Date();
+	private int remainingQueries=-1;
+	private int maxQueries=-1;
+	private Date resetTime=new Date();
 	private long lowestReadMessage=-1;
 	private long highestDeletedMessage=-1;
 	private ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(10);
@@ -83,7 +83,7 @@ public class TwitterAccountPollManager {
 	
 	private DateFormat df()
 	{
-		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+		return new ISO8601DateFormat();
 	}
 	
 	public TwitterAccountPollManager(String account, String credentials, ApplicationContext appCtx)
