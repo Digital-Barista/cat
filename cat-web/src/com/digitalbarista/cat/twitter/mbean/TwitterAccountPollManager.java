@@ -273,7 +273,7 @@ public class TwitterAccountPollManager {
 			friendList.remove(action.getSubscriberId());
 			log("UNFOLLOWED "+action.getSubscriberId());
 		}
-		if(polling && (subscribeTask==null || subscribeTask.isDone() || subscribeTask.isCancelled()))
+		if(polling)
 		{
 			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
 			log("Modify Subscriptions Task Scheduled:1m(registerSubscribeChange)");
