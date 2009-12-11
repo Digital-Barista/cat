@@ -52,6 +52,9 @@ package com.dbi.cat.view.workspace
 			statisticsComponent = new StatisticsComponent();
 			statisticsComponent.setStyle("left", 0);
 			statisticsComponent.setStyle("bottom", 0);
+			statisticsComponent.buttonMode = true;
+			statisticsComponent.useHandCursor = true;
+			statisticsComponent.mouseChildren = false;
 		}
 		
 		

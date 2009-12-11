@@ -8,6 +8,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.event.ContactEvent;
 	import com.dbi.cat.event.LoadDataEvent;
 	import com.dbi.cat.event.NavigationEvent;
+	import com.dbi.cat.event.ReportingEvent;
 	import com.dbi.cat.event.UserEvent;
 	import com.dbi.controls.CustomMessage;
 	
@@ -117,6 +118,7 @@ package com.dbi.cat.business
 			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_CONTACT));
 			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_ASSIGN_CONTACT_TAG));
 			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_UNASSIGN_CONTACT_TAG));
+			dispatcher.dispatchEvent(new ReportingEvent(ReportingEvent.CLOSE_NODE_SUBSCRIBERS));
 		}
 		
 		/**

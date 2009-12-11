@@ -143,6 +143,7 @@ package com.dbi.cat.view.workspace
 			editLoader.setStyle("top", 0);
 			editLoader.addEventListener(MouseEvent.CLICK, editClick, false, 0, true);
 			editLoader.toolTip = "Edit this items properties";
+			editLoader.buttonMode = true;
 			
 			// Setup warning loader
 			invalidWarningLoader = new SWFLoader();
@@ -173,6 +174,7 @@ package com.dbi.cat.view.workspace
 			deleteLoader.height = MENU_ICON_SIZE;
 			deleteLoader.addEventListener(MouseEvent.CLICK, deleteClick, false, 0, true);
 			deleteLoader.toolTip = "Remove this item";
+			deleteLoader.buttonMode = true;
 			
 			// Add event handlers
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
