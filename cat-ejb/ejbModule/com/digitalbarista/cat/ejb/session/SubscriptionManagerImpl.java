@@ -1,8 +1,11 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -19,6 +22,8 @@ import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
@@ -34,6 +39,7 @@ import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberBlacklistDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.message.event.CATEvent;
+
 
 /**
  * Session Bean implementation class SubscriptionManagerImpl
@@ -270,4 +276,37 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		subscribeToEntryPoint(addresses, entryPointUID, lastType);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	@PermitAll
+	public List<String> getSubscribedAddresses(String nodeUID) 
+	{
+		// Load node and campaign
+		Node node = campaignManager.getNode(nodeUID);
+		CampaignDO camp = campaignManager.getSimpleCampaign(node.getCampaignUID());
+		
+		//Check permissions.
+		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), camp.getClient().getPrimaryKey()))
+			throw new SecurityException("Current user is not allowed to view subscriptions to the specified campaign.");
+		
+		// Query for subscriber addresses for this node
+		List<String> ret = new ArrayList<String>();
+		Criteria crit = session.createCriteria(SubscriberDO.class);
+		crit.createAlias("subscriptions", "subscriptions");
+		crit.createAlias("subscriptions.lastHitNode", "lastHitNode");
+		crit.add(Restrictions.eq("lastHitNode.UID", nodeUID));
+		
+		// Load addresses from subscriber into String list
+		for (SubscriberDO subscriber : (List<SubscriberDO>)crit.list())
+		{
+			if (subscriber.getEmail() != null)
+				ret.add(subscriber.getEmail());
+			else if (subscriber.getTwitterUsername() != null)
+				ret.add(subscriber.getTwitterUsername());
+			else if (subscriber.getPhoneNumber() != null)
+				ret.add(subscriber.getPhoneNumber());
+		}
+		
+		return ret;
+	}
 }

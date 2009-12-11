@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.business.ReportingManager;
 			import com.dbi.cat.business.ImportManager;
 			import com.dbi.cat.event.ContactEvent;
 			import com.dbi.cat.business.ContactManager;
@@ -48,6 +49,7 @@
 		<ObjectBuilder generator="{LayoutInfoManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{ContactManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{ImportManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{ReportingManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{ClientManager}"  />
 	</EventHandlers>
 	

@@ -22,7 +22,7 @@
 			{
 				_contactTagLists = value;
 			}
-			
+			[Bindable]
 			public var selectedTags:ArrayCollection = new ArrayCollection();
 			
 			public function unselectAll():void

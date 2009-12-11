@@ -31,4 +31,6 @@ public interface SubscriptionManager {
 	public void subscribeToEntryPoint(@Wrapped(element="Addresses") Set<String> addresses, @PathParam("entryPointUID") String entryPointUID, @PathParam("type") EntryPointType subscriptionType);
 
 	public void subscribeContactsToEntryPoint(@Wrapped(element="Contact") List<Contact> contacts, @PathParam("entryPointUID") String entryPointUID);
+	
+	public List<String> getSubscribedAddresses(String campaignUID);
 }

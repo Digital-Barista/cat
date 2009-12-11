@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.business.ReportingManager;
+			import com.dbi.cat.event.ReportingEvent;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<EventHandlers type="{ReportingEvent.OPEN_NODE_SUBSCRIBERS}">
+		<MethodInvoker generator="{ReportingManager}"
+			method="openNodeSubscribers"
+			arguments="{event.nodeUID}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.CLOSE_NODE_SUBSCRIBERS}">
+		<MethodInvoker generator="{ReportingManager}"
+			method="closeNodeSubscribers" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.LOAD_NODE_SUBSCRIBERS}">
+		<RemoteObjectInvoker destination="subscriptionManager"
+			method="getSubscribedAddresses"
+			arguments="{event.nodeUID}">
+			<resultHandlers>
+				<MethodInvoker generator="{ReportingManager}"
+					method="loadNodeSubscribers"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+</EventMap>

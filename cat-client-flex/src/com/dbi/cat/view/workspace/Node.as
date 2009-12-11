@@ -3,12 +3,13 @@ package com.dbi.cat.view.workspace
 	import com.dbi.cat.common.vo.LayoutInfoVO;
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.event.CampaignEvent;
+	import com.dbi.cat.event.ReportingEvent;
 	import com.dbi.cat.event.WorkspaceEvent;
 	
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	
 	import mx.binding.utils.BindingUtils;
-	import mx.binding.utils.ChangeWatcher;
 	import mx.collections.ArrayCollection;
 	import mx.utils.ObjectUtil;
 	
@@ -51,7 +52,6 @@ package com.dbi.cat.view.workspace
 			statisticsComponent = new StatisticsComponent();
 			statisticsComponent.setStyle("left", 0);
 			statisticsComponent.setStyle("bottom", 0);
-			
 		}
 		
 		
@@ -125,7 +125,17 @@ package com.dbi.cat.view.workspace
 			super.childrenCreated();
 			
 			if (showStatistics)
+			{
 				addChild(statisticsComponent);
+				statisticsComponent.addEventListener(MouseEvent.CLICK, onStatisticsClick);
+			}
+		}
+		
+		private function onStatisticsClick(e:MouseEvent):void
+		{
+			var event:ReportingEvent = new ReportingEvent(ReportingEvent.OPEN_NODE_SUBSCRIBERS);
+			event.nodeUID = nodeVO.uid;
+			dispatchEvent(event);
 		}
 	}
 }
