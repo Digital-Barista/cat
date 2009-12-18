@@ -3,6 +3,7 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.reporting.OutgoingMessageView;
 			import com.dbi.cat.business.ReportingManager;
 			import com.dbi.cat.view.reporting.NodeSubscriberAddressView;
 			import com.dbi.cat.view.workspace.TaggingItem;
@@ -408,5 +409,11 @@
 			source="{ReportingManager}"
 			sourceKey="nodeSubscriberAddresses"
 			targetKey="nodeSubscriberAddresses" />
+	</Injectors>
+	<Injectors target="{OutgoingMessageView}">
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="outgoingMessageSummaries"
+			targetKey="outgoingMessageSummaries" />
 	</Injectors>
 </EventMap>

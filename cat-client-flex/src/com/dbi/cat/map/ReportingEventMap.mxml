@@ -5,6 +5,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.constants.ServiceStatusMessage;
 			import com.dbi.cat.business.ReportingManager;
 			import com.dbi.cat.event.ReportingEvent;
 		]]>
@@ -32,6 +34,35 @@
 					method="loadNodeSubscribers"
 					arguments="{resultObject}" />
 			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.LOAD_OUTGOING_MESSAGE_SUMMARIES}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_OUTGOING_MESSAGES}" />
+		<RemoteObjectInvoker destination="reportingManager"
+			method="getOutgoingMessageSummaries"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_OUTGOING_MESSAGES}" />
+				<MethodInvoker generator="{ReportingManager}"
+					method="loadOutgoingMessageSummaries"
+					arguments="{resultObject}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_OUTGOING_MESSAGES}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 </EventMap>

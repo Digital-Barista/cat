@@ -35,4 +35,8 @@
 	<bean id="ejb.ContactManager" class="org.springframework.jndi.JndiObjectFactoryBean" scope="request">
 		<property name="jndiName" value="ejb/cat/ContactManager"/>
 	</bean>
+
+	<bean id="ejb.ReportingManager" class="org.springframework.jndi.JndiObjectFactoryBean" scope="request">
+		<property name="jndiName" value="ejb/cat/ReportingManager"/>
+	</bean>
 </beans>

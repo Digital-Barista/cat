@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.ReportingEvent;
 			import com.dbi.cat.business.ReportingManager;
 			import com.dbi.cat.business.ImportManager;
 			import com.dbi.cat.event.ContactEvent;
@@ -95,6 +96,7 @@
 		<EventAnnouncer type="{CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT}" />
 		<EventAnnouncer type="{ContactEvent.LIST_CONTACTS}" />
 		<EventAnnouncer type="{ContactEvent.LIST_CONTACT_TAGS}" />
+		<EventAnnouncer type="{ReportingEvent.LOAD_OUTGOING_MESSAGE_SUMMARIES}" />
 	</EventHandlers>
 	
 </EventMap>

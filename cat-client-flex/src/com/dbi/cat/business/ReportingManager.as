@@ -20,12 +20,16 @@ package com.dbi.cat.business
 		public var isLoadingNodeSubscriberAddresses:Boolean = false;
 		public var nodeSubscriberAddresses:ArrayCollection;
 		
+		public var outgoingMessageSummaries:ArrayCollection;
 		
 		public function ReportingManager(dispatcher:IEventDispatcher)
 		{
 			this.dispatcher = dispatcher;
 		}
 
+		//
+		// Subscriber node methods
+		//
 		public function openNodeSubscribers(nodeUID:String):void
 		{
 			nodeSubscriberAddresses = null;
@@ -52,6 +56,14 @@ package com.dbi.cat.business
 		{
 			nodeSubscriberAddresses = addresses;
 			isLoadingNodeSubscriberAddresses = false;
+		}
+		
+		//
+		// Message reporting methods
+		//
+		public function loadOutgoingMessageSummaries(summaries:ArrayCollection):void
+		{
+			outgoingMessageSummaries = summaries;
 		}
 	}
 }

@@ -9,6 +9,7 @@ package com.dbi.cat.event
 		public static const OPEN_NODE_SUBSCRIBERS:String = "openNodeSubscribersEvent";
 		public static const CLOSE_NODE_SUBSCRIBERS:String = "closeNodeSubscribersEvent";
 		public static const LOAD_NODE_SUBSCRIBERS:String = "loadNodeSubscribersEvent";
+		public static const LOAD_OUTGOING_MESSAGE_SUMMARIES:String = "loadOutgoingMessagesSummariesEvent";
 		
 		public var nodeUID:String;
 			

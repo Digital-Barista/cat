@@ -21,6 +21,7 @@
 			borderStyle="none">
 			<reporting:CouponReportingView label="Coupons" />
 			<reporting:CouponRedemptionView label="Redeem Coupon" />
+			<reporting:OutgoingMessageView label="Outgoing Messages" />
 		</mx:TabNavigator>
 	</mx:Canvas>
 </mx:Canvas>
