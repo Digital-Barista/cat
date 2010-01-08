@@ -2952,7 +2952,9 @@ public class ChartBase extends UIComponent implements IFocusManagerComponent
             if (!_allTipCache)
             {
                 var tipClass:* = getStyle("dataTipRenderer");
-                _allTipCache = new InstanceCache(tipClass, this);;
+				_allTipCache = new InstanceCache(tipClass, this);
+				_allTipCache.discard = true;                              
+				_allTipCache.remove = true;
 
             }
             _allTipCache.count = tipCount;
@@ -3010,6 +3012,8 @@ public class ChartBase extends UIComponent implements IFocusManagerComponent
                 var tipClass:* = getStyle("dataTipRenderer");
                 _tipCache = new InstanceCache(tipClass,
                                               systemManager.toolTipChildren);
+				_tipCache.discard = true;                              
+				_tipCache.remove = true;
                 _tipCache.creationCallback = tipCreated;
 
             }
@@ -3737,14 +3741,14 @@ public class ChartBase extends UIComponent implements IFocusManagerComponent
                     }
                 }
                 pts.x = tipData.px;
-                pts.y = tipData.py;
-                
-                localPts = DisplayObject(systemManager).globalToLocal(pts);
-              	var chartLocalPts:Point = globalToLocal(pts);
-                
-               	tipData.tip.move(localPts.x, localPts.y);
-
-                if (showTarget)
+                pts.y = tipData.py;				
+				
+                localPts = this.parentApplication.systemManager.getSandboxRoot().globalToLocal(pts);
+				
+				var chartLocalPts:Point = globalToLocal(pts);
+				
+				tipData.tip.move(localPts.x, localPts.y);
+				if (showTarget)
                 {   
                     if (len > 1)
                     {

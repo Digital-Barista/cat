@@ -290,7 +290,8 @@ public class ListBaseAutomationImpl extends ScrollControlBaseAutomationImpl
             else
             {
                 var item:IListItemRenderer = listBase.indexToItemRenderer(selItems[i]);
-                result.push(IAutomationObject(item).automationValue);
+				if(item && (item is IAutomationObject))
+                	result.push(IAutomationObject(item).automationValue);
             }
         }
 
@@ -554,7 +555,8 @@ public class ListBaseAutomationImpl extends ScrollControlBaseAutomationImpl
         if (child is IListItemRenderer && child.parent == listBase.getListContentHolder())
         {
             IListItemRenderer(child).owner = uiComponent as DisplayObjectContainer;
-            child.showInAutomationHierarchy = true;
+			if(child is IAutomationObject)
+            	child.showInAutomationHierarchy = true;
         }
     }
     

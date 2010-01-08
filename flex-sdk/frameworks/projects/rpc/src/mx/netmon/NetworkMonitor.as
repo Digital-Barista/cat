@@ -43,6 +43,11 @@ public class NetworkMonitor
 	 *  To be assigned by mix-in.
 	 */
     public static var adjustURLRequestImpl:Function;
+    
+    /**
+     *  To be assigned by mix-in.
+     */
+    public static var adjustNetConnectionURLImpl:Function;
 
     /**
 	 *  To be assigned by mix-in.
@@ -103,6 +108,23 @@ public class NetworkMonitor
             adjustURLRequestImpl(urlRequest, rootURL, correlationID);
     } 
     
+    /**
+     *  Adjust the URL for NetConnectionChannel and HTTPChannel Requests
+     *  so that it goes through the monitor. 
+     *  Returns the modified url.
+     *
+     *  @param rootURL Used to compute an absolute URL from the relative
+     *  if necessary, pass the SWFs URL.
+     *
+     *  @param url to adjust.
+     */
+    public static function adjustNetConnectionURL(rootUrl:String, url:String):String
+    {
+        if (adjustNetConnectionURLImpl != null)
+            return adjustNetConnectionURLImpl(rootUrl, url);
+        return null;
+    }
+
     /**
      *  Tell the monitor that an event occurred.
 	 *  This may be used by the Loader to monitor Security and IOErrors

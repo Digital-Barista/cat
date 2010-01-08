@@ -20,7 +20,6 @@ import mx.automation.Automation;
 import mx.automation.IAutomationObject;
 import mx.automation.IAutomationObjectHelper;
 import mx.automation.tabularData.ContainerTabularData;
-import mx.containers.ApplicationControlBar;
 import mx.core.Application;
 import mx.core.Container;
 import mx.core.EventPriority;
@@ -70,8 +69,9 @@ public class ContainerAutomationImpl extends UIComponentAutomationImpl
         super(obj);
     
         obj.addEventListener(ScrollEvent.SCROLL, scroll_eventHandler, false, 0, true);
-        obj.addEventListener(MouseEvent.MOUSE_WHEEL, mouseWheelHandler,
-                false, EventPriority.DEFAULT+1, true );
+        //obj.addEventListener(MouseEvent.MOUSE_WHEEL, mouseWheelHandler,
+         //       false, EventPriority.DEFAULT+1, true );
+         addMouseEvent(obj, MouseEvent.MOUSE_WHEEL, mouseWheelHandler,false, EventPriority.DEFAULT+1, true );
     }
 
     /**
@@ -196,104 +196,22 @@ public class ContainerAutomationImpl extends UIComponentAutomationImpl
 
 
 
-    /**
-     *  @private
-     */
-    //----------------------------------
-    //  numAutomationChildren
-    //----------------------------------
-      /* this method is written to get the docked application control bars separately
-     as they are not part of the numChildren and get childAt.
-     but we need these objcts as part of them to get the event from these
-     properly recorded
-     */
-    private function getDockedApplicationControlBarCount():int
-    {
-        var dockedApplicationControlBars:int = 0;
-        
-        // number of docked application control bars
-        if(container is Application)
-        {
-            // get its row children and see how many docked application control 
-            // bars are present
-            var rowChildrenCount:int = container.rawChildren.numChildren;
-            for ( var index:int=0 ;index < rowChildrenCount; index++)
-            {
-                var currentObject:ApplicationControlBar = 
-                    container.rawChildren.getChildAt(index) as ApplicationControlBar;
-                if( currentObject)
-                {
-                    if(currentObject.dock == true)
-                    {
-                        dockedApplicationControlBars++;
-                    }
-                }
-            }
-        }
-        
-        return dockedApplicationControlBars;
-    }
+   
     /**
      *  @private
      */
    
     override public function get numAutomationChildren():int
     {
-        
-        
-        return container.numChildren + container.numRepeaters + getDockedApplicationControlBarCount();
+        return container.numChildren + container.numRepeaters ;
     }
-    
-    /**
-     *  @private
-     */
-    private function getDockedControlBar(index:int):IAutomationObject
-    {
-        var dockedApplicationControlBarsFound:int = 0;
-        
-        // number of docked application control bars
-        if(container is Application)
-        {
-            // get its row children and see how many docked application control 
-            // bars are present
-            var rowChildrenCount:int = container.rawChildren.numChildren;
-            for ( var childPos:int=0 ;childPos < rowChildrenCount; childPos++)
-            {
-                var currentObject:ApplicationControlBar = 
-                    container.rawChildren.getChildAt(childPos) as ApplicationControlBar;
-                if( currentObject)
-                {
-                    if(currentObject.dock == true)
-                    {
-                        if(dockedApplicationControlBarsFound == index)
-                        {
-                            return currentObject as IAutomationObject;
-                        }
-                        else
-                        {
-                            dockedApplicationControlBarsFound++;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
+   
     /**
      *  @private
     */
    
-     override public function getAutomationChildAt(index:int):IAutomationObject
+    override public function getAutomationChildAt(index:int):IAutomationObject
     {
-        var dockedApplicationBarNumbers:int = getDockedApplicationControlBarCount();
-        if(index < dockedApplicationBarNumbers)
-        {
-            return (getDockedControlBar(index) as IAutomationObject);
-        }
-        else
-        {
-            index = index - dockedApplicationBarNumbers;
-        }
         if (index < container.numChildren)
         {
             var d:Object = container.getChildAt(index);

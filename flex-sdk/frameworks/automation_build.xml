@@ -16,6 +16,7 @@
 	<property name="FLEX_HOME" value="${basedir}/../"/>
 	<property name="automation.dir" value="${basedir}/projects/automation"/>
 	<property name="framework.dir" value="${basedir}/projects/framework"/>
+	<property name ="player.version" value="9"/>
 	
 	
 	
@@ -35,7 +36,7 @@
 			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="framework.swc"/>
 			<external-library-path dir="${FLEX_HOME}/frameworks/libs" includes="automation_agent.swc"/>
 			<external-library-path dir="${FLEX_HOME}/frameworks/locale/en_US" includes="automation_agent_rb.swc"/>
-			<external-library-path dir="${FLEX_HOME}/frameworks/libs/player" includes="playerglobal.swc"/>
+			<external-library-path dir="${FLEX_HOME}/frameworks/libs/player/${player.version}" includes="playerglobal.swc"/>
 		</compc>
 	</target>
 	

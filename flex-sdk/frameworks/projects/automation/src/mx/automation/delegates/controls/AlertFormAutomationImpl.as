@@ -62,9 +62,8 @@ public class AlertFormAutomationImpl extends UIComponentAutomationImpl
      */
     public function AlertFormAutomationImpl(obj:AlertForm)
     {
+    	alertForm = obj;
         super(obj);
-        
-        alertForm = obj;
     }
     
     private var alertForm:AlertForm;

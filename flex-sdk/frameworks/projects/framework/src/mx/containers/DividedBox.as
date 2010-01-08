@@ -634,6 +634,8 @@ public class DividedBox extends Box
 
         // Let Box lay out the children.
         super.updateDisplayList(unscaledWidth, unscaledHeight);
+        
+        postLayoutAdjustment();
 
         // Lay out the dividers.
         if (!dividerLayer)
@@ -1395,22 +1397,49 @@ public class DividedBox extends Box
             }
         }
 
+        // during preLayoutAdjustment, we make some changes to the children's
+        // widths and heights.  We keep track of the original values in postLayoutChanges
+        // so we can later go back and reset them so another layout pass is working 
+        // with the correct values rather than these modified values.
+        postLayoutChanges = [];
+        var changeObject:Object;
+
         // No flexible children, so we make the last one 100%.
         if (totalPerc == 0 && percCount == 0)
         {
             // Everyone is fixed and we can give 100% to the last
             // included in layout one without concern.
             for (i = n-1; i >= 0; i--)
-            {
+			{
                 child = UIComponent(getChildAt(i));
-                if (child.includeInLayout)
-                {
-                    if (vertical)
-                        child.percentHeight = 100;
-                    else
-                        child.percentWidth = 100;
+				if (child.includeInLayout)
+				{
+                    // create a changeObject to keep track of the original values 
+                    // that this child had for width and height
+                    changeObject = {child: child};
+					if (vertical)
+                    {
+                        // we know there's no percentHeight originally
+                        if (child.explicitHeight)
+                            changeObject.explicitHeight = child.explicitHeight;
+                        else 
+                            changeObject.percentHeight = NaN;
+                        
+						child.percentHeight = 100;
+                    }
+					else
+                    {
+                        // we know there's no percentWidth originally
+                        if (child.explicitWidth)
+                            changeObject.explicitWidth = child.explicitWidth;
+                        else if (child.percentWidth)
+                            changeObject.percentWidth = NaN;
+                        
+						child.percentWidth = 100;
+                    }
+                    postLayoutChanges.push(changeObject);
                     break;
-                }
+				}
             }
         }
         else if (totalPerc < 100)
@@ -1428,19 +1457,31 @@ public class DividedBox extends Box
 
                 if (!child.includeInLayout)
                     continue;
+				
+                changeObject = {child: child};
 
                 if (vertical)
-                {
-                    perc = child.percentHeight;
-                    if (!isNaN(perc))
-                        child.percentHeight = (perc + delta) * unscaledHeight;
-                }
-                else
-                {
-                    perc = child.percentWidth;
-                    if (!isNaN(perc))
-                        child.percentWidth = (perc + delta) * unscaledWidth;
-                }
+				{
+					perc = child.percentHeight;
+					if (!isNaN(perc))
+                    {
+                        changeObject.percentHeight = child.percentHeight;
+                        postLayoutChanges.push(changeObject);
+                        
+						child.percentHeight = (perc + delta) * unscaledHeight;
+                    }
+				}
+				else
+				{
+					perc = child.percentWidth;
+					if (!isNaN(perc))
+                    {
+                        changeObject.percentWidth = child.percentWidth;
+                        postLayoutChanges.push(changeObject);
+                        
+						child.percentWidth = (perc + delta) * unscaledWidth;
+                    }
+				}
             }
         }
 
@@ -1460,6 +1501,46 @@ public class DividedBox extends Box
         // that these components are to be stretched initially, so in the end
         // I choose to tweak the components that the user has indicated
         // as being stretchable.
+    }
+    
+    /**
+     *  @private
+     *  During preLayoutAdjustment, we make some changes to the children's
+     *  widths and heights.  We keep track of the original values in postLayoutChanges
+     *  so we can later go back and reset them so another layout pass is working 
+     *  with the correct values rather than these modified values.
+     */ 
+    private var postLayoutChanges:Array;
+    
+    /**
+     *  @private
+     *  Post layout work.  In preLayoutAdjustment() 
+     *  sometimes we set a child's percentWidth/percentHeight.  
+     *  postLayoutAdjustment() will reset the child's width or height
+     *  back to what it was.
+     */
+    private function postLayoutAdjustment():void
+    {
+        // each object has a child property and may have a set of width/height 
+        // properties that it would like to be set
+        var len:int = postLayoutChanges.length;
+        for (var i:int = 0; i < len; i++)
+        {
+            var changeObject:Object = postLayoutChanges[i];
+            
+            if (changeObject.percentWidth !== undefined)
+                changeObject.child.percentWidth = changeObject.percentWidth;
+            
+            if (changeObject.percentHeight !== undefined)
+                changeObject.child.percentHeight = changeObject.percentHeight;
+            
+            if (changeObject.explicitWidth !== undefined)
+                changeObject.child.explicitWidth = changeObject.explicitWidth;
+            
+            if (changeObject.explicitHeight !== undefined)
+                changeObject.child.explicitHeight = changeObject.explicitHeight;
+        }
+        postLayoutChanges = null;
     }
 
     //--------------------------------------------------------------------------

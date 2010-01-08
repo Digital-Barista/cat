@@ -1394,7 +1394,7 @@ public class TextArea extends ScrollControlBase
      *  Specifies whether the text can be selected.
      *  Making the text selectable lets you copy text from the control.
      *
-     *  @default false;
+     *  @default true
      */
     public function get selectable():Boolean
     {
@@ -2057,6 +2057,11 @@ public class TextArea extends ScrollControlBase
             textField.addEventListener("textReplace",
                                        textField_textModifiedHandler);                                       
             
+            // can't use NativeDragEvent.NATIVE_DRAG_DROP b/c we need AIR for that
+            // ideally we don't need to listen for this event as doing a dragDrop should 
+            // dispatch a TEXT_INPUT and a CHANGE event for us (see SDK-19816)
+            textField.addEventListener("nativeDragDrop", textField_nativeDragDropHandler);
+            
             if (childIndex == -1)
                 addChild(DisplayObject(textField));
             else 
@@ -2086,6 +2091,7 @@ public class TextArea extends ScrollControlBase
                                           textField_textModifiedHandler);                                       
             textField.removeEventListener("textReplace",
                                           textField_textModifiedHandler);                                       
+            textField.removeEventListener("nativeDragDrop", textField_nativeDragDropHandler);
             
             removeChild(DisplayObject(textField));
             textField = null;
@@ -2399,6 +2405,15 @@ public class TextArea extends ScrollControlBase
      */
     private function textField_ioErrorHandler(event:IOErrorEvent):void
     {
+    }
+    
+    /**
+     *  @private
+     */
+    private function textField_nativeDragDropHandler(event:Event):void
+    {
+        // just call the "change" handler
+        textField_changeHandler(event);
     }
 
     /**

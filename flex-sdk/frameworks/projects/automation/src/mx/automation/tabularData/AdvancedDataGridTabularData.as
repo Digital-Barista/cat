@@ -108,7 +108,8 @@ public class AdvancedDataGridTabularData extends AdvancedListBaseTabularData
                 dg.setupRendererFromData(c, item, data);
             //}
 
-            ret.push(IAutomationObject(item).automationValue.join(" | "));
+			if(item is IAutomationObject)
+            	ret.push(IAutomationObject(item).automationValue.join(" | "));
         }
 
         return ret;

@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Flash Player</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Adobe Flash Player 10.0 r32 Copyright (c) 1996-2009 Adobe Macromedia Software LLC. All rights reserved</string>
+	<string>Adobe Flash Player 10.0 r42 Copyright (c) 1996-2009 Adobe Macromedia Software LLC. All rights reserved</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.macromedia.Flash Player.plugin</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>BRPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>10.0.32.18</string>
+	<string>10.0.42.34</string>
 	<key>CFBundleSignature</key>
 	<string>MOSS</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.4f18472</string>
+	<string>1.0.4f348472</string>
 	<key>LSHasLocalizedDisplayName</key>
 	<false/>
 	<key>LSPrefersCarbon</key>
