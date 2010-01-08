@@ -56,7 +56,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		Set<Long> clientIDs = userManager.extractClientIds(ctx.getCallerPrincipal().getName());
 		
 		String queryString = 
-			"select cli.client_id, cast(cli.name as char(200)), c.campaign_id, c.name, a.msg_type, count(*) as message_count " +
+			"select cli.client_id, cast(cli.name as char(200)), c.campaign_id, cast(c.name as char(200)), a.msg_type, count(*) as message_count " +
 			"from audit_outgoing_message a " +
 			"join nodes n on n.uid = a.node_uid " +
 			"join campaigns as c on c.campaign_id = n.campaign_id " +
