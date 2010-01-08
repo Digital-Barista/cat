@@ -103,7 +103,7 @@
 			<resultHandlers>
 				<MethodInvoker generator="{UserManager}"
 					method="deleteUser"
-					arguments="{[event.user]}" />
+					arguments="{[event.user.primaryKey]}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>

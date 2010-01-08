@@ -5,6 +5,8 @@
 	title="{isNewUser ? 'Create User' : 'Edit User'}" xmlns:vo="com.dbi.cat.vo.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.utils.ObjectUtil;
+			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.controls.CustomMessage;
 			import mx.validators.Validator;
 			import com.dbi.cat.common.constants.Roles;
@@ -49,20 +51,12 @@
 			{
 				var errors:ArrayCollection = new ArrayCollection();
 					
-				if (isNewUser)
-					editUser.username = Username.text;
-				editUser.emailAddress = EmailAddress.text;
-				editUser.name = EmailAddress.text;
-				editUser.isActive = IsActive.selected;
-				editUser.roles = new ArrayCollection([Roles.CLIENT]);
-				
-				if(Password.text != "" && Password.text == ConfirmPassword.text)
-				{
-					editUser.password = Password.text;
-				}
 				
 				if (isNewUser)
 				{
+					if (Username.text.length == 0)
+						errors.addItem("Username is required");
+					
 					if (Password.text.length == 0 ||
 						ConfirmPassword.text.length == 0)
 						errors.addItem("Password and confirm password are required");
@@ -73,6 +67,31 @@
 					
 				if (errors.length == 0)
 				{
+					
+					if (isNewUser)
+					{
+						editUser.username = Username.text;
+						
+						// Give new users all client roles of the current user
+						editUser.roles = new ArrayCollection();
+						for each (var role:RoleVO in currentUser.roles)
+						{
+							if (role.roleName == Roles.CLIENT)
+							{
+								var clientRole:RoleVO = ObjectUtil.copy(role) as RoleVO;
+								editUser.roles.addItem(clientRole);
+							}
+						}
+					}
+					editUser.emailAddress = EmailAddress.text;
+					editUser.name = EmailAddress.text;
+					editUser.isActive = IsActive.selected;
+					
+					if(Password.text != "" && Password.text == ConfirmPassword.text)
+					{
+						editUser.password = Password.text;
+					}
+				
 					var userEvent:UserEvent = new UserEvent(UserEvent.SAVE_USER);
 					userEvent.user = editUser;
 					dispatchEvent(userEvent);
@@ -158,66 +177,65 @@
 		]]>
 	</mx:Script>
 		
-		
-		<mx:Form id="EditUser">
-			<mx:FormItem label="UserName"
-				visible="{!isNewUser}"
-				includeInLayout="{!isNewUser}">
-				<mx:Label text="{editUser.username}"/>
-			</mx:FormItem >
-			<mx:FormItem label="UserName" required="true"
-				visible="{isNewUser}"
-				includeInLayout="{isNewUser}">
-				<mx:TextInput id="Username" 
-					text="{editUser.username}" width="332"/>
-			</mx:FormItem >
-			<mx:FormItem label="Name" width="450">
-				<mx:TextInput id="Name" 
-					text="{editUser.name}" width="332"/>
-			</mx:FormItem>
-			<mx:FormItem label="Email Address" >
-				<mx:TextInput id="EmailAddress" 
-					text="{editUser.emailAddress}" width="332"/>
-			</mx:FormItem>
-			<mx:FormItem label="Active">
-				<mx:CheckBox id="IsActive" 
-					selected="{editUser.isActive}" />
-			</mx:FormItem>
-			<mx:FormItem label="Roles" width="100%"
-				visible="false"
-				includeInLayout="false">
-				<mx:HBox width="100%">
-					<mx:Canvas width="100%" height="100%">
-						<mx:Label text="Assigned Roles"
-							top="0" left="0" />
-						<mx:List id="AssignedRoles"
-							dataProvider="{editUser.roles}"
-							dragEnter="onDragEnter(event)"
-							dragDrop="onDragDrop(event)"
-							labelField="roleName"  width="100%" top="15" height="100" dragEnabled="true" dropEnabled="true"/>
-					</mx:Canvas>
-					<mx:Canvas width="100%" height="100%">
-						<mx:Label text="Available Roles"
-							top="0" left="0" />
-						<mx:List id="AvailableRoles" 
-							top="15"
-							dataProvider="{availableRoles}"
-							dragEnter="onDragEnter(event)"
-							dragDrop="onDragDrop(event)"
-							width="100%" height="100" dragEnabled="true" dropEnabled="true"/>
-					</mx:Canvas>
-				</mx:HBox>
-			</mx:FormItem>
-			<mx:FormItem label="Password" required="{isNewUser}">
-				<mx:TextInput id="Password" displayAsPassword="true"  width="333"
-					text="{editUser.password}" />
-			</mx:FormItem>	
-			<mx:FormItem label="Confirm Password" required="{isNewUser}">
-				<mx:TextInput id="ConfirmPassword" displayAsPassword="true"  width="333"
-					text="{editUser.password}"/>				
-			</mx:FormItem>
-		</mx:Form>
-		<mx:ControlBar horizontalAlign="right">
-			<mx:Button id="SaveUser" label="Save" click="save()" />
-		</mx:ControlBar>
+	<mx:Form id="EditUser">
+		<mx:FormItem label="UserName"
+			visible="{!isNewUser}"
+			includeInLayout="{!isNewUser}">
+			<mx:Label text="{editUser.username}"/>
+		</mx:FormItem >
+		<mx:FormItem label="UserName" required="true"
+			visible="{isNewUser}"
+			includeInLayout="{isNewUser}">
+			<mx:TextInput id="Username" 
+				text="{editUser.username}" width="332"/>
+		</mx:FormItem >
+		<mx:FormItem label="Name" width="450">
+			<mx:TextInput id="Name" 
+				text="{editUser.name}" width="332"/>
+		</mx:FormItem>
+		<mx:FormItem label="Email Address" >
+			<mx:TextInput id="EmailAddress" 
+				text="{editUser.emailAddress}" width="332"/>
+		</mx:FormItem>
+		<mx:FormItem label="Active">
+			<mx:CheckBox id="IsActive" 
+				selected="{editUser.isActive}" />
+		</mx:FormItem>
+		<mx:FormItem label="Roles" width="100%"
+			visible="false"
+			includeInLayout="false">
+			<mx:HBox width="100%">
+				<mx:Canvas width="100%" height="100%">
+					<mx:Label text="Assigned Roles"
+						top="0" left="0" />
+					<mx:List id="AssignedRoles"
+						dataProvider="{editUser.roles}"
+						dragEnter="onDragEnter(event)"
+						dragDrop="onDragDrop(event)"
+						labelField="roleName"  width="100%" top="15" height="100" dragEnabled="true" dropEnabled="true"/>
+				</mx:Canvas>
+				<mx:Canvas width="100%" height="100%">
+					<mx:Label text="Available Roles"
+						top="0" left="0" />
+					<mx:List id="AvailableRoles" 
+						top="15"
+						dataProvider="{availableRoles}"
+						dragEnter="onDragEnter(event)"
+						dragDrop="onDragDrop(event)"
+						width="100%" height="100" dragEnabled="true" dropEnabled="true"/>
+				</mx:Canvas>
+			</mx:HBox>
+		</mx:FormItem>
+		<mx:FormItem label="Password" required="{isNewUser}">
+			<mx:TextInput id="Password" displayAsPassword="true"  width="333"
+				text="{editUser.password}" />
+		</mx:FormItem>	
+		<mx:FormItem label="Confirm Password" required="{isNewUser}">
+			<mx:TextInput id="ConfirmPassword" displayAsPassword="true"  width="333"
+				text="{editUser.password}"/>				
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button id="SaveUser" label="Save" click="save()" />
+	</mx:ControlBar>
 </mx:TitleWindow>

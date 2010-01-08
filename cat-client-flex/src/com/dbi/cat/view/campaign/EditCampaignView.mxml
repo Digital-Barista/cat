@@ -9,6 +9,9 @@
 	title="{isNaN(campaign.primaryKey) ? 'Create Camapign' : 'Edit Campaign'}" xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.util.ValidationUtil;
+			import mx.events.DropdownEvent;
+			import mx.validators.Validator;
 			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.SMSConstants;
 			import com.dbi.cat.view.workspace.MessageItem;
@@ -66,25 +69,28 @@
 			}
 			private function saveCampaign():void
 			{
-				// Save campaign
-				var event:CampaignEvent;
-				
-				// No template selected, create a blank campaign
-				if (!isNaN(campaign.primaryKey) ||
-					isNaN(UseTemplate.selectedItem.primaryKey))
+				if (ValidationUtil.reportErrors(validators))
 				{
-					event = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN);
+					// Save campaign
+					var event:CampaignEvent;
+					
+					// No template selected, create a blank campaign
+					if (!isNaN(campaign.primaryKey) ||
+						isNaN(UseTemplate.selectedItem.primaryKey))
+					{
+						event = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN);
+					}
+					// Create a campaign from the selected template
+					else
+					{
+						event = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN_FROM_TEMPLATE);
+						event.campaignTemplateUID = UseTemplate.selectedItem.uid;
+					}
+					
+					event.campaign = campaign;
+					event.campaign.clientPK = Client.selectedItem.clientId;
+					dispatchEvent(event);
 				}
-				// Create a campaign from the selected template
-				else
-				{
-					event = new CampaignEvent(CampaignEvent.SAVE_CAMPAIGN_FROM_TEMPLATE);
-					event.campaignTemplateUID = UseTemplate.selectedItem.uid;
-				}
-				
-				event.campaign = campaign;
-				event.campaign.clientPK = Client.selectedItem.clientId;
-				dispatchEvent(event);
 			}
 			private function changeClient():void
 			{
@@ -92,14 +98,29 @@
 			}
 		]]>
 	</mx:Script>
+	<mx:Array id="validators">
+		<mx:Validator id="NameValidator"
+			required="true"
+			requiredFieldError="Name is a required field."
+			source="{Name}"
+			property="text" />
+		<mx:NumberValidator id="ClientValidator"
+			minValue="0" 
+			lowerThanMinError="Client is a required field."
+			source="{Client}"
+			property="selectedIndex"
+			trigger="{Client}"
+			triggerEvent="{DropdownEvent.CLOSE}" />
+	</mx:Array>
+
 	<mx:Form right="0" left="0" top="0" bottom="0">
-		<mx:FormItem label="Name">
+		<mx:FormItem label="Name" required="true">
 			<mx:TextInput id="Name"
 				width="245" 
 				text="{campaign.name}"
 				change="{campaign.name = Name.text}" />
 		</mx:FormItem>
-		<mx:FormItem label="Client">
+		<mx:FormItem label="Client" required="true">
 			<components:FormattedComboBox
 				id="Client"
 				dataProvider="{clients}"

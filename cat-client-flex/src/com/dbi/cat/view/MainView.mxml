@@ -5,7 +5,8 @@
 	xmlns:reporting="com.dbi.cat.view.reporting.*" 
 	xmlns:campaign="com.dbi.cat.view.campaign.*" 
 	xmlns:profile="com.dbi.cat.view.profile.*" 
-	xmlns:contacts="com.dbi.cat.view.contacts.*">
+	xmlns:contacts="com.dbi.cat.view.contacts.*" 
+	xmlns:user="com.dbi.cat.view.user.*">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Button;
@@ -71,7 +72,7 @@
 		<campaign:CampaignsView label="Campaigns" />
 		<contacts:ContactView label="Contacts" />
 		<reporting:ReportingView label="Reporting" />
-		<view:UsersView label="Users"  />
+		<user:UsersView label="Users"  />
 		<profile:ProfileView label="Profile" />
 	</mx:TabNavigator>
 	<mx:Canvas id="StatusMessageBox"
