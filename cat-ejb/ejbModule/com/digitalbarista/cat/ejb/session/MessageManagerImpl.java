@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -35,7 +36,7 @@ import com.digitalbarista.cat.data.EntryPointType;
 @RunAs("admin")
 public class MessageManagerImpl implements MessageManager {
 
-	public static final String CONTINUED_INDICATOR = "(...)";
+	public static final String CONTINUED_INDICATOR = "\n(...)";
 	
 	@Resource
 	private SessionContext ctx; 
@@ -116,6 +117,12 @@ public class MessageManagerImpl implements MessageManager {
 			messagePart.setMessages(new ArrayList<String>());
 			ret.add(messagePart);
 			
+			// Whitespace characters we care about
+			ArrayList<Character> white = new ArrayList<Character>();
+			white.add(' ');
+			white.add('\t');
+			white.add('\n');
+			
 			// Split long messages into parts
 			if (entryType.getMaxCharacters() > 0 &&
 				wholeMessage.length() > entryType.getMaxCharacters())
@@ -126,17 +133,19 @@ public class MessageManagerImpl implements MessageManager {
 				{
 					// Break the message at the earliest space
 					Integer endIndex = entryType.getMaxCharacters() - CONTINUED_INDICATOR.length();
-					Pattern pattern = Pattern.compile("\\s");
 					while (endIndex > 0 &&
-						   temp.charAt(endIndex) != ' ' &&
-						   temp.charAt(endIndex) != '\t' &&
-						   temp.charAt(endIndex) != '\n')
+							!white.contains(temp.charAt(endIndex)) )
 							endIndex--;
 						  
 					
 					String part = temp.substring(0, endIndex) + CONTINUED_INDICATOR;
 					messagePart.getMessages().add(part);
 					temp = temp.substring(endIndex);
+					
+					// If first character is whitespace remove it
+					if (temp.length() > 0 &&
+						white.contains(temp.charAt(0)) )
+						temp = temp.substring(1);
 				}
 				
 				if (temp.length() > 0)

@@ -27,4 +27,14 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.OPEN_MESSAGE_PREVIEW}">
+		<MethodInvoker generator="{CampaignMessageManager}"
+			method="openMessagePreview" />
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.CLOSE_MESSAGE_PREVIEW}">
+		<MethodInvoker generator="{CampaignMessageManager}"
+			method="closeMessagePreview" />
+	</EventHandlers>
 </EventMap>

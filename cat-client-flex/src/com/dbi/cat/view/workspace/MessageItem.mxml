@@ -69,7 +69,7 @@
 			
 			[Bindable(event="changeMessage")]
 			[Bindable(event="changeAddInMessage")]
-			private function get characterCountMessage():Number
+			private function get characterCountMessage():String
 			{
 				var count:Number = 0;
 				
@@ -79,8 +79,12 @@
 				if (messageVO != null &&
 					messageVO.message != null)
 					count += messageVO.message.length;
+					
+				if (count > maxCharacters)
+					return "<font color='#DD0000'>" + count + "</font>";
+				else
+					return count.toString();
 				
-				return count;
 			}
 			
 			private function init():void
@@ -90,6 +94,10 @@
 			
 			private function previewMessage():void
 			{
+				// Open the preview window
+				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
+				
+				// Request the message parts
 				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_PARTS);
 				event.campaign = workspace.campaign;
 				event.message = Message.text;
@@ -108,13 +116,13 @@
 			<mx:FormItem label="Message" required="true" width="100%" 
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 					<mx:TextArea id="Message"  width="200" height="120"
-						maxChars="{maxCharacters}"
 						text="{messageVO.message}" 
 						change="updateMessage()"/>
 			</mx:FormItem>
-			<mx:FormItem id="CharCount" width="100%">
+			<mx:FormItem id="CharCount" width="100%"
+				label="Char Count">
 				<mx:HBox width="100%">
-					<mx:Label text="{characterCountMessage}" />
+					<mx:Label htmlText="{characterCountMessage}" />
 					<mx:Spacer width="100%" />
 					<mx:Button label="Preview Message"
 						click="previewMessage()" />
