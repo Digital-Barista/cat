@@ -35,6 +35,7 @@ import org.jboss.annotation.security.RunAsPrincipal;
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
 import com.digitalbarista.cat.audit.AuditType;
+import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
@@ -49,6 +50,8 @@ import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.OutgoingEntryNode;
 import com.digitalbarista.cat.business.ResponseConnector;
 import com.digitalbarista.cat.business.TaggingNode;
+import com.digitalbarista.cat.data.AddInMessageDO;
+import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignConnectorLinkDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
@@ -605,7 +608,41 @@ public class CampaignManagerImpl implements CampaignManager {
 				camp.setUID(UUID.randomUUID().toString());
 		}
 		campaign.copyTo(camp);
+		
+		// Save campaign
 		em.persist(camp);
+		
+		// Update list of addin messages
+		if (campaign.getAddInMessages() != null)
+		{
+			for (AddInMessage add : campaign.getAddInMessages())
+			{
+					
+				// Get existing or new data object
+				AddInMessageDO addDO = null;
+				if (add.getAddInMessageId() != null)
+					addDO = em.find(AddInMessageDO.class, add.getAddInMessageId());
+				if (addDO == null)
+					addDO = new AddInMessageDO();
+
+				// Campaigns should only have CLIENT addin messages
+				if ( addDO.getAddInMessageId() == null &&
+					add.getType() != AddInMessageType.CLIENT)
+					throw new IllegalArgumentException("Campaings should not have this type of addin message assigned");
+				
+				// Update and persist object
+				addDO.setCampaign(camp);
+				add.copyTo(addDO);
+				em.persist(addDO);
+				
+				// Add message to client list
+				if (camp.getAddInMessages() == null)
+					camp.setAddInMessages(new HashSet<AddInMessageDO>());
+				camp.getAddInMessages().add(addDO);
+			}
+		}
+		
+		em.flush();
 	}
 
 	@Override

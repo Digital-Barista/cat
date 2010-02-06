@@ -19,6 +19,8 @@
 		<class>com.digitalbarista.cat.data.CouponRedemptionDO</class>
 		<class>com.digitalbarista.cat.data.CouponOfferDO</class>
 		<class>com.digitalbarista.cat.data.CouponCounterDO</class>
+		<class>com.digitalbarista.cat.data.ContactTagDO</class>
+		<class>com.digitalbarista.cat.data.ContactDO</class>
 		<class>com.digitalbarista.cat.data.ConnectorInfoDO</class>
 		<class>com.digitalbarista.cat.data.ConnectorDO</class>
 		<class>com.digitalbarista.cat.data.ClientDO</class>
@@ -28,11 +30,10 @@
 		<class>com.digitalbarista.cat.data.CampaignEntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CampaignDO</class>
 		<class>com.digitalbarista.cat.data.CampaignConnectorLinkDO</class>
+		<class>com.digitalbarista.cat.data.AddInMessageDO</class>
 		<class>com.digitalbarista.cat.audit.OutgoingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.IncomingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.AuditDO</class>
-		<class>com.digitalbarista.cat.data.ContactDO</class>
-		<class>com.digitalbarista.cat.data.ContactTagDO</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
 		</properties>

@@ -96,7 +96,7 @@ package com.dbi.cat.admin.business
 				if (c.clientId == client.clientId)
 				{
 					c.name = client.name;
-					c.adminAddInMessage = client.adminAddInMessage;
+					c.addInMessages = client.addInMessages;
 					c.keywordLimits = client.keywordLimits;
 					found = true;
 					break;

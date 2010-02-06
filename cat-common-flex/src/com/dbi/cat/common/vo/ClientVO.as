@@ -14,8 +14,7 @@ package com.dbi.cat.common.vo
 		
 		public var clientId:Number;
 		public var name:String;
-		public var adminAddInMessage:String;
-		public var userAddInMessage:String;
+		public var addInMessages:ArrayCollection;
 		public var entryPoints:ArrayCollection;
 		public var keywordLimits:ArrayCollection;
 		

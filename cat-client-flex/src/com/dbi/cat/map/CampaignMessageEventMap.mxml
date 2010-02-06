@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.business.CampaignMessageManager;
+			import com.dbi.cat.event.CampaignMessageEvent;
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.constants.ServiceStatusMessage;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	
+	<EventHandlers type="{CampaignMessageEvent.GET_MESSAGE_PARTS}">
+		<RemoteObjectInvoker destination="messageManager"
+			method="getMessageParts"
+			arguments="{[event.campaign, event.message]}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignMessageManager}"
+					method="loadMessageParts"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+</EventMap>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="474" height="276"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="474" height="300"
 	layout="absolute" showCloseButton="true"
 	close="cancel()"
 	title="Edit Client" 
-	xmlns:vo="com.dbi.cat.vo.*">
+	xmlns:vo="com.dbi.cat.vo.*" xmlns:profile="com.dbi.cat.view.profile.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
@@ -21,12 +21,16 @@
 			
 			private function save():void
 			{
+				EntryTypeTabs.selectedIndex = 0;
+				
 				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_CLIENT);
 				event.client = client;
 				dispatchEvent(event);
 			}
 			private function cancel():void
 			{
+				EntryTypeTabs.selectedIndex = 0;
+				
 				dispatchEvent(new ClientEvent(ClientEvent.CANCEL_EDIT));
 			}
 		]]>
@@ -45,14 +49,15 @@
 				<mx:TextInput id="ContactPhone"  width="300"/>
 			</mx:FormItem>
 			<mx:FormItem label="Add In Message">
-				<mx:TextArea id="AddInMessage"  width="300"
-					 maxChars="{EntryPointType.SMS_MAX_CHARACTERS}"
-					text="{client.userAddInMessage}"
-					change="{client.userAddInMessage = AddInMessage.text}" />
+				<mx:TabNavigator id="EntryTypeTabs"
+					width="300" height="100%"
+					tabOffset="20">
+					<mx:Repeater id="EntryTypeRepeater" 
+						dataProvider="{EntryPointType.getAllTypes()}">
+						<profile:ClientAddInMessageEditor entryType="{EntryTypeRepeater.currentItem}"  />
+					</mx:Repeater>
+				</mx:TabNavigator>
 			</mx:FormItem>
-		<mx:FormItem>
-			<mx:Label text="{client.userAddInMessage.length + '/' + EntryPointType.SMS_MAX_CHARACTERS + ' chars'}" />
-		</mx:FormItem>
 		</mx:Form>
 		<mx:ControlBar horizontalAlign="right">
 			<mx:Button id="Save" label="Save" click="save()" />

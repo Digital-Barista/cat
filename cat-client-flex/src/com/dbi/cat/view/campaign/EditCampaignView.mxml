@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="386" height="230"
+	width="386" height="272"
 	showCloseButton="true"
 	close="onClose()" layout="absolute" 
 	horizontalScrollPolicy="off" verticalScrollPolicy="off" 
 	xmlns:vo="com.dbi.cat.vo.*" 
 	xmlns:controls="com.dbi.controls.*"
-	title="{isNaN(campaign.primaryKey) ? 'Create Camapign' : 'Edit Campaign'}" xmlns:components="com.dbi.cat.view.components.*">
+	title="{isNaN(campaign.primaryKey) ? 'Create Camapign' : 'Edit Campaign'}" xmlns:components="com.dbi.cat.view.components.*" xmlns:campaign="com.dbi.cat.view.campaign.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.util.ValidationUtil;
@@ -65,6 +65,7 @@
 			
 			private function onClose():void
 			{
+				EntryTypeTabs.selectedIndex = 0;
 				dispatchEvent(new CampaignEvent(CampaignEvent.CLOSE_EDIT_CAMPAIGN));
 			}
 			private function saveCampaign():void
@@ -138,13 +139,14 @@
 				dataProvider="{campaignTemplates}" />
 		</mx:FormItem>
 		<mx:FormItem label="Add In Message">
-			<mx:TextArea id="AddInMessage"
-				width="245" height="60" maxChars="160"
-				text="{campaign.addInMessage}"
-				change="{campaign.addInMessage = AddInMessage.text}" />
-		</mx:FormItem>
-		<mx:FormItem>
-			<mx:Label text="{campaign.addInMessage.length + '/' + SMSConstants.MAX_CHARACTERS + ' chars'}" />
+			<mx:TabNavigator id="EntryTypeTabs"
+				width="245" height="100%"
+				tabOffset="20">
+				<mx:Repeater id="EntryTypeRepeater" 
+					dataProvider="{EntryPointType.getAllTypes()}">
+					<campaign:CampaignAddInMessageEditor entryType="{EntryTypeRepeater.currentItem}" />
+				</mx:Repeater>
+			</mx:TabNavigator>
 		</mx:FormItem>
 	</mx:Form>
 	<mx:ControlBar x="0" y="142">

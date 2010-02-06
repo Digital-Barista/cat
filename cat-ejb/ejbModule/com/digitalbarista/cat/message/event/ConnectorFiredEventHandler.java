@@ -181,17 +181,19 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 				{
 					SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
 					String actualMessage = mNode.getMessage();
-					String campaignAddIn = simpleNode.getCampaign().getAddInMessage();
-					String clientAddIn = simpleNode.getCampaign().getClient().getUserAddInMessage();
-					String adminAddIn = simpleNode.getCampaign().getClient().getAdminAddInMessage();
 					
-					if(campaignAddIn!=null && campaignAddIn.trim().length()>0)
-						actualMessage+=campaignAddIn;
-					else if(clientAddIn!=null && clientAddIn.trim().length()>0)
-						actualMessage+=clientAddIn;
-					
-					if(adminAddIn!=null && adminAddIn.trim().length()>0)
-						actualMessage+=adminAddIn;
+					// TODO: Wire up new addin message stuff
+//					String campaignAddIn = simpleNode.getCampaign().getAddInMessage();
+//					String clientAddIn = simpleNode.getCampaign().getClient().getUserAddInMessage();
+//					String adminAddIn = simpleNode.getCampaign().getClient().getAdminAddInMessage();
+//					
+//					if(campaignAddIn!=null && campaignAddIn.trim().length()>0)
+//						actualMessage+=campaignAddIn;
+//					else if(clientAddIn!=null && clientAddIn.trim().length()>0)
+//						actualMessage+=clientAddIn;
+//					
+//					if(adminAddIn!=null && adminAddIn.trim().length()>0)
+//						actualMessage+=adminAddIn;
 					
 					String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
 					EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
@@ -223,17 +225,20 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					for(SubscriberDO s : subs)
 					{
 						String actualMessage = mNode.getMessage();
-						String campaignAddIn = simpleNode.getCampaign().getAddInMessage();
-						String clientAddIn = simpleNode.getCampaign().getClient().getUserAddInMessage();
-						String adminAddIn = simpleNode.getCampaign().getClient().getAdminAddInMessage();
 						
-						if(campaignAddIn!=null && campaignAddIn.trim().length()>0)
-							actualMessage+=campaignAddIn;
-						else if(clientAddIn!=null && clientAddIn.trim().length()>0)
-							actualMessage+=clientAddIn;
-						
-						if(adminAddIn!=null && adminAddIn.trim().length()>0)
-							actualMessage+=adminAddIn;
+
+						// TODO: Wire up new addin message stuff
+//						String campaignAddIn = simpleNode.getCampaign().getAddInMessage();
+//						String clientAddIn = simpleNode.getCampaign().getClient().getUserAddInMessage();
+//						String adminAddIn = simpleNode.getCampaign().getClient().getAdminAddInMessage();
+//						
+//						if(campaignAddIn!=null && campaignAddIn.trim().length()>0)
+//							actualMessage+=campaignAddIn;
+//						else if(clientAddIn!=null && clientAddIn.trim().length()>0)
+//							actualMessage+=clientAddIn;
+//						
+//						if(adminAddIn!=null && adminAddIn.trim().length()>0)
+//							actualMessage+=adminAddIn;
 						
 						String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
 						EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();

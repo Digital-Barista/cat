@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Form xmlns:mx="http://www.adobe.com/2006/mxml"
-	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" xmlns:controls="com.dbi.controls.*" xmlns:components="com.dbi.cat.view.components.*">
+	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" xmlns:controls="com.dbi.controls.*" xmlns:components="com.dbi.cat.view.components.*" xmlns:profile="com.dbi.cat.view.profile.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.event.ClientEvent;
 			import mx.collections.ArrayCollection;
@@ -41,6 +42,14 @@
 		<mx:Label text="" />
 	</mx:FormItem>
 	<mx:FormItem label="Add In Message" width="100%">
-		<mx:TextArea text="{client.userAddInMessage}"  width="95%" editable="false"/>
+		<mx:TabNavigator id="EntryTypeTabs"
+			width="100%" height="100%"
+			tabOffset="20">
+			<mx:Repeater id="EntryTypeRepeater" 
+				dataProvider="{EntryPointType.getAllTypes()}">
+				<profile:ClientAddInMessageEditor entryType="{EntryTypeRepeater.currentItem}"
+					editable="false" />
+			</mx:Repeater>
+		</mx:TabNavigator>
 	</mx:FormItem>
 </mx:Form>

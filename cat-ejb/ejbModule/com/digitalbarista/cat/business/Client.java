@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
+import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.KeywordLimitDO;
@@ -25,8 +26,7 @@ public class Client implements
 	private Long clientId;
 	@SecondaryDescriminator
 	private String name;
-	private String adminAddInMessage;
-	private String userAddInMessage;
+	private Set<AddInMessage> addInMessages = new HashSet<AddInMessage>();
 	private Set<KeywordLimit> keywordLimits;
 	private Set<EntryPointDefinition> entryPoints = new TreeSet<EntryPointDefinition>(
 			new Comparator<EntryPointDefinition>()
@@ -52,8 +52,6 @@ public class Client implements
 	public void copyFrom(ClientDO dataObject) {
 		clientId=dataObject.getPrimaryKey();
 		name=dataObject.getName();
-		adminAddInMessage = dataObject.getAdminAddInMessage();
-		userAddInMessage = dataObject.getUserAddInMessage();
 		keywordLimits = new HashSet<KeywordLimit>();
 		entryPoints = new HashSet<EntryPointDefinition>();
 		EntryPointDefinition epd;
@@ -77,13 +75,22 @@ public class Client implements
 				keywordLimits.add(limit);
 			}
 		}
+		
+		// Copy addin messages
+		if (dataObject.getAddInMessages() != null)
+		{
+			for (AddInMessageDO addDO : dataObject.getAddInMessages())
+			{
+				AddInMessage add = new AddInMessage();
+				add.copyFrom(addDO);
+				addInMessages.add(add);
+			}
+		}
 	}
 
 	@Override
 	public void copyTo(ClientDO dataObject) {
 		dataObject.setName(name);
-		dataObject.setAdminAddInMessage(adminAddInMessage);
-		dataObject.setUserAddInMessage(userAddInMessage);
 	}
 
 	@Override
@@ -91,8 +98,22 @@ public class Client implements
 		StringBuffer ret = new StringBuffer();
 		ret.append("pk:"+getClientId());
 		ret.append(";name:"+getName());
-		ret.append(";AdminAddInMessage:"+getAdminAddInMessage());
-		ret.append(";UserAddInMessage:"+getUserAddInMessage());
+
+		// Build list of add in messages
+		ret.append(";addInMessages:(");
+		if (getAddInMessages() == null ||
+			getAddInMessages().size() == 0)
+		{
+			ret.append("none");
+		}
+		else
+		{
+			for (AddInMessage add : getAddInMessages())
+				ret.append(add.getEntryType() + " - " + add.getType() + " - " + add.getMessage() + ", ");
+		}
+		ret.append(")");
+			
+		// Build list of entry points
 		ret.append(";entryPoints:{");
 		if(getEntryPoints()==null)
 		{
@@ -124,24 +145,6 @@ public class Client implements
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	@XmlAttribute
-	public String getAdminAddInMessage() {
-		return adminAddInMessage;
-	}
-
-	public void setAdminAddInMessage(String adminAddInMessage) {
-		this.adminAddInMessage = adminAddInMessage;
-	}
-
-	@XmlAttribute
-	public String getUserAddInMessage() {
-		return userAddInMessage;
-	}
-
-	public void setUserAddInMessage(String userAddInMessage) {
-		this.userAddInMessage = userAddInMessage;
-	}
 	
 	@XmlElementWrapper(name="EntryPoints")
 	@XmlElement(name="EntryPoint")
@@ -164,4 +167,11 @@ public class Client implements
 		this.keywordLimits = keywordLimits;
 	}
 
+	public Set<AddInMessage> getAddInMessages() {
+		return addInMessages;
+	}
+
+	public void setAddInMessages(Set<AddInMessage> addInMessages) {
+		this.addInMessages = addInMessages;
+	}
 }

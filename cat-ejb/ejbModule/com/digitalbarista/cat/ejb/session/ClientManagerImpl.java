@@ -33,12 +33,15 @@ import org.jboss.annotation.security.RunAsPrincipal;
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
 import com.digitalbarista.cat.audit.AuditType;
+import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.Client;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
 import com.digitalbarista.cat.business.KeywordLimit;
 import com.digitalbarista.cat.business.ReservedKeyword;
 import com.digitalbarista.cat.business.User;
+import com.digitalbarista.cat.data.AddInMessageDO;
+import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
@@ -217,6 +220,38 @@ public class ClientManagerImpl implements ClientManager {
 				if (c.getKeywordLimits() == null)
 					c.setKeywordLimits(new HashSet<KeywordLimitDO>());
 				c.getKeywordLimits().add(keyDO);
+			}
+		}
+		
+		// Update add in messages
+		if (client.getAddInMessages() != null)
+		{
+			for (AddInMessage add : client.getAddInMessages())
+			{
+					
+				// Get existing or new data object
+				AddInMessageDO addDO = null;
+				if (add.getAddInMessageId() != null)
+					addDO = em.find(AddInMessageDO.class, add.getAddInMessageId());
+				if (addDO == null)
+					addDO = new AddInMessageDO();
+
+				// Make sure only admins are trying to modify ADMIN add in messages
+				if ( (addDO.getAddInMessageId() == null ||
+					!addDO.getMessage().equals(add.getMessage()) ) &&
+					add.getType() == AddInMessageType.ADMIN &&
+					!ctx.isCallerInRole("admin") )
+					throw new SecurityException("You do not have permission to create this type of add in message");
+				
+				// Update and persist object
+				addDO.setClient(c);
+				add.copyTo(addDO);
+				em.persist(addDO);
+				
+				// Add message to client list
+				if (c.getAddInMessages() == null)
+					c.setAddInMessages(new HashSet<AddInMessageDO>());
+				c.getAddInMessages().add(addDO);
 			}
 		}
 		

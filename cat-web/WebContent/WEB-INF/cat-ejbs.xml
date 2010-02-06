@@ -39,4 +39,8 @@
 	<bean id="ejb.ReportingManager" class="org.springframework.jndi.JndiObjectFactoryBean" scope="request">
 		<property name="jndiName" value="ejb/cat/ReportingManager"/>
 	</bean>
+
+	<bean id="ejb.MessageManager" class="org.springframework.jndi.JndiObjectFactoryBean" scope="request">
+		<property name="jndiName" value="ejb/cat/MessageManager"/>
+	</bean>
 </beans>

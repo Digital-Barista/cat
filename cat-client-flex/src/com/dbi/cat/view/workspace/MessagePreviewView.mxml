@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.constants.EntryPointType;
+			
+			public var messageParts:ArrayCollection;
+		]]>
+	</mx:Script>
+	<mx:TabNavigator id="EntryTypeTabs"
+		width="100%" height="100%"
+		tabOffset="20">
+		<mx:Repeater id="EntryTypeRepeater" 
+			dataProvider="{messageParts}">
+			
+		</mx:Repeater>
+	</mx:TabNavigator>
+</mx:TitleWindow>
