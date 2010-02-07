@@ -61,8 +61,8 @@
 			private function init():void
 			{
 				updateAvailableMessage();
-				AvailableCharCount. visible = maxCharacters != Number.POSITIVE_INFINITY;
-				UnavailableCharCount. visible = maxCharacters != Number.POSITIVE_INFINITY;
+				AvailableCharCount. visible = maxCharacters != 0;
+				UnavailableCharCount. visible = maxCharacters != 0;
 			}
 			
 			private function updateAvailableMessage():void

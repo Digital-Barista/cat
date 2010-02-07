@@ -89,7 +89,7 @@
 			
 			private function init():void
 			{
-				CharCount. visible = maxCharacters != Number.POSITIVE_INFINITY;
+				CharCount. visible = maxCharacters != 0;
 			}
 			
 			private function previewMessage():void
