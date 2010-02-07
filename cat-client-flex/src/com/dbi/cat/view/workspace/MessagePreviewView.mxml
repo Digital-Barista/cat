@@ -54,4 +54,13 @@
 			</mx:Canvas>
 		</mx:Repeater>
 	</mx:TabNavigator>
+	<mx:Canvas backgroundAlpha="1" backgroundColor="0xFFFFFF"
+		width="100%" height="100%"
+		visible="{messageParts == null}">
+		<mx:ProgressBar width="200" height="20"
+			label="Formatting Messages..."
+			labelPlacement="center"
+			indeterminate="true"
+			verticalCenter="0" horizontalCenter="0" />
+	</mx:Canvas>
 </mx:TitleWindow>

@@ -81,9 +81,9 @@
 					count += messageVO.message.length;
 					
 				if (count > maxCharacters)
-					return "<font color='#DD0000'>" + count + "</font>";
+					return "<font color='#DD0000'>" + count + " chars</font>";
 				else
-					return count.toString();
+					return count + " chars";
 				
 			}
 			
@@ -119,8 +119,7 @@
 						text="{messageVO.message}" 
 						change="updateMessage()"/>
 			</mx:FormItem>
-			<mx:FormItem id="CharCount" width="100%"
-				label="Char Count">
+			<mx:FormItem id="CharCount" width="100%">
 				<mx:HBox width="100%">
 					<mx:Label htmlText="{characterCountMessage}" />
 					<mx:Spacer width="100%" />

@@ -4,7 +4,7 @@
 	xmlns:components="com.dbi.cat.view.components.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	width="400" height="300" xmlns:vo="com.dbi.cat.vo.*"
-	editWindowHeight="{showAddin ? 450 : 370}"
+	editWindowHeight="370"
 	editWindowWidth="380"
 	displayIcon="{couponIcon}"
 	workspaceIcon="{couponIcon}"
@@ -12,6 +12,7 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.CampaignMessageEvent;
 			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.vo.CouponNodeVO;
@@ -74,20 +75,11 @@
 				var reg:RegExp = new RegExp("{.*?}", "/g");
 				couponVO.availableMessage = couponVO.availableMessage.replace(reg, couponCodeToken);
 				
-				// Remove characters that are above the max length
-				while (availableCharacterCount > maxCharacters)
-				{
-					couponVO.availableMessage = couponVO.availableMessage.substring(0, couponVO.availableMessage.length - 1);
-				}
 				dispatchEvent(new Event("availableCharacterUpdate"));
 			}
 			private function updateUnavailableMessage():void
 			{
 				couponVO.unavailableMessage = UnavailableMessage.text;
-				if (unavailableCharacterCount > maxCharacters)
-				{
-					couponVO.unavailableMessage = couponVO.unavailableMessage.substring(0, maxCharacters - addInMessage.length);
-				}
 				dispatchEvent(new Event("unavailableCharacterUpdate"));
 			}
 			
@@ -172,11 +164,16 @@
 				return ret;
 			}
 			
-			[Bindable(event="changeAddInMessage")]
-			private function get showAddin():Boolean
+			private function previewMessage(message:String):void
 			{
-				return addInMessage != null &&
-					addInMessage.length > 0;
+				// Open the preview window
+				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
+				
+				// Request the message parts
+				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_PARTS);
+				event.campaign = workspace.campaign;
+				event.message = message;
+				dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>
@@ -252,9 +249,14 @@
 						text="{couponVO.availableMessage}" 
 						change="updateAvailableMessage()"/>
 			</mx:FormItem>
-			<mx:FormItem id="AvailableCharCount"
+			<mx:FormItem id="AvailableCharCount" width="100%"
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:Label text="{availableCharacterCount + '/' + maxCharacters + ' chars'}" />
+				<mx:HBox width="100%">
+					<mx:Label htmlText="{availableCharacterCount + ' chars'}" />
+					<mx:Spacer width="100%" />
+					<mx:Button label="Preview Message"
+						click="previewMessage(AvailableMessage.text)" />
+				</mx:HBox>
 			</mx:FormItem>
 			<mx:FormItem label="Unavailable" 
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
@@ -262,15 +264,14 @@
 					text="{couponVO.unavailableMessage}"
 					change="updateUnavailableMessage()"  />
 			</mx:FormItem>
-			<mx:FormItem id="UnavailableCharCount"
+			<mx:FormItem id="UnavailableCharCount" width="100%"
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:Label text="{unavailableCharacterCount + '/' + maxCharacters + ' chars'}" />
-			</mx:FormItem>
-			<mx:FormItem label="Add In" visible="{showAddin}" includeInLayout="{showAddin}"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:TextArea id="AddIn" width="200" height="70"
-					text="{addInMessage}"
-					editable="false" />
+				<mx:HBox width="100%">
+					<mx:Label htmlText="{unavailableCharacterCount + ' chars'}" />
+					<mx:Spacer width="100%" />
+					<mx:Button label="Preview Message"
+						click="previewMessage(UnavailableMessage.text)" />
+				</mx:HBox>
 			</mx:FormItem>
 		</mx:Form>
 	</editContent>
