@@ -31,9 +31,9 @@ package com.dbi.cat.view.contacts
 		
 		public function TagItemRenderer()
 		{
+			super();
 			horizontalScrollPolicy = "off";
 			percentWidth = 100;
-			super();
 		}
 		
      
