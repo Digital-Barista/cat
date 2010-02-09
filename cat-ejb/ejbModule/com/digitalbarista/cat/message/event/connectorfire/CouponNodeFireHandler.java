@@ -131,10 +131,10 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 					default:
 						throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
 				}
-				s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 				eMan.queueEvent(sendMessageEvent);
-				eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 			}
 		}		
+		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
+		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 	}
 }

@@ -66,10 +66,10 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 					default:
 						throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
 				}
+				eMan.queueEvent(sendMessageEvent);
 			}
 		}
 		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
-		eMan.queueEvent(sendMessageEvent);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 	}
 
