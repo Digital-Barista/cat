@@ -1,10 +1,14 @@
 package com.digitalbarista.cat.message.event.connectorfire;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
+import com.digitalbarista.cat.business.CampaignMessagePart;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.Node;
@@ -17,6 +21,7 @@ import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.data.CouponResponseDO.Type;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
+import com.digitalbarista.cat.ejb.session.MessageManager;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.util.SequentialBitShuffler;
 
@@ -34,6 +39,17 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 
 		CouponOfferDO offer = em.find(CouponOfferDO.class, cNode.getCouponId());
 		CouponResponseDO response;
+		
+		MessageManager mMan = null;
+		
+		try
+		{
+			InitialContext ic = new InitialContext();
+			mMan = (MessageManager)ic.lookup("ejb/cat/MessageManager");
+		}catch(NamingException ex)
+		{
+			throw new RuntimeException("Unable to retrieve the message manager.",ex);
+		}
 		
 		if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && (offer.getMaxCoupons()<0 || offer.getIssuedCouponCount()<offer.getMaxCoupons()))
 		{
@@ -87,29 +103,38 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		
 		em.persist(response);
 		
+		List<CampaignMessagePart> messageParts = mMan.getMessageParts(cMan.getDetailedCampaign(cNode.getCampaignUID()), actualMessage);
+
 		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
 		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
-		switch(fromType)
+		for(CampaignMessagePart messagePart : messageParts)
 		{
-			
-			case Email:
-				sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), actualMessage, cNode.getName(),cNode.getUid(),version);
-				break;
-			
-			case SMS:
-				sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), actualMessage, cNode.getName(),cNode.getUid(),version);
-				break;
-				
-			case Twitter:
-				sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterUsername(), actualMessage, cNode.getName(),cNode.getUid(),version);
-				break;
-				
-			default:
-				throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
-		}
-		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
-		eMan.queueEvent(sendMessageEvent);
-		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
+			if(messagePart.getEntryType()!=fromType)
+				continue;
+			for(String splitMessage : messagePart.getMessages())
+			{
+				switch(fromType)
+				{
+					
+					case Email:
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), splitMessage, cNode.getName(),cNode.getUid(),version);
+						break;
+					
+					case SMS:
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), splitMessage, cNode.getName(),cNode.getUid(),version);
+						break;
+						
+					case Twitter:
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterUsername(), splitMessage, cNode.getName(),cNode.getUid(),version);
+						break;
+						
+					default:
+						throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
+				}
+				s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
+				eMan.queueEvent(sendMessageEvent);
+				eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
+			}
+		}		
 	}
-
 }
