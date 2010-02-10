@@ -82,7 +82,7 @@
 					pageIndexChanged="pageChange(event)"
 					totalResults="{contacts.totalResultCount}"
 					pageSize="250"
-					selectedNavButtonStyleName="selectecNavButton" />
+					selectedNavButtonStyleName="selectedNavButton" />
 			</mx:ControlBar>
 		</mx:TitleWindow>
 		<mx:HBox right="10" top="7" verticalAlign="middle">

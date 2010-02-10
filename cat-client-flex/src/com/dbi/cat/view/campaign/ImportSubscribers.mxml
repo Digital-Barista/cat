@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="800" height="500" 
-	showCloseButton="true" 
 	xmlns:contacts="com.dbi.cat.view.contacts.*"
-	close="onClose()"
-	title="Subscribe Contacts" xmlns:controls="com.dbi.controls.*">
+	xmlns:controls="com.dbi.controls.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.vo.PagedListVO;
@@ -66,16 +64,22 @@
 			}
 		]]>
 	</mx:Script>
-	<contacts:ContactListView id="Contacts"
-		width="100%" height="100%" />
-	<mx:ControlBar>
-		<controls:PagingControl id="Pager"
-			pageIndexChanged="pageChange(event)"
-			totalResults="{contacts.totalResultCount}"
-			pageSize="250"
-			selectedNavButtonStyleName="selectecNavButton" />
-		<mx:Spacer width="100%" />
-		<mx:Button label="Subscribe Selected Contacts"
-			click="confirmImport()" />
-	</mx:ControlBar>
-</mx:TitleWindow>
+	<mx:TitleWindow 
+	width="100%" height="100%"
+	showCloseButton="true" 
+	close="onClose()"
+	title="Subscribe Contacts">
+		<contacts:ContactListView id="Contacts"
+			width="100%" height="100%" />
+		<mx:ControlBar horizontalAlign="center">
+			<controls:PagingControl id="Pager"
+				pageIndexChanged="pageChange(event)"
+				totalResults="{contacts.totalResultCount}"
+				pageSize="250"
+				selectedNavButtonStyleName="selectedNavButton" />
+		</mx:ControlBar>
+	</mx:TitleWindow>
+	<mx:Button label="Subscribe Selected Contacts"
+		top="7" right="35"
+		click="confirmImport()" />
+</mx:Canvas>

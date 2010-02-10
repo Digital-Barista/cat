@@ -217,11 +217,11 @@ package com.dbi.controls
 				button.label = (i + 1).toString();
 				button.data = i;
 				button.addEventListener(MouseEvent.CLICK, changeIndex);
-				button.enabled = numPages > 1;
 				
 				// Set appropriate style
 				if (pageIndex == i)
 				{
+					button.enabled = false;
 					if (selectedNavButtonStyleName != null)
 						button.styleName = selectedNavButtonStyleName;
 				}	
