@@ -15,8 +15,11 @@ import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
+import com.digitalbarista.cat.business.PagingInfo;
+import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.util.PagedList;
 
 @Local
 @Path("/contacts")
@@ -26,7 +29,7 @@ public interface ContactManager {
 	public boolean contactExists(String address, EntryPointType type, Long clientId);
 	@GET
 	@Wrapped(element="Contacts")
-	public List<Contact> getContacts();
+	public PagedList<Contact> getContacts(ContactSearchCriteria searchCriteria, PagingInfo paging);
 	@Path("/tags")
 	@GET
 	@Wrapped(element="ContactTags")

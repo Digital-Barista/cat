@@ -3,6 +3,9 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.constants.ContactTagType;
 	import com.dbi.cat.common.vo.ContactTagVO;
 	import com.dbi.cat.common.vo.ContactVO;
+	import com.dbi.cat.common.vo.PagedListVO;
+	import com.dbi.cat.common.vo.PagingInfoVO;
+	import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
 	import com.dbi.cat.view.contacts.AddTagView;
 	import com.dbi.cat.view.contacts.ContactImportView;
 	import com.dbi.cat.view.contacts.EditContactView;
@@ -29,7 +32,7 @@ package com.dbi.cat.business
 	{
 		private var dispatcher:IEventDispatcher;
 
-		public var contacts:ArrayCollection;
+		public var contacts:PagedListVO;
 		public var contactMap:Object;
 		public var currentContact:ContactVO;
 		
@@ -55,6 +58,10 @@ package com.dbi.cat.business
 		public var filterContactTags:ArrayCollection;
 		public var filterLabel:String = "Showing 0/0";
 		
+		// Paging information
+		public var contactPagingInfo:PagingInfoVO;
+		public var contactSearchCriteria:ContactSearchCriteriaVO;
+		
 		public function ContactManager(dispatcher:IEventDispatcher)
 		{
 			this.dispatcher = dispatcher;
@@ -64,17 +71,24 @@ package com.dbi.cat.business
 		//
 		// Contact methods
 		//
-		public function loadContacts(contacts:ArrayCollection):void
+		public function loadContacts(contacts:PagedListVO, searchCriteria:ContactSearchCriteriaVO, pagingInfo:PagingInfoVO):void
 		{
-			// Preserve filter if it exists
-			if (this.contacts != null)
-				var filter:Function = this.contacts.filterFunction;
 			this.contacts = contacts;
 			
-			if (filter != null)
+			// Apply query criteria changes
+			if (contactPagingInfo == null )
 			{
-				this.contacts.filterFunction = filter;
-				this.contacts.refresh();
+				contactPagingInfo = pagingInfo;
+			}
+			else
+			{
+				if (contactPagingInfo.pageIndex != null)
+					contactPagingInfo.pageIndex = pagingInfo.pageIndex;
+			}
+			
+			if (contactSearchCriteria == null)
+			{
+				contactSearchCriteria = searchCriteria;
 			}
 			
 			contactMap = new Object();
@@ -101,9 +115,9 @@ package com.dbi.cat.business
 		{
 			if (contact != null)
 			{
-				contacts.addItem(contact);
+				contacts.results.addItem(contact);
 			}
-			filterContacts();
+//			filterContacts();
 			closeContact();
 		}
 		public function selectContacts(contacts:ArrayCollection):void
@@ -112,7 +126,7 @@ package com.dbi.cat.business
 		}
 		public function deleteContact(contact:ContactVO):void
 		{
-			var cur:IViewCursor = contacts.createCursor();
+			var cur:IViewCursor = contacts.results.createCursor();
 			while (cur.current != null)
 			{
 				if (cur.current.contactId == contact.contactId)
@@ -228,7 +242,7 @@ package com.dbi.cat.business
 					}
 				}
 			}
-			filterContacts();
+//			filterContacts();
 			closeContactTagAssignment();
 		}
 		public function removeTagsFromContacts(contacts:ArrayCollection, tags:ArrayCollection):void
@@ -253,7 +267,7 @@ package com.dbi.cat.business
 					}
 				}
 			}
-			filterContacts();
+//			filterContacts();
 			closeContactTagUnassignment();
 		}
 		public function deleteTag(tag:ContactTagVO):void
@@ -306,63 +320,6 @@ package com.dbi.cat.business
 		{
 			PopUpManager.removePopUp(contactTagFilterPopup);
 		}
-		public function filterContacts(clientId:String=null, contactType:String=null, contactTags:ArrayCollection=null):void
-		{
-			// Set filters
-			if (clientId != null)
-				filterClientId = clientId;
-			if (contactType != null)
-				filterContactType = contactType;
-			if (contactTags != null)
-				filterContactTags = contactTags;
-			
-			// Do filter
-			contacts.filterFunction = filterContactsFunction;
-			contacts.refresh();
-			
-			// Update filter label
-			filterLabel = "Showing 0/0";
-			if (contacts != null)
-				filterLabel = "Showing " + contacts.length + "/" + contacts.source.length;
-			
-			// Close the filter popup		
-			closeContactTagFilter();
-		}
-		private function filterContactsFunction(contact:ContactVO):Boolean
-		{
-			if (filterClientId != null &&
-				filterClientId.length > 0 &&
-				filterClientId != contact.clientId)
-				return false;
-				
-			if (filterContactType != null &&
-				filterContactType.length > 0 &&
-				filterContactType != contact.type)
-				return false;
-				
-			if (filterContactTags != null &&
-				filterContactTags.length > 0)
-			{
-				for each (var filterTag:ContactTagVO in filterContactTags)
-				{
-					var found:Boolean = false;
-					for each (var tag:ContactTagVO in contact.contactTags)
-					{
-						if (tag.tag.toLowerCase() == filterTag.tag.toLowerCase())
-						{
-							found = true;
-							break;
-						}
-					}
-					if (found)
-						break;
-				}
-				if (!found)
-					return false;
-			}
-			
-			return true;
-		}
 	
 		//
 		// Contact import methods
@@ -382,9 +339,9 @@ package com.dbi.cat.business
 		public function importContacts(contactImportList:ArrayCollection, successfulContactImportList:ArrayCollection):void
 		{
 			for each (var contact:ContactVO in successfulContactImportList)
-				contacts.addItem(contact);
+				contacts.results.addItem(contact);
 
-			filterContacts();
+//			filterContacts();
 			closeContactImport();
 			CustomMessage.show("Successfully imported " + successfulContactImportList.length +
 				" of " + contactImportList.length + " contacts");

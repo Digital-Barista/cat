@@ -6,6 +6,7 @@
 	title="Tag Filter">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.ContactTagVO;
 			import com.dbi.cat.common.constants.ContactTagType;
@@ -19,8 +20,10 @@
 			}
 			private function doFilter():void
 			{
-				var event:ContactEvent = new ContactEvent(ContactEvent.FILTER_CONTACTS);
-				event.contactTags = Tags.selectedTags;
+				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+				var criteria:ContactSearchCriteriaVO = new ContactSearchCriteriaVO();
+				criteria.contactTags = Tags.selectedTags;
+				event.searchCriteria = criteria;
 				dispatchEvent(event);
 			}
 			private function unselectAll():void

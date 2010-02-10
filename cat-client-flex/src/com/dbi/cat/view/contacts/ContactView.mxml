@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:contacts="com.dbi.cat.view.contacts.*">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:contacts="com.dbi.cat.view.contacts.*" 
+	xmlns:controls="com.dbi.controls.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.vo.PagedListVO;
+			import com.dbi.cat.common.vo.PagingInfoVO;
+			import mx.events.IndexChangedEvent;
 			import com.dbi.cat.common.vo.ContactVO;
 			import com.dbi.cat.event.ContactEvent;
 			import com.dbi.cat.common.vo.UserVO;
@@ -10,10 +15,12 @@
 			import flash.events.MouseEvent;
 			
 			[Bindable]
-			public var contacts:ArrayCollection;
+			public var contacts:PagedListVO;
 			
 			[Bindable]
 			public var selectedContacts:ArrayCollection;
+			
+			public var contactPagingInfo:PagingInfoVO;
 			
 			private function refresh():void
 			{
@@ -42,6 +49,17 @@
 			{
 				dispatchEvent(new ContactEvent(ContactEvent.SELECT_CONTACT_IMPORT_FILE));
 			}
+			private function pageChange(e:IndexChangedEvent):void
+			{
+				if (contactPagingInfo == null)
+					contactPagingInfo = new PagingInfoVO();
+				contactPagingInfo.pageIndex = e.newIndex.toString();
+				contactPagingInfo.pageSize = Pager.pageSize.toString();
+				
+				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+				event.pagingInfo = contactPagingInfo;
+				dispatchEvent(event);
+			}
 		]]>	
 	</mx:Script>
 	<mx:Canvas
@@ -54,6 +72,12 @@
 			layout="absolute"
 			title="Contacts">
 			<contacts:ContactListView />
+			<mx:ControlBar horizontalAlign="center">
+				<controls:PagingControl id="Pager"
+					pageIndexChanged="pageChange(event)"
+					totalResults="{contacts.totalResultCount}"
+					pageSize="50" />
+			</mx:ControlBar>
 		</mx:TitleWindow>
 		<mx:HBox right="10" top="7" verticalAlign="middle">
 			<mx:Image source="@Embed(source='/assets/img/refresh.png')"

@@ -2,6 +2,8 @@ package com.dbi.cat.event
 {
 	import com.dbi.cat.common.vo.ContactTagVO;
 	import com.dbi.cat.common.vo.ContactVO;
+	import com.dbi.cat.common.vo.PagingInfoVO;
+	import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
 	
 	import flash.events.Event;
 	
@@ -20,7 +22,6 @@ package com.dbi.cat.event
 		
 		public static const OPEN_CONTACT_TAG_FILTER:String = "openContactTagFiltertEvent";
 		public static const CLOSE_CONTACT_TAG_FILTER:String = "closeContactTagFiltertEvent";
-		public static const FILTER_CONTACTS:String = "filterContactsEvent";
 		
 		public static const EDIT_CONTACT:String = "editContactEvent";
 		public static const CLOSE_CONTACT:String = "closeContactEvent";
@@ -43,6 +44,9 @@ package com.dbi.cat.event
 		
 		public var clientId:String;
 		public var contactType:String;
+		
+		public var pagingInfo:PagingInfoVO;
+		public var searchCriteria:ContactSearchCriteriaVO;
 		
 		public function ContactEvent(type:String)
 		{

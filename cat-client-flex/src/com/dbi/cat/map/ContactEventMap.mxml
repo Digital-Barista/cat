@@ -35,11 +35,12 @@
 	
 	<EventHandlers type="{ContactEvent.LIST_CONTACTS}">
 		<RemoteObjectInvoker destination="contactManager"
-			method="getContacts">
+			method="getContacts"
+			arguments="{[event.searchCriteria, event.pagingInfo]}">
 			<resultHandlers>
 				<MethodInvoker generator="{ContactManager}"
 					method="loadContacts"
-					arguments="{resultObject}" />
+					arguments="{[resultObject, event.searchCriteria, event.pagingInfo]}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
@@ -192,13 +193,6 @@
 		<MethodInvoker
 			generator="{ContactManager}"
 			method="closeContactTagFilter" />
-	</EventHandlers>
-	
-	<EventHandlers type="{ContactEvent.FILTER_CONTACTS}">
-		<MethodInvoker
-			generator="{ContactManager}"
-			method="filterContacts"
-			arguments="{[event.clientId, event.contactType, event.contactTags]}" />
 	</EventHandlers>
 	
 	
