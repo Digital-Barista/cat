@@ -95,3 +95,9 @@ RowIndex
 	fontSize:12;
 	fontWeight:bold;
 }
+
+.selectedNavButton
+{
+	backgroundColor:#B2DC32;
+	fontSize:16;
+}

@@ -94,7 +94,6 @@
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
 		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />
 		<EventAnnouncer type="{CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT}" />
-		<EventAnnouncer type="{ContactEvent.LIST_CONTACTS}" />
 		<EventAnnouncer type="{ContactEvent.LIST_CONTACT_TAGS}" />
 		<EventAnnouncer type="{ReportingEvent.LOAD_OUTGOING_MESSAGE_SUMMARIES}" />
 	</EventHandlers>

@@ -11,14 +11,18 @@
 			
 			private static var messageInstance:LoadingMessageView;
 			
-			public static function show(message:String):void
+			public static function show(message:String, parent:DisplayObject=null):void
 			{
 				if (messageInstance == null)
 					messageInstance = new LoadingMessageView();
 				messageInstance.loadingMessage = message;
 				
+				var parentObject:DisplayObject = parent;
+				if (parentObject == null)
+					parentObject = DisplayObject(Application.application);
+					
 				PopUpManager.removePopUp(messageInstance);
-				PopUpManager.addPopUp(messageInstance, DisplayObject(Application.application), true);
+				PopUpManager.addPopUp(messageInstance, parentObject, true);
 				PopUpManager.centerPopUp(messageInstance);
 			}
 			

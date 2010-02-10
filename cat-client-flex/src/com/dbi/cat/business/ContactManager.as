@@ -6,6 +6,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.PagedListVO;
 	import com.dbi.cat.common.vo.PagingInfoVO;
 	import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
+	import com.dbi.cat.event.ContactEvent;
 	import com.dbi.cat.view.contacts.AddTagView;
 	import com.dbi.cat.view.contacts.ContactImportView;
 	import com.dbi.cat.view.contacts.EditContactView;
@@ -56,11 +57,11 @@ package com.dbi.cat.business
 		private var filterClientId:String;
 		private var filterContactType:String;
 		public var filterContactTags:ArrayCollection;
-		public var filterLabel:String = "Showing 0/0";
 		
 		// Paging information
 		public var contactPagingInfo:PagingInfoVO;
 		public var contactSearchCriteria:ContactSearchCriteriaVO;
+		public var isSearchingContacts:Boolean = false;
 		
 		public function ContactManager(dispatcher:IEventDispatcher)
 		{
@@ -75,27 +76,19 @@ package com.dbi.cat.business
 		{
 			this.contacts = contacts;
 			
-			// Apply query criteria changes
-			if (contactPagingInfo == null )
-			{
+			if (pagingInfo != null )
 				contactPagingInfo = pagingInfo;
-			}
-			else
-			{
-				if (contactPagingInfo.pageIndex != null)
-					contactPagingInfo.pageIndex = pagingInfo.pageIndex;
-			}
 			
-			if (contactSearchCriteria == null)
-			{
+			if (searchCriteria != null)
 				contactSearchCriteria = searchCriteria;
-			}
 			
 			contactMap = new Object();
-			for each (var c:ContactVO in this.contacts)
+			for each (var c:ContactVO in this.contacts.results)
 				contactMap[c.contactId] = c;
 				
 			updateTagCounts();
+			
+			isSearchingContacts = false;
 		}
 		public function editContact(contact:ContactVO):void
 		{
@@ -338,13 +331,16 @@ package com.dbi.cat.business
 		}
 		public function importContacts(contactImportList:ArrayCollection, successfulContactImportList:ArrayCollection):void
 		{
-			for each (var contact:ContactVO in successfulContactImportList)
-				contacts.results.addItem(contact);
 
-//			filterContacts();
 			closeContactImport();
 			CustomMessage.show("Successfully imported " + successfulContactImportList.length +
 				" of " + contactImportList.length + " contacts");
+				
+			// Refresh list
+			var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+			event.searchCriteria = contactSearchCriteria;
+			event.pagingInfo = contactPagingInfo;
+			dispatcher.dispatchEvent(event);
 		}
 		public function selectContactImportFile():void
 		{

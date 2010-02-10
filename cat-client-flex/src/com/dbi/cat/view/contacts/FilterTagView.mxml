@@ -25,6 +25,8 @@
 				criteria.contactTags = Tags.selectedTags;
 				event.searchCriteria = criteria;
 				dispatchEvent(event);
+				
+				dispatchEvent(new ContactEvent(ContactEvent.CLOSE_CONTACT_TAG_FILTER));
 			}
 			private function unselectAll():void
 			{

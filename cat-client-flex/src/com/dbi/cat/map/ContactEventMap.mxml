@@ -34,6 +34,9 @@
 	
 	
 	<EventHandlers type="{ContactEvent.LIST_CONTACTS}">
+		<PropertySetter generator="{ContactManager}"
+			targetKey="isSearchingContacts"
+			source="{true}" />
 		<RemoteObjectInvoker destination="contactManager"
 			method="getContacts"
 			arguments="{[event.searchCriteria, event.pagingInfo]}">

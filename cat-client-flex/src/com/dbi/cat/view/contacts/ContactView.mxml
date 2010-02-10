@@ -4,6 +4,7 @@
 	xmlns:controls="com.dbi.controls.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
 			import com.dbi.cat.common.vo.PagedListVO;
 			import com.dbi.cat.common.vo.PagingInfoVO;
 			import mx.events.IndexChangedEvent;
@@ -20,11 +21,15 @@
 			[Bindable]
 			public var selectedContacts:ArrayCollection;
 			
+			public var contactSearchCriteria:ContactSearchCriteriaVO;
 			public var contactPagingInfo:PagingInfoVO;
 			
 			private function refresh():void
 			{
-				dispatchEvent(new ContactEvent(ContactEvent.LIST_CONTACTS));
+				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+				event.searchCriteria = contactSearchCriteria;
+				event.pagingInfo = contactPagingInfo;
+				dispatchEvent(event);
 				dispatchEvent(new ContactEvent(ContactEvent.LIST_CONTACT_TAGS));
 			}
 			private function addContact():void
@@ -76,7 +81,8 @@
 				<controls:PagingControl id="Pager"
 					pageIndexChanged="pageChange(event)"
 					totalResults="{contacts.totalResultCount}"
-					pageSize="50" />
+					pageSize="250"
+					selectedNavButtonStyleName="selectecNavButton" />
 			</mx:ControlBar>
 		</mx:TitleWindow>
 		<mx:HBox right="10" top="7" verticalAlign="middle">

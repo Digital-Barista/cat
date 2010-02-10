@@ -204,8 +204,6 @@ package com.dbi.controls
 			previousNav.enabled = pageIndex > 0;
 			previousNav.data = pageIndex - 1;
 			
-			navButtonContainer.enabled = numPages > 1;
-			
 			nextNav.enabled = pageIndex < numPages - 1;
 			nextNav.data = pageIndex + 1;
 			
@@ -219,6 +217,7 @@ package com.dbi.controls
 				button.label = (i + 1).toString();
 				button.data = i;
 				button.addEventListener(MouseEvent.CLICK, changeIndex);
+				button.enabled = numPages > 1;
 				
 				// Set appropriate style
 				if (pageIndex == i)

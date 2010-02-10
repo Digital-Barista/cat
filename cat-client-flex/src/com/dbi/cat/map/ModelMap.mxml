@@ -345,7 +345,11 @@
 			source="{ContactManager}"
 			sourceKey="contacts"
 			targetKey="contacts" />
-		<PropertyInjector 
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactSearchCriteria"
+			targetKey="contactSearchCriteria" />
+		<PropertyInjector
 			source="{ContactManager}"
 			sourceKey="contactPagingInfo"
 			targetKey="contactPagingInfo" />
@@ -361,12 +365,16 @@
 			targetKey="contacts" />
 		<PropertyInjector
 			source="{ContactManager}"
-			sourceKey="filterContactTags"
-			targetKey="filterContactTags" />
+			sourceKey="contactSearchCriteria"
+			targetKey="contactSearchCriteria" />
 		<PropertyInjector
 			source="{ContactManager}"
-			sourceKey="filterLabel"
-			targetKey="filterLabel" />
+			sourceKey="contactPagingInfo"
+			targetKey="contactPagingInfo" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="isSearchingContacts"
+			targetKey="isSearchingContacts" />
 	</Injectors>
 	<Injectors target="{ContactImportView}">
 		<PropertyInjector
@@ -377,6 +385,20 @@
 			source="{ContactManager}"
 			sourceKey="importedContacts"
 			targetKey="importedContacts" />
+	</Injectors>
+	<Injectors target="{ImportSubscribers}">
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contacts"
+			targetKey="contacts" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactSearchCriteria"
+			targetKey="contactSearchCriteria" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactPagingInfo"
+			targetKey="contactPagingInfo" />
 	</Injectors>
 	<Injectors target="{EditContactView}">
 		<PropertyInjector

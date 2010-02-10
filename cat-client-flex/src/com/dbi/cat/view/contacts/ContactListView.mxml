@@ -2,9 +2,11 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
 	xmlns:contacts="com.dbi.cat.view.contacts.*" 
 	xmlns:components="com.dbi.cat.view.components.*"
-	creationComplete="init()">
+	creationComplete="init()" xmlns:controls="com.dbi.controls.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.components.LoadingMessageView;
+			import com.dbi.cat.common.vo.PagingInfoVO;
 			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
 			import com.dbi.cat.common.vo.PagedListVO;
 			import com.dbi.cat.event.ContactEvent;
@@ -27,17 +29,21 @@
 			[Bindable]
 			public var selectedFilterContacts:ArrayCollection;
 			
-			[Bindable]
-			public var filterLabel:String;
+			public var contactPagingInfo:PagingInfoVO;
 			
-			private var _filterContactTags:ArrayCollection;
-			public function get filterContactTags():ArrayCollection
+			[Bindable]
+			public var isSearchingContacts:Boolean = false;
+			
+			
+			private var _contactSearchCriteria:ContactSearchCriteriaVO;
+			[Bindable]
+			public function get contactSearchCriteria():ContactSearchCriteriaVO
 			{
-				return _filterContactTags;
+				return _contactSearchCriteria;
 			}
-			public function set filterContactTags(value:ArrayCollection):void
+			public function set contactSearchCriteria(value:ContactSearchCriteriaVO):void
 			{
-				_filterContactTags = value;
+				_contactSearchCriteria = value;
 				
 				// Clear selected items
 				Contacts.selectedIndex = -1;
@@ -48,7 +54,7 @@
 			{
 				ChangeWatcher.watch(Contacts, "selectedItems", selectedContactsChanged);
 				
-				// Do initial filter
+				// Do initial search
 				doFilter();
 			}
 			
@@ -80,12 +86,25 @@
 			private function doFilter():void
 			{
 				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
-				var criteria:ContactSearchCriteriaVO = new ContactSearchCriteriaVO();
-				criteria.clientId = Client.selectedItem.clientId;
-				criteria.entryType = ContactType.selectedLabel;
-				event.searchCriteria = criteria;
-				dispatchEvent(event);
 				
+				// Setup pagingin info
+				if (contactPagingInfo == null)
+				{
+					contactPagingInfo = new PagingInfoVO();
+					contactPagingInfo.pageSize = "250";
+				}
+				contactPagingInfo.pageIndex = "0";
+				
+				// Setup search criteria
+				if (contactSearchCriteria == null)
+					contactSearchCriteria = new ContactSearchCriteriaVO();
+				contactSearchCriteria.clientId = Client.selectedItem.clientId;
+				contactSearchCriteria.entryType = ContactType.selectedLabel;
+				event.searchCriteria = contactSearchCriteria;
+				event.pagingInfo = contactPagingInfo;
+				
+				// Fire event
+				dispatchEvent(event);
 				dispatchEvent(new Event("filterUpdate"));
 				
 				// Clear selected items
@@ -96,9 +115,10 @@
 			private function get tagLabel():String
 			{
 				var ret:String = "Select (0)";
-				if (filterContactTags != null)
+				if (contactSearchCriteria != null &&
+					contactSearchCriteria.contactTags)
 				{
-					ret = "Select (" + filterContactTags.length + ")";
+					ret = "Select (" + contactSearchCriteria.contactTags.length + ")";
 				}
 				return ret;
 			}
@@ -118,30 +138,39 @@
 				id="Client"
 				top="4" left="55"
 				bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
+				selectedBindingProperty="clientId"
+				selectedBindingValue="{contactSearchCriteria.clientId}"
 				labelField="name"
 				dataProvider="{clients}"
 				change="doFilter()" />
 			<mx:Label text="Type:" />
-			<mx:ComboBox id="ContactType"
+			<controls:AdvancedComboBox id="ContactType"
+				selectedBindingValue="{contactSearchCriteria.entryType}"
 				dataProvider="{contactTypes}"
 				change="doFilter()" />
 			<mx:Label text="Tags" />
 			<mx:Button label="{tagLabel}"
 				click="openTagFilter()" />
-			<mx:Spacer width="100%" />
-			<mx:Label text="{filterLabel}" />
 		</mx:HBox>
 		<mx:DataGrid id="Contacts"
 			width="100%" height="100%" top="30"
 			dataProvider="{contacts.results}"
 			allowMultipleSelection="true">
 			<mx:columns>
-				<mx:DataGridColumn width="30" itemRenderer="com.dbi.controls.RowIndex" />
 				<mx:DataGridColumn headerText="Type" dataField="type" width="60" />
 				<mx:DataGridColumn headerText="Contact" dataField="address" width="150" />
 				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" width="80" />
-				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" />
+				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" sortable="false" />
 			</mx:columns>
 		</mx:DataGrid>
+	</mx:Canvas>
+	<mx:Canvas width="100%" height="100%"
+		backgroundAlpha="0.5" backgroundColor="0xAAAAAA"
+		visible="{isSearchingContacts}">
+		<mx:ProgressBar width="200" height="20"
+			label="Loading Contacts..."
+			labelPlacement="center"
+			indeterminate="true"
+			verticalCenter="0" horizontalCenter="0" />
 	</mx:Canvas>
 </mx:Canvas>
