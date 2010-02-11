@@ -116,47 +116,89 @@ public class MessageManagerImpl implements MessageManager {
 			messagePart.setEntryType(entryType);
 			messagePart.setMessages(new ArrayList<String>());
 			ret.add(messagePart);
+			messagePart.setMessages(splitMessage(wholeMessage, entryType.getMaxCharacters()));
 			
-			// Whitespace characters we care about
-			ArrayList<Character> white = new ArrayList<Character>();
-			white.add(' ');
-			white.add('\t');
-			white.add('\n');
 			
-			// Split long messages into parts
-			if (entryType.getMaxCharacters() > 0 &&
-				wholeMessage.length() > entryType.getMaxCharacters())
+		}
+		
+		return ret;
+	}
+	
+	private List<String> splitMessage(String message, Integer maxCharacters)
+	{
+		List<String> messages = new ArrayList<String>();
+		
+		// Whitespace characters we care about
+		ArrayList<Character> white = new ArrayList<Character>();
+		white.add(' ');
+		white.add('\t');
+		white.add('\n');
+		
+		
+		// Split long messages into parts
+		if (maxCharacters > 0 &&
+			message.length() > maxCharacters)
+		{
+
+			String continuedIndicator = "";
+			String messageCountPlaceHolder = "";
+			do
 			{
-				String temp = wholeMessage;
+				// Build place holder with proper number of characters
+				messageCountPlaceHolder = "";
+				for (Integer i = 0; i < getNumDigits(messages.size()); i++)
+					messageCountPlaceHolder += "|";
 				
-				while (temp.length() > entryType.getMaxCharacters())
+				messages.clear();
+				String temp = message;
+				Integer messageCount = 1;
+				continuedIndicator = "\n(" + messageCount + "/" + messageCountPlaceHolder + ")";
+				
+				while (temp.length() + continuedIndicator.length() > maxCharacters)
 				{
 					// Break the message at the earliest space
-					Integer endIndex = entryType.getMaxCharacters() - CONTINUED_INDICATOR.length();
+					Integer endIndex = maxCharacters - continuedIndicator.length();
 					while (endIndex > 0 &&
 							!white.contains(temp.charAt(endIndex)) )
 							endIndex--;
 						  
 					
-					String part = temp.substring(0, endIndex) + CONTINUED_INDICATOR;
-					messagePart.getMessages().add(part);
+					String part = temp.substring(0, endIndex) + continuedIndicator;
+					messages.add(part);
 					temp = temp.substring(endIndex);
 					
 					// If first character is whitespace remove it
 					if (temp.length() > 0 &&
 						white.contains(temp.charAt(0)) )
 						temp = temp.substring(1);
+					
+					// Increment count
+					messageCount++;
+					continuedIndicator = "\n(" + messageCount + "/" + messageCountPlaceHolder + ")";
 				}
 				
 				if (temp.length() > 0)
-					messagePart.getMessages().add(temp);
-			}
-			else
-			{
-				messagePart.getMessages().add(wholeMessage);
-			}
+					messages.add(temp + continuedIndicator);
+			}while(getNumDigits(messages.size()) > messageCountPlaceHolder.length());
+			
+			// Replace all message count place holders with the actual count
+			for (int i = 0; i < messages.size(); i++)
+				messages.set(i, messages.get(i).replaceAll("/\\|+\\)$", "/" + ((Integer)messages.size()).toString()) + ")" );
+				
+		}
+		else
+		{
+			messages.add(message);
 		}
 		
+		return messages;
+	}
+	
+	private Integer getNumDigits(Integer value)
+	{
+		Integer ret = 1;
+		if (value > 0)
+			ret = 1 + (int)(Math.log(value) / Math.log(10));
 		return ret;
 	}
 }
