@@ -15,16 +15,9 @@
 			
 			[Event(name="checkboxChanged", type="flash.events.Event")]
 			
-			private var _contactTagLists:ArrayCollection;
 			[Bindable]
-			public function get contactTagLists():ArrayCollection
-			{
-				return _contactTagLists;
-			}
-			public function set contactTagLists(value:ArrayCollection):void
-			{
-				_contactTagLists = value;
-			}
+			public var userContactTags:ArrayCollection;
+			
 			[Bindable]
 			public var selectedTags:ArrayCollection = new ArrayCollection();
 			
@@ -47,19 +40,14 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Repeater id="TagRepeater"
-		dataProvider="{contactTagLists}">
-		<mx:Label text="{TagRepeater.currentItem.tag}"
-			fontWeight="bold" fontSize="14" />
-		<contacts:TagTileList id="TagTileListControl" 
-			dataProvider="{TagRepeater.currentItem.children}"
-			borderStyle="none"
-			selectable="false"
-			columnCount="3" rowHeight="30"
-			horizontalScrollPolicy="off"
-			selectedTags="{selectedTags}"
-			checkboxChanged="tagChange(event)"
-			itemRenderer="com.dbi.cat.view.contacts.TagItemRenderer"
-			width="100%"  />
-	</mx:Repeater>
+	<contacts:TagTileList id="TagTileListControl" 
+		dataProvider="{userContactTags}"
+		borderStyle="none"
+		selectable="false"
+		columnCount="3" rowHeight="30"
+		horizontalScrollPolicy="off"
+		selectedTags="{selectedTags}"
+		checkboxChanged="tagChange(event)"
+		itemRenderer="com.dbi.cat.view.contacts.TagItemRenderer"
+		width="100%"  />
 </mx:VBox>

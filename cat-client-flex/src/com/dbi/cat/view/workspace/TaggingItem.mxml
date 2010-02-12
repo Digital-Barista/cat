@@ -26,11 +26,6 @@
 			import com.dbi.cat.common.vo.MessageVO;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			
-			public function set contactTagLists(value:ArrayCollection):void
-			{
-				Tags.contactTagLists = value;	
-			}
-			
 			[Bindable(event="nodeUpdate")]
 			public function get taggingNodeVO():TaggingNodeVO
 			{

@@ -39,7 +39,7 @@ package com.dbi.cat.business
 		
 		public var contactTags:ArrayCollection;
 		public var contactTagMap:Object;
-		public var contactTagLists:ArrayCollection;
+		public var userContactTags:ArrayCollection;
 		
 		public var selectedContacts:ArrayCollection;
 		
@@ -86,8 +86,6 @@ package com.dbi.cat.business
 			for each (var c:ContactVO in this.contacts.results)
 				contactMap[c.contactId] = c;
 				
-			updateTagCounts();
-			
 			isSearchingContacts = false;
 		}
 		public function editContact(contact:ContactVO):void
@@ -144,33 +142,21 @@ package com.dbi.cat.business
 			contactTags.sort = sort;
 			contactTags.refresh();
 			
-			// Build map
+			// Build map and user tag list
 			contactTagMap = new Object();
+			userContactTags = new ArrayCollection();
 			for each (var c:ContactTagVO in this.contactTags)
-				contactTagMap[c.contactTagId] = c;
-				
-			// Build lists for interface
-			var userTags:ArrayCollection = new ArrayCollection();
-			var systemTags:ArrayCollection = new ArrayCollection();
-			for each (var ct:ContactTagVO in contactTags)
 			{
-				if (ct.type == ContactTagType.USER)
-					userTags.addItem(ct);
-				else
-					systemTags.addItem(ct);
+				contactTagMap[c.contactTagId] = c;
+				if (c.type == ContactTagType.USER)
+					userContactTags.addItem(c);
 			}
 			
-			// Sort user tag list which can change
+			// Sort user tags
 			sort = new Sort();
 			sort.fields = [new SortField("tag", true)];
-			userTags.sort = sort;
-			userTags.refresh();
-			
-			contactTagLists = new ArrayCollection(
-				[{tag:'User Defined Tags', children:userTags},
-				{tag:'System Tags', children:systemTags}]);
-				
-			updateTagCounts();
+			userContactTags.sort = sort;
+			userContactTags.refresh();
 		}
 		public function openContactTagAssignment():void
 		{
@@ -202,12 +188,9 @@ package com.dbi.cat.business
 			{
 				contactTags.addItem(tag);
 				contactTagMap[tag.contactTagId] = tag;
-				contactTagLists.getItemAt(0).children.addItem(tag);
 				
-				// Force rebinding of contactTagLists
-				var temp:ArrayCollection = contactTagLists;
-				contactTagLists = null;
-				contactTagLists = temp;
+				if (tag.type == ContactTagType.USER)
+					userContactTags.addItem(tag);
 				
 			}
 		}
@@ -274,31 +257,6 @@ package com.dbi.cat.business
 					break;
 				}
 				cur.moveNext();
-			}
-		}
-		public function updateTagCounts():void
-		{
-			// FIX THIS AT SOME POINT
-			return;
-			
-			if (contacts != null &&
-				contactTags != null)
-			{
-				// Zero counts
-				for each (var zero:ContactTagVO in contactTags)
-				{
-					zero.contactCount = 0;
-				}
-				
-				// Increment counts
-				for each (var c:ContactVO in contacts)
-				{
-					for each (var tag:ContactTagVO in c.contactTags)
-					{
-						var t:ContactTagVO = contactTagMap[tag.contactTagId];
-						t.contactCount++;
-					}
-				}
 			}
 		}
 		public function openContactTagFilter():void

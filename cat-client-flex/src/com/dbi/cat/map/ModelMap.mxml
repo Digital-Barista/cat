@@ -413,14 +413,8 @@
 	<Injectors target="{TagChooser}">
 		<PropertyInjector 
 			source="{ContactManager}"
-			sourceKey="contactTagLists"
-			targetKey="contactTagLists" />
-	</Injectors>
-	<Injectors target="{TaggingItem}">
-		<PropertyInjector 
-			source="{ContactManager}"
-			sourceKey="contactTagLists"
-			targetKey="contactTagLists" />
+			sourceKey="userContactTags"
+			targetKey="userContactTags" />
 	</Injectors>
 	<Injectors target="{ImportSubscribers}">
 		<PropertyInjector

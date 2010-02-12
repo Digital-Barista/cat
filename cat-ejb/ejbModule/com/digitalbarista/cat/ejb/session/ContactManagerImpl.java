@@ -16,6 +16,8 @@ import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -26,6 +28,7 @@ import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
+import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.PagingInfo;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.ClientDO;
@@ -33,6 +36,7 @@ import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.util.PagedList;
 import com.digitalbarista.cat.util.PagingUtil;
 
@@ -45,6 +49,8 @@ import com.digitalbarista.cat.util.PagingUtil;
 @RunAs("admin")
 public class ContactManagerImpl implements ContactManager {
 
+	private Logger log = LogManager.getLogger(ContactManagerImpl.class);
+	
 	@Resource
 	private SessionContext ctx; //Used to flag rollbacks.
 
@@ -315,5 +321,67 @@ public class ContactManagerImpl implements ContactManager {
 		ContactTag ret = new ContactTag();
 		ret.copyFrom((ContactTagDO)crit.uniqueResult());
 		return ret;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void tagContactNodeReached(String contact, String nodeUID, EntryPointType entryType)
+	{
+		// Find node
+		NodeDO nDO = null;
+		Criteria crit = session.createCriteria(NodeDO.class);
+		crit.add(Restrictions.eq("uid", nodeUID));
+		List<NodeDO> nodes = (List<NodeDO>)crit.list();
+		if (nodes.size() > 0)
+			nDO = (NodeDO)nodes.get(0);
+		
+		if (nDO != null)
+		{
+			// Find contact with given name for the associated client
+			crit = session.createCriteria(ContactDO.class);
+			crit.add(Restrictions.eq("address", nDO.getUID()));
+			crit.add(Restrictions.eq("client.primaryKey", nDO.getCampaign().getClient().getPrimaryKey()));
+			crit.add(Restrictions.eq("type", entryType));
+			List<ContactDO> contacts = (List<ContactDO>)crit.list();
+			
+			if (contacts.size() > 0)
+			{
+				// Find contact tag with name == nodeUID
+				crit = session.createCriteria(ContactTagDO.class);
+				crit.add(Restrictions.eq("tag", nodeUID));
+				crit.add(Restrictions.eq("client.primaryKey", nDO.getCampaign().getClient().getPrimaryKey()));
+				List<ContactTagDO> tags = (List<ContactTagDO>)crit.list();
+				
+				ContactTagDO tag = null;
+				if (tags.size() > 0)
+					tag = tags.get(0);
+				
+				// If the tag doesn't exist create it
+				if (tag == null)
+				{
+					tag = new ContactTagDO();
+					tag.setClient(nDO.getCampaign().getClient());
+					tag.setTag(nDO.getUID());
+					tag.setType(ContactTagType.NODE_REACHED);
+					
+					em.persist(tag);
+				}
+				
+				// Add tag to all matching contacts
+				for (ContactDO c : contacts)
+				{
+					if (!c.getContactTags().contains(tag))
+					{
+						c.getContactTags().add(tag);
+						em.persist(c);
+					}
+				}
+			}
+		}
+		else
+		{
+			log.error("Could not find node with UID: " + nodeUID + " to add node reached tag");
+		}
+		
 	}
 }
