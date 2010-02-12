@@ -128,12 +128,6 @@ public class MessageManagerImpl implements MessageManager {
 	{
 		List<String> messages = new ArrayList<String>();
 		
-		// Whitespace characters we care about
-		ArrayList<Character> white = new ArrayList<Character>();
-		white.add(' ');
-		white.add('\t');
-		white.add('\n');
-		
 		
 		// Split long messages into parts
 		if (maxCharacters > 0 &&
@@ -159,7 +153,7 @@ public class MessageManagerImpl implements MessageManager {
 					// Break the message at the earliest space
 					Integer endIndex = maxCharacters - continuedIndicator.length();
 					while (endIndex > 0 &&
-							!white.contains(temp.charAt(endIndex)) )
+							!temp.substring(endIndex, endIndex + 1).matches("\\s") )
 							endIndex--;
 						  
 					
@@ -167,10 +161,10 @@ public class MessageManagerImpl implements MessageManager {
 					messages.add(part);
 					temp = temp.substring(endIndex);
 					
-					// If first character is whitespace remove it
-					if (temp.length() > 0 &&
-						white.contains(temp.charAt(0)) )
-						temp = temp.substring(1);
+					// Left trim whitespace
+					String whitespaceExpression = "^\\s+";
+					if (temp.length() > 0)
+						temp = temp.replaceAll(whitespaceExpression, "");
 					
 					// Increment count
 					messageCount++;
