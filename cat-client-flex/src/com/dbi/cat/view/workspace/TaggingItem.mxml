@@ -52,7 +52,7 @@
 			{
 				if (NewTag.text.length > 0)
 				{
-					var clientId:String = workspace.campaign.primaryKey.toString();
+					var clientId:String = workspace.campaign.clientPK.toString();
 					
 					var tag:ContactTagVO = new ContactTagVO();
 					tag.tag = NewTag.text;
