@@ -548,11 +548,11 @@ PopUpButton
 */
 ProgressBar
 {
-
+/*
 	barSkin: Embed(source="AeonGraphical.swf", symbol="ProgressBarSkin");
 	indeterminateSkin: Embed(source="AeonGraphical.swf", symbol="ProgressIndeterminateSkin");
 	trackSkin: Embed(source="AeonGraphical.swf", symbol="ProgressTrackSkin");
-
+*/
 }
 
 /*
@@ -758,7 +758,7 @@ TitleWindow
 //------------------------------
 //  ToolTip
 //------------------------------
-*/
+
 ToolTip
 {
 
@@ -767,7 +767,7 @@ ToolTip
 	color: #494c54;
 
 }
-
+*/
 /*
 //------------------------------
 //  Tree

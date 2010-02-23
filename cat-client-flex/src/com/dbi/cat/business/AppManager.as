@@ -133,7 +133,11 @@ package com.dbi.cat.business
 		 */
 		 public function showFault(fault:Fault):void
 		 {
-		 	if (fault.faultCode == "Client.Authentication")
+		 	if (fault == null)
+		 	{
+		 		CustomMessage.show("An unknown error has occurred");
+		 	}
+		 	else if (fault.faultCode == "Client.Authentication")
 		 	{
 		 		CustomMessage.show("Your session has ended.  Please login again");
 		 		dispatcher.dispatchEvent(new LoginEvent(LoginEvent.LOGOUT));
@@ -142,7 +146,9 @@ package com.dbi.cat.business
 		 		fault.rootCause.cause != null &&
 		 		fault.rootCause.cause.message != null &&
 		 		fault.rootCause.message != null &&
-		 		fault.rootCause.message.indexOf("FlexException") > -1)
+		 		
+		 		(fault.rootCause.message.indexOf("FlexException") > -1 ||
+		 		 fault.rootCause.message.indexOf("SecurityException") > -1) )
 		 	{
 		 		CustomMessage.show(fault.rootCause.cause.message);
 		 	}

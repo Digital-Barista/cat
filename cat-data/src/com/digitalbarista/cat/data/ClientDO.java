@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.data;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -28,10 +29,10 @@ public class ClientDO implements Serializable,DataObject {
 
 	private Long primaryKey;
 	private String name;
-	private String adminAddInMessage;
-	private String userAddInMessage;
 	private Set<EntryPointDO> entryPoints;
 	private Set<KeywordLimitDO> keywordLimits;
+	private Set<AddInMessageDO> addInMessages = new HashSet<AddInMessageDO>();
+	
 	private static final long serialVersionUID = 1L;
 
 	public ClientDO() {
@@ -58,22 +59,15 @@ public class ClientDO implements Serializable,DataObject {
 		this.name = name;
 	}
 
-	@Column(name="admin_add_in_message")
-	public String getAdminAddInMessage() {
-		return adminAddInMessage;
+
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=AddInMessageDO.class, mappedBy="client")
+	@JoinColumn(name="client_id")
+	public Set<AddInMessageDO> getAddInMessages() {
+		return addInMessages;
 	}
 
-	public void setAdminAddInMessage(String adminAddInMessage) {
-		this.adminAddInMessage = adminAddInMessage;
-	}
-
-	@Column(name="user_add_in_message")
-	public String getUserAddInMessage() {
-		return userAddInMessage;
-	}
-
-	public void setUserAddInMessage(String userAddInMessage) {
-		this.userAddInMessage = userAddInMessage;
+	public void setAddInMessages(Set<AddInMessageDO> addInMessages) {
+		this.addInMessages = addInMessages;
 	}
 
 	@ManyToMany(targetEntity=EntryPointDO.class,fetch=FetchType.LAZY)

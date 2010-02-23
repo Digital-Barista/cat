@@ -10,6 +10,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+
 import com.digitalbarista.cat.business.Coupon;
 import com.digitalbarista.cat.util.CodedMessage;
 
@@ -22,5 +24,6 @@ public interface CouponManager {
     @POST
 	public CodedMessage redeemCoupon(@PathParam("code") String couponCode);
     @GET
+    @Wrapped(element="Coupons")
 	public List<Coupon> couponSummaryByClient(@QueryParam("clientid") Long clientID);
 }

@@ -122,10 +122,6 @@
 				event.campaign = modifiedCampaign;
 				dispatchEvent(event);
 			}
-			private function importAddresses():void
-			{
-				dispatchEvent(new ImportEvent(ImportEvent.OPEN_IMPORT_WINDOW));
-			}
 			private function refresh():void
 			{
 				var event:CampaignEvent = new CampaignEvent(CampaignEvent.LOAD_MODIFIED_CAMPAIGN);
@@ -176,6 +172,7 @@
 						label="Published Version" 
 						width="100%" height="100%"
 						readonly="true"
+						showImportIcon="true"
 						campaign="{publishedCampaign}" />
 				</mx:TabNavigator>
 			</mx:HDividedBox>
@@ -187,12 +184,6 @@
 			verticalAlign="middle" 
 			horizontalAlign="right"
 			height="28">
-			<mx:Button label="Import"
-				toolTip="Import a list of addresses to enter into this campaign"
-				click="importAddresses()"
-				visible="{WorkspaceTabs.selectedIndex == 1}"
-				includeInLayout="{WorkspaceTabs.selectedIndex == 1}"
-				enabled="{publishedCampaign != null}" />
 			<mx:Button label="Test"
 				click="testCampaign()"
 				visible="{WorkspaceTabs.selectedIndex == 0 &amp;&amp; !isTesting}"

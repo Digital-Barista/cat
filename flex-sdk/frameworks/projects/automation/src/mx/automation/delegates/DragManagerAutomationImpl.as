@@ -35,6 +35,12 @@ import mx.core.UIComponent;
 import flash.display.Graphics;
 import flash.display.DisplayObject;
 import flash.utils.*;
+import mx.managers.ISystemManager;
+import mx.managers.SystemManager;
+import mx.core.IChildList;
+import mx.core.Application;
+import mx.automation.events.MarshalledAutomationEvent;
+import mx.events.InterManagerRequest;
 
 use namespace mx_internal;
 
@@ -51,6 +57,18 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
 {
     include "../../core/Version.as";
 
+ 	//--------------------------------------------------------------------------
+    //
+    //  Class variables
+    //
+    //--------------------------------------------------------------------------
+    
+	/**
+	 *  @private
+	 */
+	private static var currentDragProxy:DisplayObject;
+	
+	private static var sm:ISystemManager;
     //--------------------------------------------------------------------------
     //
     //  Class methods
@@ -64,6 +82,7 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
      */
     public static function init(root:DisplayObject):void
     {
+    	sm = root as ISystemManager;
         Automation.registerDelegateClass(DragProxy, DragManagerAutomationImpl);
     }
     
@@ -75,6 +94,8 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
     public function DragManagerAutomationImpl(proxy:UIComponent)
     {
         super(proxy);
+        if(sm.getSandboxRoot() == sm)
+        	Automation.automationManager2.storeDragProxy(proxy);
     }
 
     //--------------------------------------------------------------------------
@@ -86,12 +107,12 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
     /**
      *  @private
      */
-    private var dragStarted:Boolean = false;
+    private static var dragStarted:Boolean = false;
     
     /**
      *  @private
      */
-    private var dragOwner:IAutomationObject;
+    private static var dragOwner:IAutomationObject;
     
     /**
      *  @private
@@ -104,6 +125,14 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
     //
     //--------------------------------------------------------------------------
 
+	public static function setForcefulDragStart():void
+	{
+		// this will be used by the interapplicaiton drag drop, when the events 
+		// are orginated fron the non list based controls. i.e if the events are handled by
+		// DRAG_DROP_PERFORM_REQUEST_TO_ROOT_APP or DRAG_DROP_PERFORM_REQUEST_TO_SUB_APP of 
+		// MarshalledAutomationEvent
+		dragStarted = true;
+	}
     /**
      *  @private
      */
@@ -121,7 +150,7 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
     /**
      *  @private
      */
-    public function getChildAutomationObject(target:IUIComponent,
+    public static function getChildAutomationObject(target:IUIComponent,
                                                     mouseEvent:MouseEvent):IAutomationObject
     {
         var delegate:IAutomationObject = (target as IAutomationObject);
@@ -210,6 +239,17 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
     public function recordAutomatableDragStart(dragInitiator:IUIComponent, 
                                                        mouseEvent:MouseEvent):void
     {
+    	// we need the static method for the native drarmanagerImpl to call the recording
+    	// so moved the implementation to that method and calling the same from here.
+      recordAutomatableDragStart1(dragInitiator,mouseEvent);
+    }
+
+    /**
+     *  @private
+     */
+    public static function recordAutomatableDragStart1(dragInitiator:IUIComponent, 
+                                                       mouseEvent:MouseEvent):void
+    {
         var delegate:IAutomationObject = (dragInitiator as IAutomationObject);
         if (!delegate)
             return;
@@ -260,11 +300,39 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
     /**
      *  @private
      */
-    public function recordAutomatableDragDrop(target:IUIComponent, 
+    public static function recordAutomatableDragDrop1(target1:DisplayObject, 
                                                       dragEvent:DragEvent):void
     {
         if (!dragStarted)
             return;
+            
+        var target:IUIComponent = target1 as IUIComponent;
+        if(!target)
+        {
+        	if(target1 && (!target))
+        	{
+        		// it is quite possible that the target and the dragproxy belongs to different application
+        		// domain. since drag drop is allowed only in the same security domain we need to make the info to 
+        		// all applicaitons in this domain. So let us send to the parent. and parent let it tray to handle it
+        		// if it cannot it will send to all its children.
+        		var tempArr:Array = new Array();
+        		tempArr.push(target1);
+        		tempArr.push(dragEvent);
+        		if(sm.getSandboxRoot() == sm)
+	        	{
+	        		var eventObj:MarshalledAutomationEvent = new MarshalledAutomationEvent(
+	        					MarshalledAutomationEvent.DRAG_DROP_PERFORM_REQUEST_TO_SUB_APP);
+	        		eventObj.interAppDataToSubApp = tempArr;
+	        		Automation.automationManager2.dispatchToAllChildren(eventObj);
+	        	}
+	        	else
+	        	{
+	        		dispatchEventOnSandBoxRoot(MarshalledAutomationEvent.DRAG_DROP_PERFORM_REQUEST_TO_ROOT_APP,tempArr);
+	        	}
+        	}
+        	return;
+        }
+        	
         var delegate:IAutomationObject = (target as IAutomationObject);
         if (!delegate)
             return;
@@ -293,10 +361,33 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
         }
     }
     
+    
+     /**
+     *  @private
+     */
+    public  function recordAutomatableDragDrop(target1:DisplayObject, 
+                                                      dragEvent:DragEvent):void
+    {
+    	// we need the static method for the native drarmanagerImpl to call the recording
+    	// so moved the implementation to that method and calling the same from here.
+  
+    	recordAutomatableDragDrop1(target1,dragEvent);
+    }
+    
     /**
      *  @private
      */
     public function recordAutomatableDragCancel(target:IUIComponent, 
+                                                        dragEvent:DragEvent):void
+    {
+    	// we need the static method for the native drarmanagerImpl to call the recording
+    	// so moved the implementation to that method and calling the same from here.
+  
+      recordAutomatableDragCancel1(target,dragEvent);
+    }
+    
+    
+    public static function recordAutomatableDragCancel1(target:IUIComponent, 
                                                         dragEvent:DragEvent):void
     {
         if (!dragStarted)
@@ -327,6 +418,7 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
     public static function replayAutomatableEvent(target:IAutomationObject,
                                                   interaction:Event):Boolean
     {
+  
         if (! (interaction is AutomationDragEvent))
             return false;
    
@@ -346,6 +438,16 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
 
         if (dragEvent.type == DragEvent.DRAG_START)
         {
+        	// we need a special handling here to have the synchronization working
+        	// the add synchornisation added in the last application will not have been
+        	// cleared unless there was an operation on the object in the same applicaiton
+        	// other than drap grop. so we need to dispatch an event on the sandboxroot so
+        	// that all Automation Manger calls the synchornization methods to clear the 
+        	// already finished requirements regarding synchronisation
+        	// normally there is no other operation which has a split interaction between two different
+        	// applications.
+        	dispatchEventOnSandBoxRoot(MarshalledAutomationEvent.UPDATE_SYCHRONIZATION);
+        	
             mouseEvent = toMouseEvent(MouseEvent.MOUSE_DOWN, dragEvent);
             mouseEvent.buttonDown = true;
             help.replayMouseEvent(realTarget, mouseEvent);
@@ -362,6 +464,11 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
             mouseEvent = toMouseEvent(MouseEvent.MOUSE_OUT, dragEvent);
             mouseEvent.buttonDown = true;
             help.replayMouseEvent(realTarget, mouseEvent);
+            
+            // it is possible that the drag dop or cancel is happening in another application domain
+            // so we need to wait on the appropriate event and ensure that the dragging is over
+            // before we replay an action on any object in this application.
+            addListenerToSandBoxRootForDragCompletionInAnotherApplication();
         }
         else if (dragEvent.type == DragEvent.DRAG_DROP)
         {
@@ -433,31 +540,148 @@ public class DragManagerAutomationImpl extends UIComponentAutomationImpl
             }
 
             mouseEvent = toMouseEvent(MouseEvent.MOUSE_UP, dragEvent);
-            DragManager.dragProxy.action = dragEvent.action;
+            
+            var proxy1:DisplayObject = getDragManagerProxy(); // DragManager.dragProxy; 
+             if(proxy1)
+           	 proxy1["action"] = dragEvent.action;
+            //DragManager.dragProxy.action = dragEvent.action;
             help.replayMouseEvent(realTarget, mouseEvent);
+          
             help.addSynchronization(function():Boolean
             {
                 return !DragManager.isDragging;
             });
+           
+            
         }
         else if (dragEvent.type == DragEvent.DRAG_COMPLETE)
         {
             mouseEvent = toMouseEvent(MouseEvent.MOUSE_UP, dragEvent);
-            var proxy:DragProxy = DragManager.dragProxy;
+            var proxy:DragProxy = getDragManagerProxy() as DragProxy;  // DragManager.dragProxy;
             if (!proxy)
                 return false;
+                 
+            // we got a proxy , we need to let the Main applicaiton automation manager store this.
+        	//sendDragProxyToMainApplication(proxy);
+            
             var pt:Point = 
                 proxy.globalToLocal(new Point(proxy.startX, proxy.startY));
             mouseEvent.localX = pt.x;
             mouseEvent.localY = pt.y;
 
-            help.replayMouseEvent(DragManager.dragProxy, mouseEvent);
+           // help.replayMouseEvent(DragManager.dragProxy, mouseEvent);
+           help.replayMouseEvent(proxy, mouseEvent);
+           
             help.addSynchronization(function():Boolean
             {
                 return !DragManager.isDragging;
             });
+          
+            
         }
         return true;
+    }
+    
+    private static function dispatchEventOnSandBoxRoot(type:String, details:Array = null, dataToMain:Boolean = true):void
+    {
+    	//var currentSm:SystemManager = Application.application.systemManager;
+    	if(sm)
+    	{
+	    	var rootSm:IEventDispatcher =sm.getSandboxRoot() as IEventDispatcher;
+	    	if(rootSm )
+	    	{
+	    		   var event:MarshalledAutomationEvent = new MarshalledAutomationEvent(type );
+	    		   if(details)
+	    		   {
+		    		   if(dataToMain == true)
+	        				event.interAppDataToMainApp =  details;
+	        			else
+	        				event.interAppDataToSubApp =  details;
+        			}
+        				
+	    			rootSm.dispatchEvent(event);
+	    	}
+	    }
+    }
+  /*
+    private static function sendDragProxyToMainApplication(currentProxy:DragProxy):void
+    {
+    	var details:Array = new Array();
+    	details.push(currentProxy);
+       dispatchEventOnSandBoxRoot(MarshalledAutomationEvent.DRAG_DROP_PROXY_STORE_REQUEST , details);
+    }
+    */ 
+    
+    private static var _inDragProxyRequestProcessing:Boolean = false;
+    public static function getDragManagerProxy():DisplayObject
+    {
+ 		// here we are not calling the dispatchEventOnSandBoxRoot, as we need to add listener also
+ 		// to the same.
+    	if (!DragManager.dragProxy)
+    	{
+	    	//var currentSm:SystemManager = Application.application.systemManager;
+	    	if(sm)
+	    	{
+		    	var rootSm:IEventDispatcher =sm.getSandboxRoot() as IEventDispatcher;
+		    	if(rootSm )
+		    	{
+		    	   rootSm.addEventListener(MarshalledAutomationEvent.DRAG_DROP_PROXY_RETRIEVE_REPLY, proxyRetrieveReplyHandler);
+		    	   var dragProxyRetrievalRequestMarshalEvent:MarshalledAutomationEvent
+			        		= new MarshalledAutomationEvent(MarshalledAutomationEvent.DRAG_DROP_PROXY_RETRIEVE_REQUEST);
+			        _inDragProxyRequestProcessing = true;		
+			       	rootSm.dispatchEvent(dragProxyRetrievalRequestMarshalEvent);
+		    	}
+	    	}
+	 	    return currentDragProxy;
+ 	   }
+ 	   return DragManager.dragProxy
+    	
+    } 
+     
+    private static function proxyRetrieveReplyHandler(event:Event):void
+    {
+    	if(!_inDragProxyRequestProcessing)
+    		return;
+    	
+    	_inDragProxyRequestProcessing = false;
+    	
+       	currentDragProxy = event["interAppDataToSubApp"][0] as DisplayObject;
+    	var currentSm:SystemManager = Application.application.systemManager;
+    	if(currentSm)
+    	{
+	    	var rootSm:IEventDispatcher =currentSm.getSandboxRoot() as IEventDispatcher;
+	    	if(rootSm )
+	    	{
+	    		rootSm.removeEventListener(MarshalledAutomationEvent.DRAG_DROP_PROXY_RETRIEVE_REPLY,proxyRetrieveReplyHandler);
+	    	}
+	    }
+    }
+    private static function addListenerToSandBoxRootForDragCompletionInAnotherApplication():void
+    {
+    	var currentSm:SystemManager = Application.application.systemManager;
+    	if(currentSm)
+    	{
+	    	var rootSm:IEventDispatcher =currentSm.getSandboxRoot() as IEventDispatcher;
+	    	if(rootSm )
+	    	{
+	    		rootSm.addEventListener(InterManagerRequest.DRAG_MANAGER_REQUEST,dragManagerRequestHandler);
+	    	}
+	    }
+    }
+    
+    private static function dragManagerRequestHandler(event:Event):void
+    {
+    	if(event is InterManagerRequest)
+        		return;
+    	
+     	if(event["name"] == "acceptDragDrop")
+    	{
+        	var help:IAutomationObjectHelper = Automation.automationObjectHelper;
+ 			 help.addSynchronization(function():Boolean
+            {
+                return !DragManager.isDragging;
+            });
+    	}
     }
         
 }

@@ -565,8 +565,9 @@ public class TileBase extends ListBase
                 item = createItemRenderer(data);
             item.owner = this;
             item.styleName = listContent;
-            item.visible = true;
         }
+        if (!item.parent)
+            listContent.addChild(DisplayObject(item));
 
         rowData = ListData(makeListData(data, uid, rowNum, colNum));
         rowMap[item.name] = rowData;
@@ -576,8 +577,6 @@ public class TileBase extends ListBase
         if (wrappedData != data)
             dataItemWrappersByRenderer[item] = wrappedData;
 
-        if (!item.parent)
-            listContent.addChild(DisplayObject(item));
         item.visible = true;
         if (uid)
             visibleData[uid] = item;

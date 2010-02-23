@@ -13,7 +13,7 @@ package com.dbi.cat.common.constants
 		public static const SMS:String = "SMS";
 		public static const TWITTER:String = "Twitter";
 		
-		public static const EMAIL_MAX_CHARACTERS:Number = Number.POSITIVE_INFINITY;
+		public static const EMAIL_MAX_CHARACTERS:Number = 0;
 		public static const SMS_MAX_CHARACTERS:Number = 160;
 		public static const TWITTER_MAX_CHARACTERS:Number = 140;
 		

@@ -12,7 +12,9 @@ package com.dbi.cat.view.workspace
 	import com.dbi.cat.common.vo.LayoutInfoVO;
 	import com.dbi.cat.common.vo.MessageVO;
 	import com.dbi.cat.common.vo.NodeVO;
+	import com.dbi.cat.common.vo.OutgoingEntryPointVO;
 	import com.dbi.cat.common.vo.ResponseConnectorVO;
+	import com.dbi.cat.common.vo.TaggingNodeVO;
 	import com.dbi.cat.constants.WorkspaceItemType;
 	import com.dbi.cat.event.CampaignEvent;
 	import com.dbi.cat.event.LayoutInfoEvent;
@@ -56,6 +58,8 @@ package com.dbi.cat.view.workspace
 			_readonly = value;
 			dispatchEvent(new Event("updateReadonly"));
 		}
+		
+		public var showImportIcon:Boolean = false;
 		
 		private var _campaign:CampaignVO;
 		[Bindable]
@@ -274,6 +278,17 @@ package com.dbi.cat.view.workspace
 				saveEvent.node = entryPoint;
 				addNodeToWorkspace(entryPoint);
             }
+            else if(type == WorkspaceItemType.OUTGOING_ENTRY_POINT)
+            {
+            	var outPoint:OutgoingEntryPointVO = new OutgoingEntryPointVO();
+            	outPoint.campaignUID = campaign.uid;
+            	layout.UUID = outPoint.uid;
+            	outPoint.layoutInfo = layout;
+            	
+            	saveEvent = new CampaignEvent(CampaignEvent.SAVE_NODE);
+				saveEvent.node = outPoint;
+				addNodeToWorkspace(outPoint);
+            }
             else if(type == WorkspaceItemType.COUPON)
             {
             	var coupon:CouponNodeVO = new CouponNodeVO();
@@ -284,6 +299,17 @@ package com.dbi.cat.view.workspace
             	saveEvent = new CampaignEvent(CampaignEvent.SAVE_NODE);
 				saveEvent.node = coupon;
 				addNodeToWorkspace(coupon);
+            }
+            else if(type == WorkspaceItemType.TAGGING)
+            {
+            	var tagging:TaggingNodeVO = new TaggingNodeVO();
+            	tagging.campaignUID = campaign.uid;
+            	layout.UUID = tagging.uid;
+            	tagging.layoutInfo = layout;
+            	
+            	saveEvent = new CampaignEvent(CampaignEvent.SAVE_NODE);
+				saveEvent.node = tagging;
+				addNodeToWorkspace(tagging);
             }
             else if(type == WorkspaceItemType.IMMEDIATE_CONNECTOR)
             {
@@ -359,13 +385,27 @@ package com.dbi.cat.view.workspace
             {
             	var ep:EntryPointItem = new EntryPointItem();
             	ep.entryPointVO = node as EntryPointVO;
+            	ep.showImportIcon = showImportIcon;
 				newItem = ep;
+            }
+            else if(node is OutgoingEntryPointVO)
+            {
+            	var oep:OutgoingEntryPointItem = new OutgoingEntryPointItem();
+            	oep.outgoingEntryPointVO = node as OutgoingEntryPointVO;
+            	oep.showImportIcon = showImportIcon;
+				newItem = oep;
             }
             else if(node is CouponNodeVO)
             {
             	var c:CouponItem = new CouponItem();
             	c.couponVO = node as CouponNodeVO;
 				newItem = c;
+            }
+            else if(node is TaggingNodeVO)
+            {
+            	var t:TaggingItem = new TaggingItem();
+            	t.taggingNodeVO = node as TaggingNodeVO;
+				newItem = t;
             }
             
             // Hide some icons for template campaigns

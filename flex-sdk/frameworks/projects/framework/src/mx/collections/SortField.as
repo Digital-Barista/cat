@@ -519,10 +519,10 @@ public class SortField extends EventDispatcher
 		if (left == null && right == null)
 			return 0;
 
-        if (left == null)
+        if (left == null && !_name)
             left = a;
 
-        if (right == null)
+        if (right == null && !_name)
             right = b;
 
 		

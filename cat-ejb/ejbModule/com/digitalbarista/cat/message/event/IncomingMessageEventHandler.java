@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.message.event;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import org.apache.log4j.Logger;
 import com.digitalbarista.cat.audit.IncomingMessageEntryDO;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.Node;
@@ -27,6 +29,7 @@ import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberBlacklistDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
 
@@ -38,9 +41,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			SessionContext ctx, 
 			EventManager emi, 
 			CampaignManager cmi,
+			ContactManager contactMan,
 			EventTimerManager timer)
 	{
-		super(em,ctx,emi,cmi,timer);
+		super(em,ctx,emi,cmi,contactMan,timer);
 	}
 	
 	@Override
@@ -285,6 +289,17 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			csl.setLastHitEntryType(mostLikelyEntry.getType());
 			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
 			getEntityManager().persist(csl);
+			
+			if(!getContactManager().contactExists(e.getTarget(), mostLikelyEntry.getType(), mostLikelyEntry.getCampaign().getClient().getPrimaryKey()))
+			{
+				Contact con = new Contact();
+				con.setAddress(e.getTarget());
+				con.setClientId(mostLikelyEntry.getCampaign().getClient().getPrimaryKey());
+				con.setCreateDate(Calendar.getInstance());
+				con.setType(mostLikelyEntry.getType());
+				getContactManager().save(con);
+			}
+			
 			CATEvent fireImmediateConnectorsEvent = CATEvent.buildNodeOperationCompletedEvent(en.getUid(), sub.getPrimaryKey().toString());
 			getEventManager().queueEvent(fireImmediateConnectorsEvent);
 		} else {

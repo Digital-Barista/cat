@@ -3,6 +3,27 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.business.CampaignMessageManager;
+			import com.dbi.cat.view.workspace.MessagePreviewView;
+			import com.dbi.cat.view.campaign.CampaignAddInMessageEditor;
+			import com.dbi.cat.view.profile.ClientAddInMessageEditor;
+			import com.dbi.cat.business.CampaignManager;
+			import com.dbi.cat.view.user.UsersView;
+			import com.dbi.cat.view.user.EditUserView;
+			import com.dbi.cat.view.reporting.OutgoingMessageView;
+			import com.dbi.cat.business.ReportingManager;
+			import com.dbi.cat.view.reporting.NodeSubscriberAddressView;
+			import com.dbi.cat.view.workspace.TaggingItem;
+			import com.dbi.cat.view.campaign.ImportSubscribers;
+			import com.dbi.cat.view.contacts.ContactImportView;
+			import com.dbi.cat.view.contacts.RemoveTagView;
+			import com.dbi.cat.view.contacts.FilterTagView;
+			import com.dbi.cat.view.contacts.ContactView;
+			import com.dbi.cat.view.contacts.AddTagView;
+			import com.dbi.cat.view.contacts.TagChooser;
+			import com.dbi.cat.view.contacts.EditContactView;
+			import com.dbi.cat.view.contacts.ContactListView;
+			import com.dbi.cat.business.ContactManager;
 			import com.dbi.cat.view.profile.ProfileDetailsView;
 			import com.dbi.cat.view.profile.ProfileView;
 			import com.dbi.cat.view.profile.EntryPointDefinitionView;
@@ -23,7 +44,6 @@
 			import com.dbi.cat.view.workspace.CouponItem;
 			import com.dbi.cat.view.workspace.MessageItem;
 			import com.dbi.cat.business.ImportManager;
-			import com.dbi.cat.view.address.ImportView;
 			import com.dbi.cat.view.TestCampaignView;
 			import com.dbi.cat.business.CampaignTestManager;
 			import com.dbi.cat.view.profile.ClientInformationView;
@@ -31,12 +51,9 @@
 			import mx.managers.LayoutManager;
 			import com.dbi.cat.business.ClientManager;
 			import com.dbi.cat.business.AppManager;
-			import com.dbi.cat.business.CampaignManager;
-			import com.dbi.cat.view.EditUserView;
 			import com.dbi.cat.view.LoginView;
 			import com.dbi.cat.business.LoginManager;
 			import com.dbi.cat.view.components.PanZoomCanvas;
-			import com.dbi.cat.view.UsersView;
 			import com.dbi.cat.business.UserManager;
 			import com.dbi.cat.view.RecoverPasswordView;
 			import mx.controls.Alert;
@@ -59,6 +76,10 @@
 			targetKey="currentView" />
 	</Injectors>
 	<Injectors target="{MainView}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
 		<PropertyInjector 
 			source="{NavigationManager}"
 			sourceKey="mainCurrentView"
@@ -131,6 +152,10 @@
 			source="{CampaignTemplateManager}"
 			sourceKey="campaignTemplateList"
 			targetKey="campaignTemplates" />
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="currentEditingCampaign"
+			targetKey="campaign" />
 	</Injectors>
 	<Injectors target="{EditCampaignTemplateView}">
 		<PropertyInjector
@@ -214,16 +239,6 @@
 		<ListenerInjector 
 			eventType="{LayoutInfoEvent.LAYOUT_LOADED}"
 			method="fitContent" />
-	</Injectors>
-	<Injectors target="{ImportView}">
-		<PropertyInjector
-			source="{ImportManager}"
-			sourceKey="importedAddresses"
-			targetKey="addresses" />
-		<PropertyInjector
-			source="{CampaignManager}"
-			sourceKey="publishedCampaign"
-			targetKey="publishedCampaign" />
 	</Injectors>
 	<Injectors target="{CampaignManager}">
 		<PropertyInjector
@@ -309,5 +324,146 @@
 			sourceKey="redemptionClass"
 			targetKey="redemptionClass" />
 	</Injectors>
-	
+	<Injectors target="{AddTagView}">
+		<PropertyInjector 
+			source="{ContactManager}"
+			sourceKey="selectedContacts"
+			targetKey="selectedContacts" />
+	</Injectors>
+	<Injectors target="{RemoveTagView}">
+		<PropertyInjector 
+			source="{ContactManager}"
+			sourceKey="selectedContacts"
+			targetKey="selectedContacts" />
+	</Injectors>
+	<Injectors target="{ContactView}">
+		<PropertyInjector 
+			source="{ContactManager}"
+			sourceKey="selectedContacts"
+			targetKey="selectedContacts" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contacts"
+			targetKey="contacts" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactSearchCriteria"
+			targetKey="contactSearchCriteria" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactPagingInfo"
+			targetKey="contactPagingInfo" />
+	</Injectors>
+	<Injectors target="{ContactListView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contacts"
+			targetKey="contacts" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactSearchCriteria"
+			targetKey="contactSearchCriteria" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactPagingInfo"
+			targetKey="contactPagingInfo" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="isSearchingContacts"
+			targetKey="isSearchingContacts" />
+	</Injectors>
+	<Injectors target="{ContactImportView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="importedContacts"
+			targetKey="importedContacts" />
+	</Injectors>
+	<Injectors target="{ImportSubscribers}">
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contacts"
+			targetKey="contacts" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactSearchCriteria"
+			targetKey="contactSearchCriteria" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="contactPagingInfo"
+			targetKey="contactPagingInfo" />
+	</Injectors>
+	<Injectors target="{EditContactView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="currentContact"
+			targetKey="currentContact" />
+	</Injectors>
+	<Injectors target="{TagChooser}">
+		<PropertyInjector 
+			source="{ContactManager}"
+			sourceKey="userContactTags"
+			targetKey="userContactTags" />
+	</Injectors>
+	<Injectors target="{ImportSubscribers}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="publishedCampaign"
+			targetKey="publishedCampaign" />
+		<PropertyInjector
+			source="{ImportManager}"
+			sourceKey="currentNode"
+			targetKey="currentNode" />
+	</Injectors>
+	<Injectors target="{ImportManager}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="publishedCampaign"
+			targetKey="publishedCampaign" />
+	</Injectors>
+	<Injectors target="{NodeSubscriberAddressView}">
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="isLoadingNodeSubscriberAddresses"
+			targetKey="isLoadingNodeSubscriberAddresses" />
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="nodeSubscriberAddresses"
+			targetKey="nodeSubscriberAddresses" />
+	</Injectors>
+	<Injectors target="{OutgoingMessageView}">
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="outgoingMessageSummaries"
+			targetKey="outgoingMessageSummaries" />
+	</Injectors>
+	<Injectors target="{ClientAddInMessageEditor}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="currentClient"
+			targetKey="currentClient" />
+	</Injectors>
+	<Injectors target="{CampaignAddInMessageEditor}">
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="currentEditingCampaign"
+			targetKey="currentCampaign" />
+	</Injectors>
+	<Injectors target="{MessagePreviewView}">
+		<PropertyInjector
+			source="{CampaignMessageManager}"
+			sourceKey="messageParts"
+			targetKey="messageParts" />
+	</Injectors>
 </EventMap>

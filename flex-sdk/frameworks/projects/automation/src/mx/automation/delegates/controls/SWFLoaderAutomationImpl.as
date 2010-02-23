@@ -14,19 +14,20 @@ package mx.automation.delegates.controls
 import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.events.IOErrorEvent;
+import flash.events.KeyboardEvent;
 import flash.events.SecurityErrorEvent;
-import flash.events.IEventDispatcher;
 import flash.net.URLRequest;
 
 import mx.automation.Automation;
-import mx.automation.AutomationIDPart;
 import mx.automation.IAutomationObject;
 import mx.automation.IAutomationObjectHelper;
 import mx.automation.delegates.core.UIComponentAutomationImpl;
-import mx.core.mx_internal;
+import mx.controls.Image;
 import mx.controls.SWFLoader;
+import mx.core.mx_internal;
 import mx.events.FlexEvent;
 import mx.managers.ISystemManager;
+import mx.utils.SecurityUtil;
 
 use namespace mx_internal;
 
@@ -72,11 +73,25 @@ public class SWFLoaderAutomationImpl extends UIComponentAutomationImpl
     public function SWFLoaderAutomationImpl(obj:SWFLoader)
     {
         super(obj);
-        recordClick = true;
+        // we use this class for both Image and SWFLoder. we dont need the 
+        // recordClick and it causes some issue with Marshalling. hence let us add
+        // it only for image. On long term let us better have another delegate for the
+        // image. till then
+        if(obj is Image)
+        	recordClick = true;
         
         obj.addEventListener(Event.OPEN, openEventHandler, false, 0, true);
     }
-        
+    
+     /**
+     *  @private
+     */
+    protected override  function keyDownHandler(event:KeyboardEvent):void
+    {
+    	// we dont want to record keydown operations on SWFLoader
+    	return;
+    }
+    
     /**
      *  @private
      *  storage for the owner component
@@ -140,9 +155,11 @@ public class SWFLoaderAutomationImpl extends UIComponentAutomationImpl
     {
         try
         {
-            return loader.content && loader.content is ISystemManager ?
-                   IAutomationObject(ISystemManager(loader.content).document) :
-                   null;
+            if( loader.content && loader.content is ISystemManager)
+			{
+				return ISystemManager(loader.content).document as IAutomationObject;
+			}
+                 
         }
         catch (e:Error)
         {
@@ -245,6 +262,16 @@ public class SWFLoaderAutomationImpl extends UIComponentAutomationImpl
      */
     private function completeEventHandler(event:Event):void
     {
+    	//if the parent and child are not in mutually trusted domain
+    	//loader.content cannot be accessed. So we simply load the
+    	//swf in that case
+        if (!SecurityUtil.hasMutualTrustBetweenParentAndChild(loader))
+		{
+			// we are done loading the swf
+            loadingComplete = true ;
+			removeListeners();
+			return;
+		}
         // if the loaded content is an app wait for application complete
         // event to get fired.
         if(loader && loader.content && loader.content is ISystemManager)

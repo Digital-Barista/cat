@@ -39,9 +39,13 @@ public class FollowerCheckWorker extends TwitterPollWorker<Set<Long>> {
 			client.getParams().setAuthenticationPreemptive(true);
 			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
 			
-			if(client.executeMethod(get)!=200)
-				ps.followerCheckFailed();
-
+			int response = client.executeMethod(get);
+			if(response!=200)
+			{
+				updateRateLimitInfo(get, ps);
+				throw new OperationFailedException("Could not check for followers.  response="+response);
+			}
+			
 			updateRateLimitInfo(get, ps);
 			
 			IdListNoCursor idList = (IdListNoCursor)decoder.unmarshal(get.getResponseBodyAsStream());

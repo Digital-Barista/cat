@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="800" height="500" 
+	xmlns:contacts="com.dbi.cat.view.contacts.*"
+	xmlns:controls="com.dbi.controls.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.PagedListVO;
+			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
+			import mx.events.IndexChangedEvent;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.common.vo.PagingInfoVO;
+			import com.dbi.cat.common.vo.CampaignVO;
+			import com.dbi.cat.event.ImportEvent;
+			import com.dbi.cat.common.vo.NodeVO;
+			import com.dbi.cat.view.workspace.Node;
+			import com.dbi.cat.common.vo.ContactVO;
+			import mx.collections.ArrayCollection;
+			import com.dbi.event.CustomMessageEvent;
+			import com.dbi.controls.CustomMessage;
+			
+			[Bindable]
+			public var currentNode:NodeVO;
+			
+			[Bindable]
+			public var publishedCampaign:CampaignVO;
+			
+			[Bindable]
+			public var contacts:PagedListVO;
+			
+			public var contactSearchCriteria:ContactSearchCriteriaVO;
+			public var contactPagingInfo:PagingInfoVO;
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ImportEvent(ImportEvent.CLOSE_IMPORT_SUBSCRIBERS));
+			}
+			private function doImport(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes")
+				{
+					var event:ImportEvent = new ImportEvent(ImportEvent.DO_IMPORT);
+					event.contacts = Contacts.Contacts.selectedItems;
+					event.node = currentNode;
+					dispatchEvent(event);
+				}
+			}
+			private function confirmImport():void
+			{
+				CustomMessage.show("Subscribe the " + Contacts.Contacts.selectedItems.length + " selected contacts?",
+					["Yes", "No"],
+					doImport);
+			}
+			private function pageChange(e:IndexChangedEvent):void
+			{
+				if (contactPagingInfo == null)
+					contactPagingInfo = new PagingInfoVO();
+				contactPagingInfo.pageIndex = e.newIndex.toString();
+				contactPagingInfo.pageSize = Pager.pageSize.toString();
+				
+				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+				event.pagingInfo = contactPagingInfo;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:TitleWindow 
+	width="100%" height="100%"
+	showCloseButton="true" 
+	close="onClose()"
+	title="Subscribe Contacts">
+		<contacts:ContactListView id="Contacts"
+			width="100%" height="100%" />
+		<mx:ControlBar horizontalAlign="center">
+			<controls:PagingControl id="Pager"
+				pageIndexChanged="pageChange(event)"
+				totalResults="{contacts.totalResultCount}"
+				pageSize="250"
+				selectedNavButtonStyleName="selectedNavButton" />
+		</mx:ControlBar>
+	</mx:TitleWindow>
+	<mx:Button label="Subscribe Selected Contacts"
+		top="7" right="35"
+		click="confirmImport()" />
+</mx:Canvas>

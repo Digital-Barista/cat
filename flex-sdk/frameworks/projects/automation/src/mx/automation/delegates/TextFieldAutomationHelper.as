@@ -14,7 +14,6 @@ package mx.automation.delegates
 
 import flash.display.DisplayObject;
 import flash.events.Event;
-import flash.events.EventDispatcher;
 import flash.events.FocusEvent;
 import flash.events.IEventDispatcher;
 import flash.events.KeyboardEvent;
@@ -33,9 +32,10 @@ import mx.core.Application;
 import mx.core.EventPriority;
 import mx.core.IUITextField;
 import mx.core.mx_internal;
+import mx.events.SandboxMouseEvent;
 import mx.managers.IFocusManager;
-import mx.managers.IFocusManagerComponent;
 import mx.managers.IFocusManagerContainer;
+import mx.managers.IFocusManagerComponent;
 import mx.managers.ISystemManager;
 import mx.resources.IResourceManager;
 import mx.resources.ResourceManager;
@@ -499,7 +499,10 @@ public class TextFieldAutomationHelper
             //we need to flush, i.e. they click a button that generates a click
             //we need to beat them and record our events first
             var sm:ISystemManager = Application.application.systemManager;
-            sm.addEventListener(MouseEvent.MOUSE_DOWN,
+            sm.getSandboxRoot().addEventListener(MouseEvent.MOUSE_DOWN,
+                                mouseDownOutsideHandler,
+                                true, EventPriority.DEFAULT, true);
+            sm.getSandboxRoot().addEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE,
                                 mouseDownOutsideHandler,
                                 true, EventPriority.DEFAULT, true);
             
@@ -507,7 +510,7 @@ public class TextFieldAutomationHelper
             //we need to flush.  If they use the keyboard all is good, but if
             //they use a mouse, our flush of events steals the focus back
             //which is annoying, so flush when the mouse leaves the app area
-            Application.application.stage.addEventListener(Event.DEACTIVATE,
+            /* Application.application.stage.addEventListener(Event.DEACTIVATE,
                                                            stageEventHandler,
                                                            false,
                                                            EventPriority.DEFAULT+1, true);
@@ -517,6 +520,25 @@ public class TextFieldAutomationHelper
                                                            EventPriority.DEFAULT+1, true);
 
             Application.application.stage.addEventListener(MouseEvent.MOUSE_DOWN,
+                                                           stageEventHandler,
+                                                           true,
+                                                           EventPriority.DEFAULT+1, true); */
+                                                           
+            sm.addEventListener(Event.DEACTIVATE,
+                                                           stageEventHandler,
+                                                           false,
+                                                           EventPriority.DEFAULT+1, true);
+            sm.getSandboxRoot().addEventListener(Event.MOUSE_LEAVE,
+                                                           stageEventHandler,
+                                                           false,
+                                                           EventPriority.DEFAULT+1, true);
+
+            sm.getSandboxRoot().addEventListener(MouseEvent.MOUSE_DOWN,
+                                                           stageEventHandler,
+                                                           true,
+                                                           EventPriority.DEFAULT+1, true);
+                                                           
+            sm.getSandboxRoot().addEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE,
                                                            stageEventHandler,
                                                            true,
                                                            EventPriority.DEFAULT+1, true);
@@ -550,7 +572,7 @@ public class TextFieldAutomationHelper
     /**
      *  @private
      */
-    private function mouseDownOutsideHandler(event:MouseEvent):void
+    private function mouseDownOutsideHandler(event:Event):void
     {
         //trace("mouseDownOutsideHandler " + event.type + " target " + event.target);
         if (event.target != textField)
@@ -587,13 +609,17 @@ public class TextFieldAutomationHelper
             sm.removeEventListener(MouseEvent.MOUSE_DOWN,
                                    mouseDownOutsideHandler,
                                    true);
-            Application.application.stage.removeEventListener(Event.DEACTIVATE,
+            sm.removeEventListener(Event.DEACTIVATE,
                                                             stageEventHandler,
                                                             false);
-            Application.application.stage.removeEventListener(Event.MOUSE_LEAVE,
+            sm.getSandboxRoot().removeEventListener(Event.MOUSE_LEAVE,
                                                             stageEventHandler,
                                                             false);
-            Application.application.stage.removeEventListener(MouseEvent.MOUSE_DOWN,
+            sm.getSandboxRoot().removeEventListener(MouseEvent.MOUSE_DOWN,
+                                                            stageEventHandler,
+                                                            true);
+            
+            sm.getSandboxRoot().removeEventListener(SandboxMouseEvent.MOUSE_DOWN_SOMEWHERE,
                                                             stageEventHandler,
                                                             true);
                                                             
@@ -625,7 +651,9 @@ public class TextFieldAutomationHelper
             }
            case TextFieldType.INPUT:
            {
-               textField.stage.addEventListener(MouseEvent.MOUSE_UP, 
+               textField.systemManager.getSandboxRoot().addEventListener(MouseEvent.MOUSE_UP, 
+                                                mouseUpHandler, false, EventPriority.DEFAULT, true);
+               textField.systemManager.getSandboxRoot().addEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, 
                                                 mouseUpHandler, false, EventPriority.DEFAULT, true);
                textField.addEventListener(MouseEvent.DOUBLE_CLICK,
                                            mouseDoubleClickHandler, false, EventPriority.DEFAULT, true);
@@ -661,12 +689,14 @@ public class TextFieldAutomationHelper
     /**
      *  @private
      */
-    private function mouseUpHandler(event:MouseEvent):void
+    private function mouseUpHandler(event:Event):void
     {
         //        trace("mouseUpHandler " + event.type);
         if (!recording)
             return;
-        textField.stage.removeEventListener(MouseEvent.MOUSE_UP, 
+        textField.systemManager.getSandboxRoot().removeEventListener(MouseEvent.MOUSE_UP, 
+                                            mouseUpHandler);
+		textField.systemManager.getSandboxRoot().removeEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, 
                                             mouseUpHandler);
 
         flushCharacterBuffer();

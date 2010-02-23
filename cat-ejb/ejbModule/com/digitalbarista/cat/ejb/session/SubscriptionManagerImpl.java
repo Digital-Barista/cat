@@ -1,7 +1,11 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -18,10 +22,13 @@ import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
+import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.CampaignDO;
@@ -32,6 +39,7 @@ import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberBlacklistDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.message.event.CATEvent;
+
 
 /**
  * Session Bean implementation class SubscriptionManagerImpl
@@ -115,7 +123,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			throw new IllegalArgumentException("Could not find node with UID='"+entryPointUID+"'");
 		
 		//And make sure this IS an entry node!
-		if(!entryNode.getType().equals(NodeType.Entry))
+		if(!entryNode.getType().equals(NodeType.Entry) &&
+			!entryNode.getType().equals(NodeType.OutgoingEntry))
 			throw new IllegalArgumentException("NodeDO '"+entryPointUID+"' is not an entry point.");
 		
 		//Get the raw node.
@@ -241,4 +250,63 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		}
 	}
 
+	@Override
+	public void subscribeContactsToEntryPoint(List<Contact> contacts, String entryPointUID) 
+	{
+
+		// Sort contacts by type
+		Collections.sort(contacts);
+		
+		EntryPointType lastType = null;
+		Set<String> addresses = new HashSet<String>();
+		for (Contact c : contacts)
+		{
+			if (lastType != null &&
+				lastType != c.getType())
+			{
+				subscribeToEntryPoint(addresses, entryPointUID, lastType);
+				addresses = new HashSet<String>();
+			}
+			
+			addresses.add(c.getAddress());
+			lastType = c.getType();
+		}
+
+		// Subscribe last type
+		subscribeToEntryPoint(addresses, entryPointUID, lastType);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@PermitAll
+	public List<String> getSubscribedAddresses(String nodeUID) 
+	{
+		// Load node and campaign
+		Node node = campaignManager.getNode(nodeUID);
+		CampaignDO camp = campaignManager.getSimpleCampaign(node.getCampaignUID());
+		
+		//Check permissions.
+		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), camp.getClient().getPrimaryKey()))
+			throw new SecurityException("Current user is not allowed to view subscriptions to the specified campaign.");
+		
+		// Query for subscriber addresses for this node
+		List<String> ret = new ArrayList<String>();
+		Criteria crit = session.createCriteria(SubscriberDO.class);
+		crit.createAlias("subscriptions", "subscriptions");
+		crit.createAlias("subscriptions.lastHitNode", "lastHitNode");
+		crit.add(Restrictions.eq("lastHitNode.UID", nodeUID));
+		
+		// Load addresses from subscriber into String list
+		for (SubscriberDO subscriber : (List<SubscriberDO>)crit.list())
+		{
+			if (subscriber.getEmail() != null)
+				ret.add(subscriber.getEmail());
+			else if (subscriber.getTwitterUsername() != null)
+				ret.add(subscriber.getTwitterUsername());
+			else if (subscriber.getPhoneNumber() != null)
+				ret.add(subscriber.getPhoneNumber());
+		}
+		
+		return ret;
+	}
 }

@@ -32,11 +32,17 @@
 	        [Embed("/assets/swf/house.swf")]
 	        public const entryPointIcon:Class;
 	        
+	        [Embed("/assets/swf/outgoing_entry_point.swf")]
+	        public const outgoingEntryPointIcon:Class;
+	        
 	        [Embed("/assets/swf/envelope.swf")]
 	        public const messageIcon:Class;
 	        
 	        [Embed("/assets/swf/barcode.swf")]
 	        public const couponIcon:Class;
+	        
+	        [Embed("/assets/swf/tagging_node.swf")]
+	        public const taggingIcon:Class;
 	        
 	        [Embed("/assets/swf/date_connector_workspace.swf")]
 	        public const dateConnector:Class;
@@ -93,8 +99,10 @@
 	<mx:XMLList id="components">
 		<node label="Nodes">
 			<node label="{WorkspaceItemType.ENTRY_POINT}" icon="entryPointIcon" />
+			<node label="{WorkspaceItemType.OUTGOING_ENTRY_POINT}" icon="outgoingEntryPointIcon" />
 			<node label="{WorkspaceItemType.MESSAGE}" icon="messageIcon" />
 			<node label="{WorkspaceItemType.COUPON}" icon="couponIcon" />
+			<node label="{WorkspaceItemType.TAGGING}" icon="taggingIcon" />
 		</node>
 		<node label="Connectors">
 			<node label="{WorkspaceItemType.IMMEDIATE_CONNECTOR}" icon="immediateConnector" />

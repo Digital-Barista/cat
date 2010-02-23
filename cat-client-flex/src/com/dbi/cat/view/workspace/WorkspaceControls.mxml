@@ -117,6 +117,7 @@
 	<mx:Repeater id="itemRepeater"
 		dataProvider="{actionItems}">
 		<mx:Canvas id="control"
+			buttonMode="true"
 			click="{itemClick(event.currentTarget.getRepeaterItem())}"
 			width="{height - PADDING}" height="{height - PADDING}"
 			toolTip="{itemRepeater.currentItem.tip}">

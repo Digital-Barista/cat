@@ -598,7 +598,8 @@ public class FocusManager implements IFocusManager
 				{
 					defButton.emphasized = false;
 					defButton = _defaultButton;
-					_defaultButton.emphasized = true;
+                    if (_defaultButton)
+					    _defaultButton.emphasized = true;
 				}
 			}
 		}
@@ -1195,6 +1196,9 @@ public class FocusManager implements IFocusManager
                 // came around and found the original
                 if (start == i)
                     break;
+                // if start is -1, set start to first valid value of i
+                if (start == -1)
+                    start = i;
             }
             // trace("testing " + focusableCandidates[i]);
             if (isValidFocusCandidate(focusableCandidates[i], groupName))

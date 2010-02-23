@@ -1,4 +1,4 @@
-Adobe AIR 1.5.2 SDK
+Adobe AIR 1.5.3 SDK
 README FILE
 
 
@@ -69,6 +69,8 @@ TEMPLATES
  - Descriptor.1.5.1.xsd - An XML Schema Definition file for the AIR 1.5.1 application descriptor file. 
 
  - Descriptor.1.5.2.xsd - An XML Schema Definition file for the AIR 1.5.2 application descriptor file. 
+
+ - Descriptor.1.5.3.xsd - An XML Schema Definition file for the AIR 1.5.3 application descriptor file. 
 
  - descriptor-template.xml - A template of the application descriptor file, which is required for each AIR application. 
 

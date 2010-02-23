@@ -5,6 +5,11 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.ReportingEvent;
+			import com.dbi.cat.business.ReportingManager;
+			import com.dbi.cat.business.ImportManager;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.business.ContactManager;
 			import com.dbi.cat.business.CampaignTemplateManager;
 			import com.dbi.cat.event.CampaignTemplateEvent;
 			import com.dbi.cat.business.CouponManager;
@@ -43,6 +48,9 @@
 		<ObjectBuilder generator="{CampaignManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{CampaignTemplateManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{LayoutInfoManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{ContactManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{ImportManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{ReportingManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{ClientManager}"  />
 	</EventHandlers>
 	
@@ -86,6 +94,8 @@
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
 		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />
 		<EventAnnouncer type="{CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT}" />
+		<EventAnnouncer type="{ContactEvent.LIST_CONTACT_TAGS}" />
+		<EventAnnouncer type="{ReportingEvent.LOAD_OUTGOING_MESSAGE_SUMMARIES}" />
 	</EventHandlers>
 	
 </EventMap>

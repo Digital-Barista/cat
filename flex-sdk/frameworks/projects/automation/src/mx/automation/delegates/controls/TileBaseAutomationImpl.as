@@ -360,7 +360,15 @@ var item:IListItemRenderer = listItems
             help.replayMouseEvent(realTarget, mouseEvent);
 
             mouseEvent = DragManagerAutomationImpl.toMouseEvent(MouseEvent.MOUSE_UP, dragEvent);
-            DragManager.dragProxy.action = dragEvent.action;
+            
+          	// this is needed to suport the case where the drag start happened in another
+            // applicaiton domains hence the current application domain's dragmanger does not
+            // have dragProxy
+            var proxy1:DisplayObject = DragManagerAutomationImpl.getDragManagerProxy(); // DragManager.dragProxy; 
+            if(proxy1)
+           	proxy1["action"] = dragEvent.action;
+	           	
+            //DragManager.dragProxy.action = dragEvent.action;
             help.replayMouseEvent(realTarget, mouseEvent);
             help.addSynchronization(function():Boolean
             {

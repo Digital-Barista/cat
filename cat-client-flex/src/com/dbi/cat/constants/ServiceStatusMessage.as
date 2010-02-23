@@ -9,6 +9,7 @@ package com.dbi.cat.constants
 		public static const LOADING_USERS:String = "Loading users";
 		public static const LOADING_TEMPLATES:String = "Loading templates";
 		public static const LOADING_COUPONS:String = "Loading coupons";
+		public static const LOADING_OUTGOING_MESSAGES:String = "Loading outgoing messages";
 		
 		public function ServiceStatusMessage()
 		{

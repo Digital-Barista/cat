@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.ConnectorDO;
@@ -20,7 +21,8 @@ import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.EntryPointType;
 
-@XmlRootElement
+@XmlRootElement(name="ResponseConnector")
+@XmlType(name="ResponseConnector")
 public class ResponseConnector extends Connector implements Auditable {
 
 	public static final String INFO_PROPERTY_ENTRY_POINT="EntryPointDO";

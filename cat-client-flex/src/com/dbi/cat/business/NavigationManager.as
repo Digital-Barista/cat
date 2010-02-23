@@ -15,11 +15,10 @@ package com.dbi.cat.business
 		public static const VIEW_MAIN:Number = 2;
 		
 		public static const VIEW_MAIN_CAMPAIGNS:Number = 0;
-		public static const VIEW_MAIN_REPORTING:Number = 1;
-		public static const VIEW_MAIN_USERS:Number = 2;
-		public static const VIEW_MAIN_PROFILE:Number = 3;
-		public static const VIEW_MAIN_CHANGE_PASSWORD:Number = 4;
-		public static const VIEW_MAIN_EDIT_USER:Number = 5;
+		public static const VIEW_MAIN_CONTACTS:Number = 1;
+		public static const VIEW_MAIN_REPORTING:Number = 2;
+		public static const VIEW_MAIN_USERS:Number = 3;
+		public static const VIEW_MAIN_PROFILE:Number = 4;
 		
 		public static const VIEW_RECOVER_PASSWORD_MAIN:String = "";
 		public static const VIEW_RECOVER_PASSWORD_RESET:String = "resetPassword";
@@ -44,6 +43,10 @@ package com.dbi.cat.business
 		{
 			switch (e.type)
 			{
+				case NavigationEvent.CONTACTS:
+					appCurrentView = VIEW_MAIN;
+					mainCurrentView = VIEW_MAIN_CONTACTS;
+					break;
 				case NavigationEvent.CAMPAIGNS:
 					appCurrentView = VIEW_MAIN;
 					mainCurrentView = VIEW_MAIN_CAMPAIGNS;
@@ -67,10 +70,6 @@ package com.dbi.cat.business
 				case NavigationEvent.RECOVER_PASSWORD_RESET:
 					appCurrentView = VIEW_RECOVER_PASSWORD;
 					recoverPasswordView = VIEW_RECOVER_PASSWORD_RESET;
-					break;
-				case NavigationEvent.CHANGE_PASSWORD:
-					appCurrentView = VIEW_MAIN;
-					mainCurrentView = VIEW_MAIN_CHANGE_PASSWORD;
 					break;
 				case NavigationEvent.LOGIN:
 					appCurrentView = VIEW_LOGIN;

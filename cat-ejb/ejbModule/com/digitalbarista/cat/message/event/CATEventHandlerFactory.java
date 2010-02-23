@@ -12,6 +12,7 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
 
@@ -26,6 +27,9 @@ public class CATEventHandlerFactory implements CATEventHandlerFactoryInterface{
 	
 	@EJB(name="ejb/cat/CampaignManager")
 	private CampaignManager cm;
+	
+	@EJB(name="ejb/cat/ContactManager")
+	private ContactManager conMan;
 	
 	@EJB(name="ejb/cat/EventTimerManager")
 	private EventTimerManager timer;
@@ -42,13 +46,13 @@ public class CATEventHandlerFactory implements CATEventHandlerFactoryInterface{
 		switch(t)
 		{
 			case IncomingMessage:
-				return new IncomingMessageEventHandler(em,ctx,emi,cm,timer);
+				return new IncomingMessageEventHandler(em,ctx,emi,cm,conMan,timer);
 			case NodeOperationCompleted:
-				return new NodeOperationCompletedEventHandler(em,ctx,emi,cm,timer);
+				return new NodeOperationCompletedEventHandler(em,ctx,emi,cm,conMan,timer);
 			case ConnectorFired:
-				return new ConnectorFiredEventHandler(em,ctx,emi,cm,timer);
+				return new ConnectorFiredEventHandler(em,ctx,emi,cm,conMan,timer);
 			case MessageSendRequested:
-				return new MessageSendRequestEventHandler(em,ctx,emi,cm,timer);
+				return new MessageSendRequestEventHandler(em,ctx,emi,cm,conMan,timer);
 			default:
 				throw new IllegalArgumentException("Unknown event type:  No configured factory: "+t.toString());
 		}

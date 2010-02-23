@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="300" height="200" 
+	showCloseButton="true"
+	close="onClose()"
+	xmlns:components="com.dbi.cat.view.components.*"
+	title="{windowTitle}">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.controls.AdvancedComboBox;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.ContactVO;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+			[Bindable]
+			public var currentContact:ContactVO;
+			
+			private function get isNewContact():Boolean
+			{
+				if (currentContact == null ||
+					currentContact.contactId == null)
+					return true;
+				return false;
+			}
+			private function get windowTitle():String
+			{
+				if (isNewContact)
+					return "Add Contact";
+				return "Edit Contact";
+			}
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ContactEvent(ContactEvent.CLOSE_CONTACT));
+			}
+			
+			private function save():void
+			{
+				if (Contact.text.length > 0)
+				{
+					var event:ContactEvent = new ContactEvent(ContactEvent.SAVE_CONTACT);
+					currentContact.clientId = Client.selectedItem.clientId;
+					currentContact.type = ContactType.selectedLabel;
+					currentContact.address = Contact.text;
+					event.contact = currentContact;
+					dispatchEvent(event);
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Form verticalCenter="0" horizontalCenter="0">
+		<mx:FormItem label="Client">
+			<components:FormattedComboBox
+				id="Client"
+				labelField="name"
+				bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
+				dataProvider="{clients}" />
+		</mx:FormItem>
+		<mx:FormItem label="Type">
+			<mx:ComboBox id="ContactType"
+				dataProvider="{EntryPointType.getAllTypes()}" />
+		</mx:FormItem>
+		<mx:FormItem label="Contact">
+			<mx:TextInput id="Contact" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar>
+		<mx:Button label="Save"
+			click="save()" />
+	</mx:ControlBar>
+</mx:TitleWindow>

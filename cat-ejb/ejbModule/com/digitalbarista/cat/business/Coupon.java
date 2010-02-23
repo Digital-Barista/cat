@@ -9,7 +9,7 @@ import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
 
-@XmlRootElement
+@XmlRootElement(name="Coupon")
 public class Coupon implements
 		BusinessObject<CouponOfferDO> {
 
