@@ -3,8 +3,8 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.admin.view.client.EntryTypePropertiesItem;
 			import com.dbi.cat.admin.view.keyword.ReservedKeywordView;
-			import com.dbi.cat.admin.view.client.KeywordLimitItem;
 			import com.dbi.cat.admin.view.client.EditClientView;
 			import com.dbi.cat.admin.view.keyword.EditKeywordView;
 			import com.dbi.cat.admin.view.keyword.KeywordListView;
@@ -132,7 +132,7 @@
 			sourceKey="keywords"
 			targetKey="keywords" />
 	</Injectors>
-	<Injectors target="{KeywordLimitItem}">
+	<Injectors target="{EntryTypePropertiesItem}">
 		<PropertyInjector
 			source="{ClientManager}"
 			sourceKey="currentClient"
