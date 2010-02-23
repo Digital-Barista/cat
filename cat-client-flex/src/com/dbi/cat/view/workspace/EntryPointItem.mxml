@@ -11,6 +11,9 @@
 	xmlns:components="com.dbi.cat.view.components.*">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.ImportEvent;
+			import com.dbi.cat.event.ContactEvent;
+			import mx.controls.SWFLoader;
 			import mx.collections.IViewCursor;
 			import com.dbi.cat.common.vo.EntryDataVO;
 			import com.dbi.cat.common.constants.CampaignMode;
@@ -22,6 +25,9 @@
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			import com.dbi.cat.common.vo.EntryPointVO;
 			
+			private var importLoader:SWFLoader;
+			
+			public var showImportIcon:Boolean = false;
 			
 			[Bindable(event="nodeUpdate")]
 			[Bindable(event="entryPointLoaded")]
@@ -40,7 +46,30 @@
 				return entryPointVO != null && entryPointVO.valid;
 			}
 			
+			override protected function childrenCreated():void
+			{
+				super.childrenCreated();
+				
+				if (showImportIcon)
+				{
+					importLoader = new SWFLoader();
+					importLoader.source = subscribeContactsIcon;
+					importLoader.toolTip = "Subscribe contacts to this entry point";
+					importLoader.width = MENU_ICON_SIZE;
+					importLoader.height = MENU_ICON_SIZE;
+					importLoader.setStyle("left", 0);
+					importLoader.setStyle("top", 0);
+					importLoader.addEventListener(MouseEvent.CLICK, importContacts);
+					addChild(importLoader);
+				}
+			}
 			
+			private function importContacts(e:MouseEvent):void
+			{
+				var event:ImportEvent = new ImportEvent(ImportEvent.OPEN_IMPORT_SUBSCRIBERS);
+				event.node = entryPointVO;
+				dispatchEvent(event);
+			}
 		]]>
 	</mx:Script>
 	<editContent>

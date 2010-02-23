@@ -68,7 +68,7 @@ public class AbstractOperation extends mx.rpc.AbstractOperation
 
     /**
      *  Creates a new Operation. 
-     *
+     * 
      *  @param service The object defining the type of service, such as 
      *  HTTPMultiService, WebService, or RemoteObject.
      *
@@ -694,25 +694,23 @@ function xmlEncoder (myObj)
         var message:HTTPRequestMessage = new HTTPRequestMessage();
         if (useProxy)
         {
-            if (url && url != '')
+            if (urlToUse && urlToUse != '')
             {
-                message.url = URLUtil.getFullURL(rootURL, url);
+                message.url = URLUtil.getFullURL(rootURL, urlToUse);
             }
 
             if (NetworkMonitor.isMonitoring())
             {
-            //trace(" HTTPService: Recording Headers (useProxy = true)");
+                //trace(" HTTPService: Recording Headers (useProxy = true)");
                 message.recordHeaders = true;    
             }
-
         }
         else
         {
-            if (!url)
+            if (!urlToUse)
             {
                 token = new AsyncToken(null);
-                msg = resourceManager.getString(
-                    "rpc", "urlNotSpecified");
+                msg = resourceManager.getString("rpc", "urlNotSpecified");
                 fault = new Fault(ERROR_URL_REQUIRED, msg);
                 faultEvent = FaultEvent.createEvent(fault, token);
                 new AsyncDispatcher(dispatchRpcEvent, [faultEvent], 10);
@@ -727,12 +725,12 @@ function xmlEncoder (myObj)
             }
 
             if (NetworkMonitor.isMonitoring())
-          {
+            {
                 //trace(" HTTPService: Recording Headers (useProxy = false)");
                 message.recordHeaders = true;    
             }
 
-            message.url = URLUtil.getFullURL(rootURL, url);
+            message.url = URLUtil.getFullURL(rootURL, urlToUse);
         }
 
         message.contentType = ctype;
@@ -964,16 +962,18 @@ function xmlEncoder (myObj)
         var trimmed:String = StringUtil.trim(source);
         var params:Array = trimmed.split('&');
         var decoded:Object = {};
-        for (var i:int = 0; i<params.length; i++)
+        for (var i:int = 0; i < params.length; i++)
         {
             var param:String = params[i];
             var equalsIndex:int = param.indexOf('=');
             if (equalsIndex != -1)
             {
-                var name:String = unescape(param.substr(0, equalsIndex));
+                var name:String = param.substr(0, equalsIndex);
                 name = name.split('+').join(' ');
-                var value:String = unescape(param.substr(equalsIndex+1));
+                name = unescape(name);
+                var value:String = param.substr(equalsIndex + 1);
                 value = value.split('+').join(' ');
+                value = unescape(value);
                 decoded[name] = value;
             }
         }

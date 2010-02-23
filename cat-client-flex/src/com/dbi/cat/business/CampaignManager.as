@@ -1,7 +1,6 @@
 package com.dbi.cat.business
 {
 	import com.dbi.cat.common.vo.CampaignVO;
-	import com.dbi.cat.common.vo.ClientVO;
 	import com.dbi.cat.common.vo.ConnectorVO;
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.event.CampaignEvent;
@@ -35,6 +34,7 @@ package com.dbi.cat.business
 		public var campaignMap:Object = new Object();
 		public var publishedCampaign:CampaignVO;
 		public var modifiedCampaign:CampaignVO;
+		public var currentEditingCampaign:CampaignVO;
 		
 		// Addin message for the loaded campaign
 		public var campaignAddInMessage:String;
@@ -79,17 +79,17 @@ package com.dbi.cat.business
 				dispatcher.dispatchEvent(layout);
 			
 				// Setup the addin message for the loaded campaign
-				campaignAddInMessage = "";
-				var client:ClientVO = clientMap[campaign.clientPK];
-					
-				if (campaign.addInMessage != null &&
-					campaign.addInMessage.length > 0)
-					campaignAddInMessage += campaign.addInMessage;
-				else if (client.userAddInMessage != null)
-					campaignAddInMessage += client.userAddInMessage;
-					
-				if (client.adminAddInMessage != null)
-					campaignAddInMessage += client.adminAddInMessage;
+//				campaignAddInMessage = "";
+//				var client:ClientVO = clientMap[campaign.clientPK];
+//					
+//				if (campaign.addInMessage != null &&
+//					campaign.addInMessage.length > 0)
+//					campaignAddInMessage += campaign.addInMessage;
+//				else if (client.userAddInMessage != null)
+//					campaignAddInMessage += client.userAddInMessage;
+//					
+//				if (client.adminAddInMessage != null)
+//					campaignAddInMessage += client.adminAddInMessage;
 			}
 		}
 		public function loadModifiedCampaign(campaign:CampaignVO):void
@@ -377,7 +377,7 @@ package com.dbi.cat.business
 				closeEditCampaign();
 			}
 					
-			EditCampaignView(editCampaignPopup).campaign = ObjectUtil.copy(campaign) as CampaignVO;	
+			currentEditingCampaign = ObjectUtil.copy(campaign) as CampaignVO;	
 				
 			// Add popup to application
 			PopUpManager.addPopUp(editCampaignPopup, DisplayObject(Application.application), true);

@@ -17,12 +17,12 @@ import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
-import flash.events.TextEvent;
+import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.text.TextLineMetrics;
 import flash.ui.Keyboard;
-import flash.utils.getTimer;
+
 import mx.collections.ArrayCollection;
 import mx.collections.CursorBookmark;
 import mx.controls.dataGridClasses.DataGridListData;
@@ -32,8 +32,8 @@ import mx.controls.listClasses.IListItemRenderer;
 import mx.controls.listClasses.ListBase;
 import mx.controls.listClasses.ListData;
 import mx.core.ClassFactory;
-import mx.core.FlexVersion;
 import mx.core.EdgeMetrics;
+import mx.core.FlexVersion;
 import mx.core.IDataRenderer;
 import mx.core.IFactory;
 import mx.core.ScrollPolicy;
@@ -55,7 +55,6 @@ import mx.managers.ISystemManager;
 import mx.managers.PopUpManager;
 import mx.styles.CSSStyleDeclaration;
 import mx.styles.StyleManager;
-import mx.styles.StyleProxy;
 
 use namespace mx_internal;
 
@@ -718,10 +717,8 @@ public class ComboBox extends ComboBase
         selectionChanged = true;
 
         super.dataProvider = value;
-
+        
         destroyDropdown();
-
-        _showingDropdown = false;
 
         invalidateProperties();
         invalidateSize();
@@ -1220,7 +1217,11 @@ public class ComboBox extends ComboBase
         // and will not affect the dropdown size
         if (_dropdown && !inTween)
         {
-            destroyDropdown();
+            // We will not destroy our dropdown if user is actively
+            // interacting with it, this has been legacy behavior since
+            // Flex 3.0.
+            if (!_showingDropdown)
+                destroyDropdown();
         }
         else if (!_showingDropdown && inTween)
         {
@@ -1326,8 +1327,11 @@ public class ComboBox extends ComboBase
      * 
      *  @param item The object that contains the value to convert to a label. If the item is null, this method returns the empty string.
      */
-    public function itemToLabel(item:Object):String
+    public function itemToLabel(item:Object, ...rest):String
     {
+        // rest args are needed in case dropdown is some other thing like DataGrid
+        // that has multiple arguments to labelFunction
+
         // we need to check for null explicitly otherwise
         // a numeric zero will not get properly converted to a string.
         // (do not use !item)
@@ -1499,9 +1503,10 @@ public class ComboBox extends ComboBase
             // weak reference to stage
             systemManager.addEventListener(Event.RESIZE, stage_resizeHandler, false, 0, true);
         }
-            
-        _dropdown.scaleX = scaleX;
-        _dropdown.scaleY = scaleY;
+        
+		var m:Matrix = transform.concatenatedMatrix;
+		_dropdown.scaleX = m.a; //scale x
+		_dropdown.scaleY = m.d; //scale y
 
         return _dropdown;
     }
@@ -1509,7 +1514,7 @@ public class ComboBox extends ComboBase
     /**
      *  @private
      */
-    private function displayDropdown(show:Boolean, trigger:Event = null):void
+    private function displayDropdown(show:Boolean, trigger:Event = null, playEffect:Boolean = true):void
     {
         if (!initialized || show == _showingDropdown)
             return;
@@ -1638,6 +1643,8 @@ public class ComboBox extends ComboBase
             _dropdown.enabled = false;
         
         duration = Math.max(1, duration);
+        if (!playEffect) 
+            duration = 1;
         tween = new Tween(this, initY, endY, duration);
         
         if (easingFunction != null && tween)
@@ -1667,18 +1674,11 @@ public class ComboBox extends ComboBase
      */
     private function destroyDropdown():void
     {
-        if (_dropdown && !_showingDropdown)
-        {
-            if (inTween)
-            {
-                tween.endTween();
-            }
-            else
-            {
-                PopUpManager.removePopUp(_dropdown);
-                _dropdown = null;
-            }
-        }
+        if (inTween)
+            tween.endTween();
+        
+        displayDropdown(false, null, false);
+
     }
 
     //--------------------------------------------------------------------------
@@ -1764,14 +1764,7 @@ public class ComboBox extends ComboBase
             invalidateDisplayList();
 
             destroyDropdown();
-
-            _showingDropdown = false;
         }
-    }
-
-    private function popup_moveHandler(event:Event):void
-    {
-        destroyDropdown();
     }
 
     /**
@@ -1871,11 +1864,7 @@ public class ComboBox extends ComboBase
 
     private function stage_resizeHandler(event:Event):void
     {
-        if (_dropdown)
-        {
-            _dropdown.$visible = false;
-            _showingDropdown = false;
-        }
+        destroyDropdown();
     }
 
     /**

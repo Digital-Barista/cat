@@ -12,12 +12,11 @@
 package mx.automation.delegates.controls 
 {
 
-import flash.display.DisplayObject; 
+import flash.display.DisplayObject;
 import flash.display.InteractiveObject;
 import flash.events.Event;
 import flash.events.KeyboardEvent;
-import flash.events.MouseEvent
-import flash.geom.Point;
+import flash.events.MouseEvent;
 import flash.ui.Keyboard;
 import flash.utils.getTimer;
 
@@ -25,21 +24,21 @@ import mx.automation.Automation;
 import mx.automation.IAutomationManager;
 import mx.automation.IAutomationObject;
 import mx.automation.IAutomationObjectHelper;
-import mx.automation.tabularData.TreeTabularData;
-import mx.automation.delegates.controls.ListAutomationImpl;
-import mx.automation.events.ListItemSelectEvent;
+import mx.automation.delegates.DragManagerAutomationImpl;
 import mx.automation.events.AutomationDragEvent;
+import mx.automation.events.ListItemSelectEvent;
+import mx.automation.tabularData.TreeTabularData;
 import mx.collections.CursorBookmark;
 import mx.collections.ICollectionView;
 import mx.collections.IViewCursor;
+import mx.controls.Tree;
 import mx.controls.listClasses.IDropInListItemRenderer;
 import mx.controls.listClasses.IListItemRenderer;
 import mx.controls.listClasses.ListBaseContentHolder;
 import mx.controls.treeClasses.TreeItemRenderer;
-import mx.controls.Tree;
 import mx.core.IDataRenderer;
-import mx.core.mx_internal;
 import mx.core.UIComponentGlobals;
+import mx.core.mx_internal;
 import mx.events.DragEvent;
 import mx.events.TreeEvent;
 import mx.managers.DragManager;
@@ -155,7 +154,10 @@ public class TreeAutomationImpl extends ListAutomationImpl
                 renderer.data = curItem;
                 UIComponentGlobals.layoutManager.validateClient(renderer, true);
             }
-            result.unshift(IAutomationObject(renderer).automationValue);
+			
+			if(renderer is IAutomationObject)
+            	result.unshift(IAutomationObject(renderer).automationValue);
+			
             curItem = tree.getParentItem(curItem);
         }
         
@@ -261,7 +263,16 @@ public class TreeAutomationImpl extends ListAutomationImpl
                                     localX, localY, InteractiveObject(targetItem), 
                                     dragEvent.ctrlKey, dragEvent.altKey, dragEvent.shiftKey, 
                                     dragEvent.buttonDown);
-                DragManager.dragProxy.action = dragEvent.action;
+                
+                
+                // this is needed to suport the case where the drag start happened in another
+                // applicaiton domains hence the current application domain's dragmanger does not
+                // have dragProxy
+                var proxy1:DisplayObject = DragManagerAutomationImpl.getDragManagerProxy(); // DragManager.dragProxy; 
+	            if(proxy1)
+	           	proxy1["action"] = dragEvent.action;
+           	 
+                //DragManager.dragProxy.action = dragEvent.action;
                 help.replayMouseEvent(targetItem, mouseEvent);
                 help.addSynchronization(function():Boolean
                 {

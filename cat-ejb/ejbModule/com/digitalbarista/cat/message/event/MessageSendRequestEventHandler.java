@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import com.digitalbarista.cat.audit.OutgoingMessageEntryDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
 
@@ -34,8 +35,9 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 			SessionContext newSC, 
 			EventManager newEventManager,
 			CampaignManager newCampaignManager,
+			ContactManager newContactManager,
 			EventTimerManager timer) {
-		super(newEM, newSC, newEventManager, newCampaignManager,timer);
+		super(newEM, newSC, newEventManager, newCampaignManager, newContactManager, timer);
 	}
 
 	@Override

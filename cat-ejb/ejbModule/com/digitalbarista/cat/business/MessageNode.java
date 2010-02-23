@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.EntryPointType;
@@ -12,7 +13,8 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
-@XmlRootElement
+@XmlRootElement(name="MessageNode")
+@XmlType(name="MessageNode")
 public class MessageNode extends Node implements Auditable {
 
 	public static final String INFO_PROPERTY_MESSAGE="MessageText";

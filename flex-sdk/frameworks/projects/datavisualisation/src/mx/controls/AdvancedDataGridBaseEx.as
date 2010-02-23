@@ -974,6 +974,10 @@ public class AdvancedDataGridBaseEx extends AdvancedDataGridBase implements IIME
     override public function set focusPane(value:Sprite):void
     {
         super.focusPane = value;
+		
+		if (value)
+			value.scrollRect = listSubContent ? listSubContent.scrollRect : null;
+		
         if (!value && _focusPane)
             _focusPane.mask = null;
         _focusPane = value;

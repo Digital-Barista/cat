@@ -4,7 +4,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.UserProfileVO;
 	import com.dbi.cat.common.vo.UserVO;
 	import com.dbi.cat.event.NavigationEvent;
-	import com.dbi.cat.view.EditUserView;
+	import com.dbi.cat.view.user.EditUserView;
 	
 	import flash.events.IEventDispatcher;
 	
@@ -126,7 +126,14 @@ package com.dbi.cat.business
 		}
 		public function deleteUser(userId:Number):void
 		{
-			doRedirectAfterUserUpdate();
+			var cur:IViewCursor = userList.createCursor();
+			while (cur.current != null)
+			{
+				if (cur.current.primaryKey == userId)
+					cur.remove();
+				else
+					cur.moveNext();
+			}
 		}
 		public function filterUsers(filterText:String):void
 		{
@@ -153,15 +160,6 @@ package com.dbi.cat.business
 				return true;
 				
 			return false;
-		}
-		private function doRedirectAfterUserUpdate():void
-		{
-			//refresh user list
-			//getUserList(currentUser.primaryKey);  //this is commented out because i dont have the current user setup yet
-			
-			//redirect to user management page
-			var navEvent:NavigationEvent = new NavigationEvent(NavigationEvent.USERS);
-			dispatcher.dispatchEvent(navEvent);
 		}
 		
 		private function closeEditWindow():void

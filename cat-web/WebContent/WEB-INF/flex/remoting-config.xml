@@ -75,4 +75,37 @@
 					<scope>request</scope>
 			</properties>
 	</destination>
+	
+	<destination id="contactManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>ejb.ContactManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+	
+	<destination id="reportingManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>ejb.ReportingManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+	
+	<destination id="messageManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>ejb.MessageManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
 </service>

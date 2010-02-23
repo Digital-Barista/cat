@@ -5,13 +5,15 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
 
-@XmlRootElement
+@XmlRootElement(name="IntervalConnector")
+@XmlType(name="IntervalConnector")
 public class IntervalConnector extends Connector implements Auditable {
 
 	public static final String INFO_PROPERTY_INTERVAL="Interval";

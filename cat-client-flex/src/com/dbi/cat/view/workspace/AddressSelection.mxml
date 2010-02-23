@@ -8,6 +8,9 @@
 			import com.dbi.cat.common.vo.EntryDataVO;
 			import mx.collections.ArrayCollection;
 			
+			[Bindable]
+			public var showKeywords:Boolean = true;
+			
 			private var _workspace:WorkspaceView;
 			public function get workspace():WorkspaceView
 			{
@@ -191,8 +194,12 @@
 					labelField="name"
 					dataProvider="{getEntryPoints(EntryPointRepeater.currentItem.toString())}"
 					change="{changeType()}" />
-				<mx:Label text="Keyword" />
+				<mx:Label text="Keyword"
+					visible="{showKeywords}"
+					includeInLayout="{showKeywords}" />
 				<components:KeywordComboBox id="Keywords"
+					visible="{showKeywords}"
+					includeInLayout="{showKeywords}"
 					width="150"
 					labelField="keyword"
 					change="{changeType()}" />

@@ -4,7 +4,7 @@
 	xmlns:components="com.dbi.cat.view.components.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	width="400" height="300" xmlns:vo="com.dbi.cat.vo.*"
-	editWindowHeight="{showAddin ? 300 : 230}"
+	editWindowHeight="260"
 	editWindowWidth="300"
 	displayIcon="{messageIcon}"
 	workspaceIcon="{messageIcon}"
@@ -12,6 +12,8 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.event.CampaignMessageEvent;
 			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.EntryPointType;
 			import mx.events.ChildExistenceChangedEvent;
@@ -50,8 +52,6 @@
 			private function updateMessage():void
 			{
 				messageVO.message = Message.text;
-				if (characterCountMessage > maxCharacters)
-					messageVO.message = messageVO.message.substring(0, maxCharacters - addInMessage.length);
 				dispatchEvent(new Event("changeMessage"));
 			}
 			
@@ -69,7 +69,7 @@
 			
 			[Bindable(event="changeMessage")]
 			[Bindable(event="changeAddInMessage")]
-			private function get characterCountMessage():Number
+			private function get characterCountMessage():String
 			{
 				var count:Number = 0;
 				
@@ -79,15 +79,30 @@
 				if (messageVO != null &&
 					messageVO.message != null)
 					count += messageVO.message.length;
+					
+				if (count > maxCharacters)
+					return "<font color='#DD0000'>" + count + " chars</font>";
+				else
+					return count + " chars";
 				
-				return count;
 			}
 			
 			private function init():void
 			{
-				CharCount. visible = maxCharacters != Number.POSITIVE_INFINITY;
+				CharCount. visible = maxCharacters != 0;
 			}
 			
+			private function previewMessage():void
+			{
+				// Open the preview window
+				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
+				
+				// Request the message parts
+				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_PARTS);
+				event.campaign = workspace.campaign;
+				event.message = Message.text;
+				dispatchEvent(event);
+			}
 		]]>
 	</mx:Script>
 	<editContent>
@@ -101,18 +116,16 @@
 			<mx:FormItem label="Message" required="true" width="100%" 
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 					<mx:TextArea id="Message"  width="200" height="120"
-						maxChars="{maxCharacters}"
 						text="{messageVO.message}" 
 						change="updateMessage()"/>
 			</mx:FormItem>
-			<mx:FormItem label="Add In" visible="{showAddin}" includeInLayout="{showAddin}"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:TextArea id="AddIn" width="200" height="70"
-					text="{addInMessage}"
-					editable="false" />
-			</mx:FormItem>
-			<mx:FormItem id="CharCount">
-				<mx:Label text="{characterCountMessage + '/' + maxCharacters + ' chars'}" />
+			<mx:FormItem id="CharCount" width="100%">
+				<mx:HBox width="100%">
+					<mx:Label htmlText="{characterCountMessage}" />
+					<mx:Spacer width="100%" />
+					<mx:Button label="Preview Message"
+						click="previewMessage()" />
+				</mx:HBox>
 			</mx:FormItem>
 		</mx:Form>
 	</editContent>

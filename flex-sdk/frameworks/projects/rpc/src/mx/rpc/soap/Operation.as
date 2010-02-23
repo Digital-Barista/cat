@@ -654,6 +654,9 @@ public class Operation extends AbstractOperation
         if (service != null)
             service.initialize();
 
+        if (webService.convertParametersHandler != null)
+            args = webService.convertParametersHandler(args);
+
         if (operationManager != null)
             return operationManager(args);
 
@@ -828,7 +831,13 @@ public class Operation extends AbstractOperation
      */
     override mx_internal function processResult(message:IMessage, token:AsyncToken):Boolean
     {
-        return processSOAP(message, token);
+		if (processSOAP(message, token))
+    	{
+            if (webService.convertResultHandler != null)
+                _result = webService.convertResultHandler(_result, this);
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -31,11 +31,11 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
-import org.jboss.resteasy.annotations.providers.jaxb.WrappedMap;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
 import com.digitalbarista.cat.audit.AuditType;
+import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
@@ -47,7 +47,11 @@ import com.digitalbarista.cat.business.IntervalConnector;
 import com.digitalbarista.cat.business.LayoutInfo;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
+import com.digitalbarista.cat.business.OutgoingEntryNode;
 import com.digitalbarista.cat.business.ResponseConnector;
+import com.digitalbarista.cat.business.TaggingNode;
+import com.digitalbarista.cat.data.AddInMessageDO;
+import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignConnectorLinkDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
@@ -67,6 +71,7 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberDO;
+import com.digitalbarista.cat.ejb.session.interceptor.NodeFillInterceptor;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
 import com.digitalbarista.cat.util.MultiValueMap;
@@ -79,7 +84,7 @@ import com.digitalbarista.cat.util.MultiValueMap;
 @LocalBinding(jndiBinding = "ejb/cat/CampaignManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
-@Interceptors(AuditInterceptor.class)
+@Interceptors({AuditInterceptor.class,NodeFillInterceptor.class})
 public class CampaignManagerImpl implements CampaignManager {
 
 	Logger log = LogManager.getLogger(getClass());
@@ -599,9 +604,45 @@ public class CampaignManagerImpl implements CampaignManager {
 			camp.setClient(em.find(ClientDO.class, campaign.getClientPK()));
 			camp.setUID(campaign.getUid());
 			camp.setMode(campaign.getMode());
+			if(camp.getUID()==null || camp.getUID().trim().length()==0)
+				camp.setUID(UUID.randomUUID().toString());
 		}
 		campaign.copyTo(camp);
+		
+		// Save campaign
 		em.persist(camp);
+		
+		// Update list of addin messages
+		if (campaign.getAddInMessages() != null)
+		{
+			for (AddInMessage add : campaign.getAddInMessages())
+			{
+					
+				// Get existing or new data object
+				AddInMessageDO addDO = null;
+				if (add.getAddInMessageId() != null)
+					addDO = em.find(AddInMessageDO.class, add.getAddInMessageId());
+				if (addDO == null)
+					addDO = new AddInMessageDO();
+
+				// Campaigns should only have CLIENT addin messages
+				if ( addDO.getAddInMessageId() == null &&
+					add.getType() != AddInMessageType.CLIENT)
+					throw new IllegalArgumentException("Campaings should not have this type of addin message assigned");
+				
+				// Update and persist object
+				addDO.setCampaign(camp);
+				add.copyTo(addDO);
+				em.persist(addDO);
+				
+				// Add message to client list
+				if (camp.getAddInMessages() == null)
+					camp.setAddInMessages(new HashSet<AddInMessageDO>());
+				camp.getAddInMessages().add(addDO);
+			}
+		}
+		
+		em.flush();
 	}
 
 	@Override
@@ -721,6 +762,16 @@ public class CampaignManagerImpl implements CampaignManager {
 				return ret;
 			}
 			
+			case OutgoingEntry:
+			{
+				OutgoingEntryNode ret = new OutgoingEntryNode();
+				EntryNode source = (OutgoingEntryNode)from;
+				ret.setEntryData(source.getEntryData());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+
 			case Entry:
 			{
 				EntryNode ret = new EntryNode();
@@ -730,13 +781,21 @@ public class CampaignManagerImpl implements CampaignManager {
 				ret.setUid(UUID.randomUUID().toString());
 				return ret;
 			}
-			
 			case Message:
 			{
 				MessageNode ret = new MessageNode();
 				MessageNode source = new MessageNode();
 				ret.setMessage(source.getMessage());
 				ret.setMessageType(source.getMessageType());
+				ret.setName(source.getName());
+				ret.setUid(UUID.randomUUID().toString());
+				return ret;
+			}
+			case Tagging:
+			{
+				TaggingNode ret = new TaggingNode();
+				TaggingNode source = new TaggingNode();
+				ret.setTags(source.getTags());
 				ret.setName(source.getName());
 				ret.setUid(UUID.randomUUID().toString());
 				return ret;
@@ -807,6 +866,8 @@ public class CampaignManagerImpl implements CampaignManager {
 			n.getVersionedNodes().put(camp.getCurrentVersion(), cnl);
 			n.setCampaign(camp);
 			n.setUID(node.getUid());
+			if(n.getUID()==null || n.getUID().trim().length()==0)
+				n.setUID(UUID.randomUUID().toString());
 						
 			node.copyTo(n);
 			
@@ -1028,6 +1089,9 @@ public class CampaignManagerImpl implements CampaignManager {
 			ccl.setVersion(camp.getCurrentVersion());
 			c.getVersionedConnectors().put(camp.getCurrentVersion(), ccl);
 			c.setUID(connector.getUid());
+			if(c.getUID()==null || c.getUID().trim().length()==0)
+				c.setUID(UUID.randomUUID().toString());
+			
 			
 			c.setCampaign(camp);
 			connector.copyTo(c);
@@ -1285,7 +1349,6 @@ public class CampaignManagerImpl implements CampaignManager {
 
 	@Override
 	@PermitAll
-	@WrappedMap
 	public Map<String, Long> getNodeSubscriberCount(String campaignUUID) {
 		getSimpleCampaign(campaignUUID); // Do nothing with this except invoke security checks.
 		
@@ -1293,7 +1356,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		Query q = em.createQuery(queryString);
 		q.setParameter("campaignUID", campaignUUID);
 		List<Object[]> result = q.getResultList();
-		Map<String,Long> ret = new HashMap<String,Long>();
+		HashMap<String,Long> ret = new HashMap<String,Long>();
 		for(Object[] row : result)
 			ret.put((String)row[0], (Long)row[1]);
 		return ret;

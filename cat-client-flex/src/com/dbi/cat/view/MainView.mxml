@@ -2,12 +2,31 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:view="com.dbi.cat.view.*" 
-	xmlns:reporting="com.dbi.cat.view.reporting.*" xmlns:campaign="com.dbi.cat.view.campaign.*" xmlns:profile="com.dbi.cat.view.profile.*">
+	xmlns:reporting="com.dbi.cat.view.reporting.*" 
+	xmlns:campaign="com.dbi.cat.view.campaign.*" 
+	xmlns:profile="com.dbi.cat.view.profile.*" 
+	xmlns:contacts="com.dbi.cat.view.contacts.*" 
+	xmlns:user="com.dbi.cat.view.user.*">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Button;
+			import com.dbi.cat.common.constants.Roles;
+			import com.dbi.cat.common.vo.UserVO;
 			import com.dbi.cat.event.NavigationEvent;
 			import mx.events.IndexChangedEvent;
 			import mx.controls.Alert;
+			
+			private var _currentUser:UserVO;
+			public function get currentUser():UserVO
+			{
+				return _currentUser;
+			}
+			public function set currentUser(value:UserVO):void
+			{
+				_currentUser = value;
+				applyPermissions();
+			}
+			
 			
 			[Bindable]
 			public var currentView:Number = 0;
@@ -15,29 +34,45 @@
 			[Bindable]
 			public var statusMessage:String;
 			
+			private function applyPermissions():void
+			{
+				if (currentUser != null)
+				{
+					var isManager:Boolean = currentUser.hasRole(Roles.ACCOUNT_MANAGER);
+					
+					var userTab:Button = Tabs.getTabAt(3);
+					userTab.visible = isManager;
+					userTab.includeInLayout = isManager;
+				}
+			}
+			
 			private function tabClick(e:IndexChangedEvent):void
 			{
 				if (e.newIndex == 0)
 					dispatchEvent(new NavigationEvent(NavigationEvent.CAMPAIGNS));
 				else if (e.newIndex == 1)
-					dispatchEvent(new NavigationEvent(NavigationEvent.REPORTING));
+					dispatchEvent(new NavigationEvent(NavigationEvent.CONTACTS));
 				else if (e.newIndex == 2)
-					dispatchEvent(new NavigationEvent(NavigationEvent.USERS));
+					dispatchEvent(new NavigationEvent(NavigationEvent.REPORTING));
 				else if (e.newIndex == 3)
+					dispatchEvent(new NavigationEvent(NavigationEvent.USERS));
+				else if (e.newIndex == 4)
 					dispatchEvent(new NavigationEvent(NavigationEvent.PROFILE));
 			}
 		]]>
 	</mx:Script>
 	<view:NavigationView
 		width="100%" height="30"  top="0"/>
-	<mx:TabNavigator selectedIndex="{currentView}"
+	<mx:TabNavigator id="Tabs"
+		selectedIndex="{currentView}"
 		tabOffset="-50"
 		left="0" right="0" top="5" bottom="0"
 		horizontalAlign="right" paddingTop="0"
 		change="tabClick(event)">
 		<campaign:CampaignsView label="Campaigns" />
+		<contacts:ContactView label="Contacts" />
 		<reporting:ReportingView label="Reporting" />
-		<view:UsersView label="Users" />
+		<user:UsersView label="Users"  />
 		<profile:ProfileView label="Profile" />
 	</mx:TabNavigator>
 	<mx:Canvas id="StatusMessageBox"

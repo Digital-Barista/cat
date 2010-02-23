@@ -1,11 +1,13 @@
 package com.digitalbarista.cat.business;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.ConnectorType;
 
-@XmlRootElement
+@XmlRootElement(name="ImmediateConnector")
+@XmlType(name="ImmediateConnector")
 public class ImmediateConnector extends Connector implements Auditable{
 
 	@Override

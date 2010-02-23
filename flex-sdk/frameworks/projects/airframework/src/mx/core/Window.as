@@ -33,6 +33,7 @@ import mx.controls.FlexNativeMenu;
 import mx.core.windowClasses.StatusBar;
 import mx.core.windowClasses.TitleBar;
 import mx.events.AIREvent;
+import mx.events.EffectEvent;
 import mx.events.FlexEvent;
 import mx.events.FlexNativeWindowBoundsEvent;
 import mx.managers.CursorManagerImpl;
@@ -892,47 +893,57 @@ public class Window extends LayoutContainer implements IWindow
 	 *
 	 *  @default true
 	 */	
-	override public function get visible():Boolean
-	{
-		if (!nativeWindow.closed)
-			return _nativeWindow.visible;
-		else
-			return false;
-	}
-	/**
-	 *  @private
-	 */
-	override public function set visible(value:Boolean):void
-	{
-		if (!_nativeWindow)
-		{
-			_nativeWindowVisible = value;
-			invalidateProperties();
-		}
-		else if (!_nativeWindow.closed)
-		{
-			var e:FlexEvent;
-			if (value)
-			{
-				_nativeWindow.visible = value;
-				e = new FlexEvent(FlexEvent.SHOW);
-				dispatchEvent(e);
-			}
-			else
-			{
-				e = new FlexEvent(FlexEvent.HIDE);
-				if (getStyle("hideEffect"))
-    			{
-             		addEventListener("effectEnd", hideEffectEndHandler);
-				}
-				else
-				{
-					_nativeWindow.visible = value;
-					dispatchEvent(e);
-				}
-			}
-		}
-	}
+    override public function get visible():Boolean
+    {
+        if (nativeWindow && nativeWindow.closed)
+            return false;
+        if (nativeWindow)
+            return nativeWindow.visible;
+        else
+            return _nativeWindowVisible;
+    }
+    
+    /**
+     *  @private
+     */
+    override public function set visible(value:Boolean):void
+    {
+        setVisible(value);
+    }
+    
+    /**
+     *  @private
+     *  We override setVisible because there's the flash display object concept 
+     *  of visibility and also the nativeWindow concept of visibility.
+     */
+    override public function setVisible(value:Boolean,
+                                        noEvent:Boolean = false):void
+    {
+        // first handle the native window stuff
+        if (!_nativeWindow)
+        {
+            _nativeWindowVisible = value;
+            invalidateProperties();
+        }
+        else if (!_nativeWindow.closed)
+        {
+            if (value)
+            {
+                _nativeWindow.visible = value;
+            }
+            else
+            {
+                // in the conditions below we will play an effect
+                if (getStyle("hideEffect") && initialized && $visible != value)
+                    addEventListener(EffectEvent.EFFECT_END, hideEffectEndHandler);
+                else
+                    _nativeWindow.visible = value;
+            }
+        }
+        
+        // now call super.setVisible
+        super.setVisible(value, noEvent);
+    }
 	
    	//----------------------------------
     //  width
@@ -1891,6 +1902,7 @@ public class Window extends LayoutContainer implements IWindow
             	_statusBar.styleName = new StyleProxy(this, statusBarStyleFilters);
             	rawChildren.addChild(DisplayObject(_statusBar));
       	        showStatusBarChanged = true;
+                statusBarFactoryChanged = false;      	        
 	        }
 	    }
 
@@ -2094,13 +2106,17 @@ public class Window extends LayoutContainer implements IWindow
             }
             _statusBar = statusBarFactory.newInstance();
             _statusBar.styleName = new StyleProxy(this, statusBarStyleFilters);
+
             // Add it underneath the gripper.
+			rawChildren.addChild(DisplayObject(_statusBar));
             if (gripper)
-            	rawChildren.addChildAt(DisplayObject(_statusBar), rawChildren.getChildIndex(gripper));
-            else
-            	rawChildren.addChild(DisplayObject(_statusBar));
+            {
+                var gripperIndex:int = rawChildren.getChildIndex(DisplayObject(gripper)); 
+                rawChildren.setChildIndex(DisplayObject(_statusBar), gripperIndex);
+            }
             statusBarFactoryChanged = false;
             showStatusBarChanged = true;
+          	statusChanged = true;
             invalidateDisplayList();
         }
 
@@ -2681,15 +2697,15 @@ public class Window extends LayoutContainer implements IWindow
     	frameCounter++;
     }
 
-	/**
-	 *  @private
-	 */
-	private function hideEffectEndHandler(event:Event):void
-	{
-		_nativeWindow.visible = false;
-		
-		dispatchEvent(new FlexEvent(FlexEvent.HIDE));
-	}
+    /**
+     *  @private
+     */
+    private function hideEffectEndHandler(event:Event):void
+    {
+        if (!_nativeWindow.closed)
+            _nativeWindow.visible = false;
+        removeEventListener(EffectEvent.EFFECT_END, hideEffectEndHandler);
+    }
 
     /**
      *  @private
@@ -2698,7 +2714,7 @@ public class Window extends LayoutContainer implements IWindow
     {
     	if (!nativeWindow.closed)
         	stage.nativeWindow.minimize();
-        removeEventListener("effectEnd", windowMinimizeHandler);
+        removeEventListener(EffectEvent.EFFECT_END, windowMinimizeHandler);
     }
 
     /**
@@ -2706,7 +2722,7 @@ public class Window extends LayoutContainer implements IWindow
      */
     private function windowUnminimizeHandler(event:Event):void
     {
-        removeEventListener("effectEnd", windowUnminimizeHandler);
+        removeEventListener(EffectEvent.EFFECT_END, windowUnminimizeHandler);
     }
 
     /**
@@ -2751,7 +2767,7 @@ public class Window extends LayoutContainer implements IWindow
             if (getStyle("minimizeEffect"))
             {
                 event.preventDefault();
-                addEventListener("effectEnd", windowMinimizeHandler);
+                addEventListener(EffectEvent.EFFECT_END, windowMinimizeHandler);
                 dispatchEvent(new Event("windowMinimize"));
             }
         }
@@ -2759,7 +2775,7 @@ public class Window extends LayoutContainer implements IWindow
         // After here, afterState is normal
         else if (event.beforeDisplayState == NativeWindowDisplayState.MINIMIZED)
         {
-            addEventListener("effectEnd", windowUnminimizeHandler);
+            addEventListener(EffectEvent.EFFECT_END, windowUnminimizeHandler);
             dispatchEvent(new Event("windowUnminimize"));
         }
     }
@@ -2769,7 +2785,7 @@ public class Window extends LayoutContainer implements IWindow
      */
     private function windowMaximizeHandler(event:Event):void
     {
-        removeEventListener("effectEnd", windowMaximizeHandler);
+        removeEventListener(EffectEvent.EFFECT_END, windowMaximizeHandler);
         if (!nativeWindow.closed)
         	stage.nativeWindow.maximize();
     }
@@ -2779,7 +2795,7 @@ public class Window extends LayoutContainer implements IWindow
      */
     private function windowUnmaximizeHandler(event:Event):void
     {
-        removeEventListener("effectEnd", windowUnmaximizeHandler);
+        removeEventListener(EffectEvent.EFFECT_END, windowUnmaximizeHandler);
         if (!nativeWindow.closed)
         	stage.nativeWindow.restore();
     }
@@ -3054,7 +3070,7 @@ public class Window extends LayoutContainer implements IWindow
      */
     private function window_closeEffectEndHandler(event:Event):void
     {
-        removeEventListener("effectEnd", window_closeEffectEndHandler);
+        removeEventListener(EffectEvent.EFFECT_END, window_closeEffectEndHandler);
         if (!nativeWindow.closed)
         	stage.nativeWindow.close();
     }
@@ -3073,7 +3089,7 @@ public class Window extends LayoutContainer implements IWindow
         else if (getStyle("closeEffect") &&
                  stage.nativeWindow.transparent == true)
         {
-            addEventListener("effectEnd", window_closeEffectEndHandler);
+            addEventListener(EffectEvent.EFFECT_END, window_closeEffectEndHandler);
             dispatchEvent(new Event("windowClose"));
             event.preventDefault();
         }

@@ -12,6 +12,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+
 import com.digitalbarista.cat.business.LayoutInfo;
 import com.digitalbarista.cat.data.LayoutInfoDO;
 
@@ -29,9 +31,12 @@ public interface LayoutManager {
 	@Path("/{uid}")
 	public void delete(@PathParam("uid") String uid, Integer version);
 	@GET
+	@Wrapped(element="Layouts")
 	public List<LayoutInfo> getLayoutsByCampaign(@QueryParam("campaignid") String uid);
+	@Path("/{campaign-uid}/{version}")
 	@GET
-	public List<LayoutInfo> getLayoutsByCampaignAndVersion(@QueryParam("campaignid") String uid,@QueryParam("version") Integer version);
+	@Wrapped(element="Layouts")
+	public List<LayoutInfo> getLayoutsByCampaignAndVersion(@PathParam("campaign-uid") String uid,@PathParam("version") Integer version);
 	@POST
 	public void save(LayoutInfo layout);
 }

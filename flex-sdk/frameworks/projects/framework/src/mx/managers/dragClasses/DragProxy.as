@@ -41,6 +41,8 @@ import mx.managers.SystemManager;
 import mx.styles.CSSStyleDeclaration;
 import mx.styles.StyleManager;
 
+use namespace mx_internal;
+
 [ExcludeClass]
 
 /**
@@ -649,7 +651,7 @@ public class DragProxy extends UIComponent
      */
     private function effectEndHandler(event:EffectEvent):void
     {
-        DragManager.mx_internal::endDrag();
+        DragManager.endDrag();
     }
 
 	/**
@@ -660,14 +662,8 @@ public class DragProxy extends UIComponent
 		if (!obj.visible)
 			return;
 
-		try
-		{
-			if (!obj[$visible])
-				return;
-		}
-		catch (e:Error)
-		{
-		}
+        if ((obj is UIComponent) && !UIComponent(obj).$visible)
+			return;
 
 		if (obj.hitTestPoint(pt.x, pt.y, true))
 		{
@@ -719,7 +715,6 @@ public class DragProxy extends UIComponent
 		}
 	}
 
-	private static var $visible:QName = new QName(mx_internal, "$visible");
 }
 
 }

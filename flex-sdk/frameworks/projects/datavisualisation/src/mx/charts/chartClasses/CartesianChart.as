@@ -1733,7 +1733,7 @@ public class CartesianChart extends ChartBase
                 
             for (i = 0; i < vLen; i++)
             {
-                _verticalAxisRenderers[i].heightLimit = verticalAxisRatio * unscaledHeight;
+                _verticalAxisRenderers[i].heightLimit = verticalAxisRatio * unscaledWidth;
             }
         }
         

@@ -7,10 +7,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Role;
 import com.digitalbarista.cat.business.User;
@@ -31,20 +34,32 @@ public interface UserManager {
 	@Path("/me")
 	public User getCurrentUser();
 	@GET
+	@Wrapped(element="Users")
 	public List<User> getAllVisibleUsers();
 	@POST
 	public User save(User existingUser);
 	@Path("/{id}/roles")
 	@POST
 	public void addRole(@PathParam("id") Long userPK,Role roleToAdd);
-	public void addRoles(Long userPK,Set<Role> rolesToAdd);
+	@Path("/{id}/roles")
+	@POST
+	public void addRoles(@PathParam("id") Long userPK,@Wrapped(element="Roles") Set<Role> rolesToAdd);
 	@Path("/{id}/roles")
 	@DELETE
 	public void removeRole(@PathParam("id") Long userPK,Role roleToRemove);
-	public void removeRoles(Long userPK,Set<Role> rolesToRemove);
-	public void syncRoles(Long userPK,Set<Role> roles);
-	public boolean allowUsername(String username);
-	public Set<String> usernamesAllowed(Set<String> nameList);
+	@Path("/{id}/roles")
+	@DELETE
+	public void removeRoles(@PathParam("id") Long userPK,@Wrapped(element="Roles") Set<Role> rolesToRemove);
+	@Path("/{id}/roles")
+	@PUT
+	public void syncRoles(@PathParam("id") Long userPK,@Wrapped(element="Roles") Set<Role> roles);
+	@Path("/available/{username}")
+	@GET
+	public boolean allowUsername(@PathParam("username") String username);
+	@Path("/available")
+	@POST
+	@Wrapped(element="Usernames")
+	public Set<String> usernamesAllowed(@Wrapped(element="Usernames") Set<String> nameList);
 	@DELETE
 	public void delete(User user);
 	public Set<Long> extractClientIds(String username);

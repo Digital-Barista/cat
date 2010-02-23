@@ -4,6 +4,7 @@ import javax.ejb.SessionContext;
 import javax.persistence.EntityManager;
 
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
 
@@ -13,14 +14,16 @@ public abstract class CATEventHandler {
 	private SessionContext sc;
 	private EventManager eventManager;
 	private CampaignManager campaignManager;
+	private ContactManager contactManager;
 	private EventTimerManager timer;
 	
-	protected CATEventHandler(EntityManager newEM, SessionContext newSC, EventManager newEventManager, CampaignManager newCampaignManager,EventTimerManager newTimer)
+	protected CATEventHandler(EntityManager newEM, SessionContext newSC, EventManager newEventManager, CampaignManager newCampaignManager,ContactManager newContactManager, EventTimerManager newTimer)
 	{
 		em=newEM;
 		sc=newSC;
 		eventManager=newEventManager;
 		campaignManager=newCampaignManager;
+		contactManager=newContactManager;
 		timer=newTimer;
 	}
 	
@@ -40,6 +43,10 @@ public abstract class CATEventHandler {
 
 	public CampaignManager getCampaignManager() {
 		return campaignManager;
+	}
+
+	public ContactManager getContactManager() {
+		return contactManager;
 	}
 
 	public EventTimerManager getTimer()

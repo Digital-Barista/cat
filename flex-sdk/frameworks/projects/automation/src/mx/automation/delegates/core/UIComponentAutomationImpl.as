@@ -13,28 +13,27 @@ package mx.automation.delegates.core
 {
 
 import flash.display.DisplayObject;
-import flash.geom.Point;
 import flash.display.DisplayObjectContainer;
-import flash.events.Event; 
+import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.FocusEvent;
-import flash.ui.Keyboard;
 import flash.events.KeyboardEvent;
-import flash.events.MouseEvent; 
+import flash.events.MouseEvent;
+import flash.geom.Point;
+import flash.ui.Keyboard;
 
 import mx.automation.Automation;
-import mx.automation.IAutomationObject;
 import mx.automation.IAutomationManager;
+import mx.automation.IAutomationObject;
 import mx.automation.IAutomationObjectHelper;
 import mx.automation.delegates.DragManagerAutomationImpl;
 import mx.automation.events.AutomationDragEvent;
-import mx.automation.events.AutomationRecordEvent;
+import mx.core.Container;
 import mx.core.EventPriority;
 import mx.core.IUIComponent;
 import mx.core.UIComponent;
 import mx.core.UIComponentGlobals;
 import mx.core.mx_internal;
-import mx.events.DragEvent;
 import mx.events.EffectEvent;
 import mx.events.FlexEvent;
 import mx.resources.IResourceManager;
@@ -94,12 +93,15 @@ public class UIComponentAutomationImpl extends EventDispatcher
         else
             obj.addEventListener(FlexEvent.CREATION_COMPLETE, creationCompleteHandler, false, 0, true);
 
-        obj.addEventListener(MouseEvent.CLICK, mouseClickHandler, false, EventPriority.DEFAULT+1, true);
+        //obj.addEventListener(MouseEvent.CLICK, mouseClickHandler, false, EventPriority.DEFAULT+1, true);
+        addMouseEvent(obj, MouseEvent.CLICK, mouseClickHandler,false,EventPriority.DEFAULT+1, true);
         obj.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler, false, EventPriority.DEFAULT+1, true);
         
         obj.addEventListener(EffectEvent.EFFECT_START, effectHandler, false, 0, true);
         obj.addEventListener(EffectEvent.EFFECT_END, effectHandler, false, 0, true);
     }
+    
+
     
     //--------------------------------------------------------------------------
     //
@@ -196,12 +198,16 @@ public class UIComponentAutomationImpl extends EventDispatcher
         {
             _recordClick = val;
             if (val)
-                uiComponent.addEventListener(MouseEvent.CLICK, mouseClickHandler);
+                //uiComponent.addEventListener(MouseEvent.CLICK, mouseClickHandler);
+                 addMouseEvent(uiComponent,MouseEvent.CLICK, mouseClickHandler);
             else
-                uiComponent.removeEventListener(MouseEvent.CLICK, mouseClickHandler);
+                //uiComponent.removeEventListener(MouseEvent.CLICK, mouseClickHandler);
+                 removeMouseEvent(uiComponent,MouseEvent.CLICK, mouseClickHandler);
         }
     }
 
+
+    
     /**
      *  @private
      */
@@ -217,7 +223,8 @@ public class UIComponentAutomationImpl extends EventDispatcher
     public function set showInAutomationHierarchy(value:Boolean):void
     {
         trace("Setting should not be done here");
-        IAutomationObject(uiComponent).showInAutomationHierarchy = value;
+		if(uiComponent is IAutomationObject)
+        	IAutomationObject(uiComponent).showInAutomationHierarchy = value;
     }
 
     /**
@@ -248,6 +255,43 @@ public class UIComponentAutomationImpl extends EventDispatcher
     {
         return _uiComponent as IAutomationObject;
     }
+    
+     /**
+     *  @private
+     */
+    protected function addMouseEvent(obj:DisplayObject, event:String, handler:Function , 
+    						useCapture:Boolean = false , priority:int = 0, useWeekRef:Boolean = false):void
+    {
+        if (obj is Container) 
+        {
+        	// special addevent listener on the container, which does not add the mouse shield.
+            Container(obj).$addEventListener(event, handler, useCapture,priority, useWeekRef);
+            //Container(obj).addEventListener(event, handler, useCapture,priority, useWeekRef);
+        }
+        else
+        {
+            obj.addEventListener(event, handler, useCapture,priority, useWeekRef);
+        }
+    } 
+    
+     /**
+     *  @private
+     */
+    protected function removeMouseEvent(obj:DisplayObject, event:String, handler:Function, useCapture:Boolean = false):void
+    {
+        if (obj is Container) 
+        {
+        	// special remove event listener on the container, corresponds to the special $addEventListener
+        	// which does not add the mouse shield.
+            Container(obj).$removeEventListener(event, handler,useCapture);
+           // Container(obj).removeEventListener(event, handler,useCapture);
+        }
+        else
+        {
+            obj.removeEventListener(event, handler,useCapture);
+        }
+    } 
+    
     /**
      *  @private
      *  Dispatch a replayable interaction.
@@ -312,7 +356,9 @@ public class UIComponentAutomationImpl extends EventDispatcher
 
             ke = new KeyboardEvent(KeyboardEvent.KEY_UP);
             ke.keyCode = Keyboard.TAB;
-            return UIComponent(uiComponent).getFocus().dispatchEvent(ke);
+            if(UIComponent(uiComponent) && UIComponent(uiComponent).getFocus())
+            	return UIComponent(uiComponent).getFocus().dispatchEvent(ke);
+            return false;
         }
         else if (event is AutomationDragEvent)
             return DragManagerAutomationImpl.replayAutomatableEvent(uiAutomationObject, event);
@@ -420,8 +466,14 @@ public class UIComponentAutomationImpl extends EventDispatcher
     /**
      *  @private
      */
-    private function effectHandler(event:EffectEvent):void
+    private function effectHandler(ev:Event):void
     {
+    	/*...Change for Marshalling Support ...*/
+    	// only the events coming from the same applicaiton
+    	// needs to handled.
+    	var event:EffectEvent = ev as  EffectEvent;
+    	if(event == null)
+    		return ;
         if(event.type == EffectEvent.EFFECT_START)
         {
             effectsPlaying = true;

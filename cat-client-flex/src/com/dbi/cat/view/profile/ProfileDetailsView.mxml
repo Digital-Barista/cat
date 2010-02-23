@@ -36,18 +36,18 @@
 			user="{currentUser}"
 			right="0" left="5" top="30" bottom="54">
 		</profile:UserInformationView>
-			<mx:Button label="Edit"
-				click="editUser()"  x="320" y="155"/>
-			<mx:Label x="10" y="10" text="User Information" fontWeight="bold" fontSize="12"/>
+		<mx:Button label="Edit"
+			click="editUser()"  x="320" y="155"/>
+		<mx:Label x="10" y="10" text="User Information" fontWeight="bold" fontSize="12"/>
 	</mx:Canvas>
-	<mx:Canvas width="400" horizontalCenter="0" top="211" height="225" borderStyle="solid" cornerRadius="5" borderThickness="3">
+	<mx:Canvas width="400" horizontalCenter="0" top="211" height="260" borderStyle="solid" cornerRadius="5" borderThickness="3">
 		<profile:ClientInformationView
 			id="ClientInfo"
 			client="{currentClient}"
 			left="5" top="30" bottom="40" right="0">
 		</profile:ClientInformationView>
-			<mx:Button label="Edit"
-				click="editClient()"  x="320" y="187"/>
-			<mx:Label x="10" y="10" text="Client Information" fontWeight="bold" fontSize="12"/>
+		<mx:Button label="Edit"
+			click="editClient()" bottom="10" right="10"/>
+		<mx:Label x="10" y="10" text="Client Information" fontWeight="bold" fontSize="12"/>
 	</mx:Canvas>
 </mx:Panel>

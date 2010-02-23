@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Node xmlns="com.dbi.cat.view.workspace.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:components="com.dbi.cat.view.components.*"
+	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
+	width="400" height="300" xmlns:vo="com.dbi.cat.vo.*"
+	editWindowHeight="400"
+	editWindowWidth="500"
+	displayIcon="{taggingIcon}"
+	workspaceIcon="{taggingIcon}"
+	label="Tagging"
+	xmlns:contacts="com.dbi.cat.view.contacts.*"
+	creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.common.constants.ContactTagType;
+			import com.dbi.cat.common.vo.ContactTagVO;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.vo.TaggingNodeVO;
+			import com.dbi.cat.common.constants.CampaignMode;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import mx.events.ChildExistenceChangedEvent;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.CampaignVO;
+			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.common.vo.LayoutInfoVO;
+			
+			[Bindable(event="nodeUpdate")]
+			public function get taggingNodeVO():TaggingNodeVO
+			{
+				return editNodeVO as TaggingNodeVO;
+			}
+			public function set taggingNodeVO(m:TaggingNodeVO):void
+			{
+				nodeVO = m;
+				if (taggingNodeVO != null)
+					Tags.selectedTags = taggingNodeVO.tags;
+			}
+			
+			override public function get valid():Boolean
+			{
+				return taggingNodeVO != null && taggingNodeVO.valid;
+			}
+			
+			private function init():void
+			{
+				editWindow.verticalScrollPolicy = "on";
+				Tags.addEventListener("checkboxChanged", onTagChanged);
+			}
+			private function addTag():void
+			{
+				if (NewTag.text.length > 0)
+				{
+					var clientId:String = workspace.campaign.clientPK.toString();
+					
+					var tag:ContactTagVO = new ContactTagVO();
+					tag.tag = NewTag.text;
+					tag.type = ContactTagType.USER;
+					tag.clientId = clientId;
+					
+					var event:ContactEvent = new ContactEvent(ContactEvent.SAVE_CONTACT_TAG);
+					event.contactTag = tag;
+					dispatchEvent(event);
+				}
+			}
+			private function onTagChanged(e:Event):void
+			{
+				taggingNodeVO.tags = Tags.selectedTags;
+			}
+		]]>
+	</mx:Script>
+	<editContent>
+		<mx:VBox width="100%">
+			<mx:HBox width="100%">
+				<mx:Label text="Title" />
+				<mx:TextInput id="Title" width="100%"
+					text="{taggingNodeVO.name}"
+					change="{taggingNodeVO.name = Title.text}" />
+			</mx:HBox>
+			<mx:HBox width="100%" verticalAlign="middle"
+				horizontalAlign="center"
+				borderStyle="solid" cornerRadius="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+				<mx:Label text="New Tag" fontWeight="bold" />
+				<mx:TextInput id="NewTag" width="100%" />
+				<mx:Button label="Create Tag"
+					click="addTag()" />
+			</mx:HBox>
+			<contacts:TagChooser id="Tags"
+				width="470" />
+		</mx:VBox>
+	</editContent>
+</Node>

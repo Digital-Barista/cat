@@ -4,5 +4,7 @@ public enum NodeType {
 	Entry,
 	Message,
 	Termination,
-	Coupon
+	Coupon,
+	OutgoingEntry,
+	Tagging
 }

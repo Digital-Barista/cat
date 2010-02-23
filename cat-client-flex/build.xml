@@ -91,6 +91,13 @@
 	<target name="dev.copy.swf" depends="set.cat.web.home">
 		<delete dir="${cat.web.home}/WebContent/client"/>
 		<copy todir="${cat.web.home}/WebContent/client">
+			<fileset dir="deploy">
+				<include name="**/*"/>
+				<exclude name=".svn"/>
+				<exclude name="**/.svn"/>
+			</fileset>
+		</copy>
+		<copy todir="${cat.web.home}/WebContent/client">
 			<fileset dir="bin-debug">
 				<include name="**/*"/>
 				<exclude name=".svn"/>

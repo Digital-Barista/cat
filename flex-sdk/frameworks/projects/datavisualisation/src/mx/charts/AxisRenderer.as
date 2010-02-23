@@ -2580,7 +2580,7 @@ public class AxisRenderer extends DualStyleObject implements IAxisRenderer
             if (!_labelRenderer)
             {
                 _labelCache.properties =
-                    { embedFonts: embedFonts, selectable: false, styleName: this };
+                    { embedFonts: embedFonts, selectable: false, styleName: this, autoSize: "left" };
             }
             else
             {
@@ -3298,7 +3298,7 @@ public class AxisRenderer extends DualStyleObject implements IAxisRenderer
             measuringField.gridFitType = tf.gridFitType;
             measuringField.sharpness = tf.sharpness;
             measuringField.thickness = tf.thickness;
-            
+
             measuringField.autoSize = "left";
             measuringField.embedFonts =
                 systemManager && systemManager.isFontFaceEmbedded(tf);

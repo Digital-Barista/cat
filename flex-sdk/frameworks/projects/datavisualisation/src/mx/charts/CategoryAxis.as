@@ -153,10 +153,13 @@ public class CategoryAxis extends AxisBase implements IAxis
      */
     override public function set chartDataProvider(value:Object):void
     {
-        _chartDataProvider = value;
+		if(_chartDataProvider != value)
+		{
+        	_chartDataProvider = value;
 
-        if (!_userDataProvider)
-            workingDataProvider = _chartDataProvider;
+	        if (!_userDataProvider)
+    	        workingDataProvider = _chartDataProvider;
+		}
     }
     
     //--------------------------------------------------------------------------

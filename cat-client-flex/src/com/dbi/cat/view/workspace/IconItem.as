@@ -17,8 +17,14 @@ package com.dbi.cat.view.workspace
         [Embed("/assets/swf/house.swf")]
         public static const entryPointIcon:Class;
         
+        [Embed("/assets/swf/outgoing_entry_point.swf")]
+        public static const outgoingEntryPointIcon:Class;
+        
         [Embed("/assets/swf/envelope.swf")]
         public static const messageIcon:Class;
+        
+        [Embed("/assets/swf/tagging_node.swf")]
+        public static const taggingIcon:Class;
         
         [Embed("/assets/swf/barcode.swf")]
         public static const couponIcon:Class;
@@ -52,6 +58,9 @@ package com.dbi.cat.view.workspace
         
         [Embed("/assets/swf/exclamation_point.swf")]
         public static const exclamationPointIcon:Class;
+        
+        [Embed("/assets/swf/subscribe_contacts.swf")]
+        public static const subscribeContactsIcon:Class;
         
         // UIComponents
 		private var _displayLoader:SWFLoader;

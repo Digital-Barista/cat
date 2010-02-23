@@ -6,9 +6,11 @@ include "../src/mx/automation/AutomationError.as";
 
 // interfaces
 include "../src/mx/automation/IAutomationClass.as";
+include "../src/mx/automation/IAutomationClass2.as";
 include "../src/mx/automation/IAutomationEnvironment.as";
 include "../src/mx/automation/IAutomationEventDescriptor.as";
 include "../src/mx/automation/IAutomationManager.as";
+include "../src/mx/automation/IAutomationManager2.as";
 include "../src/mx/automation/IAutomationMethodDescriptor.as";
 include "../src/mx/automation/IAutomationMouseSimulator.as";
 // uncomment out this line if building ASDoc just for automation.
@@ -30,8 +32,10 @@ include "../src/mx/automation/events/AutomationRecordEvent.as";
 include "../src/mx/automation/events/AutomationReplayEvent.as";
 include "../src/mx/automation/events/ChartSelectionChangeEvent.as";
 include "../src/mx/automation/events/ListItemSelectEvent.as";
+include "../src/mx/automation/events/MarshalledAutomationEvent.as";
 include "../src/mx/automation/events/MenuShowEvent.as";
 include "../src/mx/automation/events/TextSelectionEvent.as";
+
 
 
 // delegates

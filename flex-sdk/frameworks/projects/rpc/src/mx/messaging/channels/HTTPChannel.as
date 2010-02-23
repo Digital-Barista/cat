@@ -29,6 +29,7 @@ import mx.messaging.channels.amfx.AMFXEncoder;
 import mx.messaging.channels.amfx.AMFXHeader;
 import mx.messaging.channels.amfx.AMFXResult;
 import mx.messaging.config.ConfigMap;
+import mx.messaging.config.LoaderConfig;
 import mx.messaging.config.ServerConfig;
 import mx.messaging.errors.MessageSerializationError;
 import mx.messaging.events.ChannelFaultEvent;
@@ -41,6 +42,7 @@ import mx.messaging.messages.HTTPRequestMessage;
 import mx.messaging.messages.IMessage;
 import mx.messaging.messages.MessagePerformanceInfo;
 import mx.messaging.messages.MessagePerformanceUtils;
+import mx.netmon.NetworkMonitor;
 import mx.utils.ObjectUtil;
 import mx.utils.StringUtil;
 
@@ -476,6 +478,8 @@ public class HTTPChannel extends PollingChannel
             result.url = endpoint + _appendToURL;
         else
             result.url = endpoint;
+            
+        monitorRpcMessage(message, result);
 
         result.contentType = HTTPRequestMessage.CONTENT_TYPE_XML;
 
@@ -484,6 +488,21 @@ public class HTTPChannel extends PollingChannel
         result.method = "POST";
 
         return result;
+    }
+
+    /**
+     * Change the result url to redirect request to Network Monitor
+     */
+    private function monitorRpcMessage(message:IMessage, result:URLRequest):void
+    {
+        if (NetworkMonitor.isMonitoring())
+        {
+            var redirectedUrl:String = NetworkMonitor.adjustNetConnectionURL(LoaderConfig.url, result.url);
+            if (redirectedUrl != null)
+            {
+                result.url = redirectedUrl;
+            }
+        }
     }
 
     //--------------------------------------------------------------------------

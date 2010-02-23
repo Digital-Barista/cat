@@ -60,10 +60,10 @@ public class User implements BusinessObject<UserDO>{
 		this.password = password;
 	}
 	@XmlAttribute
-	public Boolean isActive() {
+	public Boolean getIsActive() {
 		return active;
 	}
-	public void setActive(Boolean active) {
+	public void setIsActive(Boolean active) {
 		this.active = active;
 	}
 	@XmlAttribute(name="id")

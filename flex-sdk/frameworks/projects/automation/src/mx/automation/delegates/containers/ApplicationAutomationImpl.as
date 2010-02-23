@@ -13,17 +13,15 @@ package mx.automation.delegates.containers
 {
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
-import flash.events.Event;
 
 import mx.automation.Automation;
+import mx.automation.AutomationManager;
+import mx.automation.IAutomationManager2;
 import mx.automation.IAutomationObject;
-import mx.automation.IAutomationObjectHelper;
 import mx.automation.delegates.core.ContainerAutomationImpl;
+import mx.containers.ApplicationControlBar;
 import mx.core.Application;
 import mx.core.mx_internal;
-import mx.core.IUIComponent;
-import mx.events.FlexEvent;
-
 use namespace mx_internal;
 
 [Mixin]
@@ -70,6 +68,8 @@ public class ApplicationAutomationImpl extends ContainerAutomationImpl
     {
         super(obj);
         recordClick = true;
+        var am:IAutomationManager2 = Automation.automationManager2;
+        am.registerNewApplication(obj);
     }
     
     /**
@@ -80,6 +80,14 @@ public class ApplicationAutomationImpl extends ContainerAutomationImpl
         return uiComponent as Application;      
     }
     
+    /**
+     *  @private
+     */
+    override public function get automationName():String
+    {
+	     var am:IAutomationManager2 = Automation.automationManager2;
+	     return am.getUniqueApplicationId();
+    }
     /**
      *  @private
      */
@@ -110,6 +118,114 @@ public class ApplicationAutomationImpl extends ContainerAutomationImpl
             {
             }
         }
+    }
+    
+     
+    /**
+     *  @private
+     */
+    private function getDockedControlBar(index:int):IAutomationObject
+    {
+        var dockedApplicationControlBarsFound:int = 0;
+        
+        // number of docked application control bars
+        // get its row children and see how many docked application control 
+        // bars are present
+        var rowChildrenCount:int = application.rawChildren.numChildren;
+        for ( var childPos:int=0 ;childPos < rowChildrenCount; childPos++)
+        {
+            var currentObject:ApplicationControlBar = 
+                application.rawChildren.getChildAt(childPos) as ApplicationControlBar;
+            if( currentObject)
+            {
+                if(currentObject.dock == true)
+                {
+                    if(dockedApplicationControlBarsFound == index)
+                    {
+                        return currentObject as IAutomationObject;
+                    }
+                    else
+                    {
+                        dockedApplicationControlBarsFound++;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
+    
+     /**
+     *  @private
+     */
+    //----------------------------------
+    //  getDockedApplicationControlBarCount
+    //----------------------------------
+     /* this method is written to get the docked application control bars separately
+     as they are not part of the numChildren and get childAt.
+     but we need these objcts as part of them to get the event from these
+     properly recorded
+     */
+    private function getDockedApplicationControlBarCount():int
+    {
+        var dockedApplicationControlBars:int = 0;
+        
+        // number of docked application control bars
+        // get its row children and see how many docked application control 
+        // bars are present
+        var rowChildrenCount:int = application.rawChildren.numChildren;
+        for ( var index:int=0 ;index < rowChildrenCount; index++)
+        {
+            var currentObject:ApplicationControlBar = 
+                application.rawChildren.getChildAt(index) as ApplicationControlBar;
+            if( currentObject)
+            {
+                if(currentObject.dock == true)
+                {
+                    dockedApplicationControlBars++;
+                }
+            }
+        }
+        
+        return dockedApplicationControlBars;
+    }
+    
+    override public function get numAutomationChildren():int
+    {
+    	
+        var am:IAutomationManager2 = Automation.automationManager2;
+
+        return application.numChildren + application.numRepeaters + 
+        	getDockedApplicationControlBarCount() +am.getPopoupChildrenCount();
+    }
+    
+    
+    override public function getAutomationChildAt(index:int):IAutomationObject
+    {
+    	 var am:IAutomationManager2 = Automation.automationManager2;
+    	// handle popup objects
+    	var popUpCount:int = am.getPopoupChildrenCount();
+    	if(index < popUpCount)
+    		return am.getPopoupChildObject(index) ;
+    	else
+    		 index = index - popUpCount;
+    	
+    	// get the 	 DockedApplicationControl details
+        var dockedApplicationBarNumbers:int = getDockedApplicationControlBarCount();
+        if(index < dockedApplicationBarNumbers)
+            return (getDockedControlBar(index) as IAutomationObject);
+        else
+            index = index - dockedApplicationBarNumbers ;
+            
+            
+        if (index < application.numChildren)
+        {
+            var d:Object = application.getChildAt(index);
+            return d as IAutomationObject;
+        }   
+        
+        var r:Object = application.childRepeaters[index - application.numChildren];
+        return r as IAutomationObject;
     }
     
 }

@@ -14,7 +14,21 @@ FormattedComboBox
 	disabledSkin:ClassReference("com.dbi.skins.BlankSkin");
 	disabledColor:#000000;
 }
+ProgressBar
+{
+	barColor:#B2DC32;
+}
+RowIndex
+{
+	color:#CCCCCC;
+}
 
+
+.tagMessage
+{
+	fontSize:14;
+	backgroundColor:#C9CED1;
+}
 .navBar
 {
 }
@@ -80,4 +94,10 @@ FormattedComboBox
 {
 	fontSize:12;
 	fontWeight:bold;
+}
+
+.selectedNavButton
+{
+	fontSize:16;
+	disabledColor:#FFFFFF;
 }

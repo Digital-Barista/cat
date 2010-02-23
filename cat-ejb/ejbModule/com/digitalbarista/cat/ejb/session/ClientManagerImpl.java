@@ -24,6 +24,7 @@ import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
@@ -32,12 +33,15 @@ import org.jboss.annotation.security.RunAsPrincipal;
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
 import com.digitalbarista.cat.audit.AuditType;
+import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.Client;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
 import com.digitalbarista.cat.business.KeywordLimit;
 import com.digitalbarista.cat.business.ReservedKeyword;
 import com.digitalbarista.cat.business.User;
+import com.digitalbarista.cat.data.AddInMessageDO;
+import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointDO;
@@ -92,11 +96,20 @@ public class ClientManagerImpl implements ClientManager {
     }
     
     @SuppressWarnings("unchecked")
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin", "client"})
 	public List<EntryPointDefinition> getEntryPointDefinitions() {
     	List<EntryPointDefinition> ret = new ArrayList<EntryPointDefinition>();
-    	Query q = em.createQuery("select e from EntryPointDO e");
-    	for(EntryPointDO entry : (List<EntryPointDO>)q.getResultList())
+    	
+    	Criteria crit = session.createCriteria(EntryPointDO.class);
+		
+		// Limit query by allowed clients if necessary
+    	if(!ctx.isCallerInRole("admin"))
+    	{
+    		crit.createAlias("clients", "clients");
+    		crit.add(Restrictions.in("clients.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+    	}
+    	
+    	for(EntryPointDO entry : (List<EntryPointDO>)crit.list())
     	{
         	EntryPointDefinition epd = new EntryPointDefinition();
     		epd.copyFrom(entry);
@@ -187,6 +200,9 @@ public class ClientManagerImpl implements ClientManager {
 			}
 		}
 		
+		// Save client
+		em.persist(c);
+		
 		// Update keyword limits
 		if (client.getKeywordLimits() != null)
 		{
@@ -201,11 +217,44 @@ public class ClientManagerImpl implements ClientManager {
 				keyDO.setClient(c);
 				kl.copyTo(keyDO);
 				em.persist(keyDO);
+				if (c.getKeywordLimits() == null)
+					c.setKeywordLimits(new HashSet<KeywordLimitDO>());
 				c.getKeywordLimits().add(keyDO);
 			}
 		}
 		
-		em.persist(c);
+		// Update add in messages
+		if (client.getAddInMessages() != null)
+		{
+			for (AddInMessage add : client.getAddInMessages())
+			{
+					
+				// Get existing or new data object
+				AddInMessageDO addDO = null;
+				if (add.getAddInMessageId() != null)
+					addDO = em.find(AddInMessageDO.class, add.getAddInMessageId());
+				if (addDO == null)
+					addDO = new AddInMessageDO();
+
+				// Make sure only admins are trying to modify ADMIN add in messages
+				if ( (addDO.getAddInMessageId() == null ||
+					!addDO.getMessage().equals(add.getMessage()) ) &&
+					add.getType() == AddInMessageType.ADMIN &&
+					!ctx.isCallerInRole("admin") )
+					throw new SecurityException("You do not have permission to create this type of add in message");
+				
+				// Update and persist object
+				addDO.setClient(c);
+				add.copyTo(addDO);
+				em.persist(addDO);
+				
+				// Add message to client list
+				if (c.getAddInMessages() == null)
+					c.setAddInMessages(new HashSet<AddInMessageDO>());
+				c.getAddInMessages().add(addDO);
+			}
+		}
+		
 		em.flush();
 		Client ret = new Client();
 		ret.copyFrom(c);
@@ -214,7 +263,7 @@ public class ClientManagerImpl implements ClientManager {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	@RolesAllowed({"admin","account.manager"})
+	@RolesAllowed({"admin","account.manager", "client"})
 	public Keyword save(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
@@ -303,12 +352,20 @@ public class ClientManagerImpl implements ClientManager {
 	}
 
 	@Override
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin", "client"})
 	public List<Keyword> getAllKeywords() {
 		Query q = em.createQuery("select k from KeywordDO k");
 		List<Keyword> ret = new ArrayList<Keyword>();
+		
+		Criteria crit = session.createCriteria(KeywordDO.class);
+		
+		// Limit query by allowed clients if necessary
+    	if(!ctx.isCallerInRole("admin"))
+    		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+		
+		
 		Keyword temp;
-		for(KeywordDO keyword : (List<KeywordDO>)q.getResultList())
+		for(KeywordDO keyword : (List<KeywordDO>)crit.list())
 		{
 			temp=new Keyword();
 			temp.copyFrom(keyword);

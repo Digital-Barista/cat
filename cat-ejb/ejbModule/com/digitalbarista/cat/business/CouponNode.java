@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import org.apache.log4j.LogManager;
 
@@ -17,7 +18,8 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 
-@XmlRootElement
+@XmlRootElement(name="CouponNode")
+@XmlType(name="CouponNode")
 public class CouponNode extends Node implements Auditable {
 
 	private static String dateFormat = "MM/dd/yyyy HH:mm:ss";
