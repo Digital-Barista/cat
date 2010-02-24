@@ -187,9 +187,7 @@ public class MessageManagerImpl implements MessageManager {
 	
 	private Integer getNumDigits(Integer value)
 	{
-		Integer ret = 1;
-		if (value > 0)
-			ret = 1 + (int)(Math.log(value) / Math.log(10));
+		Integer ret = value.toString().replace("-", "").length();
 		return ret;
 	}
 }
