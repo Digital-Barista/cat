@@ -2,7 +2,8 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -28,7 +29,6 @@ import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
-import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.PagingInfo;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.ClientDO;
@@ -255,8 +255,8 @@ public class ContactManagerImpl implements ContactManager {
 			for (ContactTag tag : tags)
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
-				if (!cDO.getContactTags().contains(tagDO))
-					cDO.getContactTags().add(tagDO);
+				if (!cDO.getContactTags().containsKey(tagDO))
+					cDO.getContactTags().put(tagDO,new Date());
 			}
 			em.persist(cDO);
 		}
@@ -271,7 +271,7 @@ public class ContactManagerImpl implements ContactManager {
 			for (ContactTag tag : tags)
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
-				if (cDO.getContactTags().contains(tagDO))
+				if (cDO.getContactTags().containsKey(tagDO))
 					cDO.getContactTags().remove(tagDO);
 			}
 			em.persist(cDO);
@@ -298,10 +298,10 @@ public class ContactManagerImpl implements ContactManager {
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
 				if (cDO.getContactTags() == null)
-					cDO.setContactTags(new HashSet<ContactTagDO>());
+					cDO.setContactTags(new HashMap<ContactTagDO,Date>());
 				
-				if (!cDO.getContactTags().contains(tagDO))
-					cDO.getContactTags().add(tagDO);
+				if (!cDO.getContactTags().containsKey(tagDO))
+					cDO.getContactTags().put(tagDO,new Date());
 			}
 			
 			// Add persisted contact to return list
@@ -370,9 +370,9 @@ public class ContactManagerImpl implements ContactManager {
 				// Add tag to all matching contacts
 				for (ContactDO c : contacts)
 				{
-					if (!c.getContactTags().contains(tag))
+					if (!c.getContactTags().containsKey(tag))
 					{
-						c.getContactTags().add(tag);
+						c.getContactTags().put(tag,new Date());
 						em.persist(c);
 					}
 				}

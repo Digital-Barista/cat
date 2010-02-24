@@ -1,6 +1,5 @@
 package com.digitalbarista.cat.ejb.session;
 
-import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.type.CollectionType;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 

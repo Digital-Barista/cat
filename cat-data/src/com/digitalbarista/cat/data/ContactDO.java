@@ -2,7 +2,8 @@ package com.digitalbarista.cat.data;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Set;
+import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,12 +15,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.OrderBy;
+import org.hibernate.annotations.CollectionOfElements;
+import org.hibernate.annotations.MapKeyManyToMany;
 
 /**
  * Entity implementation class for Contact: ContactDO
@@ -36,7 +36,7 @@ public class ContactDO implements DataObject,Serializable {
 	private Calendar createDate;
 	private ClientDO client;
 	private EntryPointType type;
-	private Set<ContactTagDO> contactTags;
+	private Map<ContactTagDO,Date> contactTags;
 	
 	public ContactDO() {
 		super();
@@ -54,17 +54,18 @@ public class ContactDO implements DataObject,Serializable {
 	}
 
 
-	@ManyToMany(targetEntity=ContactTagDO.class,fetch=FetchType.LAZY)
+	@CollectionOfElements(targetElement=Date.class)
+	@MapKeyManyToMany(targetEntity=ContactTagDO.class,joinColumns=@JoinColumn(name="contact_tag_id"))
 	@JoinTable(
 		name="contact_tag_link",
-		joinColumns=@JoinColumn(name="contact_id"),
-		inverseJoinColumns=@JoinColumn(name="contact_tag_id")
+		joinColumns=@JoinColumn(name="contact_id")
 	)
-	public Set<ContactTagDO> getContactTags() {
+	@JoinColumn(name="initial_tag_date")
+	public Map<ContactTagDO,Date> getContactTags() {
 		return contactTags;
 	}
 
-	public void setContactTags(Set<ContactTagDO> contactTags) {
+	public void setContactTags(Map<ContactTagDO,Date> contactTags) {
 		this.contactTags = contactTags;
 	}
 

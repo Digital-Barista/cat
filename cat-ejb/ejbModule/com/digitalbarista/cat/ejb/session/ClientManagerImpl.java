@@ -24,7 +24,6 @@ import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
@@ -39,7 +38,6 @@ import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
 import com.digitalbarista.cat.business.KeywordLimit;
 import com.digitalbarista.cat.business.ReservedKeyword;
-import com.digitalbarista.cat.business.User;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
@@ -49,8 +47,6 @@ import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.KeywordDO;
 import com.digitalbarista.cat.data.KeywordLimitDO;
 import com.digitalbarista.cat.data.ReservedKeywordDO;
-import com.digitalbarista.cat.data.RoleDO;
-import com.digitalbarista.cat.data.UserDO;
 import com.digitalbarista.cat.exception.FlexException;
 
 /**

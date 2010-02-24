@@ -1,16 +1,16 @@
 package com.digitalbarista.cat.business;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.EntryPointType;
-import com.digitalbarista.cat.data.RoleDO;
 
 @XmlRootElement
 public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
@@ -73,10 +73,11 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 		contactTags = new HashSet<ContactTag>();
 		if (dataObject.getContactTags() != null)
 		{
-			for (ContactTagDO tag : dataObject.getContactTags())
+			for (Map.Entry<ContactTagDO,Date> tag : dataObject.getContactTags().entrySet())
 			{
 				ContactTag temp = new ContactTag();
-				temp.copyFrom(tag);
+				temp.copyFrom(tag.getKey());
+				temp.setTagDate(tag.getValue());
 				contactTags.add(temp);
 			}
 		}

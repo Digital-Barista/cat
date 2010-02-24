@@ -13,6 +13,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.digitalbarista.cat.audit.IncomingMessageEntryDO;
+import com.digitalbarista.cat.audit.IncomingMessageEntryDO.KeywordMatchType;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Contact;
@@ -271,7 +272,12 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				return;
 			
 			//But otherwise . . . we found it, and here we go.
-			//First . . . clear the blacklist.
+			//First . . . audit the match.
+			auditEntry.setMatchedType(KeywordMatchType.Node);
+			auditEntry.setMatchedUID(en.getUid());
+			auditEntry.setMatchedVersion(camp.getCurrentVersion()-1);
+			
+			//Second . . . clear the blacklist.
 			q = getEntityManager().createNamedQuery("blacklist.entry");
 			q.setParameter("subID", sub.getPrimaryKey());
 			q.setParameter("address", mostLikelyEntry.getEntryPoint());
@@ -336,6 +342,11 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 							default:
 								continue;
 						}
+						//Don't forget to audit this hit.
+						auditEntry.setMatchedType(KeywordMatchType.Connector);
+						auditEntry.setMatchedUID(rConn.getUid());
+						auditEntry.setMatchedVersion(publishedVersion);
+						
 						CATEvent fireConnectorEvent = CATEvent.buildFireConnectorForSubscriberEvent(rConn.getUid(), sub.getPrimaryKey().toString());
 						getEventManager().queueEvent(fireConnectorEvent);
 						return;

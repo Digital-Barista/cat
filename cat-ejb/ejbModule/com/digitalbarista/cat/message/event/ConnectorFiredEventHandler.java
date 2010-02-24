@@ -1,44 +1,23 @@
 package com.digitalbarista.cat.message.event;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.ejb.SessionContext;
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.jboss.util.NotImplementedException;
 
 import com.digitalbarista.cat.business.Connector;
-import com.digitalbarista.cat.business.ContactTag;
-import com.digitalbarista.cat.business.CouponNode;
-import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
-import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.data.CampaignDO;
-import com.digitalbarista.cat.data.ContactDO;
-import com.digitalbarista.cat.data.ContactTagDO;
-import com.digitalbarista.cat.data.CouponCounterDO;
-import com.digitalbarista.cat.data.CouponOfferDO;
-import com.digitalbarista.cat.data.CouponResponseDO;
-import com.digitalbarista.cat.data.EntryPointType;
-import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
-import com.digitalbarista.cat.data.CouponResponseDO.Type;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
 import com.digitalbarista.cat.message.event.connectorfire.ConnectorFireHandler;
-import com.digitalbarista.cat.util.SequentialBitShuffler;
 
 public class ConnectorFiredEventHandler extends CATEventHandler {
 

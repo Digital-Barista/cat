@@ -2,6 +2,7 @@ package com.digitalbarista.cat.message.event.connectorfire;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -60,7 +61,9 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 			con.setCreateDate(Calendar.getInstance());
 			em.persist(con);
 		}
-		con.getContactTags().addAll(tags);
+		Date newDate = new Date();
+		for(ContactTagDO tag : tags)
+			con.getContactTags().put(tag,newDate);
 		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 

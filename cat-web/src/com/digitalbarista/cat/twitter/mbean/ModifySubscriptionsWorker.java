@@ -1,8 +1,5 @@
 package com.digitalbarista.cat.twitter.mbean;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
@@ -13,7 +10,6 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.springframework.context.ApplicationContext;
 
-import com.digitalbarista.cat.twitter.bindings.IdList;
 import com.digitalbarista.cat.twitter.bindings.Tweeter;
 import com.digitalbarista.cat.twitter.mbean.TwitterAccountPollManager.SubscribeAction;
 import com.digitalbarista.cat.twitter.mbean.TwitterAccountPollManager.SubscribeType;

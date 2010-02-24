@@ -1,12 +1,12 @@
 package com.digitalbarista.cat.business;
 
+import java.util.Date;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.ContactTagType;
-import com.digitalbarista.cat.data.EntryPointType;
 
 @XmlType
 public class ContactTag  implements BusinessObject<ContactTagDO>
@@ -15,8 +15,15 @@ public class ContactTag  implements BusinessObject<ContactTagDO>
 	private String tag;
 	private ContactTagType type;
 	private Long clientId;
+	private Date tagDate;
 	
 
+	public Date getTagDate() {
+		return tagDate;
+	}
+	public void setTagDate(Date tagDate) {
+		this.tagDate = tagDate;
+	}
 	@XmlAttribute
 	public Long getClientId() {
 		return clientId;

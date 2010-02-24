@@ -1,24 +1,12 @@
 package com.digitalbarista.cat.business;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
-import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
-import com.digitalbarista.cat.data.ClientDO;
-import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.EntryPointType;
-import com.digitalbarista.cat.data.KeywordLimitDO;
 
 @XmlRootElement
 public class AddInMessage implements

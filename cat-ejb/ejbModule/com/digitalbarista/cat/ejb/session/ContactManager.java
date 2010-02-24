@@ -15,7 +15,6 @@ import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
-import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.PagingInfo;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.ContactTagType;
