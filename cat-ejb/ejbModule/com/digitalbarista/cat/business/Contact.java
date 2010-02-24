@@ -73,11 +73,10 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 		contactTags = new HashSet<ContactTag>();
 		if (dataObject.getContactTags() != null)
 		{
-			for (Map.Entry<ContactTagDO,Date> tag : dataObject.getContactTags().entrySet())
+			for (ContactTagDO tag : dataObject.getContactTags())
 			{
 				ContactTag temp = new ContactTag();
-				temp.copyFrom(tag.getKey());
-				temp.setTagDate(tag.getValue());
+				temp.copyFrom(tag);
 				contactTags.add(temp);
 			}
 		}

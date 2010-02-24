@@ -3,7 +3,7 @@ package com.digitalbarista.cat.ejb.session;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -255,8 +255,8 @@ public class ContactManagerImpl implements ContactManager {
 			for (ContactTag tag : tags)
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
-				if (!cDO.getContactTags().containsKey(tagDO))
-					cDO.getContactTags().put(tagDO,new Date());
+				if (!cDO.getContactTags().contains(tagDO))
+					cDO.getContactTags().add(tagDO);
 			}
 			em.persist(cDO);
 		}
@@ -271,7 +271,7 @@ public class ContactManagerImpl implements ContactManager {
 			for (ContactTag tag : tags)
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
-				if (cDO.getContactTags().containsKey(tagDO))
+				if (cDO.getContactTags().contains(tagDO))
 					cDO.getContactTags().remove(tagDO);
 			}
 			em.persist(cDO);
@@ -298,10 +298,10 @@ public class ContactManagerImpl implements ContactManager {
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
 				if (cDO.getContactTags() == null)
-					cDO.setContactTags(new HashMap<ContactTagDO,Date>());
+					cDO.setContactTags(new HashSet<ContactTagDO>());
 				
-				if (!cDO.getContactTags().containsKey(tagDO))
-					cDO.getContactTags().put(tagDO,new Date());
+				if (!cDO.getContactTags().contains(tagDO))
+					cDO.getContactTags().add(tagDO);
 			}
 			
 			// Add persisted contact to return list
@@ -370,9 +370,9 @@ public class ContactManagerImpl implements ContactManager {
 				// Add tag to all matching contacts
 				for (ContactDO c : contacts)
 				{
-					if (!c.getContactTags().containsKey(tag))
+					if (!c.getContactTags().contains(tag))
 					{
-						c.getContactTags().put(tag,new Date());
+						c.getContactTags().add(tag);
 						em.persist(c);
 					}
 				}

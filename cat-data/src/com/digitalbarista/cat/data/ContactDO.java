@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,7 +37,7 @@ public class ContactDO implements DataObject,Serializable {
 	private Calendar createDate;
 	private ClientDO client;
 	private EntryPointType type;
-	private Map<ContactTagDO,Date> contactTags;
+	private Set<ContactTagDO> contactTags;
 	
 	public ContactDO() {
 		super();
@@ -61,11 +62,11 @@ public class ContactDO implements DataObject,Serializable {
 		joinColumns=@JoinColumn(name="contact_id")
 	)
 	@JoinColumn(name="initial_tag_date")
-	public Map<ContactTagDO,Date> getContactTags() {
+	public Set<ContactTagDO> getContactTags() {
 		return contactTags;
 	}
 
-	public void setContactTags(Map<ContactTagDO,Date> contactTags) {
+	public void setContactTags(Set<ContactTagDO> contactTags) {
 		this.contactTags = contactTags;
 	}
 

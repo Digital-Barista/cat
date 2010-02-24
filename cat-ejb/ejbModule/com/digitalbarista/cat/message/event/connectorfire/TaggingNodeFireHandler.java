@@ -63,7 +63,7 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 		}
 		Date newDate = new Date();
 		for(ContactTagDO tag : tags)
-			con.getContactTags().put(tag,newDate);
+			con.getContactTags().add(tag);
 		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 
