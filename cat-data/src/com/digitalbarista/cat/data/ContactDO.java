@@ -13,9 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -33,7 +32,7 @@ public class ContactDO implements DataObject,Serializable {
 	private Calendar createDate;
 	private ClientDO client;
 	private EntryPointType type;
-	private Set<ContactTagDO> contactTags;
+	private Set<ContactTagLinkDO> contactTags;
 	
 	public ContactDO() {
 		super();
@@ -51,21 +50,25 @@ public class ContactDO implements DataObject,Serializable {
 	}
 
 
-	@ManyToMany
-	@JoinTable(
-		name="contact_tag_link",
-		joinColumns=@JoinColumn(name="contact_id"),
-		inverseJoinColumns=@JoinColumn(name="contact_tag_id")
-	)
-	@JoinColumn(name="initial_tag_date")
-	public Set<ContactTagDO> getContactTags() {
+	@OneToMany(mappedBy="contact", targetEntity=ContactTagLinkDO.class)
+	public Set<ContactTagLinkDO> getContactTags() {
 		return contactTags;
 	}
 
-	public void setContactTags(Set<ContactTagDO> contactTags) {
+	public void setContactTags(Set<ContactTagLinkDO> contactTags) {
 		this.contactTags = contactTags;
 	}
 
+	public ContactTagLinkDO findLink(ContactTagDO tag)
+	{
+		for(ContactTagLinkDO link : getContactTags())
+		{
+			if(link.getTag()==tag)
+				return link;
+		}
+		return null;
+	}
+	
 	@Column(name="address")
 	public String getAddress() {
 		return address;

@@ -17,6 +17,7 @@ import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
+import com.digitalbarista.cat.data.ContactTagLinkDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
@@ -63,7 +64,17 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 		}
 		Date newDate = new Date();
 		for(ContactTagDO tag : tags)
-			con.getContactTags().add(tag);
+		{
+			if (con.findLink(tag)==null)
+			{
+				ContactTagLinkDO ctldo = new ContactTagLinkDO();
+				ctldo.setContact(con);
+				ctldo.setTag(tag);
+				ctldo.setInitialTagDate(newDate);
+				con.getContactTags().add(ctldo);
+				em.persist(ctldo);
+			}
+		}
 		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 

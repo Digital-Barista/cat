@@ -34,6 +34,7 @@ import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
+import com.digitalbarista.cat.data.ContactTagLinkDO;
 import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
@@ -255,8 +256,15 @@ public class ContactManagerImpl implements ContactManager {
 			for (ContactTag tag : tags)
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
-				if (!cDO.getContactTags().contains(tagDO))
-					cDO.getContactTags().add(tagDO);
+				if (cDO.findLink(tagDO)==null)
+				{
+					ContactTagLinkDO ctldo = new ContactTagLinkDO();
+					ctldo.setContact(cDO);
+					ctldo.setTag(tagDO);
+					ctldo.setInitialTagDate(new Date());
+					cDO.getContactTags().add(ctldo);
+					em.persist(ctldo);
+				}
 			}
 			em.persist(cDO);
 		}
@@ -298,10 +306,17 @@ public class ContactManagerImpl implements ContactManager {
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
 				if (cDO.getContactTags() == null)
-					cDO.setContactTags(new HashSet<ContactTagDO>());
+					cDO.setContactTags(new HashSet<ContactTagLinkDO>());
 				
-				if (!cDO.getContactTags().contains(tagDO))
-					cDO.getContactTags().add(tagDO);
+				if (cDO.findLink(tagDO)==null)
+				{
+					ContactTagLinkDO ctldo = new ContactTagLinkDO();
+					ctldo.setContact(cDO);
+					ctldo.setTag(tagDO);
+					ctldo.setInitialTagDate(new Date());
+					cDO.getContactTags().add(ctldo);
+					em.persist(ctldo);
+				}
 			}
 			
 			// Add persisted contact to return list
@@ -370,9 +385,14 @@ public class ContactManagerImpl implements ContactManager {
 				// Add tag to all matching contacts
 				for (ContactDO c : contacts)
 				{
-					if (!c.getContactTags().contains(tag))
+					if (c.findLink(tag)==null)
 					{
-						c.getContactTags().add(tag);
+						ContactTagLinkDO ctldo = new ContactTagLinkDO();
+						ctldo.setContact(c);
+						ctldo.setTag(tag);
+						ctldo.setInitialTagDate(new Date());
+						c.getContactTags().add(ctldo);
+						em.persist(ctldo);
 						em.persist(c);
 					}
 				}

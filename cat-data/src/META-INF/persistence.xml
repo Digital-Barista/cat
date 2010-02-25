@@ -34,6 +34,7 @@
 		<class>com.digitalbarista.cat.audit.OutgoingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.IncomingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.AuditDO</class>
+		<class>com.digitalbarista.cat.data.ContactTagLinkDO</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
 		</properties>
