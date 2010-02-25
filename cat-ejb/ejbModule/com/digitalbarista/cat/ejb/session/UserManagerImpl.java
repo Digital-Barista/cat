@@ -29,6 +29,7 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.Role;
 import com.digitalbarista.cat.business.User;
+import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.RoleDO;
 import com.digitalbarista.cat.data.UserDO;
 
@@ -367,6 +368,11 @@ public class UserManagerImpl implements UserManager {
 		for(RoleDO role : getSimpleUserByUsername(username).getRoles())
 			if(role.getRoleName().equals("account.manager") || role.getRoleName().equals("client"))
 				clientIDs.add(role.getRefId());
+		Criteria crit = session.createCriteria(ClientDO.class);
+		crit.add(Restrictions.eq("active", true));
+		crit.add(Restrictions.in("id", clientIDs));
+		crit.setProjection(Projections.id());
+		clientIDs = new HashSet<Long>(crit.list());
 		return clientIDs;
 	}
 

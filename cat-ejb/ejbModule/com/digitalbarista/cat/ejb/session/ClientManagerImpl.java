@@ -521,4 +521,28 @@ public class ClientManagerImpl implements ClientManager {
 		
 		return true;
 	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	@RolesAllowed("admin")
+	public void disableClient(Long clientID) {
+		if(clientID==null)
+			return;
+		ClientDO client = em.find(ClientDO.class, clientID);
+		if(client==null)
+			return;
+		client.setActive(false);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	@RolesAllowed("admin")
+	public void enableClient(Long clientID) {
+		if(clientID==null)
+			return;
+		ClientDO client = em.find(ClientDO.class, clientID);
+		if(client==null)
+			return;
+		client.setActive(true);
+	}
 }
