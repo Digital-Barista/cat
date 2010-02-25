@@ -9,6 +9,7 @@ package com.dbi.cat.event
 	public class CampaignEvent extends Event
 	{
 		public static const LIST_CAMPAIGNS:String = "listCampaignsEvent";
+		public static const CREATE_CAMPAIGN:String = "createCampaignEvent";
 		public static const EDIT_CAMPAIGN:String = "editCampaignEvent";
 		public static const CLOSE_EDIT_CAMPAIGN:String = "closeEditCampaignEvent";
 		public static const CLOSE_COMMUNICATIONS:String = "closeCommunications";

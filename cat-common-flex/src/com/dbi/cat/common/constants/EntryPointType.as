@@ -36,6 +36,13 @@ package com.dbi.cat.common.constants
 			}
 		}
 		
+		public static function allowAutoStart(entryPointType:String):Boolean
+		{
+			if (entryPointType == TWITTER)
+				return true;
+			return false;
+		}
+		
 		public static function getAllTypes():ArrayCollection
 		{
 			return new ArrayCollection([

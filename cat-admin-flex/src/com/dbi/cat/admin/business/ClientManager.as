@@ -95,7 +95,11 @@ package com.dbi.cat.admin.business
 			{
 				if (c.clientId == client.clientId)
 				{
+					c.active = client.active;
 					c.name = client.name;
+					c.contactEmail = client.contactEmail;
+					c.contactName = client.contactName;
+					c.contactPhone = client.contactPhone;
 					c.addInMessages = client.addInMessages;
 					c.keywordLimits = client.keywordLimits;
 					found = true;

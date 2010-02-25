@@ -74,5 +74,5 @@
 		]]>
 	</mx:Script>
 	<mx:SWFLoader id="Edit" source="{editIcon}" click="{edit()}" height="25" width="25" toolTip="Edit" />
-	<mx:SWFLoader id="Delete" source="{deleteIcon}" click="confirmDelete()" height="25" width="25" toolTip="Delete" />
+	<mx:SWFLoader id="Delete" source="{deleteIcon}" click="confirmDelete()" height="25" width="25" toolTip="Delete" visible="{data is EntryPointDefinitionVO}" />
 </mx:HBox>

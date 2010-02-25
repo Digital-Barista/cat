@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="496" height="300" layout="absolute"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="496" height="386" layout="absolute"
 	title="{isNaN(currentClient.clientId) ? 'Create Client' : 'Edit ' + currentClient.name}"
 	showCloseButton="true"
 	close="onClose()"
@@ -37,14 +37,34 @@
 		]]>
 	</mx:Script>
 	<mx:Form right="0" left="0" top="0" bottom="0">
+		<mx:FormItem label="Is Active">
+			<mx:CheckBox id="IsActive"
+				selected="{currentClient.active}"
+				change="{currentClient.active = IsActive.selected}" />
+		</mx:FormItem>
 		<mx:FormItem label="Name">
 			<mx:TextInput id="Name"
 				text="{currentClient.name}"
 				change="{currentClient.name = Name.text}"  width="330"/>
 		</mx:FormItem>
+			<mx:FormItem label="Contatct Name">
+				<mx:TextInput id="ContactName"  width="300"
+					text="{currentClient.contactName}"
+					change="{currentClient.contactName = ContactName.text}" />
+			</mx:FormItem>
+			<mx:FormItem label="Contatct Email">
+				<mx:TextInput id="ContactEmail"  width="300"
+					text="{currentClient.contactEmail}"
+					change="{currentClient.contactEmail = ContactEmail.text}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Contatct Phone">
+				<mx:TextInput id="ContactPhone"  width="300"
+					text="{currentClient.contactPhone}"
+					change="{currentClient.contactPhone = ContactPhone.text}"/>
+			</mx:FormItem>
 	</mx:Form>
 	<mx:TabNavigator id="EntryTypeTabs"
-		left="0" top="50" bottom="0" right="0"
+		left="0" top="159" bottom="0" right="0"
 		tabOffset="20">
 		<mx:Repeater id="EntryTypeRepeater" 
 			dataProvider="{EntryPointType.getAllTypes()}">

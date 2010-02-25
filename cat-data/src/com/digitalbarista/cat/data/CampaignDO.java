@@ -41,6 +41,7 @@ public class CampaignDO implements Serializable,DataObject {
 	private Set<CampaignNodeLinkDO> nodes = new HashSet<CampaignNodeLinkDO>();
 	private Set<CampaignConnectorLinkDO> connectors = new HashSet<CampaignConnectorLinkDO>();
 	private Set<AddInMessageDO> addInMessages = new HashSet<AddInMessageDO>();
+	private Set<CampaignInfoDO> campaignInfos = new HashSet<CampaignInfoDO>();
 	private String UID;
 	private ClientDO client;
 	private CampaignStatus status=CampaignStatus.Active;
@@ -109,6 +110,18 @@ public class CampaignDO implements Serializable,DataObject {
 
 	public void setAddInMessages(Set<AddInMessageDO> addInMessages) {
 		this.addInMessages = addInMessages;
+	}
+
+	
+
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignInfoDO.class, mappedBy="campaign")
+	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
+	public Set<CampaignInfoDO> getCampaignInfos() {
+		return campaignInfos;
+	}
+
+	public void setCampaignInfos(Set<CampaignInfoDO> campaignInfos) {
+		this.campaignInfos = campaignInfos;
 	}
 
 	@Column(name="uid")

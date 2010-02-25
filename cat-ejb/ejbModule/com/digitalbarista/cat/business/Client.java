@@ -98,6 +98,7 @@ public class Client implements
 
 	@Override
 	public void copyTo(ClientDO dataObject) {
+		dataObject.setActive(active);
 		dataObject.setName(name);
 		dataObject.setContactEmail(contactEmail);
 		dataObject.setContactPhone(contactPhone);

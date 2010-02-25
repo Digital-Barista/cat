@@ -13,6 +13,7 @@ import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
 
 @XmlRootElement(name="Campaign")
@@ -27,6 +28,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	private Set<Node> nodes=new HashSet<Node>();
 	private Set<Connector> connectors=new HashSet<Connector>();
 	private Set<AddInMessage> addInMessages = new HashSet<AddInMessage>();
+	private Set<CampaignInfo> campaignInfos = new HashSet<CampaignInfo>();
 	
 	@PrimaryDescriminator
 	private Long clientPK;
@@ -50,6 +52,16 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 				AddInMessage add = new AddInMessage();
 				add.copyFrom(addDO);
 				addInMessages.add(add);
+			}
+		}
+
+		if (dataObject.getCampaignInfos() != null)
+		{
+			for (CampaignInfoDO campDO : dataObject.getCampaignInfos())
+			{
+				CampaignInfo camp = new CampaignInfo();
+				camp.copyFrom(campDO);
+				campaignInfos.add(camp);
 			}
 		}
 	}
@@ -83,6 +95,20 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		{
 			for (AddInMessage add : getAddInMessages())
 				ret.append(add.getEntryType() + " - " + add.getType() + " - " + add.getMessage() + ", ");
+		}
+		ret.append(")");
+		
+		// Build list of campaign info
+		ret.append(";campaignInfos:(");
+		if (getCampaignInfos() == null ||
+				getCampaignInfos().size() == 0)
+		{
+			ret.append("none");
+		}
+		else
+		{
+			for (CampaignInfo ci : getCampaignInfos())
+				ret.append(ci.getEntryType() + " - " + ci.getName() + " - " + ci.getValue() + ", ");
 		}
 		ret.append(")");
 		
@@ -170,6 +196,14 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 
 	public void setAddInMessages(Set<AddInMessage> addInMessages) {
 		this.addInMessages = addInMessages;
+	}
+
+	public Set<CampaignInfo> getCampaignInfos() {
+		return campaignInfos;
+	}
+
+	public void setCampaignInfos(Set<CampaignInfo> campaignInfos) {
+		this.campaignInfos = campaignInfos;
 	}
 	
 	

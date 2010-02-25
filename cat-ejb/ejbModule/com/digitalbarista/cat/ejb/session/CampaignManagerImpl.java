@@ -38,6 +38,7 @@ import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
+import com.digitalbarista.cat.business.CampaignInfo;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.EntryData;
@@ -55,6 +56,7 @@ import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignConnectorLinkDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
+import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignNodeLinkDO;
 import com.digitalbarista.cat.data.CampaignStatus;
@@ -639,6 +641,32 @@ public class CampaignManagerImpl implements CampaignManager {
 				if (camp.getAddInMessages() == null)
 					camp.setAddInMessages(new HashSet<AddInMessageDO>());
 				camp.getAddInMessages().add(addDO);
+			}
+		}
+		
+		// Update list of campaign info
+		if (campaign.getCampaignInfos() != null)
+		{
+			for (CampaignInfo ci : campaign.getCampaignInfos())
+			{
+					
+				// Get existing or new data object
+				CampaignInfoDO ciDO = null;
+				if (ci.getCampaignInfoId() != null)
+					ciDO = em.find(CampaignInfoDO.class, ci.getCampaignInfoId());
+				if (ciDO == null)
+					ciDO = new CampaignInfoDO();
+
+				
+				// Update and persist object
+				ciDO.setCampaign(camp);
+				ci.copyTo(ciDO);
+				em.persist(ciDO);
+				
+				// Add info to list
+				if (camp.getCampaignInfos() == null)
+					camp.setCampaignInfos(new HashSet<CampaignInfoDO>());
+				camp.getCampaignInfos().add(ciDO);
 			}
 		}
 		

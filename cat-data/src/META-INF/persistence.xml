@@ -27,6 +27,7 @@
 		<class>com.digitalbarista.cat.data.CampaignVersionDO</class>
 		<class>com.digitalbarista.cat.data.CampaignSubscriberLinkDO</class>
 		<class>com.digitalbarista.cat.data.CampaignNodeLinkDO</class>
+		<class>com.digitalbarista.cat.data.CampaignInfoDO</class>
 		<class>com.digitalbarista.cat.data.CampaignEntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CampaignDO</class>
 		<class>com.digitalbarista.cat.data.CampaignConnectorLinkDO</class>

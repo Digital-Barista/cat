@@ -3,9 +3,9 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.campaign.CampaignInfoEditor;
 			import com.dbi.cat.business.CampaignMessageManager;
 			import com.dbi.cat.view.workspace.MessagePreviewView;
-			import com.dbi.cat.view.campaign.CampaignAddInMessageEditor;
 			import com.dbi.cat.view.profile.ClientAddInMessageEditor;
 			import com.dbi.cat.business.CampaignManager;
 			import com.dbi.cat.view.user.UsersView;
@@ -454,7 +454,7 @@
 			sourceKey="currentClient"
 			targetKey="currentClient" />
 	</Injectors>
-	<Injectors target="{CampaignAddInMessageEditor}">
+	<Injectors target="{CampaignInfoEditor}">
 		<PropertyInjector
 			source="{CampaignManager}"
 			sourceKey="currentEditingCampaign"

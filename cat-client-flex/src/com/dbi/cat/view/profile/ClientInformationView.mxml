@@ -33,13 +33,13 @@
 			change="changeClient()" />
 	</mx:FormItem>
 	<mx:FormItem label="Contatct Name">
-		<mx:Label text="" />
+		<mx:Label text="{client.contactName}" />
 	</mx:FormItem>
 	<mx:FormItem label="Contatct Email">
-		<mx:Label text="" />
+		<mx:Label text="{client.contactEmail}" />
 	</mx:FormItem>
 	<mx:FormItem label="Contatct Phone">
-		<mx:Label text="" />
+		<mx:Label text="{client.contactPhone}" />
 	</mx:FormItem>
 	<mx:FormItem label="Add In Message" width="100%">
 		<mx:TabNavigator id="EntryTypeTabs"

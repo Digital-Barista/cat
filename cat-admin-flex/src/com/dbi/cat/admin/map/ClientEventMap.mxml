@@ -15,7 +15,8 @@
 	<!-- Client Events -->
 	<EventHandlers type="{ClientEvent.LIST_CLIENTS}">
 		<RemoteObjectInvoker destination="clientManager"
-			method="getVisibleClients">
+			method="getVisibleClients"
+			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadClients"
@@ -26,6 +27,7 @@
 	<EventHandlers type="{ClientEvent.SAVE_CLIENT}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="save"
+			showBusyCursor="true"
 			arguments="{event.client}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
@@ -37,11 +39,6 @@
 	<EventHandlers type="{ClientEvent.EDIT_CLIENT}">
 		<MethodInvoker generator="{ClientManager}"
 			method="editClient"
-			arguments="{event.client}" />
-	</EventHandlers>
-	<EventHandlers type="{ClientEvent.DELETE_CLIENT}">
-		<MethodInvoker generator="{ClientManager}"
-			method="deleteClient"
 			arguments="{event.client}" />
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.CLOSE_EDIT_CLIENT}">
@@ -61,7 +58,8 @@
 	<!-- Entry point events -->
 	<EventHandlers type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}">
 		<RemoteObjectInvoker destination="clientManager"
-			method="getEntryPointDefinitions">
+			method="getEntryPointDefinitions"
+			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadEntryPoints"
@@ -72,6 +70,7 @@
 	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="save"
+			showBusyCursor="true"
 			arguments="{event.entryPoint}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
@@ -99,6 +98,7 @@
 	<EventHandlers type="{ClientEvent.SAVE_KEYWORD}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="save"
+			showBusyCursor="true"
 			arguments="{event.keyword}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
@@ -115,6 +115,7 @@
 	<EventHandlers type="{ClientEvent.DELETE_KEYWORD}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="delete"
+			showBusyCursor="true"
 			arguments="{event.keyword}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
@@ -129,7 +130,8 @@
 	</EventHandlers>
 	<EventHandlers type="{ClientEvent.LIST_KEYWORDS}">
 		<RemoteObjectInvoker destination="clientManager"
-			method="getAllKeywords">
+			method="getAllKeywords"
+			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadKeywords"
@@ -141,7 +143,8 @@
 	<!-- Reserved Keyword events -->
 	<EventHandlers type="{ClientEvent.LIST_RESERVED_KEYWORD}">
 		<RemoteObjectInvoker destination="clientManager"
-			method="getAllReservedKeywords">
+			method="getAllReservedKeywords"
+			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadReservedKeywords"
@@ -152,6 +155,7 @@
 	<EventHandlers type="{ClientEvent.SAVE_RESERVED_KEYWORD}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="save"
+			showBusyCursor="true"
 			arguments="{event.reservedKeyword}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
@@ -163,6 +167,7 @@
 	<EventHandlers type="{ClientEvent.DELETE_RESERVED_KEYWORD}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="delete"
+			showBusyCursor="true"
 			arguments="{event.reservedKeyword}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"

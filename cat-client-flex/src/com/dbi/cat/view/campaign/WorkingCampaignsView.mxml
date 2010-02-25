@@ -11,7 +11,7 @@
 			
 			private function createCampaign():void
 			{
-				var event:CampaignEvent = new CampaignEvent(CampaignEvent.EDIT_CAMPAIGN);
+				var event:CampaignEvent = new CampaignEvent(CampaignEvent.CREATE_CAMPAIGN);
 				event.campaign = new CampaignVO();
 				dispatchEvent(event);
 			}

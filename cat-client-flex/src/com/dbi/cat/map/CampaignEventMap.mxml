@@ -50,10 +50,25 @@
 			method="filterCampaigns"
 			arguments="{event.filterText}" />
 	</EventHandlers>
+	<EventHandlers type="{CampaignEvent.CREATE_CAMPAIGN}">
+		<MethodInvoker generator="{CampaignManager}"
+			method="editCampaign"
+			arguments="{event.campaign}" />
+	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.EDIT_CAMPAIGN}">
 		<MethodInvoker generator="{CampaignManager}"
 			method="editCampaign"
 			arguments="{event.campaign}" />
+		<RemoteObjectInvoker destination="campaignManager"
+			method="getDetailedCampaign"
+			arguments="{event.campaign.uid}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignManager}"
+					method="loadEditCampaign"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{CampaignEvent.CLOSE_EDIT_CAMPAIGN}">
 		<MethodInvoker generator="{CampaignManager}"
