@@ -51,6 +51,7 @@ public class ContactDO implements DataObject,Serializable {
 
 
 	@OneToMany(mappedBy="contact", targetEntity=ContactTagLinkDO.class)
+	@JoinColumn(updatable=false,insertable=false,name="contact_id")
 	public Set<ContactTagLinkDO> getContactTags() {
 		return contactTags;
 	}
