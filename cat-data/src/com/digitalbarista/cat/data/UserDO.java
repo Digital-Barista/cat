@@ -31,9 +31,9 @@ public class UserDO implements Serializable,DataObject {
 	
 	private String username; 
 	private String password;
-	private String name; 
-	private String email;
 	private boolean active;
+	private String email;
+	private String name;
 	private long primaryKey;
 	private static final long serialVersionUID = 1L;
 	
@@ -57,23 +57,6 @@ public class UserDO implements Serializable,DataObject {
 	}
 	private void setPassword(String password) {
 		this.password = password;
-	}
-
-	@Column(name="email")
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public void changePassword(String unencryptedPassword)
@@ -138,5 +121,23 @@ public class UserDO implements Serializable,DataObject {
 	}
 	public void setRoles(Set<RoleDO> roles) {
 		this.roles = roles;
+	}
+
+	@Column(name="email")
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	@Column(name="name")
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

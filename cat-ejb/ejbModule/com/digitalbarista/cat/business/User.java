@@ -32,6 +32,8 @@ public class User implements BusinessObject<UserDO>{
 		name = dataObject.getName();
 		active = dataObject.isActive();
 		primaryKey = dataObject.getPrimaryKey();
+		name = dataObject.getName();
+		email = dataObject.getEmail();
 		roles.clear();
 		Role boRole;
 		for(RoleDO role : dataObject.getRoles())
@@ -47,6 +49,8 @@ public class User implements BusinessObject<UserDO>{
 		user.setEmail(email);
 		user.setName(name);
 		user.setActive(active != null && active); // Should render to false if null.
+		user.setEmail(email);
+		user.setName(name);
 		if(password!=null)
 			user.changePassword(password);
 	}
