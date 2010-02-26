@@ -591,7 +591,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.SaveCampaign)
-	public void save(Campaign campaign) {
+	public Campaign save(Campaign campaign) {
 		CampaignDO camp = getSimpleCampaign(campaign.getUid());
 		if(camp==null && campaign.getClientPK()==null)
 			throw new IllegalArgumentException("Cannot create a new campaign without a valid client PK.");
@@ -671,6 +671,11 @@ public class CampaignManagerImpl implements CampaignManager {
 		}
 		
 		em.flush();
+		
+		// Return updated campaign
+		Campaign ret = new Campaign();
+		ret.copyFrom(camp);
+		return ret;
 	}
 
 	@Override

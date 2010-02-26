@@ -39,11 +39,12 @@
 			dataProvider="{campaignList}">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name" />
-				<mx:DataGridColumn headerText="Create Date"
-					width="150" />
+				<mx:DataGridColumn headerText="Auto Start" dataField="isAutoStart" 
+					itemRenderer="com.dbi.controls.CheckMarkItemRenderer"
+					width="80" />
 				<mx:DataGridColumn sortable="false"
 					itemRenderer="com.dbi.cat.view.components.CampaignActionsItemRenderer"
-					width="250" />
+					width="215" />
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:TitleWindow>

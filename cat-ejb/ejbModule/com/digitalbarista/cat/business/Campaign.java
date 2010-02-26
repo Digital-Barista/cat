@@ -21,6 +21,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 
 	private Long primaryKey;
 	private String name;
+	private Boolean isAutoStart;
 	
 	@SecondaryDescriminator
 	private String uid;
@@ -45,6 +46,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 			clientPK = dataObject.getClient().getPrimaryKey();
 		}
 		
+		// Copy all addin messages
 		if (dataObject.getAddInMessages() != null)
 		{
 			for (AddInMessageDO addDO : dataObject.getAddInMessages())
@@ -55,6 +57,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 			}
 		}
 
+		// Copy all campaign infos
 		if (dataObject.getCampaignInfos() != null)
 		{
 			for (CampaignInfoDO campDO : dataObject.getCampaignInfos())
@@ -62,6 +65,12 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 				CampaignInfo camp = new CampaignInfo();
 				camp.copyFrom(campDO);
 				campaignInfos.add(camp);
+				
+				// Set the autoStart flag an autoStartNodeUID is present
+				if (campDO.getName().equals(CampaignInfoDO.KEY_AUTO_START_NODE_UID) &&
+					campDO.getValue() != null &&
+					campDO.getValue().length() > 0)
+					isAutoStart = true;
 			}
 		}
 	}
@@ -143,6 +152,14 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	}
 	
 	
+	public Boolean getIsAutoStart() {
+		return isAutoStart;
+	}
+
+	public void setIsAutoStart(Boolean isAutoStart) {
+		this.isAutoStart = isAutoStart;
+	}
+
 	@XmlAttribute
 	public String getUid() {
 		return uid;

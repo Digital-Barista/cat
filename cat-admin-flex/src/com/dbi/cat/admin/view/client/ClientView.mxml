@@ -77,7 +77,9 @@
 				dropEnabled="true" >
 				<mx:columns>
 					<mx:AdvancedDataGridColumn dataField="name" headerText="" />
-					<mx:AdvancedDataGridColumn dataField="active" headerText="Active" width="80"  />
+					<mx:AdvancedDataGridColumn headerText="Active" dataField="active" 
+						itemRenderer="com.dbi.controls.CheckMarkItemRenderer"
+						width="80" />
 					<mx:AdvancedDataGridColumn dataField="type" headerText="Type" width="80"  />
 					<mx:AdvancedDataGridColumn dataField="description" headerText="Description" width="80"  />
 					<mx:AdvancedDataGridColumn itemRenderer="com.dbi.cat.admin.view.client.ClientActionsItemRenderer" editable="false" width="60" />

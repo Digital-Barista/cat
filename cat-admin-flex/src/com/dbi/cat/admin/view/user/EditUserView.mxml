@@ -41,7 +41,7 @@
 			
 			private function save():void
 			{
-				editUser.emailAddress = tiEmailAddress.text;
+				editUser.email = tiEmailAddress.text;
 				editUser.name = tiEmailAddress.text;
 				editUser.username = tiUserName.text;
 				editUser.isActive = cbIsActive.selected;
@@ -148,7 +148,7 @@
 			</mx:FormItem>
 			<mx:FormItem label="Email Address"  width="100%">
 				<mx:TextInput id="tiEmailAddress" 
-					text="{editUser.emailAddress}" width="100%"/>
+					text="{editUser.email}" width="100%"/>
 			</mx:FormItem>
 			<mx:FormItem label="Active" width="100%">
 				<mx:CheckBox id="cbIsActive" 

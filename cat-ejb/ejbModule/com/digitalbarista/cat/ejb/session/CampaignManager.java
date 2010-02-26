@@ -39,7 +39,7 @@ public interface CampaignManager {
 	@GET
 	public Campaign getLastPublishedCampaign(@PathParam("uid") String campaignUUID);
 	@POST
-	public void save(Campaign campaign);
+	public Campaign save(Campaign campaign);
 	@Path("/{template-uid}")
 	@POST
 	public void createFromTemplate(Campaign campaign, @QueryParam("template-uid") String campaignTemplateUUID);

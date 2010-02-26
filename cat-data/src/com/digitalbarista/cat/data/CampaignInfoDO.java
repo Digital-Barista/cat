@@ -23,6 +23,7 @@ import javax.persistence.Table;
 @Table(name="campaign_info")
 public class CampaignInfoDO implements Serializable,DataObject {
 
+	public final static String KEY_AUTO_START_NODE_UID = "autoStartNodeUID";
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)

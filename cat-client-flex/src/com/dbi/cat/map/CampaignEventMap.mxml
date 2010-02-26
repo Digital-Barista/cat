@@ -146,7 +146,7 @@
 			<resultHandlers>
 				<MethodInvoker generator="{CampaignManager}"
 					method="saveCampaign"
-					arguments="{event.campaign}" />
+					arguments="{resultObject}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>

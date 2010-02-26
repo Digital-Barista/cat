@@ -16,7 +16,7 @@
 		<mx:Label text="{user.name}" />
 	</mx:FormItem>
 	<mx:FormItem label="Email Address">
-		<mx:Label text="{user.emailAddress}" />
+		<mx:Label text="{user.email}" />
 	</mx:FormItem>
 	<mx:FormItem label="Username">
 		<mx:Label text="{user.username}" />

@@ -17,6 +17,8 @@ public class User implements BusinessObject<UserDO>{
 
 	private String username; 
 	private String password;
+	private String name;
+	private String email;
 	private Boolean active;
 	private Long primaryKey;
 	private List<Role> roles = new ArrayList<Role>();
@@ -26,6 +28,8 @@ public class User implements BusinessObject<UserDO>{
 		if(dataObject==null)
 			return;
 		username = dataObject.getUsername();
+		email = dataObject.getEmail();
+		name = dataObject.getName();
 		active = dataObject.isActive();
 		primaryKey = dataObject.getPrimaryKey();
 		roles.clear();
@@ -40,6 +44,8 @@ public class User implements BusinessObject<UserDO>{
 	public void copyTo(UserDO user)
 	{
 		user.setUsername(username);
+		user.setEmail(email);
+		user.setName(name);
 		user.setActive(active != null && active); // Should render to false if null.
 		if(password!=null)
 			user.changePassword(password);
@@ -51,6 +57,22 @@ public class User implements BusinessObject<UserDO>{
 	}
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	@XmlAttribute
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	@XmlAttribute
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	@XmlTransient
 	public String getPassword() {
