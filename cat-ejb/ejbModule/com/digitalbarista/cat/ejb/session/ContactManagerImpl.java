@@ -115,7 +115,8 @@ public class ContactManagerImpl implements ContactManager {
     			for (ContactTag tag : searchCriteria.getContactTags())
     				tagIds.add(tag.getContactTagId());
     			crit.createAlias("contactTags", "contactTags");
-    			crit.add(Restrictions.in("contactTags.contactTagId", tagIds));
+    			crit.createAlias("contactTags.tag", "tag");
+    			crit.add(Restrictions.in("tag.contactTagId", tagIds));
     		}
     	}
     	
