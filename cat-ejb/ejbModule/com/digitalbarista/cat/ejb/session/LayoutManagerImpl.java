@@ -82,10 +82,9 @@ public class LayoutManagerImpl implements LayoutManager {
 		{
 			crit.createAlias("campaign", "campaign");
 			crit.add(Restrictions.in("campaign.client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
 		}
-
-		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
-			return ret;
 
 		LayoutInfo info;
 		for(LayoutInfoDO li : (List<LayoutInfoDO>)crit.list())

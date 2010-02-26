@@ -123,10 +123,11 @@ public class CampaignManagerImpl implements CampaignManager {
 		crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 		
 		if(!ctx.isCallerInRole("admin"))
+		{
 			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-		
-		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
-			return ret;
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+		}
 		
 		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
 		{
@@ -149,11 +150,12 @@ public class CampaignManagerImpl implements CampaignManager {
 		crit.add(Restrictions.eq("mode", CampaignMode.Template));
 		
 		if(!ctx.isCallerInRole("admin"))
+		{
 			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+		}
 		
-		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
-			return ret;
-
 		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
 		{
 			c = new Campaign();

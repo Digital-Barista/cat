@@ -79,9 +79,12 @@ public class ClientManagerImpl implements ClientManager {
     	List<Client> ret = new ArrayList<Client>();
     	Criteria crit = session.createCriteria(ClientDO.class);
     	if(!ctx.isCallerInRole("admin"))
+    	{
     		crit.add(Restrictions.in("id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
-			return ret;
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+    	}
+    	
 		for(ClientDO client : (List<ClientDO>)crit.list())
     	{
         	Client c = new Client();
@@ -362,11 +365,12 @@ public class ClientManagerImpl implements ClientManager {
 		
 		// Limit query by allowed clients if necessary
     	if(!ctx.isCallerInRole("admin"))
+    	{
     		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-		
-		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
-			return ret;
-		
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+    	}
+    	
 		Keyword temp;
 		for(KeywordDO keyword : (List<KeywordDO>)crit.list())
 		{
