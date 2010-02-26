@@ -367,6 +367,8 @@ public class UserManagerImpl implements UserManager {
 			crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		} else {
 			Set<Long> clientIDs = extractClientIds(ctx.getCallerPrincipal().getName());
+			if(extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
 			crit = session.createCriteria(RoleDO.class);
 			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
 			crit.add(Restrictions.in("refId", clientIDs));

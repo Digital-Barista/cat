@@ -80,7 +80,9 @@ public class ClientManagerImpl implements ClientManager {
     	Criteria crit = session.createCriteria(ClientDO.class);
     	if(!ctx.isCallerInRole("admin"))
     		crit.add(Restrictions.in("id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-    	for(ClientDO client : (List<ClientDO>)crit.list())
+		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			return ret;
+		for(ClientDO client : (List<ClientDO>)crit.list())
     	{
         	Client c = new Client();
     		c.copyFrom(client);
@@ -103,6 +105,9 @@ public class ClientManagerImpl implements ClientManager {
     	{
     		crit.createAlias("clients", "clients");
     		crit.add(Restrictions.in("clients.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+
+    		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+    			return ret;
     	}
     	
     	for(EntryPointDO entry : (List<EntryPointDO>)crit.list())
@@ -359,6 +364,8 @@ public class ClientManagerImpl implements ClientManager {
     	if(!ctx.isCallerInRole("admin"))
     		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
 		
+		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			return ret;
 		
 		Keyword temp;
 		for(KeywordDO keyword : (List<KeywordDO>)crit.list())

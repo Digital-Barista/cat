@@ -96,7 +96,10 @@ public class ContactManagerImpl implements ContactManager {
     	if(!ctx.isCallerInRole("admin"))
     		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
 		
-    	// Apply search criteria
+		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			return ret;
+
+		// Apply search criteria
     	if (searchCriteria != null)
     	{
     		// Filter by client ID
@@ -151,6 +154,9 @@ public class ContactManagerImpl implements ContactManager {
     	if(!ctx.isCallerInRole("admin"))
     		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
 		
+		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			return ret;
+
 		for (ContactTagDO tag : (List<ContactTagDO>)crit.list())
 		{
 			ContactTag t = new ContactTag();

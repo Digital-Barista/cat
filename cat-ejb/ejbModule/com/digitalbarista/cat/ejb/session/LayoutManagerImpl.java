@@ -71,6 +71,8 @@ public class LayoutManagerImpl implements LayoutManager {
 	@Override
 	@PermitAll
 	public List<LayoutInfo> getLayoutInfo(List<String> uidList) {
+		List<LayoutInfo> ret = new ArrayList<LayoutInfo>();
+
 		if(uidList==null)
 			return new ArrayList<LayoutInfo>();
 		
@@ -82,8 +84,10 @@ public class LayoutManagerImpl implements LayoutManager {
 			crit.add(Restrictions.in("campaign.client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
 		}
 
+		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			return ret;
+
 		LayoutInfo info;
-		List<LayoutInfo> ret = new ArrayList<LayoutInfo>();
 		for(LayoutInfoDO li : (List<LayoutInfoDO>)crit.list())
 		{
 			info = new LayoutInfo();

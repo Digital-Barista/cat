@@ -125,6 +125,9 @@ public class CampaignManagerImpl implements CampaignManager {
 		if(!ctx.isCallerInRole("admin"))
 			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
 		
+		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			return ret;
+		
 		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
 		{
 			c = new Campaign();
@@ -148,6 +151,9 @@ public class CampaignManagerImpl implements CampaignManager {
 		if(!ctx.isCallerInRole("admin"))
 			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
 		
+		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			return ret;
+
 		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
 		{
 			c = new Campaign();
