@@ -84,7 +84,7 @@
 						}
 					}
 					editUser.email = EmailAddress.text;
-					editUser.name = EmailAddress.text;
+					editUser.name = Name.text;
 					editUser.isActive = IsActive.selected;
 					
 					if(Password.text != "" && Password.text == ConfirmPassword.text)

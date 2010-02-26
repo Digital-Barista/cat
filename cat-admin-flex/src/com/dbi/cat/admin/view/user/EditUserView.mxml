@@ -42,7 +42,7 @@
 			private function save():void
 			{
 				editUser.email = tiEmailAddress.text;
-				editUser.name = tiEmailAddress.text;
+				editUser.name = tiName.text;
 				editUser.username = tiUserName.text;
 				editUser.isActive = cbIsActive.selected;
 				
