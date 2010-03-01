@@ -16,6 +16,7 @@ import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.MessageManager;
+import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 import com.digitalbarista.cat.message.event.CATEvent;
 
 public class MessageNodeFireHandler extends ConnectorFireHandler {
@@ -28,20 +29,25 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 		NodeDO simpleNode=cMan.getSimpleNode(mNode.getUid());
 		
 		MessageManager mMan = null;
+		SubscriptionManager sMan = null;
 		
 		try
 		{
 			InitialContext ic = new InitialContext();
 			mMan = (MessageManager)ic.lookup("ejb/cat/MessageManager");
+			sMan = (SubscriptionManager)ic.lookup("ejb/cat/SubscriptionManager");
 		}catch(NamingException ex)
 		{
 			throw new RuntimeException("Unable to retrieve the message manager.",ex);
 		}
 		
-		List<CampaignMessagePart> messageParts = mMan.getMessageParts(cMan.getDetailedCampaign(mNode.getCampaignUID()), mNode.getMessage());
-		
 		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
 		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+
+		if(sMan.isSubsscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
+			return;
+
+		List<CampaignMessagePart> messageParts = mMan.getMessageParts(cMan.getDetailedCampaign(mNode.getCampaignUID()), mNode.getMessage());
 		for(CampaignMessagePart messagePart : messageParts)
 		{
 			if(messagePart.getEntryType()!=fromType)
@@ -60,7 +66,7 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 						break;
 						
 					case Twitter:
-						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterUsername(), actualMessage, mNode.getName(),mNode.getUid(),version);
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), actualMessage, mNode.getName(),mNode.getUid(),version);
 						break;
 						
 					default:

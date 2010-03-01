@@ -2,6 +2,7 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +61,8 @@ import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignNodeLinkDO;
 import com.digitalbarista.cat.data.CampaignStatus;
+import com.digitalbarista.cat.data.CampaignVersionDO;
+import com.digitalbarista.cat.data.CampaignVersionStatus;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ConnectionPoint;
 import com.digitalbarista.cat.data.ConnectorDO;
@@ -357,6 +360,23 @@ public class CampaignManagerImpl implements CampaignManager {
 			
 			Map<String,Map<String,ConnectorType>> nodeCatalog=new HashMap<String,Map<String,ConnectorType>>();
 			
+			while(camp.getVersions().size() < camp.getCurrentVersion())
+			{
+				CampaignVersionDO cVersion = new CampaignVersionDO();
+				cVersion.setCampaign(camp);
+				cVersion.setPublishedDate(new Date());
+				cVersion.setStatus(CampaignVersionStatus.Published);
+				camp.getVersions().add(cVersion);
+			}
+
+			camp.getVersions().get(camp.getCurrentVersion()-1).setStatus(CampaignVersionStatus.Published);
+			
+			CampaignVersionDO cVersion = new CampaignVersionDO();
+			cVersion.setCampaign(camp);
+			cVersion.setPublishedDate(new Date());
+			cVersion.setStatus(CampaignVersionStatus.Working);
+			camp.getVersions().add(cVersion);
+
 			//Increment version for all connectors
 			for(CampaignConnectorLinkDO ccl : camp.getConnectors())
 			{
@@ -669,6 +689,15 @@ public class CampaignManagerImpl implements CampaignManager {
 				// Update and persist object
 				ciDO.setCampaign(camp);
 				ci.copyTo(ciDO);
+				if(ci.getValue()!=null)
+				{
+					EntryNode eNode = (EntryNode)getNode(ciDO.getValue());
+					for(EntryData entryData : eNode.getEntryData())
+					{
+						if(entryData.getEntryType()==EntryPointType.Twitter)
+							ciDO.setEntryAddress(entryData.getEntryPoint());
+					}
+				}
 				em.persist(ciDO);
 				
 				// Add info to list

@@ -32,6 +32,7 @@ public class ContactDO implements DataObject,Serializable {
 	private Calendar createDate;
 	private ClientDO client;
 	private EntryPointType type;
+	private String alternateId;
 	private Set<ContactTagLinkDO> contactTags;
 	
 	public ContactDO() {
@@ -106,5 +107,14 @@ public class ContactDO implements DataObject,Serializable {
 
 	public void setType(EntryPointType type) {
 		this.type = type;
+	}
+
+	@Column(name="alternate_id")
+	public String getAlternateId() {
+		return alternateId;
+	}
+
+	public void setAlternateId(String alternateId) {
+		this.alternateId = alternateId;
 	}
 }

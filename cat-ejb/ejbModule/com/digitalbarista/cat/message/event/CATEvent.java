@@ -53,7 +53,7 @@ public class CATEvent implements Serializable{
 	    return ret;
 	}
 	
-	public static CATEvent buildIncomingTwitterDMEvent(String fromAddress, String toAddress, String message)
+	public static CATEvent buildIncomingTwitterDMEvent(String fromAddress, String toAddress, String message, String twitterID)
 	{
 		CATEvent ret = new CATEvent();
 		ret.source=toAddress;
@@ -62,6 +62,7 @@ public class CATEvent implements Serializable{
 		ret.target=fromAddress;
 	    ret.targetType=CATTargetType.SpecificSubscriber;
 	    ret.args.put("message", message);
+	    ret.args.put("twitterID", twitterID);
 	    return ret;
 	}
 	

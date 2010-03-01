@@ -8,6 +8,8 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.jboss.security.RunAsIdentity;
+import org.jboss.security.SecurityAssociation;
 import org.springframework.context.ApplicationContext;
 
 import com.digitalbarista.cat.twitter.bindings.Tweeter;
@@ -34,6 +36,7 @@ public class ModifySubscriptionsWorker extends TwitterPollWorker<String> {
 		
 		try
 		{
+			SecurityAssociation.pushRunAsIdentity(new RunAsIdentity("admin","admin"));
 			JAXBContext context = JAXBContext.newInstance(Tweeter.class);
 			Unmarshaller decoder = context.createUnmarshaller();
 			
@@ -66,6 +69,7 @@ public class ModifySubscriptionsWorker extends TwitterPollWorker<String> {
 		finally
 		{
 			try{post.releaseConnection();}catch(Exception e){}
+			SecurityAssociation.popRunAsIdentity();
 		}
 		
 	}

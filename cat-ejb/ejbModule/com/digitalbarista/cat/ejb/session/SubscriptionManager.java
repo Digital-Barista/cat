@@ -33,4 +33,10 @@ public interface SubscriptionManager {
 	public void subscribeContactsToEntryPoint(@Wrapped(element="Contact") List<Contact> contacts, @PathParam("entryPointUID") String entryPointUID);
 	
 	public List<String> getSubscribedAddresses(String campaignUID);
+
+	public boolean isSubsscriberBlacklisted(Long SubscriberId, String entryPoint, EntryPointType type);
+
+	public void registerTwitterFollower(String twitterID, String accountName);
+	
+	public void removeTwitterFollower(String twitterID, String accountName);
 }

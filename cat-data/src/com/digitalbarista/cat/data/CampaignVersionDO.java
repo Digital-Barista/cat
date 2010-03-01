@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,13 +21,13 @@ import javax.persistence.Table;
  */
 
 @Entity
-@Table(name="campaign_version")
+@Table(name="campaign_versions")
 public class CampaignVersionDO implements Serializable,DataObject {
 
 	private long primaryKey;
 	private CampaignDO campaign;
-	private Integer version=1;
-	private String status;
+	private Integer version;
+	private CampaignVersionStatus status;
 	private Date publishedDate;
 	private static final long serialVersionUID = 1L;
 
@@ -54,7 +56,7 @@ public class CampaignVersionDO implements Serializable,DataObject {
 		this.campaign = campaign;
 	}   
 
-	@Column(name="version")
+	@Column(name="version",insertable=false,updatable=false)
 	public Integer getVersion() {
 		return this.version;
 	}
@@ -64,11 +66,12 @@ public class CampaignVersionDO implements Serializable,DataObject {
 	}   
 	
 	@Column(name="status")
-	public String getStatus() {
+	@Enumerated(EnumType.STRING)
+	public CampaignVersionStatus getStatus() {
 		return this.status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(CampaignVersionStatus status) {
 		this.status = status;
 	}   
 	

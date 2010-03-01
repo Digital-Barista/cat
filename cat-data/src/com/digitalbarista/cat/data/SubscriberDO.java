@@ -33,6 +33,7 @@ public class SubscriberDO implements Serializable,DataObject {
 	private String email;
 	private String phoneNumber;
 	private String twitterUsername;
+	private String twitterID;
 	private static final long serialVersionUID = 1L;
 	private Map<CampaignDO,CampaignSubscriberLinkDO> subscriptions = new HashMap<CampaignDO,CampaignSubscriberLinkDO>();
 
@@ -86,6 +87,15 @@ public class SubscriberDO implements Serializable,DataObject {
 
 	public void setTwitterUsername(String twitterUsername) {
 		this.twitterUsername = twitterUsername;
+	}
+
+	@Column(name="twitter_id")
+	public String getTwitterID() {
+		return twitterID;
+	}
+
+	public void setTwitterID(String twitterID) {
+		this.twitterID = twitterID;
 	}
  
 }

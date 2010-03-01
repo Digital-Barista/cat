@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -20,15 +21,20 @@ import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.EntryNode;
+import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
+import com.digitalbarista.cat.data.ClientDO;
+import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeType;
@@ -57,6 +63,9 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	
 	@EJB(name="ejb/cat/CampaignManager")
 	private CampaignManager campaignManager;
+	
+	@EJB(name="ejb/cat/ClientManager")
+	private ClientManager clientManager;
 	
 	@EJB(name="ejb/cat/EventManager")
 	private EventManager eventManager;
@@ -173,7 +182,10 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				break;
 				
 			case Twitter:
-				crit.add(Restrictions.in("twitterUsername", addresses));
+				Disjunction dj = Restrictions.disjunction();
+				dj.add(Restrictions.in("twitterUsername", addresses));
+				dj.add(Restrictions.in("twitterID", addresses));
+				crit.add(dj);
 				break;
 		}
 		
@@ -197,6 +209,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					
 				case Twitter:
 					addresses.remove(sub.getTwitterUsername());
+					addresses.remove(sub.getTwitterID());
 					break;
 			}
 		}
@@ -297,12 +310,93 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		{
 			if (subscriber.getEmail() != null)
 				ret.add(subscriber.getEmail());
-			else if (subscriber.getTwitterUsername() != null)
-				ret.add(subscriber.getTwitterUsername());
 			else if (subscriber.getPhoneNumber() != null)
 				ret.add(subscriber.getPhoneNumber());
+			else if (subscriber.getTwitterUsername() != null)
+				ret.add(subscriber.getTwitterUsername());
+			else if (subscriber.getTwitterID() != null)
+				ret.add(subscriber.getTwitterID());
 		}
 		
 		return ret;
+	}
+
+	@Override
+	public boolean isSubsscriberBlacklisted(Long subscriberId, String entryPoint, EntryPointType type) {
+		Criteria crit = session.createCriteria(SubscriberBlacklistDO.class);
+		crit.add(Restrictions.eq("subscriber.id", subscriberId));
+		crit.add(Restrictions.eq("incomingAddress", entryPoint));
+		crit.add(Restrictions.eq("type", type));
+		return crit.uniqueResult()!=null;
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void registerTwitterFollower(String twitterID, String accountName) {
+		Criteria crit = session.createCriteria(SubscriberDO.class);
+		crit.add(Restrictions.eq("twitterID",twitterID));
+		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
+		if(sub==null)
+		{
+			sub = new SubscriberDO();
+			sub.setTwitterID(twitterID);
+			em.persist(sub);
+		} else {
+			crit = session.createCriteria(SubscriberBlacklistDO.class);
+			crit.add(Restrictions.eq("subscriber.id", sub.getPrimaryKey()));
+			crit.add(Restrictions.eq("incomingAddress", accountName));
+			crit.add(Restrictions.eq("type", EntryPointType.Twitter));
+			SubscriberBlacklistDO bl = (SubscriberBlacklistDO)crit.uniqueResult();
+			if(bl!=null)
+				em.remove(bl);
+		}
+		
+		EntryPointDefinition epd = clientManager.getEntryPointDefinition(EntryPointType.Twitter,accountName);
+		for(Integer clientID : epd.getClientIDs())
+		{
+			crit = session.createCriteria(ContactDO.class);
+			crit.add(Restrictions.eq("type", EntryPointType.Twitter));
+			crit.add(Restrictions.eq("alternateId", twitterID));
+			crit.add(Restrictions.eq("client.id",new Long(clientID)));
+			ContactDO contact = (ContactDO)crit.uniqueResult();
+			if(contact==null)
+			{
+				contact = new ContactDO();
+				contact.setType(EntryPointType.Twitter);
+				contact.setAlternateId(twitterID);
+				contact.setClient(em.find(ClientDO.class, new Long(clientID)));
+				contact.setCreateDate(Calendar.getInstance());
+				em.persist(contact);
+			}
+		}
+		
+		crit = session.createCriteria(CampaignInfoDO.class);
+		crit.add(Restrictions.eq("entryType", EntryPointType.Twitter));
+		crit.add(Restrictions.eq("entryAddress", accountName));
+		crit.add(Restrictions.eq("name", CampaignInfoDO.KEY_AUTO_START_NODE_UID));
+		CampaignInfoDO cInfo = (CampaignInfoDO)crit.uniqueResult();
+		
+		if(cInfo==null)
+			return;
+		
+		HashSet<String> addresses = new HashSet<String>();
+		addresses.add(twitterID);
+		subscribeToEntryPoint(addresses,cInfo.getValue(),EntryPointType.Twitter);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void removeTwitterFollower(String twitterID, String accountName) {
+		Criteria crit = session.createCriteria(SubscriberDO.class);
+		crit.add(Restrictions.eq("twitterID",twitterID));
+		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
+		if(sub!=null)
+		{
+			SubscriberBlacklistDO bl = new SubscriberBlacklistDO();
+			bl.setIncomingAddress(accountName);
+			bl.setType(EntryPointType.Twitter);
+			bl.setSubscriber(sub);
+			em.persist(sub);
+		}
 	}
 }

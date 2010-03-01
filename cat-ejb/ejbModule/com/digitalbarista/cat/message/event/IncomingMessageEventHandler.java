@@ -11,6 +11,9 @@ import javax.persistence.Query;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 
 import com.digitalbarista.cat.audit.IncomingMessageEntryDO;
 import com.digitalbarista.cat.audit.IncomingMessageEntryDO.KeywordMatchType;
@@ -24,6 +27,7 @@ import com.digitalbarista.cat.business.ResponseConnector;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.ConnectorType;
+import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.GlobalUnsubscribeKeywords;
 import com.digitalbarista.cat.data.NodeType;
@@ -120,6 +124,26 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		//If they aren't in the system, we'll have to create them.
 		if(sub==null)
 		{
+			if(e.getSourceType()==CATEventSource.TwitterEndpoint)
+			{
+				Session session = (Session)getEntityManager().getDelegate();
+				Criteria crit = session.createCriteria(SubscriberDO.class);
+				crit.add(Restrictions.eq("twitterID", e.getArgs().get("twitterID")));
+				sub = (SubscriberDO)crit.uniqueResult();
+				if(sub!=null && sub.getTwitterUsername()==null)
+					sub.setTwitterUsername(e.getTarget());
+				
+				crit = session.createCriteria(ContactDO.class);
+				crit.add(Restrictions.eq("type", EntryPointType.Twitter));
+				crit.add(Restrictions.eq("alternateId", e.getArgs().get("twitterID")));
+				List<ContactDO> contactList = (List<ContactDO>)crit.list();
+				for(ContactDO contact : contactList)
+					contact.setAddress(e.getTarget());
+			}
+		}
+		
+		if(sub==null)
+		{
 			sub = new SubscriberDO();
 			switch(e.getSourceType())
 			{
@@ -133,6 +157,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 					
 				case TwitterEndpoint:
 					sub.setTwitterUsername(e.getTarget());
+					sub.setTwitterID(e.getArgs().get("twitterID"));
 					break;
 			}
 			getEntityManager().persist(sub);
@@ -174,8 +199,8 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			
 			//But, since it is, we'll unsubscribe from EVERY campaign that
 			// has this incoming address.
-			for(CampaignEntryPointDO entry : entries)
-				getEntityManager().remove(sub.getSubscriptions().get(entry.getCampaign()));
+			/*for(CampaignEntryPointDO entry : entries)
+				getEntityManager().remove(sub.getSubscriptions().get(entry.getCampaign()));*/
 			
 			//And we'll create a blacklist entry.
 			SubscriberBlacklistDO newBL = new SubscriberBlacklistDO();

@@ -57,7 +57,7 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			client.getParams().setAuthenticationPreemptive(true);
 			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(pm.getAccount(),pm.getCredentials()));
 			
-			post.setQueryString(new NameValuePair[]{new NameValuePair("screen_name",msg.getString("target")),new NameValuePair("text",msg.getString("message"))});
+			post.setQueryString(new NameValuePair[]{new NameValuePair("user_id",msg.getString("target")),new NameValuePair("text",msg.getString("message"))});
 			int status = -1;			
 			
 			try

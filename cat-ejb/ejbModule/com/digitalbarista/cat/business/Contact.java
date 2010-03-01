@@ -64,6 +64,8 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	public void copyFrom(ContactDO dataObject) {
 		contactId = dataObject.getContactId();
 		address = dataObject.getAddress();
+		if(address==null)
+			address = dataObject.getAlternateId();
 		createDate = dataObject.getCreateDate();
 		clientId = dataObject.getClient().getPrimaryKey();
 		type = dataObject.getType();

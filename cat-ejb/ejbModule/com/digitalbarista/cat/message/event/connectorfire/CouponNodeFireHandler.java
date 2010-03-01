@@ -22,6 +22,7 @@ import com.digitalbarista.cat.data.CouponResponseDO.Type;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.MessageManager;
+import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.util.SequentialBitShuffler;
 
@@ -41,15 +42,23 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		CouponResponseDO response;
 		
 		MessageManager mMan = null;
+		SubscriptionManager sMan = null;
 		
 		try
 		{
 			InitialContext ic = new InitialContext();
 			mMan = (MessageManager)ic.lookup("ejb/cat/MessageManager");
+			sMan = (SubscriptionManager)ic.lookup("ejb/cat/SubscriptionManager");
 		}catch(NamingException ex)
 		{
 			throw new RuntimeException("Unable to retrieve the message manager.",ex);
 		}
+		
+		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
+		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+
+		if(sMan.isSubsscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
+			return;
 		
 		if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && (offer.getMaxCoupons()<0 || offer.getIssuedCouponCount()<offer.getMaxCoupons()))
 		{
@@ -105,8 +114,6 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		
 		List<CampaignMessagePart> messageParts = mMan.getMessageParts(cMan.getDetailedCampaign(cNode.getCampaignUID()), actualMessage);
 
-		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
-		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
 		for(CampaignMessagePart messagePart : messageParts)
 		{
 			if(messagePart.getEntryType()!=fromType)
@@ -125,7 +132,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 						break;
 						
 					case Twitter:
-						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterUsername(), splitMessage, cNode.getName(),cNode.getUid(),version);
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), splitMessage, cNode.getName(),cNode.getUid(),version);
 						break;
 						
 					default:

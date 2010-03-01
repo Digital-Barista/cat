@@ -39,6 +39,9 @@ public class CampaignInfoDO implements Serializable,DataObject {
 	@Enumerated(EnumType.STRING)
 	private EntryPointType entryType;
 	
+	@Column(name="entry_address")
+	private String entryAddress;
+	
 	@Column(name="name")
 	private String name;
 
@@ -89,6 +92,14 @@ public class CampaignInfoDO implements Serializable,DataObject {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public String getEntryAddress() {
+		return entryAddress;
+	}
+
+	public void setEntryAddress(String entryAddress) {
+		this.entryAddress = entryAddress;
 	}
 
    

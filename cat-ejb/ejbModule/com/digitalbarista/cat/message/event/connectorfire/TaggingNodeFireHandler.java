@@ -38,6 +38,7 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 		Criteria crit = ((Session)em.getDelegate()).createCriteria(ContactDO.class);
 		EntryPointType ept = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
 		String address=null;
+		String altID=null;
 		switch(ept)
 		{
 			case Email:
@@ -48,9 +49,13 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 				break;
 			case Twitter:
 				address=s.getTwitterUsername();
+				altID=s.getTwitterID();
 				break;
 		}
-		crit.add(Restrictions.eq("address",address));
+		if(address!=null)
+			crit.add(Restrictions.eq("address",address));
+		else
+			crit.add(Restrictions.eq("alternateId", altID));
 		crit.add(Restrictions.eq("type", ept));
 		crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
 		con = (ContactDO)crit.uniqueResult();
