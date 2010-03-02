@@ -22,5 +22,7 @@ package com.dbi.cat.common.vo
 		public var connectors:ArrayCollection;
 		public var clientPK:Number;
 		public var addInMessages:ArrayCollection;
+		public var campaignInfos:ArrayCollection;
+		public var isAutoStart:Boolean;
 	}
 }

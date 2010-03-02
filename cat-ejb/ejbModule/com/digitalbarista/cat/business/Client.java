@@ -26,6 +26,10 @@ public class Client implements
 	private Long clientId;
 	@SecondaryDescriminator
 	private String name;
+	private String contactName;
+	private String contactEmail;
+	private String contactPhone;
+	private boolean active;
 	private Set<AddInMessage> addInMessages = new HashSet<AddInMessage>();
 	private Set<KeywordLimit> keywordLimits;
 	private Set<EntryPointDefinition> entryPoints = new TreeSet<EntryPointDefinition>(
@@ -52,6 +56,10 @@ public class Client implements
 	public void copyFrom(ClientDO dataObject) {
 		clientId=dataObject.getPrimaryKey();
 		name=dataObject.getName();
+		contactName=dataObject.getContactName();
+		contactEmail=dataObject.getContactEmail();
+		contactPhone=dataObject.getContactPhone();
+		active=dataObject.isActive();
 		keywordLimits = new HashSet<KeywordLimit>();
 		entryPoints = new HashSet<EntryPointDefinition>();
 		EntryPointDefinition epd;
@@ -90,7 +98,11 @@ public class Client implements
 
 	@Override
 	public void copyTo(ClientDO dataObject) {
+		dataObject.setActive(active);
 		dataObject.setName(name);
+		dataObject.setContactEmail(contactEmail);
+		dataObject.setContactPhone(contactPhone);
+		dataObject.setContactName(contactName);
 	}
 
 	@Override
@@ -173,5 +185,37 @@ public class Client implements
 
 	public void setAddInMessages(Set<AddInMessage> addInMessages) {
 		this.addInMessages = addInMessages;
+	}
+
+	public String getContactName() {
+		return contactName;
+	}
+
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+
+	public String getContactEmail() {
+		return contactEmail;
+	}
+
+	public void setContactEmail(String contactEmail) {
+		this.contactEmail = contactEmail;
+	}
+
+	public String getContactPhone() {
+		return contactPhone;
+	}
+
+	public void setContactPhone(String contactPhone) {
+		this.contactPhone = contactPhone;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }

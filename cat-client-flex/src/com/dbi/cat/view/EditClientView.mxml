@@ -40,13 +40,19 @@
 				<mx:Label text="{client.name}" />
 			</mx:FormItem>
 			<mx:FormItem label="Contatct Name">
-				<mx:TextInput id="ContactName"  width="300"/>
+				<mx:TextInput id="ContactName"  width="300"
+					text="{client.contactName}"
+					change="{client.contactName = ContactName.text}" />
 			</mx:FormItem>
 			<mx:FormItem label="Contatct Email">
-				<mx:TextInput id="ContactEmail"  width="300"/>
+				<mx:TextInput id="ContactEmail"  width="300"
+					text="{client.contactEmail}"
+					change="{client.contactEmail = ContactEmail.text}"/>
 			</mx:FormItem>
 			<mx:FormItem label="Contatct Phone">
-				<mx:TextInput id="ContactPhone"  width="300"/>
+				<mx:TextInput id="ContactPhone"  width="300"
+					text="{client.contactPhone}"
+					change="{client.contactPhone = ContactPhone.text}"/>
 			</mx:FormItem>
 			<mx:FormItem label="Add In Message">
 				<mx:TabNavigator id="EntryTypeTabs"

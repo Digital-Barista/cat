@@ -24,12 +24,12 @@ import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.Role;
 import com.digitalbarista.cat.business.User;
+import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.RoleDO;
 import com.digitalbarista.cat.data.UserDO;
 
@@ -240,10 +240,40 @@ public class UserManagerImpl implements UserManager {
 			removeRole(userPK,role);
 	}
 
-	@RolesAllowed({"admin","account.manager"})
+	@PermitAll
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public User save(User user) {
 		UserDO current = getSimpleUserByPK(user.getPrimaryKey());
+		
+		//If this is you, or you're an admin . . . have at it!
+		if(!ctx.isCallerInRole("admin") && !ctx.getCallerPrincipal().getName().equals(user.getUsername()))
+		{
+			//Other than that . . . only account managers allowed
+			if(!ctx.isCallerInRole("account.manager"))
+				throw new SecurityException("You do not have permission to edit / create this user.");
+
+			//Account managers can create new users, but if it's a current one
+			if(current!=null)
+			{
+				//They're NOT allowed to change admin user info!
+				for(RoleDO role : current.getRoles())
+				{
+					if(role.getRoleName().equals("admin"))
+						throw new SecurityException("You do not have permission to edit / create this user.");
+				}
+				
+				//And ALL of their allowed IDs
+				Set<Long> allowedIDs = extractClientIds(ctx.getCallerPrincipal().getName());
+				//Have to match the client user's IDs
+				Set<Long> neededIDs = extractClientIds(user.getUsername());
+				//Otherwise, they're booted!
+				if(!allowedIDs.containsAll(neededIDs))
+				{
+					throw new SecurityException("You do not have permission to edit / create this user.");
+				}
+			}
+		}
+		
 		User ret = null;
 		
 		if(current==null)
@@ -337,6 +367,8 @@ public class UserManagerImpl implements UserManager {
 			crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		} else {
 			Set<Long> clientIDs = extractClientIds(ctx.getCallerPrincipal().getName());
+			if(extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
 			crit = session.createCriteria(RoleDO.class);
 			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
 			crit.add(Restrictions.in("refId", clientIDs));
@@ -368,6 +400,13 @@ public class UserManagerImpl implements UserManager {
 		for(RoleDO role : getSimpleUserByUsername(username).getRoles())
 			if(role.getRoleName().equals("account.manager") || role.getRoleName().equals("client"))
 				clientIDs.add(role.getRefId());
+		if(clientIDs.size()==0)
+			return clientIDs;
+		Criteria crit = session.createCriteria(ClientDO.class);
+		crit.add(Restrictions.eq("active", true));
+		crit.add(Restrictions.in("id", clientIDs));
+		crit.setProjection(Projections.id());
+		clientIDs = new HashSet<Long>(crit.list());
 		return clientIDs;
 	}
 

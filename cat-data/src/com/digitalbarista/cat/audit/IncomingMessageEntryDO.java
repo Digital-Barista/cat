@@ -20,6 +20,11 @@ import com.digitalbarista.cat.data.EntryPointType;
 
 public class IncomingMessageEntryDO implements Serializable {
 
+	public enum KeywordMatchType
+	{
+		Node,
+		Connector
+	}
 	
 	private Long primaryKey;
 	private String incomingAddress;
@@ -28,6 +33,9 @@ public class IncomingMessageEntryDO implements Serializable {
 	private String subjectOrMessage;
 	private String returnAddress;
 	private byte[] payload;
+	private String matchedUID;
+	private Integer matchedVersion;
+	private KeywordMatchType matchedType;
 	private static final long serialVersionUID = 1L;
 
 	public IncomingMessageEntryDO() {
@@ -99,6 +107,34 @@ public class IncomingMessageEntryDO implements Serializable {
 
 	public void setReturnAddress(String returnAddress) {
 		this.returnAddress = returnAddress;
+	}
+
+	@Column(name="matched_uid")
+	public String getMatchedUID() {
+		return matchedUID;
+	}
+
+	public void setMatchedUID(String matchedUID) {
+		this.matchedUID = matchedUID;
+	}
+
+	@Column(name="matched_version")
+	public Integer getMatchedVersion() {
+		return matchedVersion;
+	}
+
+	public void setMatchedVersion(Integer matchedVersion) {
+		this.matchedVersion = matchedVersion;
+	}
+
+	@Column(name="matched_type")
+	@Enumerated(EnumType.STRING)
+	public KeywordMatchType getMatchedType() {
+		return matchedType;
+	}
+
+	public void setMatchedType(KeywordMatchType matchedType) {
+		this.matchedType = matchedType;
 	}
    
 }

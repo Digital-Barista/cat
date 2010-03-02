@@ -47,7 +47,8 @@
 					<mx:DataGridColumn headerText="Username" dataField="username" />
 					<mx:DataGridColumn headerText="Name" dataField="name"/>
 					<mx:DataGridColumn headerText="Email" dataField="email"/>
-					<mx:DataGridColumn headerText="Action" dataField="userId" 
+					<mx:DataGridColumn dataField="userId" 
+						sortable="false"
 						itemRenderer="com.dbi.cat.view.components.UserActionsItemRenderer"
 						width="150" />
 				</mx:columns>

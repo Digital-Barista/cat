@@ -2,6 +2,7 @@ package com.digitalbarista.cat.message.event.connectorfire;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -16,6 +17,7 @@ import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
+import com.digitalbarista.cat.data.ContactTagLinkDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
@@ -36,6 +38,7 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 		Criteria crit = ((Session)em.getDelegate()).createCriteria(ContactDO.class);
 		EntryPointType ept = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
 		String address=null;
+		String altID=null;
 		switch(ept)
 		{
 			case Email:
@@ -46,9 +49,13 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 				break;
 			case Twitter:
 				address=s.getTwitterUsername();
+				altID=s.getTwitterID();
 				break;
 		}
-		crit.add(Restrictions.eq("address",address));
+		if(address!=null)
+			crit.add(Restrictions.eq("address",address));
+		else
+			crit.add(Restrictions.eq("alternateId", altID));
 		crit.add(Restrictions.eq("type", ept));
 		crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
 		con = (ContactDO)crit.uniqueResult();
@@ -60,7 +67,19 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 			con.setCreateDate(Calendar.getInstance());
 			em.persist(con);
 		}
-		con.getContactTags().addAll(tags);
+		Date newDate = new Date();
+		for(ContactTagDO tag : tags)
+		{
+			if (con.findLink(tag)==null)
+			{
+				ContactTagLinkDO ctldo = new ContactTagLinkDO();
+				ctldo.setContact(con);
+				ctldo.setTag(tag);
+				ctldo.setInitialTagDate(newDate);
+				con.getContactTags().add(ctldo);
+				em.persist(ctldo);
+			}
+		}
 		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 

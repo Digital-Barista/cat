@@ -13,13 +13,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.OrderBy;
 
 /**
  * Entity implementation class for Contact: ContactDO
@@ -36,7 +32,8 @@ public class ContactDO implements DataObject,Serializable {
 	private Calendar createDate;
 	private ClientDO client;
 	private EntryPointType type;
-	private Set<ContactTagDO> contactTags;
+	private String alternateId;
+	private Set<ContactTagLinkDO> contactTags;
 	
 	public ContactDO() {
 		super();
@@ -54,20 +51,26 @@ public class ContactDO implements DataObject,Serializable {
 	}
 
 
-	@ManyToMany(targetEntity=ContactTagDO.class,fetch=FetchType.LAZY)
-	@JoinTable(
-		name="contact_tag_link",
-		joinColumns=@JoinColumn(name="contact_id"),
-		inverseJoinColumns=@JoinColumn(name="contact_tag_id")
-	)
-	public Set<ContactTagDO> getContactTags() {
+	@OneToMany(mappedBy="contact", targetEntity=ContactTagLinkDO.class)
+	@JoinColumn(updatable=false,insertable=false,name="contact_id")
+	public Set<ContactTagLinkDO> getContactTags() {
 		return contactTags;
 	}
 
-	public void setContactTags(Set<ContactTagDO> contactTags) {
+	public void setContactTags(Set<ContactTagLinkDO> contactTags) {
 		this.contactTags = contactTags;
 	}
 
+	public ContactTagLinkDO findLink(ContactTagDO tag)
+	{
+		for(ContactTagLinkDO link : getContactTags())
+		{
+			if(link.getTag()==tag)
+				return link;
+		}
+		return null;
+	}
+	
 	@Column(name="address")
 	public String getAddress() {
 		return address;
@@ -104,5 +107,14 @@ public class ContactDO implements DataObject,Serializable {
 
 	public void setType(EntryPointType type) {
 		this.type = type;
+	}
+
+	@Column(name="alternate_id")
+	public String getAlternateId() {
+		return alternateId;
+	}
+
+	public void setAlternateId(String alternateId) {
+		this.alternateId = alternateId;
 	}
 }

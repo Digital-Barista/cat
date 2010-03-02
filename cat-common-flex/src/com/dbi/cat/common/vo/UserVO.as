@@ -13,7 +13,7 @@ package com.dbi.cat.common.vo
 		public var primaryKey:Number;
 		public var username:String;
 		public var name:String;
-		public var emailAddress:String;
+		public var email:String;
 		public var password:String;
 		public var isActive:Boolean;
 		public var roles:ArrayCollection = new ArrayCollection();

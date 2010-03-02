@@ -78,4 +78,6 @@ public interface ClientManager {
 	@Path("/reservedKeywords/available")
 	@GET
 	public Boolean checkKeywordAvailability(Keyword keyword);
+	public void disableClient(Long clientID);
+	public void enableClient(Long clientID);
 }

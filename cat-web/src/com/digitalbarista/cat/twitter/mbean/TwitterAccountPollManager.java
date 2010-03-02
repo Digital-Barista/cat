@@ -12,10 +12,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.ISO8601DateFormat;
 import org.springframework.context.ApplicationContext;
+
+import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 
 public class TwitterAccountPollManager {
 
@@ -278,20 +283,33 @@ public class TwitterAccountPollManager {
 	}
 	public void registerSubscribeChange(SubscribeAction action)
 	{
-		if(action.getAction().equals(SubscribeType.Subscribe))
+		try
 		{
-			needToSubscribe.remove(action.getSubscriberId());
-			friendList.add(action.getSubscriberId());
-			log("FOLLOWED "+action.getSubscriberId());
-		}else{
-			needToUnsubscribe.remove(action.getSubscriberId());
-			friendList.remove(action.getSubscriberId());
-			log("UNFOLLOWED "+action.getSubscriberId());
+			if(action.getAction().equals(SubscribeType.Subscribe))
+			{
+				needToSubscribe.remove(action.getSubscriberId());
+				friendList.add(action.getSubscriberId());
+				log("FOLLOWED "+action.getSubscriberId());
+				InitialContext ic = new InitialContext();
+				SubscriptionManager sMan = (SubscriptionManager)ic.lookup("ejb/cat/SubscriptionManager");
+				sMan.registerTwitterFollower(""+action.getSubscriberId().intValue(), this.account);
+			}else{
+				needToUnsubscribe.remove(action.getSubscriberId());
+				friendList.remove(action.getSubscriberId());
+				log("UNFOLLOWED "+action.getSubscriberId());
+				InitialContext ic = new InitialContext();
+				SubscriptionManager sMan = (SubscriptionManager)ic.lookup("ejb/cat/SubscriptionManager");
+				sMan.removeTwitterFollower(""+action.getSubscriberId().intValue(), this.account);
+			}
+			if(polling)
+			{
+				subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
+				log("Modify Subscriptions Task Scheduled:1m(registerSubscribeChange)");
+			}
 		}
-		if(polling)
+		catch(NamingException ne)
 		{
-			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
-			log("Modify Subscriptions Task Scheduled:1m(registerSubscribeChange)");
+			log.error("Error while grabbing the subscription manager.",ne);
 		}
 	}
 	public void subscribeChangeFailed()

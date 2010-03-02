@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,6 +13,7 @@ import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
 
 @XmlRootElement(name="Campaign")
@@ -21,6 +21,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 
 	private Long primaryKey;
 	private String name;
+	private Boolean isAutoStart;
 	
 	@SecondaryDescriminator
 	private String uid;
@@ -28,6 +29,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	private Set<Node> nodes=new HashSet<Node>();
 	private Set<Connector> connectors=new HashSet<Connector>();
 	private Set<AddInMessage> addInMessages = new HashSet<AddInMessage>();
+	private Set<CampaignInfo> campaignInfos = new HashSet<CampaignInfo>();
 	
 	@PrimaryDescriminator
 	private Long clientPK;
@@ -44,6 +46,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 			clientPK = dataObject.getClient().getPrimaryKey();
 		}
 		
+		// Copy all addin messages
 		if (dataObject.getAddInMessages() != null)
 		{
 			for (AddInMessageDO addDO : dataObject.getAddInMessages())
@@ -51,6 +54,23 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 				AddInMessage add = new AddInMessage();
 				add.copyFrom(addDO);
 				addInMessages.add(add);
+			}
+		}
+
+		// Copy all campaign infos
+		if (dataObject.getCampaignInfos() != null)
+		{
+			for (CampaignInfoDO campDO : dataObject.getCampaignInfos())
+			{
+				CampaignInfo camp = new CampaignInfo();
+				camp.copyFrom(campDO);
+				campaignInfos.add(camp);
+				
+				// Set the autoStart flag an autoStartNodeUID is present
+				if (campDO.getName().equals(CampaignInfoDO.KEY_AUTO_START_NODE_UID) &&
+					campDO.getValue() != null &&
+					campDO.getValue().length() > 0)
+					isAutoStart = true;
 			}
 		}
 	}
@@ -87,6 +107,20 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		}
 		ret.append(")");
 		
+		// Build list of campaign info
+		ret.append(";campaignInfos:(");
+		if (getCampaignInfos() == null ||
+				getCampaignInfos().size() == 0)
+		{
+			ret.append("none");
+		}
+		else
+		{
+			for (CampaignInfo ci : getCampaignInfos())
+				ret.append(ci.getEntryType() + " - " + ci.getName() + " - " + ci.getValue() + ", ");
+		}
+		ret.append(")");
+		
 		return ret.toString();
 	}
 
@@ -118,6 +152,14 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	}
 	
 	
+	public Boolean getIsAutoStart() {
+		return isAutoStart;
+	}
+
+	public void setIsAutoStart(Boolean isAutoStart) {
+		this.isAutoStart = isAutoStart;
+	}
+
 	@XmlAttribute
 	public String getUid() {
 		return uid;
@@ -171,6 +213,14 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 
 	public void setAddInMessages(Set<AddInMessage> addInMessages) {
 		this.addInMessages = addInMessages;
+	}
+
+	public Set<CampaignInfo> getCampaignInfos() {
+		return campaignInfos;
+	}
+
+	public void setCampaignInfos(Set<CampaignInfo> campaignInfos) {
+		this.campaignInfos = campaignInfos;
 	}
 	
 	

@@ -34,7 +34,7 @@
 				<mx:DataGridColumn dataField="clientName" headerText="Client" />
 				<mx:DataGridColumn dataField="incomingAddress" headerText="Address" />
 				<mx:DataGridColumn dataField="keyword" headerText="Keyword" />
-				<mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.KeywordActionsRenderer" headerText="" width="40" />
+				<mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.KeywordActionsRenderer" headerText="" width="80" sortable="false" />
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:TitleWindow>

@@ -133,8 +133,8 @@ package com.dbi.cat.admin.business
 				(user.name != null &&
 				user.name.toLowerCase().indexOf(filterText.toLowerCase()) > -1) ||
 				
-				(user.emailAddress != null &&
-				user.emailAddress.toLowerCase().indexOf(filterText.toLowerCase()) > -1) )
+				(user.email != null &&
+				user.email.toLowerCase().indexOf(filterText.toLowerCase()) > -1) )
 				return true;
 				
 			return false;
