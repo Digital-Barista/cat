@@ -14,6 +14,11 @@ package com.dbi.cat.common.vo
 		
 		public var clientId:Number;
 		public var name:String;
+		public var contactName:String;
+		public var contactEmail:String;
+		public var contactPhone:String;
+		public var active:Boolean = true;
+	
 		public var addInMessages:ArrayCollection;
 		public var entryPoints:ArrayCollection;
 		public var keywordLimits:ArrayCollection;

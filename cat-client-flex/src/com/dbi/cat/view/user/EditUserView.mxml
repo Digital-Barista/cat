@@ -83,8 +83,8 @@
 							}
 						}
 					}
-					editUser.emailAddress = EmailAddress.text;
-					editUser.name = EmailAddress.text;
+					editUser.email = EmailAddress.text;
+					editUser.name = Name.text;
 					editUser.isActive = IsActive.selected;
 					
 					if(Password.text != "" && Password.text == ConfirmPassword.text)
@@ -195,7 +195,7 @@
 		</mx:FormItem>
 		<mx:FormItem label="Email Address" >
 			<mx:TextInput id="EmailAddress" 
-				text="{editUser.emailAddress}" width="332"/>
+				text="{editUser.email}" width="332"/>
 		</mx:FormItem>
 		<mx:FormItem label="Active">
 			<mx:CheckBox id="IsActive" 

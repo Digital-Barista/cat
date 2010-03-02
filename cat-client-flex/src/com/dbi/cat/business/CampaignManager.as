@@ -20,7 +20,6 @@ package com.dbi.cat.business
 	import mx.core.UIComponent;
 	import mx.managers.PopUpManager;
 	import mx.rpc.Fault;
-	import mx.utils.ObjectUtil;
 	
 	[Bindable]
 	public class CampaignManager
@@ -77,20 +76,12 @@ package com.dbi.cat.business
 				var layout:LayoutInfoEvent = new LayoutInfoEvent(LayoutInfoEvent.LOAD_CAMPAIGN_LAYOUT_INFO);
 				layout.campaign = campaign;
 				dispatcher.dispatchEvent(layout);
-			
-				// Setup the addin message for the loaded campaign
-//				campaignAddInMessage = "";
-//				var client:ClientVO = clientMap[campaign.clientPK];
-//					
-//				if (campaign.addInMessage != null &&
-//					campaign.addInMessage.length > 0)
-//					campaignAddInMessage += campaign.addInMessage;
-//				else if (client.userAddInMessage != null)
-//					campaignAddInMessage += client.userAddInMessage;
-//					
-//				if (client.adminAddInMessage != null)
-//					campaignAddInMessage += client.adminAddInMessage;
 			}
+		}
+		public function loadEditCampaign(campaign:CampaignVO):void
+		{
+			// Keep a copy for editing the properties of
+			currentEditingCampaign = campaign;
 		}
 		public function loadModifiedCampaign(campaign:CampaignVO):void
 		{
@@ -377,11 +368,16 @@ package com.dbi.cat.business
 				closeEditCampaign();
 			}
 					
-			currentEditingCampaign = ObjectUtil.copy(campaign) as CampaignVO;	
+			// Clear the campaign if it is being loaded by the service
+			if (isNaN(campaign.primaryKey))
+				currentEditingCampaign = campaign;
+			else
+				currentEditingCampaign = null;
 				
 			// Add popup to application
 			PopUpManager.addPopUp(editCampaignPopup, DisplayObject(Application.application), true);
 			PopUpManager.centerPopUp(editCampaignPopup);
+			
 		}
 		public function updateCampaign(campaign:CampaignVO):void
 		{
@@ -451,6 +447,12 @@ package com.dbi.cat.business
 		public function closeEditCampaign():void
 		{
 			PopUpManager.removePopUp(editCampaignPopup);
+			
+			// Need to reset the tabnavigator to the first index
+			// because it is filled with a repeater and always shows
+			// the content from the first tab initially
+			if (editCampaignPopup != null)
+				EditCampaignView(editCampaignPopup).EntryTypeTabs.selectedIndex = 0;
 		}
 	}
 }

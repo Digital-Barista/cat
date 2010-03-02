@@ -16,8 +16,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.OrderBy;
-
 /**
  * Entity implementation class for Entity: ClientDO
  *
@@ -29,6 +27,10 @@ public class ClientDO implements Serializable,DataObject {
 
 	private Long primaryKey;
 	private String name;
+	private String contactName;
+	private String contactEmail;
+	private String contactPhone;
+	private boolean active=true;
 	private Set<EntryPointDO> entryPoints;
 	private Set<KeywordLimitDO> keywordLimits;
 	private Set<AddInMessageDO> addInMessages = new HashSet<AddInMessageDO>();
@@ -93,6 +95,42 @@ public class ClientDO implements Serializable,DataObject {
 
 	public void setKeywordLimits(Set<KeywordLimitDO> keywordLimits) {
 		this.keywordLimits = keywordLimits;
+	}
+
+	@Column(name="contact_name")
+	public String getContactName() {
+		return contactName;
+	}
+
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+
+	@Column(name="contact_email")
+	public String getContactEmail() {
+		return contactEmail;
+	}
+
+	public void setContactEmail(String contactEmail) {
+		this.contactEmail = contactEmail;
+	}
+
+	@Column(name="contact_phone")
+	public String getContactPhone() {
+		return contactPhone;
+	}
+
+	public void setContactPhone(String contactPhone) {
+		this.contactPhone = contactPhone;
+	}
+
+	@Column(name="active")
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
    
 }

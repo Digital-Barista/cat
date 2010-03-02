@@ -24,7 +24,6 @@ import javax.persistence.Query;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
@@ -39,7 +38,6 @@ import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
 import com.digitalbarista.cat.business.KeywordLimit;
 import com.digitalbarista.cat.business.ReservedKeyword;
-import com.digitalbarista.cat.business.User;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
@@ -49,8 +47,6 @@ import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.KeywordDO;
 import com.digitalbarista.cat.data.KeywordLimitDO;
 import com.digitalbarista.cat.data.ReservedKeywordDO;
-import com.digitalbarista.cat.data.RoleDO;
-import com.digitalbarista.cat.data.UserDO;
 import com.digitalbarista.cat.exception.FlexException;
 
 /**
@@ -83,8 +79,13 @@ public class ClientManagerImpl implements ClientManager {
     	List<Client> ret = new ArrayList<Client>();
     	Criteria crit = session.createCriteria(ClientDO.class);
     	if(!ctx.isCallerInRole("admin"))
+    	{
     		crit.add(Restrictions.in("id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-    	for(ClientDO client : (List<ClientDO>)crit.list())
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+    	}
+    	
+		for(ClientDO client : (List<ClientDO>)crit.list())
     	{
         	Client c = new Client();
     		c.copyFrom(client);
@@ -107,6 +108,9 @@ public class ClientManagerImpl implements ClientManager {
     	{
     		crit.createAlias("clients", "clients");
     		crit.add(Restrictions.in("clients.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+
+    		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+    			return ret;
     	}
     	
     	for(EntryPointDO entry : (List<EntryPointDO>)crit.list())
@@ -361,9 +365,12 @@ public class ClientManagerImpl implements ClientManager {
 		
 		// Limit query by allowed clients if necessary
     	if(!ctx.isCallerInRole("admin"))
+    	{
     		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-		
-		
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+    	}
+    	
 		Keyword temp;
 		for(KeywordDO keyword : (List<KeywordDO>)crit.list())
 		{
@@ -524,5 +531,29 @@ public class ClientManagerImpl implements ClientManager {
 			return false;
 		
 		return true;
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	@RolesAllowed("admin")
+	public void disableClient(Long clientID) {
+		if(clientID==null)
+			return;
+		ClientDO client = em.find(ClientDO.class, clientID);
+		if(client==null)
+			return;
+		client.setActive(false);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	@RolesAllowed("admin")
+	public void enableClient(Long clientID) {
+		if(clientID==null)
+			return;
+		ClientDO client = em.find(ClientDO.class, clientID);
+		if(client==null)
+			return;
+		client.setActive(true);
 	}
 }

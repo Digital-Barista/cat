@@ -102,6 +102,7 @@ public class CouponManagerImpl implements CouponManager {
 	@Override
     @RolesAllowed({"client","admin","account.manager"})
     public List<Coupon> couponSummaryByClient(Long clientID) {
+		List<Coupon> ret = new ArrayList<Coupon>();
 		Criteria crit = session.createCriteria(CouponOfferDO.class);
 		if(clientID!=null)
 		{
@@ -111,8 +112,9 @@ public class CouponManagerImpl implements CouponManager {
 		{
 			crit.createAlias("campaign", "campaign");
 			crit.add(Restrictions.in("campaign.client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
 		}
-		List<Coupon> ret = new ArrayList<Coupon>();
 		Coupon temp;
 		for(CouponOfferDO offer : (List<CouponOfferDO>)crit.list())
 		{

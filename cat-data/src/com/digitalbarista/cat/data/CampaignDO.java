@@ -1,9 +1,12 @@
 package com.digitalbarista.cat.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,6 +21,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.IndexColumn;
 
 /**
  * Entity implementation class for Entity: CampaignDO
@@ -37,10 +43,11 @@ public class CampaignDO implements Serializable,DataObject {
 	private String name;
 	private int currentVersion = 1;
 	private static final long serialVersionUID = 1L;
-	private Set<CampaignVersionDO> versions = new HashSet<CampaignVersionDO>();
+	private List<CampaignVersionDO> versions = new ArrayList<CampaignVersionDO>();
 	private Set<CampaignNodeLinkDO> nodes = new HashSet<CampaignNodeLinkDO>();
 	private Set<CampaignConnectorLinkDO> connectors = new HashSet<CampaignConnectorLinkDO>();
 	private Set<AddInMessageDO> addInMessages = new HashSet<AddInMessageDO>();
+	private Set<CampaignInfoDO> campaignInfos = new HashSet<CampaignInfoDO>();
 	private String UID;
 	private ClientDO client;
 	private CampaignStatus status=CampaignStatus.Active;
@@ -81,12 +88,14 @@ public class CampaignDO implements Serializable,DataObject {
 		this.currentVersion = currentVersion;
 	}
 
-	@OneToMany(targetEntity=CampaignVersionDO.class, fetch=FetchType.LAZY)
-	public Set<CampaignVersionDO> getVersions() {
+	@OneToMany(targetEntity=CampaignVersionDO.class, fetch=FetchType.LAZY, cascade={CascadeType.ALL})
+	@JoinColumn(name="campaign_id")
+	@IndexColumn(name="version",base=1)
+	public List<CampaignVersionDO> getVersions() {
 		return versions;
 	}
 
-	public void setVersions(Set<CampaignVersionDO> versions) {
+	public void setVersions(List<CampaignVersionDO> versions) {
 		this.versions = versions;
 	}
 
@@ -109,6 +118,18 @@ public class CampaignDO implements Serializable,DataObject {
 
 	public void setAddInMessages(Set<AddInMessageDO> addInMessages) {
 		this.addInMessages = addInMessages;
+	}
+
+	
+
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignInfoDO.class, mappedBy="campaign")
+	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
+	public Set<CampaignInfoDO> getCampaignInfos() {
+		return campaignInfos;
+	}
+
+	public void setCampaignInfos(Set<CampaignInfoDO> campaignInfos) {
+		this.campaignInfos = campaignInfos;
 	}
 
 	@Column(name="uid")

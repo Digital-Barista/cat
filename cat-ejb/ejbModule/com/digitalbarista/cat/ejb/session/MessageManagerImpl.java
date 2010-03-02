@@ -1,10 +1,7 @@
 package com.digitalbarista.cat.ejb.session;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -190,9 +187,7 @@ public class MessageManagerImpl implements MessageManager {
 	
 	private Integer getNumDigits(Integer value)
 	{
-		Integer ret = 1;
-		if (value > 0)
-			ret = 1 + (int)(Math.log(value) / Math.log(10));
+		Integer ret = value.toString().replace("-", "").length();
 		return ret;
 	}
 }

@@ -99,7 +99,8 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 		      CATEvent e = CATEvent.buildIncomingTwitterDMEvent(
 		    		  message.getSenderScreenName(),
 		    		  message.getRecipientScreenName(), 
-		    		  message.getText());
+		    		  message.getText(),
+		    		  ""+message.getSenderId());
 	        
 	    	javax.jms.Connection conn=null;
 	    	Session sess=null;

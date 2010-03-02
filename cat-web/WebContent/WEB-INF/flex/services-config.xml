@@ -13,6 +13,7 @@
             <auth-method>Custom</auth-method>
             <roles>
                  <role>admin</role>
+                 <role>account.manager</role>
                  <role>client</role>
             </roles>
         </security-constraint>

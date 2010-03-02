@@ -2,6 +2,7 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
+import com.digitalbarista.cat.business.CampaignInfo;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.EntryData;
@@ -55,9 +57,12 @@ import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignConnectorLinkDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
+import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignNodeLinkDO;
 import com.digitalbarista.cat.data.CampaignStatus;
+import com.digitalbarista.cat.data.CampaignVersionDO;
+import com.digitalbarista.cat.data.CampaignVersionStatus;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ConnectionPoint;
 import com.digitalbarista.cat.data.ConnectorDO;
@@ -121,7 +126,11 @@ public class CampaignManagerImpl implements CampaignManager {
 		crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 		
 		if(!ctx.isCallerInRole("admin"))
+		{
 			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+		}
 		
 		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
 		{
@@ -144,7 +153,11 @@ public class CampaignManagerImpl implements CampaignManager {
 		crit.add(Restrictions.eq("mode", CampaignMode.Template));
 		
 		if(!ctx.isCallerInRole("admin"))
+		{
 			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+		}
 		
 		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
 		{
@@ -347,6 +360,23 @@ public class CampaignManagerImpl implements CampaignManager {
 			
 			Map<String,Map<String,ConnectorType>> nodeCatalog=new HashMap<String,Map<String,ConnectorType>>();
 			
+			while(camp.getVersions().size() < camp.getCurrentVersion())
+			{
+				CampaignVersionDO cVersion = new CampaignVersionDO();
+				cVersion.setCampaign(camp);
+				cVersion.setPublishedDate(new Date());
+				cVersion.setStatus(CampaignVersionStatus.Published);
+				camp.getVersions().add(cVersion);
+			}
+
+			camp.getVersions().get(camp.getCurrentVersion()-1).setStatus(CampaignVersionStatus.Published);
+			
+			CampaignVersionDO cVersion = new CampaignVersionDO();
+			cVersion.setCampaign(camp);
+			cVersion.setPublishedDate(new Date());
+			cVersion.setStatus(CampaignVersionStatus.Working);
+			camp.getVersions().add(cVersion);
+
 			//Increment version for all connectors
 			for(CampaignConnectorLinkDO ccl : camp.getConnectors())
 			{
@@ -589,7 +619,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.SaveCampaign)
-	public void save(Campaign campaign) {
+	public Campaign save(Campaign campaign) {
 		CampaignDO camp = getSimpleCampaign(campaign.getUid());
 		if(camp==null && campaign.getClientPK()==null)
 			throw new IllegalArgumentException("Cannot create a new campaign without a valid client PK.");
@@ -642,7 +672,47 @@ public class CampaignManagerImpl implements CampaignManager {
 			}
 		}
 		
+		// Update list of campaign info
+		if (campaign.getCampaignInfos() != null)
+		{
+			for (CampaignInfo ci : campaign.getCampaignInfos())
+			{
+					
+				// Get existing or new data object
+				CampaignInfoDO ciDO = null;
+				if (ci.getCampaignInfoId() != null)
+					ciDO = em.find(CampaignInfoDO.class, ci.getCampaignInfoId());
+				if (ciDO == null)
+					ciDO = new CampaignInfoDO();
+
+				
+				// Update and persist object
+				ciDO.setCampaign(camp);
+				ci.copyTo(ciDO);
+				if(ci.getValue()!=null)
+				{
+					EntryNode eNode = (EntryNode)getNode(ciDO.getValue());
+					for(EntryData entryData : eNode.getEntryData())
+					{
+						if(entryData.getEntryType()==EntryPointType.Twitter)
+							ciDO.setEntryAddress(entryData.getEntryPoint());
+					}
+				}
+				em.persist(ciDO);
+				
+				// Add info to list
+				if (camp.getCampaignInfos() == null)
+					camp.setCampaignInfos(new HashSet<CampaignInfoDO>());
+				camp.getCampaignInfos().add(ciDO);
+			}
+		}
+		
 		em.flush();
+		
+		// Return updated campaign
+		Campaign ret = new Campaign();
+		ret.copyFrom(camp);
+		return ret;
 	}
 
 	@Override

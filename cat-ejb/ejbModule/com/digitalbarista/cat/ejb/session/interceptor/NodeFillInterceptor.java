@@ -16,7 +16,6 @@ import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.data.ContactTagDO;
-import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;

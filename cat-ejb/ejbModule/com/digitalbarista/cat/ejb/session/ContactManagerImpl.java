@@ -2,6 +2,7 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -28,12 +29,12 @@ import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
-import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.PagingInfo;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
+import com.digitalbarista.cat.data.ContactTagLinkDO;
 import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
@@ -93,9 +94,13 @@ public class ContactManagerImpl implements ContactManager {
 
 		// Limit query by allowed clients if necessary
     	if(!ctx.isCallerInRole("admin"))
+    	{
     		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-		
-    	// Apply search criteria
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+    	}
+    	
+		// Apply search criteria
     	if (searchCriteria != null)
     	{
     		// Filter by client ID
@@ -114,7 +119,8 @@ public class ContactManagerImpl implements ContactManager {
     			for (ContactTag tag : searchCriteria.getContactTags())
     				tagIds.add(tag.getContactTagId());
     			crit.createAlias("contactTags", "contactTags");
-    			crit.add(Restrictions.in("contactTags.contactTagId", tagIds));
+    			crit.createAlias("contactTags.tag", "tag");
+    			crit.add(Restrictions.in("tag.contactTagId", tagIds));
     		}
     	}
     	
@@ -147,8 +153,12 @@ public class ContactManagerImpl implements ContactManager {
 
 		// Limit query by allowed clients if necessary
     	if(!ctx.isCallerInRole("admin"))
+    	{
     		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-		
+			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+				return ret;
+    	}
+    	
 		for (ContactTagDO tag : (List<ContactTagDO>)crit.list())
 		{
 			ContactTag t = new ContactTag();
@@ -255,8 +265,15 @@ public class ContactManagerImpl implements ContactManager {
 			for (ContactTag tag : tags)
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
-				if (!cDO.getContactTags().contains(tagDO))
-					cDO.getContactTags().add(tagDO);
+				if (cDO.findLink(tagDO)==null)
+				{
+					ContactTagLinkDO ctldo = new ContactTagLinkDO();
+					ctldo.setContact(cDO);
+					ctldo.setTag(tagDO);
+					ctldo.setInitialTagDate(new Date());
+					cDO.getContactTags().add(ctldo);
+					em.persist(ctldo);
+				}
 			}
 			em.persist(cDO);
 		}
@@ -298,10 +315,17 @@ public class ContactManagerImpl implements ContactManager {
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
 				if (cDO.getContactTags() == null)
-					cDO.setContactTags(new HashSet<ContactTagDO>());
+					cDO.setContactTags(new HashSet<ContactTagLinkDO>());
 				
-				if (!cDO.getContactTags().contains(tagDO))
-					cDO.getContactTags().add(tagDO);
+				if (cDO.findLink(tagDO)==null)
+				{
+					ContactTagLinkDO ctldo = new ContactTagLinkDO();
+					ctldo.setContact(cDO);
+					ctldo.setTag(tagDO);
+					ctldo.setInitialTagDate(new Date());
+					cDO.getContactTags().add(ctldo);
+					em.persist(ctldo);
+				}
 			}
 			
 			// Add persisted contact to return list
@@ -370,9 +394,14 @@ public class ContactManagerImpl implements ContactManager {
 				// Add tag to all matching contacts
 				for (ContactDO c : contacts)
 				{
-					if (!c.getContactTags().contains(tag))
+					if (c.findLink(tag)==null)
 					{
-						c.getContactTags().add(tag);
+						ContactTagLinkDO ctldo = new ContactTagLinkDO();
+						ctldo.setContact(c);
+						ctldo.setTag(tag);
+						ctldo.setInitialTagDate(new Date());
+						c.getContactTags().add(ctldo);
+						em.persist(ctldo);
 						em.persist(c);
 					}
 				}
