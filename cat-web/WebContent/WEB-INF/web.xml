@@ -2,22 +2,22 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
   <display-name>Campaign Admin Tool</display-name>
   <description>Messaging Campaign Administrative Tool</description>
-   <context-param>
-      <param-name>resteasy.jndi.resources</param-name>
-      <param-value>ejb/cat/CampaignManager,ejb/cat/ClientManager,ejb/cat/CouponManager,ejb/cat/LayoutManager,ejb/cat/SubscriptionManager,ejb/cat/UserManager</param-value>
-   </context-param>
+  <context-param>
+    <param-name>resteasy.jndi.resources</param-name>
+    <param-value>ejb/cat/CampaignManager,ejb/cat/ClientManager,ejb/cat/CouponManager,ejb/cat/ContactManager,ejb/cat/LayoutManager,ejb/cat/SubscriptionManager,ejb/cat/UserManager</param-value>
+  </context-param>
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>/WEB-INF/cat-spring-config.xml
     			 /WEB-INF/cat-ejbs.xml</param-value>
   </context-param>
-    <context-param>
-       <param-name>resteasy.servlet.mapping.prefix</param-name>
-       <param-value>/rest</param-value>
-    </context-param>
-   <listener>
-      <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
-   </listener>
+  <context-param>
+    <param-name>resteasy.servlet.mapping.prefix</param-name>
+    <param-value>/rest</param-value>
+  </context-param>
+  <listener>
+    <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+  </listener>
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
@@ -48,37 +48,56 @@
     <realm-name>campaign-admin</realm-name>
   </login-config>
   <security-constraint>
-  	<web-resource-collection>
-  		<web-resource-name>restServices</web-resource-name>
-  		<description>REST Services</description>
-  		<url-pattern>/rest/*</url-pattern>
-  		<http-method>GET</http-method>
-  		<http-method>POST</http-method>
-  		<http-method>PUT</http-method>
-  		<http-method>DELETE</http-method>
-  	</web-resource-collection>
-  	<auth-constraint>
-  		<description>all roles</description>
-  		<role-name>*</role-name>
-  	</auth-constraint>
+    <web-resource-collection>
+      <web-resource-name>restServices</web-resource-name>
+      <description>REST Services</description>
+      <url-pattern>/rest/*</url-pattern>
+      <http-method>GET</http-method>
+      <http-method>POST</http-method>
+      <http-method>PUT</http-method>
+      <http-method>DELETE</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <description>all roles</description>
+      <role-name>*</role-name>
+    </auth-constraint>
   </security-constraint>
-   <servlet>
-      <servlet-name>Resteasy</servlet-name>
-      <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
-   </servlet>
   <servlet>
-  	<run-as><role-name>admin</role-name></run-as>
+    <servlet-name>Resteasy</servlet-name>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+  </servlet>
+  <servlet>
     <description></description>
     <display-name>KannelIncomingMessageServlet</display-name>
     <servlet-name>KannelIncomingMessageServlet</servlet-name>
     <servlet-class>com.digitalbarista.cat.servlet.KannelIncomingMessageServlet</servlet-class>
+    <run-as>
+      <role-name>admin</role-name>
+    </run-as>
   </servlet>
-   <servlet-mapping>
-      <servlet-name>Resteasy</servlet-name>
-      <url-pattern>/rest/*</url-pattern>
-   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Resteasy</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>KannelIncomingMessageServlet</servlet-name>
     <url-pattern>/kannel-sms</url-pattern>
   </servlet-mapping>
+  <filter>
+    <display-name>ContentTypeByExtensionFilter</display-name>
+    <filter-name>ContentTypeByExtensionFilter</filter-name>
+    <filter-class>com.digitalbarista.cat.servlet.filter.ContentTypeByExtensionFilter</filter-class>
+    <init-param>
+    	<param-name>xml</param-name>
+    	<param-value>application/xml</param-value>
+    </init-param>
+    <init-param>
+    	<param-name>json</param-name>
+    	<param-value>application/json</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>ContentTypeByExtensionFilter</filter-name>
+    <url-pattern>/rest/*</url-pattern>
+  </filter-mapping>
 </web-app>
