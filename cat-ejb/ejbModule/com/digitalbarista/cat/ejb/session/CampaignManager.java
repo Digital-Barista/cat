@@ -42,7 +42,7 @@ public interface CampaignManager {
 	public Campaign save(Campaign campaign);
 	@Path("/{template-uid}")
 	@POST
-	public void createFromTemplate(Campaign campaign, @QueryParam("template-uid") String campaignTemplateUUID);
+	public void createFromTemplate(Campaign campaign, @PathParam("template-uid") String campaignTemplateUUID);
 	@DELETE
 	public void delete(Campaign campaign);
 	@GET
