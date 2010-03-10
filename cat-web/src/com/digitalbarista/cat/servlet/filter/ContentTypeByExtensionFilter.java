@@ -84,8 +84,17 @@ public class ContentTypeByExtensionFilter implements Filter {
 
 		@Override
 		public StringBuffer getRequestURL() {
-			String uri = super.getRequestURL().toString();
-			return new StringBuffer().append(uri.substring(0,uri.length() - getExtension(uri).length()));
+			String uri = super.getRequestURI();
+			String urlBase = super.getRequestURL().toString();
+			String remainder = super.getRequestURL().toString();
+			int splitIndex = urlBase.indexOf(uri);
+			splitIndex+=uri.length();
+			urlBase = urlBase.substring(0,splitIndex);
+			remainder = (remainder.length()>urlBase.length()) ? urlBase.substring(splitIndex) : "";
+			StringBuffer ret = new StringBuffer();
+			ret.append(urlBase.substring(0,urlBase.length()-getExtension(urlBase).length()));
+			ret.append(remainder);
+			return ret;
 		}
 	}
 }

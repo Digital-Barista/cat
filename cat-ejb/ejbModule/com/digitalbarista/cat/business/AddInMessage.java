@@ -1,6 +1,8 @@
 package com.digitalbarista.cat.business;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
@@ -53,6 +55,7 @@ public class AddInMessage implements
 		return ret.toString();
 	}
 	
+	@XmlAttribute(name="id")
 	public Long getAddInMessageId() {
 		return addInMessageId;
 	}
@@ -61,6 +64,7 @@ public class AddInMessage implements
 		this.addInMessageId = addInMessageId;
 	}
 
+	@XmlTransient
 	public Long getClientId() {
 		return clientId;
 	}
@@ -69,6 +73,7 @@ public class AddInMessage implements
 		this.clientId = clientId;
 	}
 
+	@XmlTransient
 	public Long getCampaignId() {
 		return campaignId;
 	}
@@ -77,6 +82,7 @@ public class AddInMessage implements
 		this.campaignId = campaignId;
 	}
 
+	@XmlAttribute
 	public EntryPointType getEntryType() {
 		return entryType;
 	}
@@ -85,6 +91,7 @@ public class AddInMessage implements
 		this.entryType = entryType;
 	}
 
+	@XmlAttribute
 	public String getMessage() {
 		return message;
 	}
@@ -93,6 +100,7 @@ public class AddInMessage implements
 		this.message = message;
 	}
 
+	@XmlAttribute
 	public AddInMessageType getType() {
 		return type;
 	}
@@ -100,7 +108,4 @@ public class AddInMessage implements
 	public void setType(AddInMessageType type) {
 		this.type = type;
 	}
-
-
-
 }

@@ -42,9 +42,11 @@ public interface CampaignManager {
 	public Campaign save(Campaign campaign);
 	@Path("/{template-uid}")
 	@POST
-	public void createFromTemplate(Campaign campaign, @PathParam("template-uid") String campaignTemplateUUID);
-	@DELETE
+	public Campaign createFromTemplate(Campaign campaign, @PathParam("template-uid") String campaignTemplateUUID);
 	public void delete(Campaign campaign);
+	@DELETE
+	@Path("/{uid}")
+	public void deleteCampaign(@PathParam("uid") String uid);
 	@GET
 	@Wrapped(element="Campaigns")
 	public List<Campaign> getAllCampaigns();
@@ -63,9 +65,10 @@ public interface CampaignManager {
 	@Path("/nodes")
 	@POST
 	public void save(Node node);
-	@Path("/nodes")
-	@DELETE
 	public void delete(Node node);
+	@Path("/nodes/{uid}")
+	@DELETE
+	public void deleteNode(@PathParam("uid") String uid);
 	
 	@GET
 	@Path("/connectors/{uid}")
@@ -77,9 +80,10 @@ public interface CampaignManager {
 	@Path("/connectors")
 	@POST
 	public void save(Connector connector);
-	@Path("/connectors")
-	@DELETE
 	public void delete(Connector connector);
+	@Path("/connectors/{uid}")
+	@DELETE
+	public void deleteConnector(@PathParam("uid") String uid);
 	
 	@POST
 	@Path("{uid}/publish")

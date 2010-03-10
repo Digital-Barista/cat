@@ -719,7 +719,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.CreateCampaignFromTemplate)
-	public void createFromTemplate(Campaign campaign, String campaignTemplateUUID)
+	public Campaign createFromTemplate(Campaign campaign, String campaignTemplateUUID)
 	{
 		Campaign template = getDetailedCampaign(campaignTemplateUUID);
 		if(template==null)
@@ -729,7 +729,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		Map<String,String> oldNewUIDMap = new HashMap<String,String>();
 		
-		save(campaign);
+		campaign = save(campaign);
 		Node newNode;
 		for(Node oldNode : template.getNodes())
 		{
@@ -761,7 +761,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			newLO.setVersion(1);
 			layoutManager.save(newLO);
 		}
-		
+		return campaign;
 	}
 
 	private Connector copyConnector(Connector from)
@@ -922,6 +922,8 @@ public class CampaignManagerImpl implements CampaignManager {
 	@AuditEvent(AuditType.SaveNode)
 	public void save(Node node) {
 		CampaignDO camp = getSimpleCampaign(node.getCampaignUID());
+		if(node.getUid()==null)
+			node.setUid(UUID.randomUUID().toString());
 		NodeDO n = getSimpleNode(node.getUid());
 		if(n==null)
 		{
@@ -1146,6 +1148,8 @@ public class CampaignManagerImpl implements CampaignManager {
 	@AuditEvent(AuditType.SaveConnection)
 	public void save(Connector connector) {
 		CampaignDO camp = getSimpleCampaign(connector.getCampaignUID());
+		if(connector.getUid()==null)
+			connector.setUid(UUID.randomUUID().toString());
 		ConnectorDO c = getSimpleConnector(connector.getUid());
 		if(c==null)
 		{
@@ -1430,5 +1434,20 @@ public class CampaignManagerImpl implements CampaignManager {
 		for(Object[] row : result)
 			ret.put((String)row[0], (Long)row[1]);
 		return ret;
+	}
+
+	@Override
+	public void deleteCampaign(String uid) {
+		delete(getDetailedCampaign(uid));
+	}
+
+	@Override
+	public void deleteConnector(String uid) {
+		delete(getConnector(uid));
+	}
+
+	@Override
+	public void deleteNode(String uid) {
+		delete(getNode(uid));
 	}
 }
