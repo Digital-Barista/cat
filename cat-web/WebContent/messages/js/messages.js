@@ -1,36 +1,15 @@
 function MessageAPI()
 {
-	var MESSAGE_URL = "/cat/facebook/get_messages";
+	var MESSAGE_URL = "/cat/rest/facebook/get_messages";
 	
 	this.loadMessages = function(uid)
 	{
 		var url = MESSAGE_URL + "/" + uid;
 		$.getJSON(url, function(data){
-			
+
 			// Clear message area
 			var area = $("#MessageArea");
 			area.html("");
-			
-			// Add the control bar
-			var controls = createControls();
-			area.append(controls);
-			
-			// Use a table to hold the list
-			var table = $("<table />");
-			table.attr("class", "messageTable");
-			$("#MessageArea").append(table);
-			
-			// Add the header row
-			var header = createHeader();
-			table.append(header);
-			
-			// Create row for each message
-			for (var i = 0; i < data.length; i++)
-			{
-				var o = data[i];
-			   var row = createRow(o.message);
-			   table.append(row);
-			}
 			
 			// No messages
 			if (data == null ||
@@ -42,6 +21,30 @@ function MessageAPI()
 				
 				$("#MessageArea").append(empty);
 			}
+			else
+			{
+				// Add the control bar
+				var controls = createControls();
+				area.append(controls);
+				
+				// Use a table to hold the list
+				var table = $("<table />");
+				table.attr("class", "messageTable");
+				$("#MessageArea").append(table);
+				
+				// Add the header row
+				var header = createHeader();
+				table.append(header);
+				
+				// Create row for each message
+				for (var i = 0; i < data.length; i++)
+				{
+					var o = data[i];
+				   var row = createRow(o.message);
+				   table.append(row);
+				}
+			}
+			
 		 });
 	}
 	
