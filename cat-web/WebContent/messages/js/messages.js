@@ -143,8 +143,11 @@ function MessageAPI()
 			var keywords = message.@metadata.split(",");
 			for (var i = 0; i < keywords.length; i++)
 			{
-				var action = $("<button type='button'>" + keywords[i] + "</button>");
-				cell.append(action);
+				if (keywords[i].length > 0)
+				{
+					var action = $("<button type='button'>" + keywords[i] + "</button>");
+					cell.append(action);
+				}
 			}
 		}
 		
