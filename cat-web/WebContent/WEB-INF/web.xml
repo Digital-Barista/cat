@@ -4,7 +4,7 @@
   <description>Messaging Campaign Administrative Tool</description>
   <context-param>
     <param-name>resteasy.jndi.resources</param-name>
-    <param-value>ejb/cat/CampaignManager,ejb/cat/ClientManager,ejb/cat/CouponManager,ejb/cat/ContactManager,ejb/cat/LayoutManager,ejb/cat/SubscriptionManager,ejb/cat/UserManager</param-value>
+    <param-value>ejb/cat/CampaignManager,ejb/cat/ClientManager,ejb/cat/CouponManager,ejb/cat/ContactManager,ejb/cat/LayoutManager,ejb/cat/SubscriptionManager,ejb/cat/UserManager,ejb/cat/FacebookManager</param-value>
   </context-param>
   <context-param>
     <param-name>contextConfigLocation</param-name>

@@ -14,11 +14,13 @@
 		<class>com.digitalbarista.cat.data.LayoutInfoDO</class>
 		<class>com.digitalbarista.cat.data.KeywordLimitDO</class>
 		<class>com.digitalbarista.cat.data.KeywordDO</class>
+		<class>com.digitalbarista.cat.data.FacebookMessageDO</class>
 		<class>com.digitalbarista.cat.data.EntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CouponResponseDO</class>
 		<class>com.digitalbarista.cat.data.CouponRedemptionDO</class>
 		<class>com.digitalbarista.cat.data.CouponOfferDO</class>
 		<class>com.digitalbarista.cat.data.CouponCounterDO</class>
+		<class>com.digitalbarista.cat.data.ContactTagLinkDO</class>
 		<class>com.digitalbarista.cat.data.ContactTagDO</class>
 		<class>com.digitalbarista.cat.data.ContactDO</class>
 		<class>com.digitalbarista.cat.data.ConnectorInfoDO</class>
@@ -35,7 +37,6 @@
 		<class>com.digitalbarista.cat.audit.OutgoingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.IncomingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.AuditDO</class>
-		<class>com.digitalbarista.cat.data.ContactTagLinkDO</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
 		</properties>
