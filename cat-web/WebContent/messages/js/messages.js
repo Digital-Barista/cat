@@ -4,6 +4,16 @@ function MessageAPI()
 	
 	this.loadMessages = function(uid)
 	{
+		// Show an error message if the request fails
+		$("#MessageArea").ajaxError(function() {
+				var error = $("<div />");
+				error.attr("class", "error");
+				error.text("Your messages cannot be loaded right now");
+				$(this).html("");
+				$(this).append(error);
+		});
+		
+		// Make the message request
 		var url = MESSAGE_URL + "/" + uid;
 		$.getJSON(url, function(data){
 
@@ -72,6 +82,10 @@ function MessageAPI()
 		all.text("All");
 		all.attr("href", "#");
 		cell.append(all);
+		all.bind('click', function() {
+			selectCheckboxes(true);
+		});
+
 		
 		var space = $("<span />");
 		space.text(" ");
@@ -81,6 +95,9 @@ function MessageAPI()
 		none.text("None");
 		none.attr("href", "#");
 		cell.append(none);
+		none.bind('click', function() {
+			selectCheckboxes(false);
+		});
 		
 		// Add received date
 		cell = $("<td />");
@@ -91,13 +108,13 @@ function MessageAPI()
 		cell = $("<td />");
 		cell.text("Message");
 		row.append(cell);
-
-		// Add action column
-		cell = $("<td />");
-		cell.text("Respond");
-		row.append(cell);
 		
 		return row;
+	}
+	
+	function selectCheckboxes(all)
+	{
+		$('input:checkbox').attr("checked", all);
 	}
 	
 	function createRow(message)
@@ -137,16 +154,13 @@ function MessageAPI()
 		// Create responses
 		if (message.@metadata != null)
 		{
-			cell = $("<td />");
-			row.append(cell);
-			
 			var keywords = message.@metadata.split(",");
 			for (var i = 0; i < keywords.length; i++)
 			{
 				if (keywords[i].length > 0)
 				{
 					var action = $("<button type='button'>" + keywords[i] + "</button>");
-					cell.append(action);
+					content.append(action);
 				}
 			}
 		}

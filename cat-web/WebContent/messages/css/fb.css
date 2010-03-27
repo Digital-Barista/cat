@@ -25,6 +25,16 @@
 	margin-left:auto;
 	margin-right:auto;
 }
+
+.error
+{
+	font-size:14;
+	font-weight:bold;
+	width:270px;
+	margin-top:50px;
+	margin-left:auto;
+	margin-right:auto;
+}
 .controlBar
 {
 	text-align:right;

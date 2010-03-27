@@ -1,4 +1,3 @@
-var api_key = 'ee9f3d07656e6eb194ad5ce024a63340'; 
 var channel_path = '/xd_receiver.htm'; 
 
 FB_RequireFeatures(["Api"], function(){ 
