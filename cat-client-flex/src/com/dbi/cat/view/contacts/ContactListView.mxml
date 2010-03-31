@@ -98,8 +98,12 @@
 				// Setup search criteria
 				if (contactSearchCriteria == null)
 					contactSearchCriteria = new ContactSearchCriteriaVO();
+					
 				contactSearchCriteria.clientId = Client.selectedItem.clientId;
-				contactSearchCriteria.entryType = ContactType.selectedLabel;
+				
+				if (ContactType.selectedItem != null)
+					contactSearchCriteria.entryType = ContactType.selectedItem.name;
+					
 				event.searchCriteria = contactSearchCriteria;
 				event.pagingInfo = contactPagingInfo;
 				
@@ -147,6 +151,7 @@
 			<controls:AdvancedComboBox id="ContactType"
 				selectedBindingValue="{contactSearchCriteria.entryType}"
 				dataProvider="{contactTypes}"
+				labelField="name"
 				change="doFilter()" />
 			<mx:Label text="Tags" />
 			<mx:Button label="{tagLabel}"

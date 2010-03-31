@@ -3,7 +3,8 @@ package com.digitalbarista.cat.data;
 public enum EntryPointType {
 	SMS (0, "SMS", 160),
 	Email (1, "Email", 0),
-	Twitter (2, "Twitter", 140);
+	Twitter (2, "Twitter", 140),
+	Facebook (3, "Facebook", 0);;
 	
 	private Integer id;
 	private String name;

@@ -43,7 +43,7 @@
 				{
 					var event:ContactEvent = new ContactEvent(ContactEvent.SAVE_CONTACT);
 					currentContact.clientId = Client.selectedItem.clientId;
-					currentContact.type = ContactType.selectedLabel;
+					currentContact.type = ContactType.selectedItem.name;
 					currentContact.address = Contact.text;
 					event.contact = currentContact;
 					dispatchEvent(event);
@@ -61,7 +61,8 @@
 		</mx:FormItem>
 		<mx:FormItem label="Type">
 			<mx:ComboBox id="ContactType"
-				dataProvider="{EntryPointType.getAllTypes()}" />
+				dataProvider="{EntryPointType.getAllTypes()}"
+				labelField="name" />
 		</mx:FormItem>
 		<mx:FormItem label="Contact">
 			<mx:TextInput id="Contact" />

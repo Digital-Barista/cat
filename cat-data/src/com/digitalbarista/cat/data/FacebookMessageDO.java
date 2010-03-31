@@ -24,6 +24,9 @@ public class FacebookMessageDO implements Serializable,DataObject {
 	@Column(name="facebook_message_id")
 	private Integer facebookMessageId;
 
+	@Column(name="facebook_app_id")
+	private String facebookAppId;
+	
 	@Column(name="title")
 	private String title;
 
@@ -38,6 +41,9 @@ public class FacebookMessageDO implements Serializable,DataObject {
 	
 	@Column(name="metadata")
 	private String metadata;
+	
+	@Column(name="response")
+	private String response;
 	
 	private static final long serialVersionUID = 1L;
 
@@ -91,6 +97,22 @@ public class FacebookMessageDO implements Serializable,DataObject {
 
 	public void setMetadata(String metadata) {
 		this.metadata = metadata;
+	}
+
+	public String getFacebookAppId() {
+		return facebookAppId;
+	}
+
+	public void setFacebookAppId(String facebookAppId) {
+		this.facebookAppId = facebookAppId;
+	}
+
+	public String getResponse() {
+		return response;
+	}
+
+	public void setResponse(String response) {
+		this.response = response;
 	}   
 	
 	   

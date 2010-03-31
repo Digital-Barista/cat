@@ -19,6 +19,7 @@ public class FacebookMessage implements
 	private Calendar createDate;
 	private String formattedCreateDate;
 	private String metadata;
+	private String response;
 
 	@Override
 	public void copyFrom(FacebookMessageDO dataObject) {
@@ -27,6 +28,7 @@ public class FacebookMessage implements
 		body = dataObject.getBody();
 		createDate = dataObject.getCreateDate();
 		metadata = dataObject.getMetadata();
+		response = dataObject.getResponse();
 		
 	}
 	@Override
@@ -74,14 +76,23 @@ public class FacebookMessage implements
 	public void setMetadata(String metadata) {
 		this.metadata = metadata;
 	}
+
+	@XmlAttribute
+	public String getResponse() {
+		return response;
+	}
+	public void setResponse(String response) {
+		this.response = response;
+	}
 	
 	@XmlAttribute
 	public String getFormattedCreateDate()
 	{
 		if (formattedCreateDate == null)
 		{
-			SimpleDateFormat df = new SimpleDateFormat("EEE MM/dd/yyyy hh:mm aaa");
-			formattedCreateDate = df.format(createDate.getTime());
+			SimpleDateFormat df = new SimpleDateFormat("MMMMM d 'at' hh:mm");
+			SimpleDateFormat ampm = new SimpleDateFormat("aaa");
+			formattedCreateDate = df.format(createDate.getTime()) + ampm.format(createDate.getTime()).toLowerCase();
 		}
 		return formattedCreateDate;
 	}	

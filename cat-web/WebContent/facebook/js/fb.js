@@ -12,14 +12,6 @@ FB_RequireFeatures(["Api"], function(){
 	api.requireLogin(function(exception){ 
 
 		var uid = api.get_session().uid;
-		
-//		 FB.Facebook.apiClient.fql_query("SELECT name, pic FROM user WHERE uid=" + uid,
-//				 function(rows) {
-//				   var content = "Hello, " + rows[0].name + " your UID is: " + uid;
-//				   updateMessageArea(content);
-//		 });
-		 
- 
 		 var messageApi = new MessageAPI();
 		 messageApi.loadMessages(uid);
 	}); 

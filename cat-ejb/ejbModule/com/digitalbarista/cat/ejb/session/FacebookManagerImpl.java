@@ -51,12 +51,13 @@ public class FacebookManagerImpl implements FacebookManager {
 	@SuppressWarnings("unchecked")
 	@Override
 	@PermitAll
-	public List<FacebookMessage> getMessages(String uid) {
+	public List<FacebookMessage> getMessages(String facebookAppId, String uid) {
 
 		List<FacebookMessage> ret = new ArrayList<FacebookMessage>();
 		
 		Criteria crit = session.createCriteria(FacebookMessageDO.class);
 		crit.add(Restrictions.eq("facebookUID", uid));
+		crit.add(Restrictions.eq("facebookAppId", facebookAppId));
 		
 		for (FacebookMessageDO messageDO : (List<FacebookMessageDO>)crit.list())
 		{

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 	width="100%" height="100%"
-	label="{entryType}" xmlns:controls="com.dbi.controls.*">
+	label="{entryType.name}" xmlns:controls="com.dbi.controls.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
@@ -29,13 +29,13 @@
 				dispatchEvent(new Event("dataUpdate"));	
 			}
 			
-			private var _entryType:String;
+			private var _entryType:EntryPointType;
 			[Bindable]
-			public function get entryType():String
+			public function get entryType():EntryPointType
 			{
 				return _entryType;
 			}
-			public function set entryType(value:String):void
+			public function set entryType(value:EntryPointType):void
 			{
 				_entryType = value;
 				dispatchEvent(new Event("dataUpdate"));	
@@ -55,7 +55,7 @@
 							var ep:Object = node;
 							for each (var ed:EntryDataVO in ep.entryData)
 							{
-								if (ed.entryType == entryType)
+								if (ed.entryType == entryType.name)
 									ret.addItem(node);
 							}
 						}
@@ -73,7 +73,7 @@
 				{
 					for each (var add:AddInMessageVO in currentCampaign.addInMessages)
 					{
-						if (add.entryType == entryType &&
+						if (add.entryType == entryType.name &&
 							add.type == AddInMessageType.CLIENT)
 							return add;
 					}
@@ -90,7 +90,7 @@
 				{
 					for each (var info:CampaignInfoVO in currentCampaign.campaignInfos)
 					{
-						if (info.entryType == entryType &&
+						if (info.entryType == entryType.name &&
 							info.name == CampaignInfoVO.AUTO_START_NODE_UID)
 							return info;
 					}
@@ -108,7 +108,7 @@
 				{
 					var add:AddInMessageVO = new AddInMessageVO();
 					add.campaignId = currentCampaign.primaryKey.toString();
-					add.entryType = entryType;
+					add.entryType = entryType.name;
 					add.type = AddInMessageType.CLIENT;
 					add.message = AddIn.text;
 					
@@ -128,7 +128,7 @@
 				{
 					var ci:CampaignInfoVO = new CampaignInfoVO();
 					ci.campaignId = currentCampaign.primaryKey.toString();
-					ci.entryType = entryType;
+					ci.entryType = entryType.name;
 					ci.name = CampaignInfoVO.AUTO_START_NODE_UID;
 					ci.value = EntryPoint.selectedItem.uid;
 					
@@ -151,7 +151,7 @@
 				var ret:String = "";
 				for each (var ed:EntryDataVO in ep.entryData)
 				{
-					if (ed.entryType == entryType)
+					if (ed.entryType == entryType.name)
 					{
 						ret = ep.name + " - " + ed.entryPoint;
 						break;
@@ -163,8 +163,8 @@
 	</mx:Script>
 	<mx:Form width="100%" paddingBottom="0" paddingLeft="5" paddingRight="5" paddingTop="0">
 		<mx:FormItem label="Auto Start"
-			visible="{EntryPointType.allowAutoStart(entryType)}"
-			includeInLayout="{EntryPointType.allowAutoStart(entryType)}">
+			visible="{entryType.allowAutoStart}"
+			includeInLayout="{entryType.allowAutoStart}">
 			<mx:HBox>
 				<mx:CheckBox id="IsAutoStart"
 					selected="{campaignInfoAutoStartUID.value != null}"

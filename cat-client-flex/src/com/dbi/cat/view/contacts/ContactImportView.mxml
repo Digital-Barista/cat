@@ -30,7 +30,7 @@
 					var contact:ContactVO = new ContactVO();
 					contact.address = address.address;
 					contact.clientId = Client.selectedItem.clientId;
-					contact.type = ContactType.selectedLabel;
+					contact.type = ContactType.selectedItem.name;
 					contact.contactTags = Tags.selectedTags;
 					contacts.addItem(contact);
 				}
@@ -84,7 +84,8 @@
 						dataProvider="{clients}" />
 					<mx:Label text="Type:" />
 					<mx:ComboBox id="ContactType"
-						dataProvider="{EntryPointType.getAllTypes()}" />
+						dataProvider="{EntryPointType.getAllTypes()}"
+						labelField="name" />
 				</mx:HBox>
 				<mx:Canvas height="30" width="100%"
 					styleName="tagMessage"
