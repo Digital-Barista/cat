@@ -90,7 +90,7 @@ h2
 {
 	margin:5px;
 	
-	background-image:url("/facebook/images/facebook_assets.png");
+	background-image:url("/cat/facebook/images/facebook_assets.png");
 	
 	-moz-box-shadow:0 1px 0 rgba(0, 0, 0, 0.1);
 	background-color:#EEEEEE;
@@ -119,7 +119,7 @@ h2
 {
 	float:right;
 	margin:0 7px;
-	background:url("/facebook/images/delete.png") no-repeat scroll left top transparent;
+	background:url("/cat/facebook/images/delete.png") no-repeat scroll left top transparent;
 	display:block;
 	height:18px;
 	width:18px;

@@ -15,7 +15,7 @@ function MessageAPI()
 		
 		// Show loading screen
 		var loading = $("<img />");
-		loading.attr("src", "/facebook/images/fb_loading.gif");
+		loading.attr("src", "/cat/facebook/images/fb_loading.gif");
 		var loadContainer = $("<div>Loading Messages  </div>");
 		loadContainer.append(loading);
 		showMessage(loadContainer);
@@ -105,7 +105,7 @@ function MessageAPI()
 	{
 		var line = $("#" + MESSAGE_LINE_PREFIX + messageId);
 		var loading = $("<img />");
-		loading.attr("src", "/facebook/images/fb_loading.gif");
+		loading.attr("src", "/cat/facebook/images/fb_loading.gif");
 		
 		line.find(".removeButton").replaceWith(loading);
 	}
@@ -114,7 +114,7 @@ function MessageAPI()
 	{
 		var line = $("#" + MESSAGE_LINE_PREFIX + messageId);
 		var loading = $("<img />");
-		loading.attr("src", "/facebook/images/fb_loading.gif");
+		loading.attr("src", "/cat/facebook/images/fb_loading.gif");
 		
 		line.find(".keywords").replaceWith(loading);
 	}
