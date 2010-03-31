@@ -1,7 +1,6 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -13,6 +12,8 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
@@ -33,7 +34,7 @@ import com.digitalbarista.cat.data.FacebookMessageDO;
 @RunAs("admin")
 public class FacebookManagerImpl implements FacebookManager {
 
-	public static final String CONTINUED_INDICATOR = "\n(...)";
+	private Logger logger = LogManager.getLogger(getClass());
 	
 	@Resource
 	private SessionContext ctx; 
@@ -54,6 +55,7 @@ public class FacebookManagerImpl implements FacebookManager {
 	@PermitAll
 	public List<FacebookMessage> getMessages(String facebookAppId, String uid) {
 
+		
 		List<FacebookMessage> ret = new ArrayList<FacebookMessage>();
 		
 		Criteria crit = session.createCriteria(FacebookMessageDO.class);
@@ -101,7 +103,5 @@ public class FacebookManagerImpl implements FacebookManager {
 		}
 		return ret;
 	}
-
-
 
 }

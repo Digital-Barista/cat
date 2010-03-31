@@ -1,5 +1,6 @@
 var channel_path = '/xd_receiver.htm'; 
 
+
 FB_RequireFeatures(["Api"], function(){ 
 	// Create an ApiClient object, passing app's API key and 
 	// a site relative URL to xd_receiver.htm 
@@ -7,7 +8,6 @@ FB_RequireFeatures(["Api"], function(){
 
 	var api = FB.Facebook.apiClient; 
 
-	
 	// require user to login 
 	api.requireLogin(function(exception){ 
 
@@ -17,9 +17,19 @@ FB_RequireFeatures(["Api"], function(){
 		 
 		 FB.CanvasClient.startTimerToSizeToContent();
 	}); 
-}); 
+});  
 
-function updateMessageArea(content)
-{
-	$('#MessageArea').html(content);
-}
+//FB.ensureInit(function () {
+//	FB.Facebook.apiClient.fql_query("SELECT uid, name FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = 100000679573930)",
+//            function(rows) {
+//				var s = "";
+//              for (i in rows)
+//              {
+//            	  s += rows[i].uid + ", " + rows[i].name + "\n";
+//              }
+//              alert(s);
+//            });
+//
+//  });
+
+
