@@ -1,12 +1,28 @@
 function MessageAPI()
 {
+	var messageAPI = this;
+	
 	var MESSAGE_URL = "/cat/rest/facebook/messages";
+	var CHECKBOX_PREFIX = "message_select_";
+	var MESSAGE_LINE_PREFIX = "message_";
+	
+	var currentUID;
 	
 	this.loadMessages = function(uid)
 	{
+		// Save UID
+		currentUID = uid;
+		
+		// Show loading screen
+		var loading = $("<img />");
+		loading.attr("src", "/facebook/images/fb_loading.gif");
+		var loadContainer = $("<div>Loading Messages  </div>");
+		loadContainer.append(loading);
+		showMessage(loadContainer);
+		
 		// Show an error message if the request fails
 		$("#MessageArea").ajaxError(function() {
-				showMessage("Your messages cannot be loaded");
+				showMessage("An error occurred. Please refresh the page to try again.");
 		});
 		
 		// Get app ID from path name
@@ -17,7 +33,7 @@ function MessageAPI()
 		var app = last;
 		
 		// Make the message request
-		var url = MESSAGE_URL + "/" + app + "/" + uid;
+		var url = MESSAGE_URL + "/list/" + app + "/" + uid;
 		$.getJSON(url, function(data){
 
 			// Clear message area
@@ -66,6 +82,92 @@ function MessageAPI()
 		 });
 	}
 	
+	function respond(messageId, response)
+	{
+		// Show loading
+		showResponseLoading(messageId)
+		
+		// Build URL
+		var url = MESSAGE_URL + "/" + messageId + "/" + response;
+		
+		// Make request
+		$.ajax({
+			  url: url,
+			  type: 'PUT',
+			  dataType: 'json',
+			  success: function(data) {
+			    updateMessage(data.message);
+			  }
+			});
+	}
+	
+	function showDeleteLoading(messageId)
+	{
+		var line = $("#" + MESSAGE_LINE_PREFIX + messageId);
+		var loading = $("<img />");
+		loading.attr("src", "/facebook/images/fb_loading.gif");
+		
+		line.find(".removeButton").replaceWith(loading);
+	}
+	
+	function showResponseLoading(messageId)
+	{
+		var line = $("#" + MESSAGE_LINE_PREFIX + messageId);
+		var loading = $("<img />");
+		loading.attr("src", "/facebook/images/fb_loading.gif");
+		
+		line.find(".keywords").replaceWith(loading);
+	}
+	
+	function updateMessage(message)
+	{
+		var line = $("#" + MESSAGE_LINE_PREFIX + message.@facebookMessageId);
+		var newLine = createRow(message);
+		line.replaceWith(newLine);
+	}
+	
+	function deleteMessage (messageId)
+	{
+		// Show loading
+		showDeleteLoading(messageId);
+		
+		// Build URL
+		var url = MESSAGE_URL + "/" + messageId;
+		
+		// Make request
+		$.ajax({
+			  url: url,
+			  type: 'DELETE',
+			  success: function(data) {
+			    removeMessage(messageId);
+			  }
+			});
+	}
+	
+	function deleteSelected()
+	{
+		$("input:checked").each(function (){
+			var id = $(this).attr("id");
+			if (id.indexOf(CHECKBOX_PREFIX) == 0)
+			{
+				var messageId = id.substring(CHECKBOX_PREFIX.length);
+				deleteMessage(messageId);
+			}
+		});
+	}
+	
+	function refreshMessages()
+	{
+		if (currentUID != null)
+			messageAPI.loadMessages(currentUID);
+	}
+	
+	function removeMessage(messageId)
+	{
+		var line = $("#" + "message_" + messageId);
+		line.remove();
+	}
+	
 	function showMessage(message, className)
 	{
 		// Use a table to center message content
@@ -79,7 +181,7 @@ function MessageAPI()
 		var span = $("<span />");
 		if (className != null)
 			span.attr("class", className);
-		span.html(message);
+		span.append(message);
 
 		cell.append(span);
 		row.append(cell);
@@ -96,9 +198,21 @@ function MessageAPI()
 		var header = $("<div />");
 		header.attr("class", "header");
 		
+
+		// Add refresh button
+		var refresh = $("<a href='#'>" + "Refresh" + "</a>");
+		refresh.attr("class", "button");
+		refresh.bind("click", function(){
+			refreshMessages();
+		});
+		header.append(refresh);
+		
 		// Add delete button
 		var deleteButton = $("<a href='#'>" + "Delete" + "</a>");
 		deleteButton.attr("class", "button");
+		deleteButton.bind("click", function(){
+			deleteSelected();
+		});
 		header.append(deleteButton);
 		
 		return header;
@@ -155,6 +269,8 @@ function MessageAPI()
 	function createRow(message)
 	{
 		var container = $("<div />");
+		container.attr("id", MESSAGE_LINE_PREFIX + message.@facebookMessageId);
+		
 		var table = $("<table />");
 		table.attr("class", "messageLine");
 		
@@ -166,6 +282,7 @@ function MessageAPI()
 		var cell = $("<td />");
 		cell.attr("class", "selectColumn");
 		var checkbox = $("<input type='checkbox' />");
+		checkbox.attr("id", CHECKBOX_PREFIX + message.@facebookMessageId);
 		cell.append(checkbox);
 		row.append(cell);
 
@@ -193,18 +310,38 @@ function MessageAPI()
 		body.text(message.@body);
 		content.append(body);
 		
-		// Create responses
-		if (message.@metadata != null)
+		// Show response if one has been submitted
+		if (message.@response != null)
 		{
+			var response = $("<span />");
+			response.attr("class", "responseContent");
+			response.text("Responded: " + message.@response);
+			content.append(response);
+		}
+		// Create responses
+		else if (message.@metadata != null)
+		{
+			var keywordDiv = $("<div />");
+			keywordDiv.attr("class", "keywords");
+			
+			// Create buttons for each keyword
 			var keywords = message.@metadata.split(",");
 			for (var i = 0; i < keywords.length; i++)
 			{
 				if (keywords[i].length > 0)
 				{
-					var action = $("<button type='button'>" + keywords[i] + "</button>");
-					content.append(action);
+					var action = $("<a href='#'>" + keywords[i] + "</a>");
+					action.attr("class", "button");
+					action.bind('click', {messageId: message.@facebookMessageId, response: keywords[i]}, function(event) {
+						respond(event.data.messageId, event.data.response);
+					});
+					keywordDiv.append(action);
 				}
 			}
+			
+			// Add the div if there are any keywords
+			if (keywords.length > 0)
+				content.append(keywordDiv);
 		}
 		
 		// Add delete column
@@ -212,6 +349,13 @@ function MessageAPI()
 		cell.attr("class", "selectColumn");
 		var deleteLink = $("<a href='#' />");
 		deleteLink.attr("class", "removeButton");
+		
+		
+		// Add delete call
+		deleteLink.bind('click', {messageId: message.@facebookMessageId}, function(event) {
+			deleteMessage(event.data.messageId);
+		});
+		
 		cell.append(deleteLink);
 		row.append(cell);
 		

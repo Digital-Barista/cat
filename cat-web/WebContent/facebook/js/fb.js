@@ -14,6 +14,8 @@ FB_RequireFeatures(["Api"], function(){
 		var uid = api.get_session().uid;
 		 var messageApi = new MessageAPI();
 		 messageApi.loadMessages(uid);
+		 
+		 FB.CanvasClient.startTimerToSizeToContent();
 	}); 
 }); 
 

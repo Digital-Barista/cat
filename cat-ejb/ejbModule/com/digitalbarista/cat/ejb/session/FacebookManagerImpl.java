@@ -15,6 +15,7 @@ import javax.persistence.PersistenceContext;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
@@ -58,6 +59,7 @@ public class FacebookManagerImpl implements FacebookManager {
 		Criteria crit = session.createCriteria(FacebookMessageDO.class);
 		crit.add(Restrictions.eq("facebookUID", uid));
 		crit.add(Restrictions.eq("facebookAppId", facebookAppId));
+		crit.addOrder(Order.desc("createDate"));
 		
 		for (FacebookMessageDO messageDO : (List<FacebookMessageDO>)crit.list())
 		{
@@ -66,6 +68,37 @@ public class FacebookManagerImpl implements FacebookManager {
 			ret.add(message);
 		}
 		
+		return ret;
+	}
+
+
+	@Override
+	@PermitAll
+	public void delete(Integer facebookMessageId) 
+	{
+		FacebookMessageDO message = em.find(FacebookMessageDO.class, facebookMessageId);
+		if (message != null)
+		{
+			em.remove(message);
+		}
+	}
+
+
+	@Override
+	public FacebookMessage respond(Integer facebookMessageId, String response) {
+
+		FacebookMessage ret = null;
+		
+		FacebookMessageDO message = em.find(FacebookMessageDO.class, facebookMessageId);
+		if (message != null)
+		{
+			// If the response is valid update the message
+			if (message.getMetadata().indexOf(response) > -1)
+				message.setResponse(response);
+			
+			ret = new FacebookMessage();
+			ret.copyFrom(message);
+		}
 		return ret;
 	}
 

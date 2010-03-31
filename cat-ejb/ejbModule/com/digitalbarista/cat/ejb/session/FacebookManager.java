@@ -4,7 +4,9 @@ import java.util.List;
 
 import javax.ejb.Local;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -21,7 +23,15 @@ import com.digitalbarista.cat.business.FacebookMessage;
 public interface FacebookManager 
 {
 	@GET
-	@Path("/messages/{facebookAppId}/{uid}")
+	@Path("/messages/list/{facebookAppId}/{uid}")
 	@Wrapped(element="messages")
 	List<FacebookMessage> getMessages(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
+
+	@PUT
+	@Path("/messages/{facebookMessageId}/{response}")
+	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, @PathParam("response") String response);
+	
+	@DELETE
+	@Path("/messages/{facebookMessageId}")
+	void delete(@PathParam("facebookMessageId") Integer facebookMessageId);
 }
