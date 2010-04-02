@@ -10,6 +10,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
@@ -34,4 +35,8 @@ public interface FacebookManager
 	@DELETE
 	@Path("/messages/{facebookMessageId}")
 	void delete(@PathParam("facebookMessageId") Integer facebookMessageId);
+	
+	@GET
+	@Path("/messages/authorize")
+	String authorize(@QueryParam("auth_token") String authToken);
 }

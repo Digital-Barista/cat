@@ -4,7 +4,7 @@ function MessageAPI()
 {
 	var messageAPI = this;
 	
-	var MESSAGE_URL = "/cat/rest/facebook/messages";
+	var MESSAGE_URL = "/cat/unsecure/rest/facebook/messages";
 	var CHECKBOX_PREFIX = "message_select_";
 	var MESSAGE_LINE_PREFIX = "message_";
 	
@@ -270,7 +270,6 @@ function MessageAPI()
 	
 	function createRow(message)
 	{
-		console.log(message);
 		var container = $("<div />");
 		container.attr("id", MESSAGE_LINE_PREFIX + message.facebookMessageId);
 		

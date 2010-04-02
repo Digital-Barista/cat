@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,6 +103,35 @@ public class FacebookManagerImpl implements FacebookManager {
 			ret.copyFrom(message);
 		}
 		return ret;
+	}
+
+
+	@Override
+	public String authorize(String authToken) {
+		if (authToken.length() > 0)
+		{
+			checkValidSession(authToken);
+			return "<message>token present</message>";
+		}
+		return "<message>no token</message>";
+	}
+	
+	private boolean checkValidSession(String authToken)
+	{
+		String apiKey = "6c028b61ae2d51b43e8582420b8a75be";
+		String secret = "8c7bd765ef219a7bea8132c03dbe2892";
+		
+		String params = "api_key=" + apiKey;
+		params += "auth_token=" + authToken;
+		params += "v=1.0";
+		params += secret;
+		
+//		MessageDigest md = MessageDigest.getInstance("MD5");
+//        md.update(params.getBytes());
+//        byte keyB[] = md.digest();
+
+
+		return false;
 	}
 
 }
