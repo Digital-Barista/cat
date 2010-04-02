@@ -397,6 +397,8 @@ public class UserManagerImpl implements UserManager {
 	@Override
 	public Set<Long> extractClientIds(String username) {
 		Set<Long> clientIDs = new HashSet<Long>();
+		if("guest".equalsIgnoreCase(username))
+			return clientIDs;
 		for(RoleDO role : getSimpleUserByUsername(username).getRoles())
 			if(role.getRoleName().equals("account.manager") || role.getRoleName().equals("client"))
 				clientIDs.add(role.getRefId());

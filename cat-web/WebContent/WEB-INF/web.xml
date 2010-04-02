@@ -3,17 +3,13 @@
   <display-name>Campaign Admin Tool</display-name>
   <description>Messaging Campaign Administrative Tool</description>
   <context-param>
-    <param-name>resteasy.jndi.resources</param-name>
-    <param-value>ejb/cat/CampaignManager,ejb/cat/ClientManager,ejb/cat/CouponManager,ejb/cat/ContactManager,ejb/cat/LayoutManager,ejb/cat/SubscriptionManager,ejb/cat/UserManager,ejb/cat/FacebookManager</param-value>
-  </context-param>
-  <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>/WEB-INF/cat-spring-config.xml
     			 /WEB-INF/cat-ejbs.xml</param-value>
   </context-param>
   <context-param>
-    <param-name>resteasy.servlet.mapping.prefix</param-name>
-    <param-value>/rest</param-value>
+    <param-name>resteasy.jndi.resources</param-name>
+    <param-value>ejb/cat/CampaignManager,ejb/cat/ClientManager,ejb/cat/CouponManager,ejb/cat/ContactManager,ejb/cat/LayoutManager,ejb/cat/SubscriptionManager,ejb/cat/UserManager,ejb/cat/FacebookManager</param-value>
   </context-param>
   <listener>
     <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
@@ -65,6 +61,18 @@
   <servlet>
     <servlet-name>Resteasy</servlet-name>
     <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+    <init-param>
+	    <param-name>resteasy.servlet.mapping.prefix</param-name>
+	    <param-value>/rest</param-value>
+    </init-param>
+  </servlet>
+  <servlet>
+    <servlet-name>ResteasyUnsecure</servlet-name>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+    <init-param>
+	    <param-name>resteasy.servlet.mapping.prefix</param-name>
+	    <param-value>/unsecure/rest</param-value>
+    </init-param>
   </servlet>
   <servlet>
     <description></description>
@@ -78,6 +86,10 @@
   <servlet-mapping>
     <servlet-name>Resteasy</servlet-name>
     <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ResteasyUnsecure</servlet-name>
+    <url-pattern>/unsecure/rest/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>KannelIncomingMessageServlet</servlet-name>
