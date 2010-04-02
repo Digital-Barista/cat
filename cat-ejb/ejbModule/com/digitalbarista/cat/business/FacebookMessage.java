@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.digitalbarista.cat.data.FacebookMessageDO;
+import com.sun.xml.internal.txw2.annotation.XmlElement;
 
 @XmlRootElement(name="message")
 public class FacebookMessage implements
@@ -37,7 +38,7 @@ public class FacebookMessage implements
 		
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public Integer getFacebookMessageId() {
 		return facebookMessageId;
 	}
@@ -45,7 +46,7 @@ public class FacebookMessage implements
 		this.facebookMessageId = facebookMessageId;
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public String getTitle() {
 		return title;
 	}
@@ -53,7 +54,7 @@ public class FacebookMessage implements
 		this.title = title;
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public String getBody() {
 		return body;
 	}
@@ -61,7 +62,7 @@ public class FacebookMessage implements
 		this.body = body;
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public Calendar getCreateDate() {
 		return createDate;
 	}
@@ -69,7 +70,7 @@ public class FacebookMessage implements
 		this.createDate = createDate;
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public String getMetadata() {
 		return metadata;
 	}
@@ -77,15 +78,15 @@ public class FacebookMessage implements
 		this.metadata = metadata;
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public String getResponse() {
 		return response;
 	}
 	public void setResponse(String response) {
 		this.response = response;
 	}
-	
-	@XmlAttribute
+
+	@XmlElement
 	public String getFormattedCreateDate()
 	{
 		if (formattedCreateDate == null)
@@ -96,5 +97,8 @@ public class FacebookMessage implements
 		}
 		return formattedCreateDate;
 	}	
+	public void setFormattedCreateDate(String createDate)
+	{
+	}
 	
 }

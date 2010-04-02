@@ -1,3 +1,5 @@
+
+
 function MessageAPI()
 {
 	var messageAPI = this;
@@ -121,7 +123,7 @@ function MessageAPI()
 	
 	function updateMessage(message)
 	{
-		var line = $("#" + MESSAGE_LINE_PREFIX + message.@facebookMessageId);
+		var line = $("#" + MESSAGE_LINE_PREFIX + message.facebookMessageId);
 		var newLine = createRow(message);
 		line.replaceWith(newLine);
 	}
@@ -268,8 +270,9 @@ function MessageAPI()
 	
 	function createRow(message)
 	{
+		console.log(message);
 		var container = $("<div />");
-		container.attr("id", MESSAGE_LINE_PREFIX + message.@facebookMessageId);
+		container.attr("id", MESSAGE_LINE_PREFIX + message.facebookMessageId);
 		
 		var table = $("<table />");
 		table.attr("class", "messageLine");
@@ -282,14 +285,14 @@ function MessageAPI()
 		var cell = $("<td />");
 		cell.attr("class", "selectColumn");
 		var checkbox = $("<input type='checkbox' />");
-		checkbox.attr("id", CHECKBOX_PREFIX + message.@facebookMessageId);
+		checkbox.attr("id", CHECKBOX_PREFIX + message.facebookMessageId);
 		cell.append(checkbox);
 		row.append(cell);
 
 		// Add create date
 		cell = $("<td />");
 		cell.attr("class", "dateColumn");
-		cell.text(message.@formattedCreateDate);
+		cell.text(message.formattedCreateDate);
 		row.append(cell);
 		
 		
@@ -302,37 +305,37 @@ function MessageAPI()
 		// Add title
 		var title = $("<div />");
 		title.attr("class", "title");
-		title.text(message.@title);
+		title.text(message.title);
 		content.append(title)
 		
 		// Add body
 		var body = $("<div />");
-		body.text(message.@body);
+		body.text(message.body);
 		content.append(body);
 		
 		// Show response if one has been submitted
-		if (message.@response != null)
+		if (message.response != null)
 		{
 			var response = $("<span />");
 			response.attr("class", "responseContent");
-			response.text("Responded: " + message.@response);
+			response.text("Responded: " + message.response);
 			content.append(response);
 		}
 		// Create responses
-		else if (message.@metadata != null)
+		else if (message.metadata != null)
 		{
 			var keywordDiv = $("<div />");
 			keywordDiv.attr("class", "keywords");
 			
 			// Create buttons for each keyword
-			var keywords = message.@metadata.split(",");
+			var keywords = message.metadata.split(",");
 			for (var i = 0; i < keywords.length; i++)
 			{
 				if (keywords[i].length > 0)
 				{
 					var action = $("<a href='#'>" + keywords[i] + "</a>");
 					action.attr("class", "button");
-					action.bind('click', {messageId: message.@facebookMessageId, response: keywords[i]}, function(event) {
+					action.bind('click', {messageId: message.facebookMessageId, response: keywords[i]}, function(event) {
 						respond(event.data.messageId, event.data.response);
 					});
 					keywordDiv.append(action);
@@ -352,7 +355,7 @@ function MessageAPI()
 		
 		
 		// Add delete call
-		deleteLink.bind('click', {messageId: message.@facebookMessageId}, function(event) {
+		deleteLink.bind('click', {messageId: message.facebookMessageId}, function(event) {
 			deleteMessage(event.data.messageId);
 		});
 		
