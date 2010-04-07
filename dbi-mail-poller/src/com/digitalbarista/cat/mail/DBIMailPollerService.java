@@ -5,10 +5,6 @@ import java.beans.PropertyEditorManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.naming.InitialContext;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;

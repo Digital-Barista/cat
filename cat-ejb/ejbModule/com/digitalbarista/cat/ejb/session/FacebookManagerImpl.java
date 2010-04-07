@@ -1,6 +1,5 @@
 package com.digitalbarista.cat.ejb.session;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +9,8 @@ import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -24,6 +25,7 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.FacebookMessage;
 import com.digitalbarista.cat.data.FacebookMessageDO;
+import com.digitalbarista.cat.message.event.CATEvent;
 
 
 /**
@@ -50,6 +52,8 @@ public class FacebookManagerImpl implements FacebookManager {
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
 
+	@EJB(name="ejb/cat/EventManager")
+	EventManager eventManager;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -77,6 +81,7 @@ public class FacebookManagerImpl implements FacebookManager {
 
 	@Override
 	@PermitAll
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(Integer facebookMessageId) 
 	{
 		FacebookMessageDO message = em.find(FacebookMessageDO.class, facebookMessageId);
@@ -88,6 +93,7 @@ public class FacebookManagerImpl implements FacebookManager {
 
 
 	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public FacebookMessage respond(Integer facebookMessageId, String response) {
 
 		FacebookMessage ret = null;
@@ -98,6 +104,8 @@ public class FacebookManagerImpl implements FacebookManager {
 			// If the response is valid update the message
 			if (message.getMetadata().indexOf(response) > -1)
 				message.setResponse(response);
+			
+			eventManager.queueEvent(CATEvent.buildIncomingFacebookEvent(message.getFacebookUID(), message.getFacebookAppId(), response, message.getFacebookUID()));
 			
 			ret = new FacebookMessage();
 			ret.copyFrom(message);

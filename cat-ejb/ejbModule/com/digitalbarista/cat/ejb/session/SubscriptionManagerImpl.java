@@ -106,6 +106,12 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					sub.getTwitterUsername().length() > 0)
 					ret.add(sub.getTwitterUsername());
 			}
+			else if (type == EntryPointType.Facebook)
+			{
+				if (sub.getFacebookUsername() != null &&
+					sub.getFacebookUsername().length() > 0)
+					ret.add(sub.getFacebookUsername());
+			}
 		}
 		return ret;
 	}
@@ -156,6 +162,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			blacklistCrit.add(Restrictions.in("sub.phoneNumber", addresses));
 		else if(subscriptionType.equals(EntryPointType.Twitter))
 			blacklistCrit.add(Restrictions.in("sub.twitterUsername", addresses));
+		else if(subscriptionType.equals(EntryPointType.Facebook))
+			blacklistCrit.add(Restrictions.in("sub.facebookUsername", addresses));
 		List<SubscriberBlacklistDO> blacklisted = blacklistCrit.list();
 		for(SubscriberBlacklistDO subToRemove : blacklisted)
 		{
@@ -165,12 +173,15 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				addresses.remove(subToRemove.getSubscriber().getPhoneNumber());
 			else if(subscriptionType.equals(EntryPointType.Twitter))
 				addresses.remove(subToRemove.getSubscriber().getTwitterUsername());
+			else if(subscriptionType.equals(EntryPointType.Facebook))
+				addresses.remove(subToRemove.getSubscriber().getFacebookUsername());
 		}
 		
 		if(addresses.size()==0)
 			return;
 		
 		//Now that we've removed blacklisted addresses, get all the subscribers that match the list.
+		Disjunction dj = Restrictions.disjunction();
 		switch(subscriptionType)
 		{
 			case Email:
@@ -182,9 +193,14 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				break;
 				
 			case Twitter:
-				Disjunction dj = Restrictions.disjunction();
 				dj.add(Restrictions.in("twitterUsername", addresses));
 				dj.add(Restrictions.in("twitterID", addresses));
+				crit.add(dj);
+				break;
+				
+			case Facebook:
+				dj.add(Restrictions.in("facebookUsername", addresses));
+				dj.add(Restrictions.in("facebookID", addresses));
 				crit.add(dj);
 				break;
 		}
@@ -211,6 +227,11 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					addresses.remove(sub.getTwitterUsername());
 					addresses.remove(sub.getTwitterID());
 					break;
+					
+				case Facebook:
+					addresses.remove(sub.getFacebookUsername());
+					addresses.remove(sub.getFacebookID());
+					break;
 			}
 		}
 		
@@ -231,6 +252,10 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					
 				case Twitter:
 					subTemp.setTwitterUsername(address);
+					break;
+					
+				case Facebook:
+					subTemp.setFacebookUsername(address);
 					break;
 			}
 			em.persist(subTemp);
@@ -395,6 +420,76 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			SubscriberBlacklistDO bl = new SubscriberBlacklistDO();
 			bl.setIncomingAddress(accountName);
 			bl.setType(EntryPointType.Twitter);
+			bl.setSubscriber(sub);
+			em.persist(sub);
+		}
+	}
+	
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void registerFacebookFollower(String facebookID, String accountName) {
+		Criteria crit = session.createCriteria(SubscriberDO.class);
+		crit.add(Restrictions.eq("facebookID",facebookID));
+		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
+		if(sub==null)
+		{
+			sub = new SubscriberDO();
+			sub.setFacebookID(facebookID);
+			em.persist(sub);
+		} else {
+			crit = session.createCriteria(SubscriberBlacklistDO.class);
+			crit.add(Restrictions.eq("subscriber.id", sub.getPrimaryKey()));
+			crit.add(Restrictions.eq("incomingAddress", accountName));
+			crit.add(Restrictions.eq("type", EntryPointType.Facebook));
+			SubscriberBlacklistDO bl = (SubscriberBlacklistDO)crit.uniqueResult();
+			if(bl!=null)
+				em.remove(bl);
+		}
+		
+		EntryPointDefinition epd = clientManager.getEntryPointDefinition(EntryPointType.Facebook,accountName);
+		for(Integer clientID : epd.getClientIDs())
+		{
+			crit = session.createCriteria(ContactDO.class);
+			crit.add(Restrictions.eq("type", EntryPointType.Facebook));
+			crit.add(Restrictions.eq("alternateId", facebookID));
+			crit.add(Restrictions.eq("client.id",new Long(clientID)));
+			ContactDO contact = (ContactDO)crit.uniqueResult();
+			if(contact==null)
+			{
+				contact = new ContactDO();
+				contact.setType(EntryPointType.Facebook);
+				contact.setAlternateId(facebookID);
+				contact.setClient(em.find(ClientDO.class, new Long(clientID)));
+				contact.setCreateDate(Calendar.getInstance());
+				em.persist(contact);
+			}
+		}
+		
+		crit = session.createCriteria(CampaignInfoDO.class);
+		crit.add(Restrictions.eq("entryType", EntryPointType.Facebook));
+		crit.add(Restrictions.eq("entryAddress", accountName));
+		crit.add(Restrictions.eq("name", CampaignInfoDO.KEY_AUTO_START_NODE_UID));
+		CampaignInfoDO cInfo = (CampaignInfoDO)crit.uniqueResult();
+		
+		if(cInfo==null)
+			return;
+		
+		HashSet<String> addresses = new HashSet<String>();
+		addresses.add(facebookID);
+		subscribeToEntryPoint(addresses,cInfo.getValue(),EntryPointType.Facebook);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void removeFacebookFollower(String facebookID, String accountName) {
+		Criteria crit = session.createCriteria(SubscriberDO.class);
+		crit.add(Restrictions.eq("facebookID",facebookID));
+		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
+		if(sub!=null)
+		{
+			SubscriberBlacklistDO bl = new SubscriberBlacklistDO();
+			bl.setIncomingAddress(accountName);
+			bl.setType(EntryPointType.Facebook);
 			bl.setSubscriber(sub);
 			em.persist(sub);
 		}

@@ -39,4 +39,8 @@ public interface SubscriptionManager {
 	public void registerTwitterFollower(String twitterID, String accountName);
 	
 	public void removeTwitterFollower(String twitterID, String accountName);
+
+	public void registerFacebookFollower(String facebookID, String accountName);
+	
+	public void removeFacebookFollower(String facebookID, String accountName);
 }

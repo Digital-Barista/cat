@@ -2,9 +2,6 @@ package com.digitalbarista.cat.mail;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import javax.mail.Address;
 

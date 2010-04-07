@@ -694,7 +694,7 @@ public class CampaignManagerImpl implements CampaignManager {
 					EntryNode eNode = (EntryNode)getNode(ciDO.getValue());
 					for(EntryData entryData : eNode.getEntryData())
 					{
-						if(entryData.getEntryType()==EntryPointType.Twitter)
+						if(entryData.getEntryType()==EntryPointType.Twitter || entryData.getEntryType()==EntryPointType.Facebook)
 							ciDO.setEntryAddress(entryData.getEntryPoint());
 					}
 				}

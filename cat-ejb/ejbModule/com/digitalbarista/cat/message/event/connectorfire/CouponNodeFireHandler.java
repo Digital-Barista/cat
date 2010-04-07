@@ -135,6 +135,10 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), splitMessage, cNode.getName(),cNode.getUid(),version);
 						break;
 						
+					case Facebook:
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getFacebookID(), splitMessage, cNode.getName(),cNode.getUid(),version);
+						break;
+						
 					default:
 						throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
 				}

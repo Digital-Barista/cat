@@ -1,6 +1,9 @@
 package com.digitalbarista.cat.message.event;
 
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ejb.SessionContext;
 import javax.jms.ConnectionFactory;
@@ -20,7 +23,13 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 
 import com.digitalbarista.cat.audit.OutgoingMessageEntryDO;
+import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.EntryData;
+import com.digitalbarista.cat.business.Node;
+import com.digitalbarista.cat.business.ResponseConnector;
+import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
@@ -58,6 +67,9 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				break;
 			case TwitterEndpoint:
 				outAudit.setMessageType(EntryPointType.Twitter);
+				break;
+			case FacebookEndpoint:
+				outAudit.setMessageType(EntryPointType.Facebook);
 				break;
 		}
 		getEntityManager().persist(outAudit);
@@ -126,6 +138,50 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				message.setString("target", e.getTarget());
 				message.setString("message", e.getArgs().get("message"));
 				producer.send(message);
+			}catch(Exception ex)
+			{
+				throw new RuntimeException("Could not deliver the requested message!",ex);
+			}finally
+			{
+	    		try{if(sess!=null)sess.close();}catch(Exception ex){}
+	    		try{if(conn!=null)conn.close();}catch(Exception ex){}
+			}
+		} else if(e.getSourceType().equals(CATEventSource.FacebookEndpoint)){
+			outAudit.setMessageType(EntryPointType.Facebook);
+			outAudit.setSubjectOrMessage(e.getArgs().get("message"));
+			javax.jms.Connection conn=null;
+			javax.jms.Session sess=null;
+			try
+			{
+				FacebookMessageDO fbMessage = new FacebookMessageDO();
+				fbMessage.setBody(e.getArgs().get("message"));
+				fbMessage.setCreateDate(new GregorianCalendar());
+				fbMessage.setFacebookUID(e.getTarget());
+				fbMessage.setFacebookAppId(e.getSource());
+				fbMessage.setTitle(e.getArgs().get("subject"));
+				
+				String nodeUID = e.getArgs().get("nodeUID");
+				CampaignManager cMan = (CampaignManager)getSessionContext().lookup("ejb/cat/CampaignManager");
+				Node fromNode = cMan.getNode(nodeUID);
+				Set<String> keywordSet = new HashSet<String>(); 
+				for(String downstreamUID : fromNode.getDownstreamConnections())
+				{
+					Connector dConn = cMan.getConnector(downstreamUID);
+					if(dConn.getType()==ConnectorType.Response)
+					{
+						for(EntryData entry : ((ResponseConnector)dConn).getEntryData())
+						{
+							if(entry.getEntryType()!=EntryPointType.Facebook) continue;
+							if(!entry.getEntryPoint().equals(fbMessage.getFacebookAppId())) continue;
+							keywordSet.add(entry.getKeyword());
+						}
+					}
+				}
+				StringBuffer sb = new StringBuffer();
+				for(String keyword : keywordSet)
+					sb.append((sb.length()!=0)?",":"").append(keyword);
+				fbMessage.setMetadata(sb.toString());
+				getEntityManager().persist(fbMessage);
 			}catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);
