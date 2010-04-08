@@ -1,6 +1,7 @@
 package com.dbi.cat.view.workspace
 {
 	import com.dbi.cat.common.constants.CampaignMode;
+	import com.dbi.cat.common.constants.EntryPointType;
 	import com.dbi.cat.common.vo.CalendarConnectorVO;
 	import com.dbi.cat.common.vo.CampaignVO;
 	import com.dbi.cat.common.vo.ConnectorVO;

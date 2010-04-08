@@ -5,7 +5,7 @@
 	xmlns:controls="com.dbi.controls.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	editWindowWidth="500"
-	editWindowHeight="170"
+	editWindowHeight="200"
 	displayIcon="{responseConnectorWorkspace}"
 	workspaceIcon="{responseConnector}"
 	label="Response Connector">

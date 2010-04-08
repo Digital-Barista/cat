@@ -5,7 +5,7 @@
 	displayIcon="{outgoingEntryPointIcon}"
 	workspaceIcon="{outgoingEntryPointIcon}"
 	editWindowWidth="300"
-	editWindowHeight="170"
+	editWindowHeight="200"
 	xmlns:controls="com.dbi.controls.*"
 	label="Outgoing Entry Point" 
 	xmlns:components="com.dbi.cat.view.components.*">
