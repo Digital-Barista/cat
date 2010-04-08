@@ -1,14 +1,12 @@
 package com.digitalbarista.cat.business;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.digitalbarista.cat.data.FacebookMessageDO;
-import com.sun.xml.internal.txw2.annotation.XmlElement;
 
 @XmlRootElement(name="message")
 public class FacebookMessage implements
