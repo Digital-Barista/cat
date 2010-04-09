@@ -39,4 +39,12 @@ public interface FacebookManager
 	@GET
 	@Path("/messages/authorize")
 	String authorize(@QueryParam("auth_token") String authToken);
+	
+	@PUT
+	@Path("/messages/authorize/{facebookAppId}/{uid}")
+	void userAuthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
+	
+	@DELETE
+	@Path("/messages/authorize/{facebookAppId}/{uid}")
+	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
 }

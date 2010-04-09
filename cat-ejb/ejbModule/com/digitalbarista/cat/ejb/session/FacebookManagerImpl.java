@@ -55,6 +55,9 @@ public class FacebookManagerImpl implements FacebookManager {
 	@EJB(name="ejb/cat/EventManager")
 	EventManager eventManager;
 
+	@EJB(name="ejb/cat/SubscriptionManager")
+	SubscriptionManager subscriptionManager;
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	@PermitAll
@@ -140,6 +143,20 @@ public class FacebookManagerImpl implements FacebookManager {
 
 
 		return false;
+	}
+
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void userAuthorizeApp(String facebookAppId, String uid) {
+		subscriptionManager.registerFacebookFollower(uid, facebookAppId);
+	}
+
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void userDeauthorizeApp(String facebookAppId, String uid) {
+		subscriptionManager.removeFacebookFollower(uid, facebookAppId);
 	}
 
 }
