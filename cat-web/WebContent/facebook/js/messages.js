@@ -35,7 +35,7 @@ function MessageAPI()
 		var app = last;
 		
 		// Make the message request
-		var url = MESSAGE_URL + "/list/" + app + "/" + uid;
+		var url = MESSAGE_URL + "/list/" + app + "/" + uid + "/" + window.location.search;
 		$.getJSON(url, function(data){
 
 			// Clear message area
@@ -90,7 +90,7 @@ function MessageAPI()
 		showResponseLoading(messageId)
 		
 		// Build URL
-		var url = MESSAGE_URL + "/" + messageId + "/" + response;
+		var url = MESSAGE_URL + "/" + messageId + "/" + response + "/" + window.location.search;
 		
 		// Make request
 		$.ajax({
@@ -134,7 +134,7 @@ function MessageAPI()
 		showDeleteLoading(messageId);
 		
 		// Build URL
-		var url = MESSAGE_URL + "/" + messageId;
+		var url = MESSAGE_URL + "/" + messageId + "/" + window.location.search;
 		
 		// Make request
 		$.ajax({

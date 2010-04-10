@@ -10,7 +10,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
@@ -26,19 +27,19 @@ public interface FacebookManager
 	@GET
 	@Path("/messages/list/{facebookAppId}/{uid}")
 	@Wrapped(element="messages")
-	List<FacebookMessage> getMessages(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
+	List<FacebookMessage> getMessages(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid, @Context UriInfo ui);
 
 	@PUT
 	@Path("/messages/{facebookMessageId}/{response}")
-	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, @PathParam("response") String response);
+	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, @PathParam("response") String response, @Context UriInfo ui);
 	
 	@DELETE
 	@Path("/messages/{facebookMessageId}")
-	void delete(@PathParam("facebookMessageId") Integer facebookMessageId);
+	void delete(@PathParam("facebookMessageId") Integer facebookMessageId, @Context UriInfo ui);
 	
 	@GET
 	@Path("/messages/authorize")
-	String authorize(@QueryParam("auth_token") String authToken);
+	String authorize(@Context UriInfo ui);
 	
 	@PUT
 	@Path("/messages/authorize/{facebookAppId}/{uid}")
