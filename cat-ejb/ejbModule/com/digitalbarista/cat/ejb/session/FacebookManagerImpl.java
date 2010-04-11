@@ -160,7 +160,7 @@ public class FacebookManagerImpl implements FacebookManager {
 	private boolean isAuthorized(UriInfo ui)
 	{
 		MultivaluedMap<String, String> params = ui.getQueryParameters();
-		return false && validateSignature(params);
+		return validateSignature(params);
 	}
 	
 	private boolean validateSignature(MultivaluedMap<String, String> params)
