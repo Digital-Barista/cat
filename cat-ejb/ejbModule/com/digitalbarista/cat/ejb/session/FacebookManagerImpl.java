@@ -38,6 +38,7 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.FacebookMessage;
+import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.exception.FacebookManagerException;
 import com.digitalbarista.cat.message.event.CATEvent;
@@ -53,6 +54,9 @@ import com.digitalbarista.cat.message.event.CATEvent;
 public class FacebookManagerImpl implements FacebookManager {
 
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
+	private final static String FACEBOOK_PARAM_PREFIX = "fb_sig_";
+	private final static String FACEBOOK_PARAM_APP_ID = "fb_sig_app_id";
+	private final static String FACEBOOK_PARAM_SIGNATURE = "fb_sig";
 	
 	private Logger logger = LogManager.getLogger(getClass());
 	
@@ -155,14 +159,32 @@ public class FacebookManagerImpl implements FacebookManager {
 	
 	private boolean isAuthorized(UriInfo ui)
 	{
-		return true;
-//		MultivaluedMap<String, String> params = ui.getQueryParameters();
-//		return validateSignature(params);
+		MultivaluedMap<String, String> params = ui.getQueryParameters();
+		return false && validateSignature(params);
 	}
 	
 	private boolean validateSignature(MultivaluedMap<String, String> params)
 	{
-		String secret = "8c7bd765ef219a7bea8132c03dbe2892";
+		// If the FB signature parameter isn't present this call isn't valid
+		if (params == null ||
+			!params.containsKey(FACEBOOK_PARAM_APP_ID) ||
+			!params.containsKey(FACEBOOK_PARAM_SIGNATURE) )
+		{
+			logger.error("Parameters missing for validateSignature");
+			return false;
+		}
+		
+		// Look up secret by facebook app id (NOT our facebook_api_id which is the name of the application)
+		Criteria crit = session.createCriteria(FacebookAppDO.class);
+		crit.add(Restrictions.eq("id", params.getFirst(FACEBOOK_PARAM_APP_ID)));
+		FacebookAppDO app = (FacebookAppDO)crit.uniqueResult();
+		
+		// The app should exist
+		if (app == null)
+		{
+			logger.equals("No facebook app found for App ID: " + params.getFirst(FACEBOOK_PARAM_APP_ID));
+			return false;
+		}
 		
 		// Build map of proper names to sort
 		Map<String, String> values = new HashMap<String, String>();
@@ -187,10 +209,11 @@ public class FacebookManagerImpl implements FacebookManager {
 			String value = values.get(key);
 			paramString += key + "=" + value;
 		}
-		paramString += secret;
+		paramString += app.getSecret();
 		String hashed = md5(paramString);
 		
-		return hashed.equals(params.getFirst("fb_sig"));
+		// Compare signature to our hash with our secret
+		return hashed.equals(params.getFirst(FACEBOOK_PARAM_SIGNATURE));
 	}
 	
 	private boolean validateAuthtoken(String authToken)
