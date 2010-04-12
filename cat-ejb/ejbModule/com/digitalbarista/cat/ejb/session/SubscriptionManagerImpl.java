@@ -256,6 +256,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					
 				case Facebook:
 					subTemp.setFacebookUsername(address);
+					subTemp.setFacebookID(address);
 					break;
 			}
 			em.persist(subTemp);

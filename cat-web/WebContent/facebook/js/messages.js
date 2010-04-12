@@ -35,7 +35,7 @@ function MessageAPI()
 		var app = last;
 		
 		// Make the message request
-		var url = MESSAGE_URL + "/list/" + app + "/" + uid + "/" + window.location.search;
+		var url = MESSAGE_URL + "/list/" + app  + "/" + window.location.search;
 		$.getJSON(url, function(data){
 
 			// Clear message area

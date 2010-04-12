@@ -37,6 +37,8 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
+import bsh.StringUtil;
+
 import com.digitalbarista.cat.business.FacebookMessage;
 import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
@@ -56,6 +58,7 @@ public class FacebookManagerImpl implements FacebookManager {
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
 	private final static String FACEBOOK_PARAM_PREFIX = "fb_sig_";
 	private final static String FACEBOOK_PARAM_APP_ID = "fb_sig_app_id";
+	private final static String FACEBOOK_PARAM_USER_ID = "fb_sig_user";
 	private final static String FACEBOOK_PARAM_SIGNATURE = "fb_sig";
 	
 	private Logger logger = LogManager.getLogger(getClass());
@@ -82,10 +85,17 @@ public class FacebookManagerImpl implements FacebookManager {
 	@SuppressWarnings("unchecked")
 	@Override
 	@PermitAll
-	public List<FacebookMessage> getMessages(String facebookAppId, String uid, UriInfo ui) 
+	public List<FacebookMessage> getMessages(String facebookAppId, UriInfo ui) 
 	{
+		// Require valid session
 		if (!isAuthorized(ui))
 			throw new FacebookManagerException("Could not authenticate");
+		
+		// Require facebook user ID
+		String uid = ui.getQueryParameters().getFirst(FACEBOOK_PARAM_USER_ID);
+		if (uid == null ||
+			uid.length() == 0)
+			throw new FacebookManagerException("Could not find facebook user ID");
 		
 		List<FacebookMessage> ret = new ArrayList<FacebookMessage>();
 		
@@ -190,10 +200,10 @@ public class FacebookManagerImpl implements FacebookManager {
 		Map<String, String> values = new HashMap<String, String>();
 		for (String key : params.keySet())
 		{
-			if (key.indexOf("fb_sig_") == 0)
+			if (key.indexOf(FACEBOOK_PARAM_PREFIX) == 0)
 			{
 				String value = params.getFirst(key);
-				values.put(key.substring(7), value);
+				values.put(key.substring(FACEBOOK_PARAM_PREFIX.length()), value);
 			}
 		}
 		

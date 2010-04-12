@@ -25,9 +25,9 @@ import com.digitalbarista.cat.business.FacebookMessage;
 public interface FacebookManager 
 {
 	@GET
-	@Path("/messages/list/{facebookAppId}/{uid}")
+	@Path("/messages/list/{facebookAppId}")
 	@Wrapped(element="messages")
-	List<FacebookMessage> getMessages(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid, @Context UriInfo ui);
+	List<FacebookMessage> getMessages(@PathParam("facebookAppId") String facebookAppId, @Context UriInfo ui);
 
 	@PUT
 	@Path("/messages/{facebookMessageId}/{response}")
