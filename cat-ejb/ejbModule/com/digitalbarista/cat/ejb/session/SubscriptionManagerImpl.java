@@ -108,9 +108,9 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			}
 			else if (type == EntryPointType.Facebook)
 			{
-				if (sub.getFacebookUsername() != null &&
-					sub.getFacebookUsername().length() > 0)
-					ret.add(sub.getFacebookUsername());
+				if (sub.getFacebookID() != null &&
+					sub.getFacebookID().length() > 0)
+					ret.add(sub.getFacebookID());
 			}
 		}
 		return ret;
@@ -342,6 +342,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				ret.add(subscriber.getTwitterUsername());
 			else if (subscriber.getTwitterID() != null)
 				ret.add(subscriber.getTwitterID());
+			else if (subscriber.getFacebookID() != null)
+				ret.add(subscriber.getFacebookID());
 		}
 		
 		return ret;
