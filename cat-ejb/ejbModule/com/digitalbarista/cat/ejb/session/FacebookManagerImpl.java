@@ -163,6 +163,10 @@ public class FacebookManagerImpl implements FacebookManager {
 			ret = new FacebookMessage();
 			ret.copyFrom(message);
 		}
+
+		// Update message counter
+		updateMessageCounter(ui.getQueryParameters().getFirst(FACEBOOK_PARAM_APP_ID), 
+				ui.getQueryParameters().getFirst(FACEBOOK_PARAM_USER_ID));
 		
 		return ret;
 	}
