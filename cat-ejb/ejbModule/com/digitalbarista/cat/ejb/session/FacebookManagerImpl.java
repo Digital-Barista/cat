@@ -1,11 +1,14 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
@@ -85,7 +89,7 @@ public class FacebookManagerImpl implements FacebookManager {
 	@SuppressWarnings("unchecked")
 	@Override
 	@PermitAll
-	public List<FacebookMessage> getMessages(String facebookAppId, UriInfo ui) 
+	public List<FacebookMessage> getMessages(String facebookAppId, UriInfo ui) throws FacebookManagerException 
 	{
 		// Require valid session
 		if (!isAuthorized(ui))
@@ -111,6 +115,9 @@ public class FacebookManagerImpl implements FacebookManager {
 			ret.add(message);
 		}
 		
+		// Update count
+		updateMessageCounter(ui.getQueryParameters().getFirst(FACEBOOK_PARAM_APP_ID), uid, ret.size());
+		
 		return ret;
 	}
 
@@ -118,7 +125,7 @@ public class FacebookManagerImpl implements FacebookManager {
 	@Override
 	@PermitAll
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public void delete(Integer facebookMessageId, UriInfo ui) 
+	public void delete(Integer facebookMessageId, UriInfo ui) throws FacebookManagerException 
 	{
 		if (!isAuthorized(ui))
 			throw new FacebookManagerException("Could not authenticate");
@@ -128,12 +135,16 @@ public class FacebookManagerImpl implements FacebookManager {
 		{
 			em.remove(message);
 		}
+		
+		// Update message counter
+		updateMessageCounter(ui.getQueryParameters().getFirst(FACEBOOK_PARAM_APP_ID), 
+				ui.getQueryParameters().getFirst(FACEBOOK_PARAM_USER_ID));
 	}
 
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public FacebookMessage respond(Integer facebookMessageId, String response, UriInfo ui) 
+	public FacebookMessage respond(Integer facebookMessageId, String response, UriInfo ui) throws FacebookManagerException 
 	{
 		if (!isAuthorized(ui))
 			throw new FacebookManagerException("Could not authenticate");
@@ -152,19 +163,44 @@ public class FacebookManagerImpl implements FacebookManager {
 			ret = new FacebookMessage();
 			ret.copyFrom(message);
 		}
+		
 		return ret;
 	}
 
-
-	@Override
-	public String authorize(UriInfo ui) 
+	public void updateMessageCounter(String appId, String uid, Integer count)
 	{
-		MultivaluedMap<String, String> params = ui.getQueryParameters();
+		FacebookAppDO app = findFacebookApp(appId);
 		
-		if (validateSignature(params) )
-			return "<response>Valid session signature</response>";
-		else
-			return "<error>Invalid session signature</error>";
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("method", "dashboard.setCount");
+		params.put("api_key", app.getApiKey());
+		params.put("v", "1.0");
+		params.put("call_id", Long.toString(Calendar.getInstance().getTime().getTime()));
+		params.put("count", count.toString());
+		params.put("uid", uid);
+		
+		try 
+		{
+			callFacebookMethod(app.getSecret(), params);
+		} 
+		catch (FacebookManagerException e) 
+		{
+			logger.error("Error updating counter for App ID: " + appId + ", UID: " + uid, e);
+		}
+	}
+	
+	public void updateMessageCounter(String appId, String uid)
+	{
+		FacebookAppDO app = findFacebookApp(appId);
+		
+		Criteria crit = session.createCriteria(FacebookMessageDO.class);
+		crit.add(Restrictions.eq("facebookUID", uid));
+		crit.add(Restrictions.eq("facebookAppId", app.getFacebookAppId()));
+		crit.setProjection(Projections.rowCount());
+		
+		Integer count = (Integer)crit.uniqueResult();
+		
+		updateMessageCounter(app.getId(), uid, count);
 	}
 	
 	private boolean isAuthorized(UriInfo ui)
@@ -184,17 +220,10 @@ public class FacebookManagerImpl implements FacebookManager {
 			return false;
 		}
 		
-		// Look up secret by facebook app id (NOT our facebook_api_id which is the name of the application)
-		Criteria crit = session.createCriteria(FacebookAppDO.class);
-		crit.add(Restrictions.eq("id", params.getFirst(FACEBOOK_PARAM_APP_ID)));
-		FacebookAppDO app = (FacebookAppDO)crit.uniqueResult();
-		
-		// The app should exist
+		// Get facebook app
+		FacebookAppDO app = findFacebookApp(params.getFirst(FACEBOOK_PARAM_APP_ID));
 		if (app == null)
-		{
-			logger.equals("No facebook app found for App ID: " + params.getFirst(FACEBOOK_PARAM_APP_ID));
 			return false;
-		}
 		
 		// Build map of proper names to sort
 		Map<String, String> values = new HashMap<String, String>();
@@ -226,23 +255,41 @@ public class FacebookManagerImpl implements FacebookManager {
 		return hashed.equals(params.getFirst(FACEBOOK_PARAM_SIGNATURE));
 	}
 	
-	private boolean validateAuthtoken(String authToken)
+	private FacebookAppDO findFacebookApp(String appId)
 	{
-		String apiKey = "6c028b61ae2d51b43e8582420b8a75be";
-		String secret = "8c7bd765ef219a7bea8132c03dbe2892";
+		// Look up secret by facebook app id (NOT our facebook_api_id which is the name of the application)
+		Criteria crit = session.createCriteria(FacebookAppDO.class);
+		crit.add(Restrictions.eq("id", appId));
+		FacebookAppDO app = (FacebookAppDO)crit.uniqueResult();
+		
+		// The app should exist
+		if (app == null)
+		{
+			logger.error("No facebook app found for App ID: " + appId);
+		}
+		
+		return app;
+	}
+	
+	
+	private String callFacebookMethod(String secret, Map<String, String> postParameters) throws FacebookManagerException
+	{
+		String ret = "";
 		
 		HttpClient client = new HttpClient();
 		PostMethod post = new PostMethod(FACEBOOK_REST_URL);
-		post.addParameter("api_key", apiKey);
-		post.addParameter("auth_token", authToken);
-		post.addParameter("method", "auth.getSession");
-		post.addParameter("v", "1.0");
+		
+		// Sort keys
+		Object[] keys = postParameters.keySet().toArray();
+		Arrays.sort(keys);
 		
 		// Add MD5 hash
 		String params = "";
-		for (NameValuePair pair : post.getParameters())
+		for (Object key : keys)
 		{
-			params += pair.getName() + "=" + pair.getValue();
+			String value = postParameters.get(key);
+			post.addParameter(new NameValuePair(key.toString(), value));
+			params += key + "=" + value;
 		}
 
 		params += secret;
@@ -255,26 +302,29 @@ public class FacebookManagerImpl implements FacebookManager {
 			
 			if (result == 200)
 			{
-				String response = post.getResponseBodyAsString();
-				if (response.indexOf("<auth_getSession") > -1)
-					return true;
+				ret = post.getResponseBodyAsString();
+			}
+			else
+			{
+				throw new FacebookManagerException("Facebook request returned with status code: " + result);
 			}
 		} 
 		catch (HttpException e) 
 		{
-			e.printStackTrace();
+			throw new FacebookManagerException("Error making facebook request", e);
 		} 
 		catch (IOException e) 
 		{
-			e.printStackTrace();
+			throw new FacebookManagerException("Error making facebook request", e);
 		} 
 		finally 
 		{
 			post.releaseConnection();
-		} 
+		}
 		
-		return false;
+		return ret;
 	}
+	
 
 	private String md5(String value)
 	{

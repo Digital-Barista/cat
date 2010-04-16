@@ -15,6 +15,7 @@
 		<class>com.digitalbarista.cat.data.KeywordLimitDO</class>
 		<class>com.digitalbarista.cat.data.KeywordDO</class>
 		<class>com.digitalbarista.cat.data.FacebookMessageDO</class>
+		<class>com.digitalbarista.cat.data.FacebookAppDO</class>
 		<class>com.digitalbarista.cat.data.EntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CouponResponseDO</class>
 		<class>com.digitalbarista.cat.data.CouponRedemptionDO</class>

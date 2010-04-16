@@ -1,4 +1,4 @@
-var channel_path = '/xd_receiver.htm'; 
+var channel_path = '/cat/facebook/xd_receiver.htm'; 
 
 
 FB_RequireFeatures(["Api"], function(){ 

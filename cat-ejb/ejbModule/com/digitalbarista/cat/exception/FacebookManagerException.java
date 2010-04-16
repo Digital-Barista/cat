@@ -1,11 +1,20 @@
 package com.digitalbarista.cat.exception;
 
-public class FacebookManagerException extends RuntimeException {
+public class FacebookManagerException extends Exception {
 
-	private static final long serialVersionUID = 1L;
-
-	public FacebookManagerException(String message)
-	{
-		super(message, null);
+	public FacebookManagerException() {
 	}
+
+	public FacebookManagerException(String message) {
+		super(message);
+	}
+
+	public FacebookManagerException(Throwable cause) {
+		super(cause);
+	}
+
+	public FacebookManagerException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriInfo;
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.FacebookMessage;
+import com.digitalbarista.cat.exception.FacebookManagerException;
 
 
 @Local
@@ -27,19 +28,15 @@ public interface FacebookManager
 	@GET
 	@Path("/messages/list/{facebookAppId}")
 	@Wrapped(element="messages")
-	List<FacebookMessage> getMessages(@PathParam("facebookAppId") String facebookAppId, @Context UriInfo ui);
+	List<FacebookMessage> getMessages(@PathParam("facebookAppId") String facebookAppId, @Context UriInfo ui) throws FacebookManagerException;
 
 	@PUT
 	@Path("/messages/{facebookMessageId}/{response}")
-	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, @PathParam("response") String response, @Context UriInfo ui);
+	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, @PathParam("response") String response, @Context UriInfo ui) throws FacebookManagerException;
 	
 	@DELETE
 	@Path("/messages/{facebookMessageId}")
-	void delete(@PathParam("facebookMessageId") Integer facebookMessageId, @Context UriInfo ui);
-	
-	@GET
-	@Path("/messages/authorize")
-	String authorize(@Context UriInfo ui);
+	void delete(@PathParam("facebookMessageId") Integer facebookMessageId, @Context UriInfo ui) throws FacebookManagerException;
 	
 	@PUT
 	@Path("/messages/authorize/{facebookAppId}/{uid}")
@@ -48,4 +45,7 @@ public interface FacebookManager
 	@DELETE
 	@Path("/messages/authorize/{facebookAppId}/{uid}")
 	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
+
+	void updateMessageCounter(String appId, String uid);
+	void updateMessageCounter(String appId, String uid, Integer count);
 }

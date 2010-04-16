@@ -51,7 +51,7 @@ function MessageAPI()
 			else
 			{
 				// Add banner
-				var banner = $("<h2>Messages</h2>");
+				var banner = createBanner();
 				area.append(banner);
 				
 				// Add header
@@ -193,6 +193,34 @@ function MessageAPI()
 		var area = $("#MessageArea");
 		area.html("");
 		area.append(table);
+	}
+	
+	function createBanner()
+	{
+		var table = $("<table />");
+		table.attr("class", "banner");
+		
+		var row = $("<tr />");
+		table.append(row);
+		
+		var cell = $("<td />");
+		row.append(cell);
+		
+		cell.attr("class", "bannerTitle");
+		cell.text("Messages");
+		
+		cell = $("<td />");
+		cell.attr("class", "bannerBookmark");
+		row.append(cell);
+		
+		var bookmark = $("<img src='/cat/facebook/images/fb_bookmark.png' />");
+		bookmark.attr("class", "bookmarkButton");
+		bookmark.bind("click", function(){
+			FB.Connect.showBookmarkDialog();
+		});
+		cell.append(bookmark);
+		
+		return table;
 	}
 	
 	function createHeader()
