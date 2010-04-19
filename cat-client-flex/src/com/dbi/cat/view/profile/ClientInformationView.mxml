@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Form xmlns:mx="http://www.adobe.com/2006/mxml"
-	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" xmlns:controls="com.dbi.controls.*" xmlns:components="com.dbi.cat.view.components.*" xmlns:profile="com.dbi.cat.view.profile.*">
+	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" xmlns:controls="com.dbi.controls.*" 
+	xmlns:components="com.dbi.cat.view.components.*" 
+	xmlns:profile="com.dbi.cat.view.profile.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
@@ -41,15 +43,13 @@
 	<mx:FormItem label="Contatct Phone">
 		<mx:Label text="{client.contactPhone}" />
 	</mx:FormItem>
-	<mx:FormItem label="Add In Message" width="100%">
-		<mx:TabNavigator id="EntryTypeTabs"
-			width="100%" height="100%"
-			tabOffset="20">
-			<mx:Repeater id="EntryTypeRepeater" 
-				dataProvider="{EntryPointType.getAllTypes()}">
-				<profile:ClientAddInMessageEditor entryType="{EntryTypeRepeater.currentItem}"
-					editable="false" />
-			</mx:Repeater>
-		</mx:TabNavigator>
-	</mx:FormItem>
+	<mx:TabNavigator id="EntryTypeTabs"
+		width="100%" height="100%"
+		tabOffset="20">
+		<mx:Repeater id="EntryTypeRepeater" 
+			dataProvider="{EntryPointType.getAllTypes()}">
+			<profile:ClientInfoEditor entryType="{EntryTypeRepeater.currentItem}"
+				editable="false" />
+		</mx:Repeater>
+	</mx:TabNavigator>
 </mx:Form>

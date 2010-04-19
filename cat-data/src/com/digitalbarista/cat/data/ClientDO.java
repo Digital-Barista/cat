@@ -34,6 +34,7 @@ public class ClientDO implements Serializable,DataObject {
 	private Set<EntryPointDO> entryPoints;
 	private Set<KeywordLimitDO> keywordLimits;
 	private Set<AddInMessageDO> addInMessages = new HashSet<AddInMessageDO>();
+	private Set<ClientInfoDO> clientInfos = new HashSet<ClientInfoDO>();
 	
 	private static final long serialVersionUID = 1L;
 
@@ -70,6 +71,16 @@ public class ClientDO implements Serializable,DataObject {
 
 	public void setAddInMessages(Set<AddInMessageDO> addInMessages) {
 		this.addInMessages = addInMessages;
+	}
+
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=ClientInfoDO.class, mappedBy="client")
+	@JoinColumn(name="client_id")
+	public Set<ClientInfoDO> getClientInfos() {
+		return clientInfos;
+	}
+
+	public void setClientInfos(Set<ClientInfoDO> clientInfos) {
+		this.clientInfos = clientInfos;
 	}
 
 	@ManyToMany(targetEntity=EntryPointDO.class,fetch=FetchType.LAZY)

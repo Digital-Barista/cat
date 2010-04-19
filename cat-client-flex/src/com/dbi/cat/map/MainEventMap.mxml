@@ -86,6 +86,7 @@
 	
 	<!-- Data Events -->
 	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
+		<EventAnnouncer type="{ReportingEvent.LOAD_DASHBOARD}" />
 		<EventAnnouncer type="{CampaignEvent.LIST_CAMPAIGNS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_KEYWORDS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />

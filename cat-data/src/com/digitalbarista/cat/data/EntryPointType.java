@@ -1,20 +1,22 @@
 package com.digitalbarista.cat.data;
 
 public enum EntryPointType {
-	SMS (0, "SMS", 160),
-	Email (1, "Email", 0),
-	Twitter (2, "Twitter", 140),
-	Facebook (3, "Facebook", 0);;
+	SMS (0, "SMS", 160, 0),
+	Email (1, "Email", 0, null),
+	Twitter (2, "Twitter", 140, null),
+	Facebook (3, "Facebook", 0, null);
 	
 	private Integer id;
 	private String name;
 	private Integer maxCharacters;
+	private Integer defaultMessageCredits;  // NULL = Unlimited
 	
-	EntryPointType(Integer id, String name, Integer maxCharacters)
+	EntryPointType(Integer id, String name, Integer maxCharacters, Integer defaultMessageCredits)
 	{
 		this.id = id;
 		this.name = name;
 		this.maxCharacters = maxCharacters;
+		this.defaultMessageCredits = defaultMessageCredits;
 	}
 	
 	public static EntryPointType getById(Integer id)
@@ -44,6 +46,14 @@ public enum EntryPointType {
 
 	public void setMaxCharacters(Integer maxCharacters) {
 		this.maxCharacters = maxCharacters;
+	}
+
+	public Integer getDefaultMessageCredits() {
+		return defaultMessageCredits;
+	}
+
+	public void setDefaultMessageCredits(Integer defaultMessageCredits) {
+		this.defaultMessageCredits = defaultMessageCredits;
 	}
 	
 	

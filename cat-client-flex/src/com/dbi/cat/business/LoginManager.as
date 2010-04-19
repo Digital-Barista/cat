@@ -139,7 +139,7 @@ package com.dbi.cat.business
 			loginPassword = loginPassword == "" ? null : "";
 			
 			// Login to app
-			dispatcher.dispatchEvent(new NavigationEvent(NavigationEvent.CAMPAIGNS));
+			dispatcher.dispatchEvent(new NavigationEvent(NavigationEvent.DASHBOARD));
 		}
 		private function loginSuccess(result:ResultEvent):void
 		{

@@ -23,6 +23,20 @@ RowIndex
 	color:#CCCCCC;
 }
 
+.dashboardLabel
+{
+	fontSize:18;
+}
+.dashboardDataLabel
+{
+	fontSize:16;
+	fontWeight:bold;
+}
+.dashboardTitle
+{
+	fontSize:18;
+	fontWeight:bold;
+}
 
 .tagMessage
 {

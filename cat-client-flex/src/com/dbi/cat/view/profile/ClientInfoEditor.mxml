@@ -4,6 +4,7 @@
 	label="{entryType.name}">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.vo.ClientInfoVO;
 			import com.dbi.cat.common.constants.EntryPointType;
 			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.vo.ClientVO;
@@ -55,6 +56,43 @@
 				return null;
 			}
 			
+			[Bindable(event="dataUpdate")]
+			private function get messageCredits():String
+			{
+				var clientInfo:ClientInfoVO;
+				
+				if (currentClient != null &&
+					currentClient.clientInfos != null &&
+					entryType != null)
+				{
+					for each (var info:ClientInfoVO in currentClient.clientInfos)
+					{
+						if (info.entryType == entryType.name &&
+							info.name == ClientInfoVO.MESSAGE_CREDITS)
+						{
+							clientInfo = info;
+							break;
+						}
+					}
+				}
+				
+				if (info == null)
+				{
+					if (isNaN(entryType.defaultMessageCredits))
+						return "Unlimited";
+					else
+						return "0";
+				}
+				else if (info.value == null)
+				{	
+					return "Unlimited";
+				}
+				else
+				{
+					return info.value;
+				}
+			}
+			
 			private function changeAddInMessage():void
 			{
 				if (addInMessage != null)
@@ -76,10 +114,17 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:TextArea id="AddIn"
-		borderStyle="none"
-		editable="{this.editable}"
-		width="100%"
-		change="changeAddInMessage()"
-		text="{addInMessage.message}" />
+	<mx:Form right="0" left="0" top="0" bottom="0">
+		<mx:FormItem label="Message Credits:">
+			<mx:Label text="{messageCredits}" />
+		</mx:FormItem>
+		<mx:FormItem label="Add In Message:" width="100%" height="100%">
+			<mx:TextArea id="AddIn"
+				editable="{this.editable}"
+				left="0" right="0"
+				change="changeAddInMessage()"
+				text="{addInMessage.message}"  
+				width="100%" height="100%"/>
+		</mx:FormItem>
+	</mx:Form>
 </mx:Canvas>

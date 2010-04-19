@@ -26,6 +26,7 @@
 		<class>com.digitalbarista.cat.data.ContactDO</class>
 		<class>com.digitalbarista.cat.data.ConnectorInfoDO</class>
 		<class>com.digitalbarista.cat.data.ConnectorDO</class>
+		<class>com.digitalbarista.cat.data.ClientInfoDO</class>
 		<class>com.digitalbarista.cat.data.ClientDO</class>
 		<class>com.digitalbarista.cat.data.CampaignVersionDO</class>
 		<class>com.digitalbarista.cat.data.CampaignSubscriberLinkDO</class>

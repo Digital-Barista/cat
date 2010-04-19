@@ -1,5 +1,6 @@
 package com.dbi.cat.business
 {
+	import com.dbi.cat.common.vo.DashboardDataVO;
 	import com.dbi.cat.event.ReportingEvent;
 	import com.dbi.cat.view.reporting.NodeSubscriberAddressView;
 	
@@ -17,9 +18,11 @@ package com.dbi.cat.business
 		private var dispatcher:IEventDispatcher;
 		private var subscriberNodePopup:IFlexDisplayObject;
 	
+		
 		public var isLoadingNodeSubscriberAddresses:Boolean = false;
 		public var nodeSubscriberAddresses:ArrayCollection;
 		
+		public var dashboardData:DashboardDataVO;
 		public var outgoingMessageSummaries:ArrayCollection;
 		
 		public function ReportingManager(dispatcher:IEventDispatcher)
@@ -64,6 +67,10 @@ package com.dbi.cat.business
 		public function loadOutgoingMessageSummaries(summaries:ArrayCollection):void
 		{
 			outgoingMessageSummaries = summaries;
+		}
+		public function loadDashboardData(dashboardData:DashboardDataVO):void
+		{
+			this.dashboardData = dashboardData;
 		}
 	}
 }

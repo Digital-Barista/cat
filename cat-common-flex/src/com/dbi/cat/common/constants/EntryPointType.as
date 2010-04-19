@@ -7,6 +7,7 @@ package com.dbi.cat.common.constants
 	{
 		public var name:String;
 		public var maxCharacters:Number;
+		public var defaultMessageCredits:Number; // NaN = Unlimited
 		
 		
 		public function get allowAutoStart():Boolean
@@ -17,14 +18,15 @@ package com.dbi.cat.common.constants
 			return false;
 		}
 		
-		public function EntryPointType(name:String, maxChars:Number)
+		public function EntryPointType(name:String, maxChars:Number, defaultMessageCredits:Number=NaN)
 		{
 			this.name = name;
 			this.maxCharacters = maxChars;
+			this.defaultMessageCredits = defaultMessageCredits;
 		}
 
 		public static const EMAIL:EntryPointType = new EntryPointType("Email", 0);
-		public static const SMS:EntryPointType = new EntryPointType("SMS", 160);
+		public static const SMS:EntryPointType = new EntryPointType("SMS", 160, 0);
 		public static const TWITTER:EntryPointType = new EntryPointType("Twitter", 140);
 		public static const FACEBOOK:EntryPointType = new EntryPointType("Facebook", 0);
 		

@@ -30,21 +30,11 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Canvas width="400"  horizontalCenter="0" y="10" height="193" borderStyle="solid" cornerRadius="5" borderThickness="3">
-		<profile:UserInformationView
-			id="UserInfo"
-			user="{currentUser}"
-			right="0" left="5" top="30" bottom="54">
-		</profile:UserInformationView>
-		<mx:Button label="Edit"
-			click="editUser()"  x="320" y="155"/>
-		<mx:Label x="10" y="10" text="User Information" fontWeight="bold" fontSize="12"/>
-	</mx:Canvas>
-	<mx:Canvas width="400" horizontalCenter="0" top="211" height="260" borderStyle="solid" cornerRadius="5" borderThickness="3">
+	<mx:Canvas width="500" horizontalCenter="0" top="10" bottom="10" >
 		<profile:ClientInformationView
 			id="ClientInfo"
 			client="{currentClient}"
-			left="5" top="30" bottom="40" right="0">
+			left="5" top="35" bottom="40" right="5">
 		</profile:ClientInformationView>
 		<mx:Button label="Edit"
 			click="editClient()" bottom="10" right="10"/>

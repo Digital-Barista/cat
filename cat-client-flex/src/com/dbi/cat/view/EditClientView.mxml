@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="474" height="300"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="500" height="400"
 	layout="absolute" showCloseButton="true"
 	close="cancel()"
 	title="Edit Client" 
@@ -35,7 +35,7 @@
 			}
 		]]>
 	</mx:Script>
-		<mx:Form id="EditUser">
+		<mx:Form id="EditUser" right="0" left="0" top="0" bottom="0">
 			<mx:FormItem label="Organization">
 				<mx:Label text="{client.name}" />
 			</mx:FormItem>
@@ -54,16 +54,14 @@
 					text="{client.contactPhone}"
 					change="{client.contactPhone = ContactPhone.text}"/>
 			</mx:FormItem>
-			<mx:FormItem label="Add In Message">
-				<mx:TabNavigator id="EntryTypeTabs"
-					width="300" height="100%"
-					tabOffset="20">
-					<mx:Repeater id="EntryTypeRepeater" 
-						dataProvider="{EntryPointType.getAllTypes()}">
-						<profile:ClientAddInMessageEditor entryType="{EntryTypeRepeater.currentItem}"  />
-					</mx:Repeater>
-				</mx:TabNavigator>
-			</mx:FormItem>
+			<mx:TabNavigator id="EntryTypeTabs"
+				width="100%" height="100%"
+				tabOffset="20">
+				<mx:Repeater id="EntryTypeRepeater" 
+					dataProvider="{EntryPointType.getAllTypes()}">
+					<profile:ClientInfoEditor entryType="{EntryTypeRepeater.currentItem}"  />
+				</mx:Repeater>
+			</mx:TabNavigator>
 		</mx:Form>
 		<mx:ControlBar horizontalAlign="right">
 			<mx:Button id="Save" label="Save" click="save()" />

@@ -65,4 +65,33 @@
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.LOAD_DASHBOARD}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_DASHBOARD_DATA}" />
+		<RemoteObjectInvoker destination="reportingManager"
+			method="getDashboardData"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_DASHBOARD_DATA}" />
+				<MethodInvoker generator="{ReportingManager}"
+					method="loadDashboardData"
+					arguments="{resultObject}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_DASHBOARD_DATA}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 </EventMap>

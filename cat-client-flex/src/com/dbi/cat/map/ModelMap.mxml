@@ -3,10 +3,11 @@
 	xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.view.profile.ClientInfoEditor;
+			import com.dbi.cat.view.dashboard.DashboardView;
 			import com.dbi.cat.view.campaign.CampaignInfoEditor;
 			import com.dbi.cat.business.CampaignMessageManager;
 			import com.dbi.cat.view.workspace.MessagePreviewView;
-			import com.dbi.cat.view.profile.ClientAddInMessageEditor;
 			import com.dbi.cat.business.CampaignManager;
 			import com.dbi.cat.view.user.UsersView;
 			import com.dbi.cat.view.user.EditUserView;
@@ -448,7 +449,7 @@
 			sourceKey="outgoingMessageSummaries"
 			targetKey="outgoingMessageSummaries" />
 	</Injectors>
-	<Injectors target="{ClientAddInMessageEditor}">
+	<Injectors target="{ClientInfoEditor}">
 		<PropertyInjector
 			source="{ClientManager}"
 			sourceKey="currentClient"
@@ -465,5 +466,11 @@
 			source="{CampaignMessageManager}"
 			sourceKey="messageParts"
 			targetKey="messageParts" />
+	</Injectors>
+	<Injectors target="{DashboardView}">
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="dashboardData"
+			targetKey="dashboardData" />
 	</Injectors>
 </EventMap>

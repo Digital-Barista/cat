@@ -14,11 +14,12 @@ package com.dbi.cat.business
 		public static const VIEW_RECOVER_PASSWORD:Number = 1;
 		public static const VIEW_MAIN:Number = 2;
 		
-		public static const VIEW_MAIN_CAMPAIGNS:Number = 0;
-		public static const VIEW_MAIN_CONTACTS:Number = 1;
-		public static const VIEW_MAIN_REPORTING:Number = 2;
-		public static const VIEW_MAIN_USERS:Number = 3;
-		public static const VIEW_MAIN_PROFILE:Number = 4;
+		public static const VIEW_MAIN_CAMPAIGNS:String = "Campaigns";
+		public static const VIEW_MAIN_CONTACTS:String = "Contacts";
+		public static const VIEW_MAIN_REPORTING:String = "Reporting";
+		public static const VIEW_MAIN_USERS:String = "Users";
+		public static const VIEW_MAIN_PROFILE:String = "Profile";
+		public static const VIEW_MAIN_DASHBOARD:String = "Dashboard";
 		
 		public static const VIEW_RECOVER_PASSWORD_MAIN:String = "";
 		public static const VIEW_RECOVER_PASSWORD_RESET:String = "resetPassword";
@@ -27,7 +28,7 @@ package com.dbi.cat.business
 		public var appCurrentView:Number = VIEW_LOGIN;
 		
 		[Bindable]
-		public var mainCurrentView:Number = VIEW_MAIN_CAMPAIGNS;
+		public var mainCurrentView:String = VIEW_MAIN_CAMPAIGNS;
 				
 		[Bindable]
 		public var recoverPasswordView:String = VIEW_RECOVER_PASSWORD_MAIN;
@@ -62,6 +63,10 @@ package com.dbi.cat.business
 				case NavigationEvent.REPORTING:
 					appCurrentView = VIEW_MAIN;
 					mainCurrentView = VIEW_MAIN_REPORTING;
+					break;
+				case NavigationEvent.DASHBOARD:
+					appCurrentView = VIEW_MAIN;
+					mainCurrentView = VIEW_MAIN_DASHBOARD;
 					break;
 				case NavigationEvent.RECOVER_PASSWORD:
 					appCurrentView = VIEW_RECOVER_PASSWORD;
