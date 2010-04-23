@@ -30,6 +30,7 @@ import com.digitalbarista.cat.business.reporting.DashboardData;
 import com.digitalbarista.cat.business.reporting.MessageCreditInfo;
 import com.digitalbarista.cat.business.reporting.OutgoingMessageSummary;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignStatus;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.ClientDO;
@@ -125,6 +126,7 @@ public class ReportingManagerImpl implements ReportingManager {
 			Criteria crit = session.createCriteria(CampaignDO.class);
 			crit.add(Restrictions.in("client.primaryKey", clientIDs));
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
+			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.setProjection(Projections.rowCount());
 			ret.setCampaignCount(crit.uniqueResult().toString());
 			

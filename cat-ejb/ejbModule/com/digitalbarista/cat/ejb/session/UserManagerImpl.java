@@ -401,7 +401,7 @@ public class UserManagerImpl implements UserManager {
 			return clientIDs;
 		
 		// If the user is an admin return all "active" client IDs
-		if (isAdmin(username))
+		if(ctx.isCallerInRole("admin"))
 		{
 			Criteria crit = session.createCriteria(ClientDO.class);
 			crit.add(Restrictions.eq("active", true));
