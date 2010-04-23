@@ -84,7 +84,7 @@
 						dataProvider="{clients}" />
 					<mx:Label text="Type:" />
 					<mx:ComboBox id="ContactType"
-						dataProvider="{EntryPointType.getAllTypes()}"
+						dataProvider="{EntryPointType.allTypes}"
 						labelField="name" />
 				</mx:HBox>
 				<mx:Canvas height="30" width="100%"

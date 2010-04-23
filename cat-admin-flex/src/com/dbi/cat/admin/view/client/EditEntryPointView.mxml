@@ -32,7 +32,7 @@
 		<mx:FormItem label="Type" width="100%">
 			<controls:AdvancedComboBox id="Type"
 				labelField="name"
-				dataProvider="{EntryPointType.getAllTypes()}"
+				dataProvider="{EntryPointType.allTypes}"
 				selectedBindingProperty="name"
 				selectedBindingValue="{currentEntryPointDefinition.type}"
 				change="{currentEntryPointDefinition.type = Type.selectedItem.name}" />

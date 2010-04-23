@@ -58,7 +58,7 @@
 				width="100%" height="100%"
 				tabOffset="20">
 				<mx:Repeater id="EntryTypeRepeater" 
-					dataProvider="{EntryPointType.getAllTypes()}">
+					dataProvider="{EntryPointType.allTypes}">
 					<profile:ClientInfoEditor entryType="{EntryTypeRepeater.currentItem}"  />
 				</mx:Repeater>
 			</mx:TabNavigator>

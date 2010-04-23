@@ -121,6 +121,7 @@ package com.dbi.cat.business
 			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_UNASSIGN_CONTACT_TAG));
 			dispatcher.dispatchEvent(new ReportingEvent(ReportingEvent.CLOSE_NODE_SUBSCRIBERS));
 			dispatcher.dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.CLOSE_MESSAGE_PREVIEW));
+			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_ADD_CREDITS));
 		}
 		
 		/**

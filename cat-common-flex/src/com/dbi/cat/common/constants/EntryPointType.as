@@ -9,6 +9,7 @@ package com.dbi.cat.common.constants
 		public var maxCharacters:Number;
 		public var defaultMessageCredits:Number; // NaN = Unlimited
 		
+		private static var _allTypes:ArrayCollection;
 		
 		public function get allowAutoStart():Boolean
 		{
@@ -33,7 +34,7 @@ package com.dbi.cat.common.constants
 		
 		public static function allowAutoStart(entryType:String):Boolean
 		{
-			for each (var type:EntryPointType in getAllTypes())
+			for each (var type:EntryPointType in allTypes)
 			{
 				if (type.name == entryType)
 					return type.allowAutoStart;
@@ -42,13 +43,17 @@ package com.dbi.cat.common.constants
 		}
 		
 		
-		public static function getAllTypes():ArrayCollection
+		public static function get allTypes():ArrayCollection
 		{
-			return new ArrayCollection([
+			if (_allTypes == null)
+			{
+				_allTypes = new ArrayCollection([
 				EntryPointType.SMS,
 				EntryPointType.EMAIL,
 				EntryPointType.TWITTER,
 				EntryPointType.FACEBOOK]);
+			}
+			return _allTypes;
 		}
 	}
 }

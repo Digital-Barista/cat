@@ -20,6 +20,7 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	private Set<ContactTag> contactTags;
 	private Long clientId;
 	private EntryPointType type;
+	private boolean blacklisted;
 	
 	
 	public Long getClientId() {
@@ -60,6 +61,15 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	public void setType(EntryPointType type) {
 		this.type = type;
 	}
+	
+	
+	public boolean getBlacklisted() {
+		return blacklisted;
+	}
+	public void setBlacklisted(boolean blacklisted) {
+		this.blacklisted = blacklisted;
+	}
+	
 	@Override
 	public void copyFrom(ContactDO dataObject) {
 		contactId = dataObject.getContactId();
@@ -69,6 +79,7 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 		createDate = dataObject.getCreateDate();
 		clientId = dataObject.getClient().getPrimaryKey();
 		type = dataObject.getType();
+		blacklisted = dataObject.getSubscriberBlacklist() != null;
 		
 		contactTags = new HashSet<ContactTag>();
 		if (dataObject.getContactTags() != null)

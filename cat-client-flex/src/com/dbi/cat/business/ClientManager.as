@@ -5,6 +5,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.KeywordVO;
 	import com.dbi.cat.constants.KeywordAvailableCheckState;
 	import com.dbi.cat.view.EditClientView;
+	import com.dbi.cat.view.profile.AddCreditsView;
 	import com.dbi.cat.view.profile.EditEntryPointView;
 	import com.dbi.cat.view.profile.EditKeywordView;
 	
@@ -32,6 +33,7 @@ package com.dbi.cat.business
 		private var editKeywordPopup:IFlexDisplayObject;
 		private var editClientPopup:IFlexDisplayObject;
 		private var editEntryPointPopup:IFlexDisplayObject;
+		private var addCreditsPopup:IFlexDisplayObject;
 		
 		public function ClientManager()
 		{
@@ -233,6 +235,21 @@ package com.dbi.cat.business
 		{
 			currentKeyword = null;
 			currentClient = null;
+		}
+	
+		//
+		// Credits methods
+		//
+		public function openAddCredits():void
+		{
+			if (addCreditsPopup == null)
+				addCreditsPopup = new AddCreditsView();
+			PopUpManager.addPopUp(addCreditsPopup, UIComponent(Application.application), true);
+			PopUpManager.centerPopUp(addCreditsPopup);
+		}
+		public function closeAddCredits():void
+		{
+			PopUpManager.removePopUp(addCreditsPopup);
 		}
 	}
 }

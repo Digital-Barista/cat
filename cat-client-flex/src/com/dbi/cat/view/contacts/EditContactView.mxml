@@ -61,7 +61,7 @@
 		</mx:FormItem>
 		<mx:FormItem label="Type">
 			<mx:ComboBox id="ContactType"
-				dataProvider="{EntryPointType.getAllTypes()}"
+				dataProvider="{EntryPointType.allTypes}"
 				labelField="name" />
 		</mx:FormItem>
 		<mx:FormItem label="Contact">

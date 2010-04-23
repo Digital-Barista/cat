@@ -200,4 +200,14 @@
 		<MethodInvoker generator="{ClientManager}"
 			method="closeEditEntryPoint" />
 	</EventHandlers>
+	
+	<!-- Credit events -->
+	<EventHandlers type="{ClientEvent.OPEN_ADD_CREDITS}">
+		<MethodInvoker generator="{ClientManager}"
+					   method="openAddCredits" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_ADD_CREDITS}">
+		<MethodInvoker generator="{ClientManager}"
+					   method="closeAddCredits" />
+	</EventHandlers>
 </EventMap>
