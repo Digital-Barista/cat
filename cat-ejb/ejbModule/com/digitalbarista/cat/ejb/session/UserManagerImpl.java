@@ -399,16 +399,28 @@ public class UserManagerImpl implements UserManager {
 		Set<Long> clientIDs = new HashSet<Long>();
 		if("guest".equalsIgnoreCase(username))
 			return clientIDs;
-		for(RoleDO role : getSimpleUserByUsername(username).getRoles())
-			if(role.getRoleName().equals("account.manager") || role.getRoleName().equals("client"))
-				clientIDs.add(role.getRefId());
-		if(clientIDs.size()==0)
-			return clientIDs;
-		Criteria crit = session.createCriteria(ClientDO.class);
-		crit.add(Restrictions.eq("active", true));
-		crit.add(Restrictions.in("id", clientIDs));
-		crit.setProjection(Projections.id());
-		clientIDs = new HashSet<Long>(crit.list());
+		
+		// If the user is an admin return all "active" client IDs
+		if (isAdmin(username))
+		{
+			Criteria crit = session.createCriteria(ClientDO.class);
+			crit.add(Restrictions.eq("active", true));
+			crit.setProjection(Projections.id());
+			clientIDs = new HashSet<Long>(crit.list());
+		}
+		else
+		{
+			for(RoleDO role : getSimpleUserByUsername(username).getRoles())
+				if(role.getRoleName().equals("account.manager") || role.getRoleName().equals("client"))
+					clientIDs.add(role.getRefId());
+			if(clientIDs.size()==0)
+				return clientIDs;
+			Criteria crit = session.createCriteria(ClientDO.class);
+			crit.add(Restrictions.eq("active", true));
+			crit.add(Restrictions.in("id", clientIDs));
+			crit.setProjection(Projections.id());
+			clientIDs = new HashSet<Long>(crit.list());
+		}
 		return clientIDs;
 	}
 
@@ -425,6 +437,16 @@ public class UserManagerImpl implements UserManager {
 				   "account.manager".equals(role.getRoleName()))
 					return true;
 			}
+		}
+		return false;
+	}
+
+	private boolean isAdmin(String username)
+	{
+		for(RoleDO role : getSimpleUserByUsername(username).getRoles())
+		{
+			if(role.getRoleName().equals("admin"))
+					return true;
 		}
 		return false;
 	}
