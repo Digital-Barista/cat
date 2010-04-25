@@ -29,11 +29,13 @@ import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
+import com.digitalbarista.cat.ejb.session.FacebookManager;
 
 public class MessageSendRequestEventHandler extends CATEventHandler {
 	
@@ -182,6 +184,10 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 					sb.append((sb.length()!=0)?",":"").append(keyword);
 				fbMessage.setMetadata(sb.toString());
 				getEntityManager().persist(fbMessage);
+				getEntityManager().flush();
+				FacebookAppDO applicationInfo = getEntityManager().find(FacebookAppDO.class, e.getSource());
+				FacebookManager fbMan = (FacebookManager)getSessionContext().lookup("ejb/cat/FacebookManager");
+				fbMan.updateMessageCounter(applicationInfo.getId(), e.getTarget());
 			}catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);
