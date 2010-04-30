@@ -197,7 +197,8 @@ public class ReportingManagerImpl implements ReportingManager {
 			"join nodes n on n.uid = a.node_uid " +
 			"join campaigns as c on c.campaign_id = n.campaign_id " +
 			"join client as cli on cli.client_id = c.client_id " +
-			"where cli.client_id in (:clientIds) ";
+			"where cli.client_id in (:clientIds) " +
+			"group by a.msg_type";
 
 		Query query = em.createNativeQuery(queryString);
 		query.setParameter("clientIds", clientIds);
