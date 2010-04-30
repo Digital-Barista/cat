@@ -342,9 +342,11 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		return ret;
 	}
 
+	@SuppressWarnings("unchecked")
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void unsubscribeSubscribers(List<Long> subscriberIds, Long campaignId)
 	{
+		// This is really dumb, but Flex sends the list as Integers
 		List<Long> ids = new ArrayList<Long>();
 		for (Object id : subscriberIds)
 			ids.add(new Long(id.toString()));
