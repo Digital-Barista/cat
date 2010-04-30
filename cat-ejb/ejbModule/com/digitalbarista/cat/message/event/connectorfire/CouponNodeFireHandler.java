@@ -57,7 +57,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
 		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
 
-		if(sMan.isSubsscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
+		if(sMan.isSubscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
 			return;
 		
 		if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && (offer.getMaxCoupons()<0 || offer.getIssuedCouponCount()<offer.getMaxCoupons()))

@@ -3,7 +3,7 @@ package com.dbi.cat.view.workspace
 	import com.dbi.cat.common.vo.LayoutInfoVO;
 	import com.dbi.cat.common.vo.NodeVO;
 	import com.dbi.cat.event.CampaignEvent;
-	import com.dbi.cat.event.ReportingEvent;
+	import com.dbi.cat.event.SubscriptionEvent;
 	import com.dbi.cat.event.WorkspaceEvent;
 	
 	import flash.events.Event;
@@ -136,7 +136,7 @@ package com.dbi.cat.view.workspace
 		
 		private function onStatisticsClick(e:MouseEvent):void
 		{
-			var event:ReportingEvent = new ReportingEvent(ReportingEvent.OPEN_NODE_SUBSCRIBERS);
+			var event:SubscriptionEvent = new SubscriptionEvent(SubscriptionEvent.OPEN_NODE_SUBSCRIBERS);
 			event.nodeUID = nodeVO.uid;
 			dispatchEvent(event);
 		}

@@ -156,8 +156,8 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				Criteria crit = session.createCriteria(SubscriberDO.class);
 				crit.add(Restrictions.eq("facebookID", e.getArgs().get("facebookID")));
 				sub = (SubscriberDO)crit.uniqueResult();
-				if(sub!=null && sub.getFacebookUsername()==null)
-					sub.setFacebookUsername(e.getTarget());
+				if(sub!=null && sub.getFacebookID()==null)
+					sub.setFacebookID(e.getTarget());
 				
 				crit = session.createCriteria(ContactDO.class);
 				crit.add(Restrictions.eq("type", EntryPointType.Facebook));
@@ -187,7 +187,6 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 					break;
 					
 				case FacebookEndpoint:
-					sub.setFacebookUsername(e.getTarget());
 					sub.setFacebookID(e.getArgs().get("facebookID"));
 					break;
 			}

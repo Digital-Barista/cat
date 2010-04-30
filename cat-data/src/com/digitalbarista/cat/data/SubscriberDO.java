@@ -25,7 +25,7 @@ import javax.persistence.Table;
 	@NamedQuery(name="subscriber.by.email",query="select s from SubscriberDO s where s.email=:endpoint"),
 	@NamedQuery(name="subscriber.by.phone",query="select s from SubscriberDO s where s.phoneNumber=:endpoint"),
 	@NamedQuery(name="subscriber.by.twitter",query="select s from SubscriberDO s where s.twitterUsername=:endpoint"),
-	@NamedQuery(name="subscriber.by.facebook",query="select s from SubscriberDO s where s.facebookUsername=:endpoint"),
+	@NamedQuery(name="subscriber.by.facebook",query="select s from SubscriberDO s where s.facebookID=:endpoint"),
 	@NamedQuery(name="all.subscribers.on.node",query="select s from CampaignSubscriberLinkDO l join l.subscriber s join l.lastHitNode n where n.UID=:nodeUID")
 })
 public class SubscriberDO implements Serializable,DataObject {
@@ -101,14 +101,6 @@ public class SubscriberDO implements Serializable,DataObject {
 		this.twitterID = twitterID;
 	}
 
-	@Column(name="facebook_name")
-	public String getFacebookUsername() {
-		return facebookUsername;
-	}
-
-	public void setFacebookUsername(String facebookUsername) {
-		this.facebookUsername = facebookUsername;
-	}
 
 	@Column(name="facebook_id")
 	public String getFacebookID() {

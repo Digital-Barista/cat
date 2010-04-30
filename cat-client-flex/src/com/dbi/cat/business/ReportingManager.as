@@ -16,11 +16,6 @@ package com.dbi.cat.business
 	public class ReportingManager
 	{
 		private var dispatcher:IEventDispatcher;
-		private var subscriberNodePopup:IFlexDisplayObject;
-	
-		
-		public var isLoadingNodeSubscriberAddresses:Boolean = false;
-		public var nodeSubscriberAddresses:ArrayCollection;
 		
 		public var dashboardData:DashboardDataVO;
 		public var outgoingMessageSummaries:ArrayCollection;
@@ -30,37 +25,6 @@ package com.dbi.cat.business
 			this.dispatcher = dispatcher;
 		}
 
-		//
-		// Subscriber node methods
-		//
-		public function openNodeSubscribers(nodeUID:String):void
-		{
-			nodeSubscriberAddresses = null;
-			isLoadingNodeSubscriberAddresses = true;
-			
-			// Fire load event
-			var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_NODE_SUBSCRIBERS);
-			event.nodeUID = nodeUID;
-			dispatcher.dispatchEvent(event);
-			
-			// Open popup
-			if (subscriberNodePopup == null)
-				subscriberNodePopup = new NodeSubscriberAddressView();
-				
-			PopUpManager.addPopUp(subscriberNodePopup, DisplayObject(Application.application), true);
-			PopUpManager.centerPopUp(subscriberNodePopup);
-		}
-		public function closeNodeSubscribers():void
-		{
-			nodeSubscriberAddresses = null;
-			PopUpManager.removePopUp(subscriberNodePopup);
-		}
-		public function loadNodeSubscribers(addresses:ArrayCollection):void
-		{
-			nodeSubscriberAddresses = addresses;
-			isLoadingNodeSubscriberAddresses = false;
-		}
-		
 		//
 		// Message reporting methods
 		//

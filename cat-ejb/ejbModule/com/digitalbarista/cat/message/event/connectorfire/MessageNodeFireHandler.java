@@ -44,7 +44,7 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
 		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
 
-		if(sMan.isSubsscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
+		if(sMan.isSubscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
 			return;
 
 		List<CampaignMessagePart> messageParts = mMan.getMessageParts(cMan.getDetailedCampaign(mNode.getCampaignUID()), mNode.getMessage());

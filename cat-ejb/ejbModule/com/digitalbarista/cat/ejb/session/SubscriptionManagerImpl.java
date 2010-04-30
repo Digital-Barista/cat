@@ -26,10 +26,12 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
+import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Node;
+import com.digitalbarista.cat.business.Subscriber;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
@@ -174,7 +176,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			else if(subscriptionType.equals(EntryPointType.Twitter))
 				addresses.remove(subToRemove.getSubscriber().getTwitterUsername());
 			else if(subscriptionType.equals(EntryPointType.Facebook))
-				addresses.remove(subToRemove.getSubscriber().getFacebookUsername());
+				addresses.remove(subToRemove.getSubscriber().getFacebookID());
 		}
 		
 		if(addresses.size()==0)
@@ -229,7 +231,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					break;
 					
 				case Facebook:
-					addresses.remove(sub.getFacebookUsername());
 					addresses.remove(sub.getFacebookID());
 					break;
 			}
@@ -255,7 +256,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 					break;
 					
 				case Facebook:
-					subTemp.setFacebookUsername(address);
 					subTemp.setFacebookID(address);
 					break;
 			}
@@ -314,7 +314,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	@SuppressWarnings("unchecked")
 	@Override
 	@PermitAll
-	public List<String> getSubscribedAddresses(String nodeUID) 
+	public List<Subscriber> getSubscribedAddresses(String nodeUID) 
 	{
 		// Load node and campaign
 		Node node = campaignManager.getNode(nodeUID);
@@ -325,7 +325,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			throw new SecurityException("Current user is not allowed to view subscriptions to the specified campaign.");
 		
 		// Query for subscriber addresses for this node
-		List<String> ret = new ArrayList<String>();
+		List<Subscriber> ret = new ArrayList<Subscriber>();
 		Criteria crit = session.createCriteria(SubscriberDO.class);
 		crit.createAlias("subscriptions", "subscriptions");
 		crit.createAlias("subscriptions.lastHitNode", "lastHitNode");
@@ -334,23 +334,31 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		// Load addresses from subscriber into String list
 		for (SubscriberDO subscriber : (List<SubscriberDO>)crit.list())
 		{
-			if (subscriber.getEmail() != null)
-				ret.add(subscriber.getEmail());
-			else if (subscriber.getPhoneNumber() != null)
-				ret.add(subscriber.getPhoneNumber());
-			else if (subscriber.getTwitterUsername() != null)
-				ret.add(subscriber.getTwitterUsername());
-			else if (subscriber.getTwitterID() != null)
-				ret.add(subscriber.getTwitterID());
-			else if (subscriber.getFacebookID() != null)
-				ret.add(subscriber.getFacebookID());
+			Subscriber s = new Subscriber();
+			s.copyFrom(subscriber);
+			ret.add(s);
 		}
 		
 		return ret;
 	}
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void unsubscribeSubscribers(List<Long> subscriberIds, Long campaignId)
+	{
+		List<Long> ids = new ArrayList<Long>();
+		for (Object id : subscriberIds)
+			ids.add(new Long(id.toString()));
+		
+		Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
+		crit.add(Restrictions.in("subscriber.primaryKey", ids));
+		crit.add(Restrictions.eq("campaign.primaryKey", campaignId));
+		
+		for (CampaignSubscriberLinkDO link : (List<CampaignSubscriberLinkDO>)crit.list())
+			em.remove(link);
+	}
+	
 	@Override
-	public boolean isSubsscriberBlacklisted(Long subscriberId, String entryPoint, EntryPointType type) {
+	public boolean isSubscriberBlacklisted(Long subscriberId, String entryPoint, EntryPointType type) {
 		Criteria crit = session.createCriteria(SubscriberBlacklistDO.class);
 		crit.add(Restrictions.eq("subscriber.id", subscriberId));
 		crit.add(Restrictions.eq("incomingAddress", entryPoint));

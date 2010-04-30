@@ -52,8 +52,7 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 				altID=s.getTwitterID();
 				break;
 			case Facebook:
-				address=s.getFacebookUsername();
-				altID=s.getFacebookID();
+				address=s.getFacebookID();
 				break;
 		}
 		if(address!=null)

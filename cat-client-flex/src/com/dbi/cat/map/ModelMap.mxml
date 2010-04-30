@@ -16,6 +16,7 @@
 			import com.dbi.cat.business.LoginManager;
 			import com.dbi.cat.business.NavigationManager;
 			import com.dbi.cat.business.ReportingManager;
+			import com.dbi.cat.business.SubscriptionManager;
 			import com.dbi.cat.business.UserManager;
 			import com.dbi.cat.event.LayoutInfoEvent;
 			import com.dbi.cat.view.EditCommunicationsView;
@@ -437,13 +438,17 @@
 	</Injectors>
 	<Injectors target="{NodeSubscriberAddressView}">
 		<PropertyInjector
-			source="{ReportingManager}"
+			source="{SubscriptionManager}"
 			sourceKey="isLoadingNodeSubscriberAddresses"
 			targetKey="isLoadingNodeSubscriberAddresses" />
 		<PropertyInjector
-			source="{ReportingManager}"
-			sourceKey="nodeSubscriberAddresses"
-			targetKey="nodeSubscriberAddresses" />
+			source="{SubscriptionManager}"
+			sourceKey="nodeSubscribers"
+			targetKey="nodeSubscribers" />
+		<PropertyInjector
+			source="{CampaignManager}"
+			sourceKey="modifiedCampaign"
+			targetKey="campaign" />
 	</Injectors>
 	<Injectors target="{OutgoingMessageView}">
 		<PropertyInjector
