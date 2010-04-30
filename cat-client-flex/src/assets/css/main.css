@@ -25,11 +25,25 @@ RowIndex
 
 .dashboardLabel
 {
+	paddingTop:20;
+	paddingBottom:10;
 	fontSize:18;
+	fontWeight:bold;
+}
+.dashboardSubLabel1
+{
+	fontSize:14;
+	fontWeight:bold;
+}
+.dashboardSubLabel2
+{
+	fontSize:14;
+	fontWeight:bold;
+	paddingLeft:30;
 }
 .dashboardDataLabel
 {
-	fontSize:16;
+	fontSize:14;
 	fontWeight:bold;
 }
 .dashboardTitle

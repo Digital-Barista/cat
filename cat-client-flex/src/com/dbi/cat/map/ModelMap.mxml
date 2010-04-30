@@ -474,6 +474,10 @@
 			source="{ReportingManager}"
 			sourceKey="dashboardData"
 			targetKey="dashboardData" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
 	</Injectors>
 	<Injectors target="{AddCreditsView}">
 		<PropertyInjector

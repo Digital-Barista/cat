@@ -14,8 +14,13 @@ package com.dbi.cat.common.vo
 		
 		public var clientCount:String;
 		public var campaignCount:String;
-		public var contactCount:String;
 		public var subscriberCount:String;
 		public var messageCreditInfos:ArrayCollection;
+		
+		public var couponsSent:String;
+		public var couponsRedeemed:String;
+		public var contactCounts:ArrayCollection;
+		public var messagesSent:ArrayCollection;
+		public var messagesReceived:ArrayCollection;
 	}
 }
