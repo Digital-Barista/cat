@@ -50,7 +50,7 @@
 					keys[sent.entryPointType].sent = sent.count;
 				}
 				
-				for each (var received:DashboardCountVO in dashboardData.messagesSent)
+				for each (var received:DashboardCountVO in dashboardData.messagesReceived)
 				{
 					if (keys[received.entryPointType] == null)
 						keys[received.entryPointType] = new Object();
