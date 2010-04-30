@@ -24,6 +24,7 @@ import javax.persistence.Table;
 public class ClientInfoDO implements Serializable,DataObject {
 
 	public final static String KEY_MESSAGE_CREDITS = "messageCredits";
+	public final static String KEY_CREDIT_PAYMENT_URL = "creditPaymentURL";
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)

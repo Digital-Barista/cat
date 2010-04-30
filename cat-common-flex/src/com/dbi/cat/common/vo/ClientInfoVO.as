@@ -5,7 +5,8 @@ package com.dbi.cat.common.vo
 	public class ClientInfoVO
 	{
 		
-		public static const MESSAGE_CREDITS:String = "messageCredits";
+		public static const KEY_MESSAGE_CREDITS:String = "messageCredits";
+		public static const KEY_CREDIT_PAYMENT_URL:String = "creditPaymentURL";
 		
 		public var clientInfoId:String;
 		public var clientId:String;

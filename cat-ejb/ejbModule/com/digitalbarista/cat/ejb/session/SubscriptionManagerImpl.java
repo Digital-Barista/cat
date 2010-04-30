@@ -352,7 +352,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	@Override
 	public boolean isSubsscriberBlacklisted(Long subscriberId, String entryPoint, EntryPointType type) {
 		Criteria crit = session.createCriteria(SubscriberBlacklistDO.class);
-		
+		crit.add(Restrictions.eq("subscriber.id", subscriberId));
 		crit.add(Restrictions.eq("incomingAddress", entryPoint));
 		crit.add(Restrictions.eq("type", type));
 		return crit.uniqueResult()!=null;

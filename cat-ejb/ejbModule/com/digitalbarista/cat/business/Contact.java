@@ -79,7 +79,7 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 		createDate = dataObject.getCreateDate();
 		clientId = dataObject.getClient().getPrimaryKey();
 		type = dataObject.getType();
-		blacklisted = dataObject.getSubscriberBlacklist() != null;
+//		blacklisted = dataObject.getSubscriberBlacklist() != null;
 		
 		contactTags = new HashSet<ContactTag>();
 		if (dataObject.getContactTags() != null)
