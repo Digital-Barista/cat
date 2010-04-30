@@ -10,6 +10,7 @@
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.controls.AdvancedComboBox;
+			import com.dbi.controls.CustomMessage;
 			
 			import mx.collections.ArrayCollection;
 			
@@ -32,7 +33,7 @@
 						for each (var info:ClientInfoVO in Client.selectedItem.clientInfos)
 						{
 							if (info.entryType == type.name &&
-								info.name == ClientInfoVO.MESSAGE_CREDITS)
+								info.name == ClientInfoVO.KEY_MESSAGE_CREDITS)
 							{
 								if (info.value != null)
 									value = new Number(info.value);
@@ -60,9 +61,36 @@
 			{
 				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_ADD_CREDITS));
 			}
+			private function openPaymentURL():void
+			{
+				var url:String = null;
+				if (Client.selectedItem != null &&
+					Client.selectedItem.clientInfos != null)
+				{
+					for each (var info:ClientInfoVO in Client.selectedItem.clientInfos)
+					{
+						if (info.name == ClientInfoVO.KEY_CREDIT_PAYMENT_URL)
+						{
+							url = info.value;
+						}
+					}
+					
+					if (url == null ||
+						url.length == 0)
+					{
+						CustomMessage.show("A payment gateway has not been setup for this client");
+					}
+					else
+					{
+						var event:ClientEvent = new ClientEvent(ClientEvent.OPEN_PAYMENT_URL);
+						event.paymentURL = url + "?id=" + Client.selectedItem.clientId + "&type=" + NetworkType.selectedLabel;
+						dispatchEvent(event);
+					}
+				}
+			}
 		]]>
 	</mx:Script>
-	<mx:Form right="0" left="0" top="0" bottom="47">
+	<mx:Form verticalCenter="0" horizontalCenter="0">
 		<mx:FormItem label="Client">
 			<components:FormattedComboBox
 				id="Client"
@@ -77,12 +105,10 @@
 						 dataProvider="{entryPointTypes}"
 						 labelField="name" />
 		</mx:FormItem>
-		<mx:FormItem label="Number of Credits">
-			<mx:TextInput width="50" restrict="0-9"  text="100"/>
-		</mx:FormItem>
 	</mx:Form>
 	<mx:ControlBar x="0" y="256" horizontalAlign="right">
 		<mx:Text text="You will be taken to a payment website to complete the transaction."   height="38" width="210"/>
-		<mx:Button label="Add Credits" />
+		<mx:Button label="Add Credits"
+				   click="openPaymentURL()" />
 	</mx:ControlBar>
 </mx:TitleWindow>

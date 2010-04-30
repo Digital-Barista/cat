@@ -15,6 +15,7 @@ import com.digitalbarista.cat.audit.PrimaryDescriminator;
 import com.digitalbarista.cat.audit.SecondaryDescriminator;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.ClientDO;
+import com.digitalbarista.cat.data.ClientInfoDO;
 import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.KeywordLimitDO;
 
@@ -32,6 +33,7 @@ public class Client implements
 	private boolean active;
 	private Set<AddInMessage> addInMessages = new HashSet<AddInMessage>();
 	private Set<KeywordLimit> keywordLimits;
+	private Set<ClientInfo> clientInfos = new HashSet<ClientInfo>();
 	private Set<EntryPointDefinition> entryPoints = new TreeSet<EntryPointDefinition>(
 			new Comparator<EntryPointDefinition>()
 			{
@@ -70,6 +72,17 @@ public class Client implements
 				epd = new EntryPointDefinition();
 				epd.copyFrom(ep,dataObject.getPrimaryKey());
 				entryPoints.add(epd);
+			}
+		}
+		
+		// Copy client infos
+		if (dataObject.getClientInfos() != null)
+		{
+			for (ClientInfoDO infoDO : dataObject.getClientInfos())
+			{
+				ClientInfo info = new ClientInfo();
+				info.copyFrom(infoDO);
+				clientInfos.add(info);
 			}
 		}
 		
@@ -218,4 +231,13 @@ public class Client implements
 	public void setActive(boolean active) {
 		this.active = active;
 	}
+
+	public Set<ClientInfo> getClientInfos() {
+		return clientInfos;
+	}
+
+	public void setClientInfos(Set<ClientInfo> clientInfos) {
+		this.clientInfos = clientInfos;
+	}
+	
 }

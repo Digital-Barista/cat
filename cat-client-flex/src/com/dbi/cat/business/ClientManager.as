@@ -9,6 +9,9 @@ package com.dbi.cat.business
 	import com.dbi.cat.view.profile.EditEntryPointView;
 	import com.dbi.cat.view.profile.EditKeywordView;
 	
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
+	
 	import mx.collections.ArrayCollection;
 	import mx.collections.IViewCursor;
 	import mx.core.Application;
@@ -90,6 +93,13 @@ package com.dbi.cat.business
 				clients.addItem(client);
 				
 			clientMap[client.clientId] = client;
+			
+			// If the current client was updated replace it
+			if (currentClient.clientId == client.clientId)
+			{
+				currentClient = null;
+				currentClient = client;
+			}
 			closeEdit();
 		}
 	
@@ -250,6 +260,10 @@ package com.dbi.cat.business
 		public function closeAddCredits():void
 		{
 			PopUpManager.removePopUp(addCreditsPopup);
+		}
+		public function openPaymentURL(url:String):void
+		{
+			navigateToURL(new URLRequest(url));
 		}
 	}
 }

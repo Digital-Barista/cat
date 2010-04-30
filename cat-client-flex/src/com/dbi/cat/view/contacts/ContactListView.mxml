@@ -168,7 +168,7 @@
 				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" sortable="false" />
 				<mx:DataGridColumn headerText="Blacklisted" dataField="blacklisted"
 								   itemRenderer="com.dbi.controls.CheckMarkItemRenderer"
-								   width="80"  />
+								   width="80" visible="false"  />
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Canvas>

@@ -27,14 +27,6 @@
 			[Bindable]
 			public var clients:ArrayCollection;
 			
-			private function refresh():void
-			{
-				dispatchEvent(new ReportingEvent(ReportingEvent.LOAD_DASHBOARD));
-			}
-			private function addCredits():void
-			{
-				dispatchEvent(new ClientEvent(ClientEvent.OPEN_ADD_CREDITS));
-			}
 			
 			[Bindable(event="dashboardDataUpdate")]
 			private function get contactTotal():Number
@@ -122,6 +114,14 @@
 			{
 				dispatchEvent(new Event("clientChanged"));
 			}
+			private function refresh():void
+			{
+				dispatchEvent(new ReportingEvent(ReportingEvent.LOAD_DASHBOARD));
+			}
+			private function addCredits():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.OPEN_ADD_CREDITS));
+			}
 		]]>
 	</mx:Script>
 	<mx:Canvas
@@ -134,14 +134,15 @@
 			<mx:VBox minHeight="250" height="100%" verticalGap="0" horizontalAlign="center">
 				<mx:Label text="Message Credits" styleName="dashboardLabel" />
 				<mx:HBox visible="{clients.length > 1}"
-						 includeInLayout="{clients.length > 1}"> 
+						 includeInLayout="{clients.length > 1}"
+						 width="100%"> 
 					<mx:Label text="Client" styleName="dashboardSubLabel1" />
 					<components:FormattedComboBox
 						id="Client"
 						dataProvider="{clients}"
 						bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
 						labelField="name" 
-						y="249" horizontalCenter="250"
+						width="100%"
 						valueCommit="changeClient()"  />
 				</mx:HBox>
 				<mx:Repeater id="CreditRepeater" dataProvider="{clientCredits}">
@@ -150,6 +151,10 @@
 						<mx:Label text="{CreditRepeater.currentItem.credits}" styleName="dashboardDataLabel" />
 					</mx:HBox>
 				</mx:Repeater>
+				<mx:HBox width="100%" paddingTop="10" horizontalAlign="center">
+					<mx:Button label="Add Credits"
+							   click="addCredits()"/>
+				</mx:HBox>
 				<mx:Label text="Coupon Info" styleName="dashboardLabel" />
 				<mx:HBox> 
 					<mx:Label text="Coupons Sent" styleName="dashboardSubLabel1" width="170" />

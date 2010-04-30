@@ -210,4 +210,9 @@
 		<MethodInvoker generator="{ClientManager}"
 					   method="closeAddCredits" />
 	</EventHandlers>
+	<EventHandlers type="{ClientEvent.OPEN_PAYMENT_URL}">
+		<MethodInvoker generator="{ClientManager}"
+					   method="openPaymentURL"
+					   arguments="{event.paymentURL}"/>
+	</EventHandlers>
 </EventMap>

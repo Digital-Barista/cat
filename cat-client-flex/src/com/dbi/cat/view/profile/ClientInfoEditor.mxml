@@ -70,7 +70,7 @@
 					for each (var info:ClientInfoVO in currentClient.clientInfos)
 					{
 						if (info.entryType == entryType.name &&
-							info.name == ClientInfoVO.MESSAGE_CREDITS)
+							info.name == ClientInfoVO.KEY_MESSAGE_CREDITS)
 						{
 							clientInfo = info;
 							break;
