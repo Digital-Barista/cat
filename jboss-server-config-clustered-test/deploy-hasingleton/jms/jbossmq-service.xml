@@ -21,10 +21,10 @@
 
   <mbean code="org.jboss.mq.server.jmx.InterceptorLoader" name="jboss.mq:service=TracingInterceptor">
     <attribute name="InterceptorClass">org.jboss.mq.server.TracingInterceptor</attribute>
-    <depends optional-attribute-name="NextInterceptor">jboss.mq:service=SecurityManager</depends>
+    <depends optional-attribute-name="NextInterceptor">jboss.mq:service=DestinationManager</depends>
   </mbean>
 
-  <mbean code="org.jboss.mq.security.SecurityManager" name="jboss.mq:service=SecurityManager">
+<!--  <mbean code="org.jboss.mq.security.SecurityManager" name="jboss.mq:service=SecurityManager">
     <attribute name="DefaultSecurityConfig">
       <security>
         <role name="guest" read="true" write="true" create="true"/>
@@ -33,7 +33,7 @@
     <attribute name="SecurityDomain">java:/jaas/jbossmq</attribute>
     <depends>jboss.security:service=JaasSecurityManager</depends> 
     <depends optional-attribute-name="NextInterceptor">jboss.mq:service=DestinationManager</depends>
-  </mbean>
+  </mbean> -->
 
   <!--
      | The ClientMonitorInterceptor disconnects clients that have been idle for to long.
