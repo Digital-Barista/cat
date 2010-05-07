@@ -3,8 +3,10 @@ package com.digitalbarista.cat.ejb.session;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -32,6 +34,7 @@ import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.Subscriber;
+import com.digitalbarista.cat.data.BlacklistDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
@@ -505,6 +508,88 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			bl.setType(EntryPointType.Facebook);
 			bl.setSubscriber(sub);
 			em.persist(sub);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	/**
+	 * Blacklist a set of contacts addresses.  These don't need to
+	 * be existing contacts, only the address and type will be used
+	 * add to the blacklist.
+	 */
+	public void blacklistAddresses(List<Contact> contacts) 
+	{
+		// List of addresses indexed by type
+		Map<EntryPointType, List<String>> contactTypes = new HashMap<EntryPointType, List<String>>();
+		
+		for (Contact c : contacts)
+		{
+			if (contactTypes.get(c.getType()) == null)
+				contactTypes.put(c.getType(), new ArrayList<String>());
+			contactTypes.get(c.getType()).add(c.getAddress());
+		}
+		
+		// Search for each address and type
+		for (EntryPointType type : contactTypes.keySet())
+		{
+			List<String> addresses = contactTypes.get(type);
+			
+			// Create query
+			Criteria crit = session.createCriteria(BlacklistDO.class);
+			crit.add(Restrictions.in("address", addresses));
+			crit.add(Restrictions.eq("entryPointType", type));
+			
+			// Filter out addresses already blacklisted
+			List<String> newAddresses = new ArrayList<String>(addresses);
+			for (BlacklistDO blacklist : (List<BlacklistDO>)crit.list())
+			{
+				if (newAddresses.contains(blacklist.getAddress()))
+						newAddresses.remove(blacklist.getAddress());
+			}
+			
+			// Create new blacklist records
+			for (String address : newAddresses)
+			{
+				BlacklistDO blacklist = new BlacklistDO();
+				blacklist.setEntryPointType(type);
+				blacklist.setAddress(address);
+				em.persist(blacklist);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void unBlacklistAddresses(List<Contact> contacts)
+	{
+		// List of addresses indexed by type
+		Map<EntryPointType, List<String>> contactTypes = new HashMap<EntryPointType, List<String>>();
+		
+		for (Contact c : contacts)
+		{
+			if (contactTypes.get(c.getType()) == null)
+				contactTypes.put(c.getType(), new ArrayList<String>());
+			contactTypes.get(c.getType()).add(c.getAddress());
+		}
+		
+		// Search for each address and type
+		for (EntryPointType type : contactTypes.keySet())
+		{
+			List<String> addresses = contactTypes.get(type);
+			
+			// Create query
+			Criteria crit = session.createCriteria(BlacklistDO.class);
+			crit.add(Restrictions.in("address", addresses));
+			crit.add(Restrictions.eq("entryPointType", type));
+			
+			// Filter out addresses already blacklisted
+			for (BlacklistDO blacklist : (List<BlacklistDO>)crit.list())
+			{
+				em.remove(blacklist);
+			}
 		}
 	}
 }

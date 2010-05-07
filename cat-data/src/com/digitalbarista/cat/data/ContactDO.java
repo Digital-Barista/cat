@@ -35,7 +35,7 @@ public class ContactDO implements DataObject,Serializable {
 	private EntryPointType type;
 	private String alternateId;
 	private Set<ContactTagLinkDO> contactTags;
-//	private SubscriberBlacklistDO subscriberBlacklist;
+	private BlacklistDO blacklist;
 	
 	public ContactDO() {
 		super();
@@ -120,19 +120,19 @@ public class ContactDO implements DataObject,Serializable {
 		this.alternateId = alternateId;
 	}
 
-	// This isn't right because th "incoming_address" of the blacklist isn't the address that's blacklisted
-//	@ManyToOne(fetch=FetchType.EAGER)
-//	@JoinColumns({
-//        @JoinColumn(name="address", referencedColumnName="incoming_address", insertable=false, updatable=false),
-//        @JoinColumn(name="type", referencedColumnName="incoming_type", insertable=false, updatable=false)
-//    })
-//	public SubscriberBlacklistDO getSubscriberBlacklist() {
-//		return subscriberBlacklist;
-//	}
-//
-//	public void setSubscriberBlacklist(SubscriberBlacklistDO subscriberBlacklist) {
-//		this.subscriberBlacklist = subscriberBlacklist;
-//	}
+
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumns({
+        @JoinColumn(name="address", referencedColumnName="address", insertable=false, updatable=false),
+        @JoinColumn(name="type", referencedColumnName="entry_type", insertable=false, updatable=false)
+    })
+	public BlacklistDO getBlacklist() {
+		return blacklist;
+	}
+
+	public void setBlacklist(BlacklistDO blacklist) {
+		this.blacklist = blacklist;
+	}
 
 	
 	

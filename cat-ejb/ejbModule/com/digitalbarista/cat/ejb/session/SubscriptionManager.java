@@ -47,4 +47,9 @@ public interface SubscriptionManager {
 	public void registerFacebookFollower(String facebookID, String accountName);
 	
 	public void removeFacebookFollower(String facebookID, String accountName);
+	
+	public void blacklistAddresses(List<Contact> contacts);
+	
+	public void unBlacklistAddresses(List<Contact> contacts);
+	
 }

@@ -35,6 +35,7 @@
 		<class>com.digitalbarista.cat.data.CampaignEntryPointDO</class>
 		<class>com.digitalbarista.cat.data.CampaignDO</class>
 		<class>com.digitalbarista.cat.data.CampaignConnectorLinkDO</class>
+		<class>com.digitalbarista.cat.data.BlacklistDO</class>
 		<class>com.digitalbarista.cat.data.AddInMessageDO</class>
 		<class>com.digitalbarista.cat.audit.OutgoingMessageEntryDO</class>
 		<class>com.digitalbarista.cat.audit.IncomingMessageEntryDO</class>
