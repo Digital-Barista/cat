@@ -27,6 +27,9 @@
 			[Bindable]
 			public var selectedContacts:ArrayCollection;
 			
+			[Embed("/assets/img/button_down_arrow.png")]
+			public static const actionButtonIcon:Class;
+			
 			public var contactSearchCriteria:ContactSearchCriteriaVO;
 			public var contactPagingInfo:PagingInfoVO;
 			
@@ -212,7 +215,7 @@
 		</mx:TitleWindow>
 		<mx:HBox id="ButtonArea" right="10" top="7" verticalAlign="middle">
 			<mx:Button id="ActionButton" label="Actions" click="openActions()"
-					   icon="@Embed(source='/assets/img/button_down_arrow.png')"/>
+					   icon="{actionButtonIcon}"/>
 		</mx:HBox>
 	</mx:Canvas>
 </mx:Canvas>
