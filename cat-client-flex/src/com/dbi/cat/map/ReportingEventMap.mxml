@@ -14,28 +14,6 @@
 	
 	<Debugger level="{Debugger.ALL}" />
 	
-	<EventHandlers type="{ReportingEvent.OPEN_NODE_SUBSCRIBERS}">
-		<MethodInvoker generator="{ReportingManager}"
-			method="openNodeSubscribers"
-			arguments="{event.nodeUID}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{ReportingEvent.CLOSE_NODE_SUBSCRIBERS}">
-		<MethodInvoker generator="{ReportingManager}"
-			method="closeNodeSubscribers" />
-	</EventHandlers>
-	
-	<EventHandlers type="{ReportingEvent.LOAD_NODE_SUBSCRIBERS}">
-		<RemoteObjectInvoker destination="subscriptionManager"
-			method="getSubscribedAddresses"
-			arguments="{event.nodeUID}">
-			<resultHandlers>
-				<MethodInvoker generator="{ReportingManager}"
-					method="loadNodeSubscribers"
-					arguments="{resultObject}" />
-			</resultHandlers>
-		</RemoteObjectInvoker>
-	</EventHandlers>
 	
 	<EventHandlers type="{ReportingEvent.LOAD_OUTGOING_MESSAGE_SUMMARIES}">
 		<MethodInvoker
@@ -59,6 +37,35 @@
 					generator="{AppManager}"
 					method="removeGeneralStatusMessage"
 					arguments="{ServiceStatusMessage.LOADING_OUTGOING_MESSAGES}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.LOAD_DASHBOARD}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_DASHBOARD_DATA}" />
+		<RemoteObjectInvoker destination="reportingManager"
+			method="getDashboardData"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_DASHBOARD_DATA}" />
+				<MethodInvoker generator="{ReportingManager}"
+					method="loadDashboardData"
+					arguments="{resultObject}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_DASHBOARD_DATA}" />
 				<MethodInvoker generator="{AppManager}"
 					method="showFault"
 					arguments="{event.fault}" />

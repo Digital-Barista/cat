@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%"
-	label="{entryType}">
+	label="{entryType.name}">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.constants.AddInMessageType;
 			import com.dbi.cat.common.vo.AddInMessageVO;
 			import mx.collections.ArrayCollection;
@@ -22,13 +23,13 @@
 				dispatchEvent(new Event("dataUpdate"));	
 			}
 			
-			private var _entryType:String;
+			private var _entryType:EntryPointType;
 			[Bindable]
-			public function get entryType():String
+			public function get entryType():EntryPointType
 			{
 				return _entryType;
 			}
-			public function set entryType(value:String):void
+			public function set entryType(value:EntryPointType):void
 			{
 				_entryType = value;
 				dispatchEvent(new Event("dataUpdate"));	
@@ -51,7 +52,7 @@
 				{
 					for each (var limit:KeywordLimitVO in currentClient.keywordLimits)
 					{
-						if (limit.entryType == entryType)
+						if (limit.entryType == entryType.name)
 							return limit;
 					}
 				}
@@ -67,7 +68,7 @@
 				{
 					for each (var add:AddInMessageVO in currentClient.addInMessages)
 					{
-						if (add.entryType == entryType &&
+						if (add.entryType == entryType.name &&
 							add.type == AddInMessageType.ADMIN)
 							return add;
 					}
@@ -91,7 +92,7 @@
 				{
 					var key:KeywordLimitVO = new KeywordLimitVO();
 					key.clientId = currentClient.clientId;
-					key.entryType = entryType;
+					key.entryType = entryType.name;
 					key.maxKeywords = new Number(MaxKeywords.text);
 					
 					if (currentClient.keywordLimits == null)
@@ -111,7 +112,7 @@
 				{
 					var add:AddInMessageVO = new AddInMessageVO();
 					add.clientId = currentClient.clientId.toString();
-					add.entryType = entryType;
+					add.entryType = entryType.name;
 					add.type = AddInMessageType.ADMIN;
 					add.message = AddInMessage.text;
 					

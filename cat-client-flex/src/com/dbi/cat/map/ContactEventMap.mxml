@@ -186,6 +186,54 @@
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	
+	<EventHandlers type="{ContactEvent.BLACKLIST_ADDRESSES}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Blacklisting Contact Addresses']}" />
+		<RemoteObjectInvoker destination="subscriptionManager"
+							 method="blacklistAddresses"
+							 arguments="{event.contacts}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+							   method="blacklistAddresses"
+							   arguments="{event.contacts}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.UNBLACKLIST_ADDRESSES}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Unblacklisting Contact Addresses']}" />
+		<RemoteObjectInvoker destination="subscriptionManager"
+							 method="unBlacklistAddresses"
+							 arguments="{event.contacts}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+							   method="unBlacklistAddresses"
+							   arguments="{event.contacts}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
 	<EventHandlers type="{ContactEvent.OPEN_CONTACT_TAG_FILTER}">
 		<MethodInvoker
 			generator="{ContactManager}"

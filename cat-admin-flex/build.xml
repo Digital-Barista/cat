@@ -105,7 +105,7 @@
 	<target name="make-wrapped-swf" depends="build">
 		<html-wrapper 
             title="CAT Admin Tool v0.1.${build.number}"
-            file="admin.html"
+            file="index.html"
             height="100%"
             width="100%"
             application="admin"

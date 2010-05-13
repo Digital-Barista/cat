@@ -142,7 +142,7 @@
 		width="100%" bottom="0"
 		tabOffset="20" height="188">
 		<mx:Repeater id="EntryTypeRepeater" 
-			dataProvider="{EntryPointType.getAllTypes()}">
+			dataProvider="{EntryPointType.allTypes}">
 			<campaign:CampaignInfoEditor entryType="{EntryTypeRepeater.currentItem}" />
 		</mx:Repeater>
 	</mx:TabNavigator>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="300" height="200" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="200" 
 	showCloseButton="true"
 	close="onClose()"
 	xmlns:components="com.dbi.cat.view.components.*"
@@ -43,7 +43,7 @@
 				{
 					var event:ContactEvent = new ContactEvent(ContactEvent.SAVE_CONTACT);
 					currentContact.clientId = Client.selectedItem.clientId;
-					currentContact.type = ContactType.selectedLabel;
+					currentContact.type = ContactType.selectedItem.name;
 					currentContact.address = Contact.text;
 					event.contact = currentContact;
 					dispatchEvent(event);
@@ -61,7 +61,8 @@
 		</mx:FormItem>
 		<mx:FormItem label="Type">
 			<mx:ComboBox id="ContactType"
-				dataProvider="{EntryPointType.getAllTypes()}" />
+				dataProvider="{EntryPointType.allTypes}"
+				labelField="name" />
 		</mx:FormItem>
 		<mx:FormItem label="Contact">
 			<mx:TextInput id="Contact" />

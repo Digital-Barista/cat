@@ -46,7 +46,7 @@
 			}
 			private function get maxCharacters():Number
 			{
-				return EntryPointType.TWITTER_MAX_CHARACTERS;
+				return EntryPointType.TWITTER.maxCharacters;
 			}
 			
 			private function updateMessage():void

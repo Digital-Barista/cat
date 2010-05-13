@@ -4,6 +4,7 @@ public enum CATEventSource {
 	SMSEndpoint,
 	EmailEndpoint,
 	TwitterEndpoint,
+	FacebookEndpoint,
 	Trigger,
 	Node,
 	User

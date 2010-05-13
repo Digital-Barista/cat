@@ -143,12 +143,10 @@ package com.dbi.cat.business
 		 		dispatcher.dispatchEvent(new LoginEvent(LoginEvent.LOGOUT));
 		 	}
 		 	else if (fault.rootCause != null &&
+				fault.rootCause.hasOwnProperty("cause") &&
 		 		fault.rootCause.cause != null &&
 		 		fault.rootCause.cause.message != null &&
-		 		fault.rootCause.message != null &&
-		 		
-		 		(fault.rootCause.message.indexOf("FlexException") > -1 ||
-		 		 fault.rootCause.message.indexOf("SecurityException") > -1) )
+		 		fault.rootCause.message != null)
 		 	{
 		 		CustomMessage.show(fault.rootCause.cause.message);
 		 	}

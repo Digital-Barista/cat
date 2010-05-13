@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="474" height="300"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="500" height="400"
 	layout="absolute" showCloseButton="true"
 	close="cancel()"
 	title="Edit Client" 
@@ -7,17 +7,43 @@
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
-			import com.dbi.cat.view.workspace.MessageItem;
+			import com.dbi.cat.common.vo.ClientInfoVO;
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.cat.event.NavigationEvent;
-			import mx.collections.ArrayCollection;
-			import mx.validators.EmailValidator;
 			import com.dbi.cat.event.UserEvent;
+			import com.dbi.cat.view.workspace.MessageItem;
+			
 			import flash.events.MouseEvent;
 			
+			import mx.collections.ArrayCollection;
+			import mx.validators.EmailValidator;
+			
+			private var _client:ClientVO;
 			[Bindable]
-			public var client:ClientVO;
+			public function get client():ClientVO
+			{
+				return _client;
+			}
+			public function set client(value:ClientVO):void
+			{
+				_client = value;
+				dispatchEvent(new Event("clientChange"));
+			}
+			
+			[Bindable(event="clientChange")]
+			private function get paymentURL():String
+			{
+				if (client != null)
+				{
+					for each (var info:ClientInfoVO in client.clientInfos)
+					{
+						if (info.name == ClientInfoVO.KEY_CREDIT_PAYMENT_URL)
+							return info.value;
+					}
+				}
+				return "";
+			}
 			
 			private function save():void
 			{
@@ -33,9 +59,36 @@
 				
 				dispatchEvent(new ClientEvent(ClientEvent.CANCEL_EDIT));
 			}
+			
+			private function changePaymentURL():void
+			{
+				var found:Boolean = false;
+				for each (var info:ClientInfoVO in client.clientInfos)
+				{
+					if (info.name == ClientInfoVO.KEY_CREDIT_PAYMENT_URL)
+					{
+						info.value = PaymentURL.text;
+						found = true;
+						break;
+					}
+				}
+				
+				if (!found)
+				{
+					var newInfo:ClientInfoVO = new ClientInfoVO();
+					newInfo.clientId = client.clientId;
+					newInfo.name = ClientInfoVO.KEY_CREDIT_PAYMENT_URL;
+					newInfo.value = PaymentURL.text;
+					
+					if (client.clientInfos == null)
+						client.clientInfos = new ArrayCollection();
+					client.clientInfos.addItem(newInfo);
+				}
+			}
+			
 		]]>
 	</mx:Script>
-		<mx:Form id="EditUser">
+		<mx:Form id="EditUser" right="0" left="0" top="0" bottom="0">
 			<mx:FormItem label="Organization">
 				<mx:Label text="{client.name}" />
 			</mx:FormItem>
@@ -54,16 +107,19 @@
 					text="{client.contactPhone}"
 					change="{client.contactPhone = ContactPhone.text}"/>
 			</mx:FormItem>
-			<mx:FormItem label="Add In Message">
-				<mx:TabNavigator id="EntryTypeTabs"
-					width="300" height="100%"
-					tabOffset="20">
-					<mx:Repeater id="EntryTypeRepeater" 
-						dataProvider="{EntryPointType.getAllTypes()}">
-						<profile:ClientAddInMessageEditor entryType="{EntryTypeRepeater.currentItem}"  />
-					</mx:Repeater>
-				</mx:TabNavigator>
+			<mx:FormItem label="Credit Payment URL">
+				<mx:TextInput id="PaymentURL"  width="300"
+							  text="{paymentURL}"
+							  change="{changePaymentURL()}"/>
 			</mx:FormItem>
+			<mx:TabNavigator id="EntryTypeTabs"
+				width="100%" height="100%"
+				tabOffset="20">
+				<mx:Repeater id="EntryTypeRepeater" 
+					dataProvider="{EntryPointType.allTypes}">
+					<profile:ClientInfoEditor entryType="{EntryTypeRepeater.currentItem}"  />
+				</mx:Repeater>
+			</mx:TabNavigator>
 		</mx:Form>
 		<mx:ControlBar horizontalAlign="right">
 			<mx:Button id="Save" label="Save" click="save()" />

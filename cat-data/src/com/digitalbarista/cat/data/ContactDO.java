@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -34,6 +35,7 @@ public class ContactDO implements DataObject,Serializable {
 	private EntryPointType type;
 	private String alternateId;
 	private Set<ContactTagLinkDO> contactTags;
+	private BlacklistDO blacklist;
 	
 	public ContactDO() {
 		super();
@@ -117,4 +119,22 @@ public class ContactDO implements DataObject,Serializable {
 	public void setAlternateId(String alternateId) {
 		this.alternateId = alternateId;
 	}
+
+
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumns({
+        @JoinColumn(name="address", referencedColumnName="address", insertable=false, updatable=false),
+        @JoinColumn(name="type", referencedColumnName="entry_type", insertable=false, updatable=false)
+    })
+	public BlacklistDO getBlacklist() {
+		return blacklist;
+	}
+
+	public void setBlacklist(BlacklistDO blacklist) {
+		this.blacklist = blacklist;
+	}
+
+	
+	
+	
 }

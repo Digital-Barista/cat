@@ -14,7 +14,9 @@ import javax.ws.rs.QueryParam;
 
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
+import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Contact;
+import com.digitalbarista.cat.business.Subscriber;
 import com.digitalbarista.cat.data.EntryPointType;
 
 @Local
@@ -32,11 +34,22 @@ public interface SubscriptionManager {
 
 	public void subscribeContactsToEntryPoint(@Wrapped(element="Contact") List<Contact> contacts, @PathParam("entryPointUID") String entryPointUID);
 	
-	public List<String> getSubscribedAddresses(String campaignUID);
-
-	public boolean isSubsscriberBlacklisted(Long SubscriberId, String entryPoint, EntryPointType type);
+	public List<Subscriber> getSubscribedAddresses(String campaignUID);
+	
+	public void unsubscribeSubscribers(List<Long> subscriberIds, Long campaignId);
+	
+	public boolean isSubscriberBlacklisted(Long SubscriberId, String entryPoint, EntryPointType type);
 
 	public void registerTwitterFollower(String twitterID, String accountName);
 	
 	public void removeTwitterFollower(String twitterID, String accountName);
+
+	public void registerFacebookFollower(String facebookID, String accountName);
+	
+	public void removeFacebookFollower(String facebookID, String accountName);
+	
+	public void blacklistAddresses(List<Contact> contacts);
+	
+	public void unBlacklistAddresses(List<Contact> contacts);
+	
 }

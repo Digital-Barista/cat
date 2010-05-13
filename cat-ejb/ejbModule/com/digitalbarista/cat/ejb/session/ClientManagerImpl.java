@@ -34,6 +34,7 @@ import com.digitalbarista.cat.audit.AuditInterceptor;
 import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.Client;
+import com.digitalbarista.cat.business.ClientInfo;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Keyword;
 import com.digitalbarista.cat.business.KeywordLimit;
@@ -42,6 +43,7 @@ import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.ClientDO;
+import com.digitalbarista.cat.data.ClientInfoDO;
 import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.KeywordDO;
@@ -206,6 +208,27 @@ public class ClientManagerImpl implements ClientManager {
 		
 		// Save client
 		em.persist(c);
+		
+		// Update client infos
+		if (client.getClientInfos() != null)
+		{
+			for (ClientInfo info : client.getClientInfos())
+			{
+				ClientInfoDO infoDO = null;
+				if (info.getClientInfoId() != null)
+					infoDO = em.find(ClientInfoDO.class, info.getClientInfoId());
+				if (infoDO == null)
+					infoDO = new ClientInfoDO();
+				
+				infoDO.setClient(c);
+				info.copyTo(infoDO);
+				em.persist(infoDO);
+				
+				if (c.getClientInfos() == null)
+					c.setClientInfos(new HashSet<ClientInfoDO>());
+				c.getClientInfos().add(infoDO);
+			}
+		}
 		
 		// Update keyword limits
 		if (client.getKeywordLimits() != null)

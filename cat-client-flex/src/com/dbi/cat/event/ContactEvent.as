@@ -20,6 +20,9 @@ package com.dbi.cat.event
 		public static const CLOSE_ASSIGN_CONTACT_TAG:String = "closeAssignContactTagEvent";
 		public static const CLOSE_UNASSIGN_CONTACT_TAG:String = "closeUnassignContactTagEvent";
 		
+		public static const BLACKLIST_ADDRESSES:String = "blacklistAddressesEvent";
+		public static const UNBLACKLIST_ADDRESSES:String = "unBlacklistAddressesEvent";
+		
 		public static const OPEN_CONTACT_TAG_FILTER:String = "openContactTagFiltertEvent";
 		public static const CLOSE_CONTACT_TAG_FILTER:String = "closeContactTagFiltertEvent";
 		

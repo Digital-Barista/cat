@@ -10,6 +10,11 @@
 		]]>
 	</mx:Script>
 	
+	<EventHandlers type="{NavigationEvent.DASHBOARD}">
+		<MethodInvoker generator="{NavigationManager}"
+			method="navigate"
+			arguments="{event}" />
+	</EventHandlers>
 	<EventHandlers type="{NavigationEvent.CONTACTS}">
 		<MethodInvoker generator="{NavigationManager}"
 			method="navigate"

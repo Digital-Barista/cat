@@ -45,15 +45,9 @@ public interface ContactManager {
 	public void delete(ContactTag tag);
 	@DELETE
 	public void delete(Contact contact);
-	@POST
-	@Path("/tags/assign")
-	public void addTagsToContacts(@FormParam("contacts") List<Contact> contacts, @FormParam("tags") List<ContactTag> tags);
-	@POST
-	@Path("/tags/unassign")
-	public void removeTagsFromContacts(@FormParam("contacts") List<Contact> contacts, @FormParam("tags") List<ContactTag> tags);
-
-	@POST
-	public List<Contact> importContacts(@FormParam("contacts") List<Contact> contacts);
+	public void addTagsToContacts(List<Contact> contacts, List<ContactTag> tags);
+	public void removeTagsFromContacts(List<Contact> contacts, List<ContactTag> tags);
+	public List<Contact> importContacts(List<Contact> contacts);
 	
 	public void tagContactNodeReached(String contact, String nodeUID, EntryPointType entryType);
 }

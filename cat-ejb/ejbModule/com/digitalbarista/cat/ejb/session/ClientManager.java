@@ -76,7 +76,7 @@ public interface ClientManager {
 	@DELETE
 	public void delete(ReservedKeyword keyword);
 	@Path("/reservedKeywords/available")
-	@GET
+	@POST
 	public Boolean checkKeywordAvailability(Keyword keyword);
 	public void disableClient(Long clientID);
 	public void enableClient(Long clientID);

@@ -1,6 +1,8 @@
 package com.digitalbarista.cat.business;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.audit.PrimaryDescriminator;
@@ -48,6 +50,7 @@ public class CampaignInfo implements
 		return ret.toString();
 	}
 
+	@XmlAttribute(name="id")
 	public Long getCampaignInfoId() {
 		return campaignInfoId;
 	}
@@ -56,6 +59,7 @@ public class CampaignInfo implements
 		this.campaignInfoId = campaignInfoId;
 	}
 
+	@XmlTransient
 	public Long getCampaignId() {
 		return campaignId;
 	}
@@ -64,6 +68,7 @@ public class CampaignInfo implements
 		this.campaignId = campaignId;
 	}
 
+	@XmlAttribute(name="entryType")
 	public EntryPointType getEntryType() {
 		return entryType;
 	}
@@ -72,6 +77,7 @@ public class CampaignInfo implements
 		this.entryType = entryType;
 	}
 
+	@XmlAttribute
 	public String getName() {
 		return name;
 	}
@@ -80,6 +86,7 @@ public class CampaignInfo implements
 		this.name = name;
 	}
 
+	@XmlAttribute
 	public String getValue() {
 		return value;
 	}
@@ -88,7 +95,4 @@ public class CampaignInfo implements
 		this.value = value;
 	}
 	
-
-
-
 }

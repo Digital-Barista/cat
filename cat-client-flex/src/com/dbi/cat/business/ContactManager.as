@@ -107,8 +107,8 @@ package com.dbi.cat.business
 			if (contact != null)
 			{
 				contacts.results.addItem(contact);
+				contactMap[contact.contactId] = contact;
 			}
-//			filterContacts();
 			closeContact();
 		}
 		public function selectContacts(contacts:ArrayCollection):void
@@ -126,6 +126,36 @@ package com.dbi.cat.business
 					break;
 				}
 				cur.moveNext();
+			}
+			contactMap[contact.contactId] = null;
+		}
+		public function blacklistAddresses(blacklistContacts:ArrayCollection):void
+		{
+			for each (var contact:ContactVO in blacklistContacts)
+			{
+				for each (var existing:ContactVO in contacts.results)
+				{
+					if (contact.address == existing.address &&
+						contact.type == existing.type)
+					{
+						existing.blacklisted = true;
+					}
+				}
+			}
+			CustomMessage.show("Successfully blacklisted selected addresses");
+		}
+		public function unBlacklistAddresses(blacklistContacts:ArrayCollection):void
+		{
+			for each (var contact:ContactVO in blacklistContacts)
+			{
+				for each (var existing:ContactVO in contacts.results)
+				{
+					if (contact.address == existing.address &&
+						contact.type == existing.type)
+					{
+						existing.blacklisted = false;
+					}
+				}
 			}
 		}
 		
