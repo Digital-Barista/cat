@@ -6,6 +6,7 @@
 	styleName="navBar"> 
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Container;
 			import com.dbi.controls.CustomMessage;
 			import com.dbi.event.CustomMessageEvent;
 			import com.dbi.cat.event.LoginEvent;
@@ -17,7 +18,13 @@
 	        public static const logoutIcon:Class;
         
 			[Bindable]
-			public var selectedView:Number = NavigationManager.VIEW_MAIN_CAMPAIGNS;
+			private var selectedViewIndex:Number = 0;
+			public function set selectedView(value:String):void
+			{
+				if (value != null &&
+					navHeader.getChildByName(value) != null)
+					selectedViewIndex = navHeader.getChildIndex(navHeader.getChildByName(value));
+			}
 			
 			private function doLogout():void
 			{
@@ -33,13 +40,14 @@
 		]]>
 	</mx:Script>
 	<mx:ViewStack id="navHeader"
-		selectedIndex="{selectedView}"
+		selectedIndex="{selectedViewIndex}"
 		top="0" bottom="0" right="300" left="0">
-		<navigation:CampaignHeader />
-		<navigation:ContactsHeader />
-		<navigation:ReportingHeader />
-		<navigation:UsersHeader />
-		<navigation:ProfileHeader />
+		<navigation:DashboardHeader id="Dashboard" />
+		<navigation:CampaignHeader id="Campaigns" />
+		<navigation:ContactsHeader id="Contacts" />
+		<navigation:ReportingHeader id="Reporting" />
+		<navigation:UsersHeader id="Users" />
+		<navigation:ProfileHeader id="Profile" />
 	</mx:ViewStack>
 	<mx:Canvas 
 		width="25"

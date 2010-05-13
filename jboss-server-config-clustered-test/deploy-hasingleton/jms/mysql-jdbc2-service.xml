@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: mysql-jdbc2-service.xml 39343 2005-12-29 16:32:35Z ltexier $ -->
+
+<server>
+
+  <!-- ==================================================================== -->
+  <!-- Persistence and caching using MySQL                                  -->
+  <!-- IMPORTANT: Remove hsqldb-jdbc2-service.xml                           -->
+  <!--                                                                      -->
+  <!-- ==================================================================== -->
+
+  <!--
+     | The destination manager is the core service within JBossMQ
+  -->
+  <mbean code="org.jboss.mq.server.jmx.DestinationManager" name="jboss.mq:service=DestinationManager">
+    <depends optional-attribute-name="MessageCache">jboss.mq:service=MessageCache</depends>
+    <depends optional-attribute-name="PersistenceManager">jboss.mq:service=PersistenceManager</depends>
+    <depends optional-attribute-name="StateManager">jboss.mq:service=StateManager</depends>
+    <depends optional-attribute-name="ThreadPool">jboss.mq:service=ThreadPool</depends>
+    <depends>jboss:service=Naming</depends>
+  </mbean>
+
+  <!--
+     | The MessageCache decides where to put JBossMQ message that
+     | are sitting around waiting to be consumed by a client.
+     |
+     | The memory marks are in Megabytes.  Once the JVM memory usage hits
+     | the high memory mark, the old messages in the cache will start getting
+     | stored in the DataDirectory.  As memory usage gets closer to the
+     | Max memory mark, the amount of message kept in the memory cache aproaches 0.
+   -->
+  <mbean code="org.jboss.mq.server.MessageCache"
+	 name="jboss.mq:service=MessageCache">
+    <attribute name="HighMemoryMark">50</attribute>
+    <attribute name="MaxMemoryMark">60</attribute>
+    <attribute name="CacheStore">jboss.mq:service=PersistenceManager</attribute>
+  </mbean>
+
+  <!-- The PersistenceManager is used to store messages to disk. -->
+  <!-- 
+     | The jdbc2 PersistenceManager is the new improved JDBC implementation.
+     | This implementation allows you to control how messages are stored in 
+     | the database.
+     | 
+     | This jdbc2 PM configuration has was supplied by Stephane Nicoll in the forums as an example for MySQL
+   -->
+  <mbean code="org.jboss.mq.pm.jdbc2.PersistenceManager"
+	 name="jboss.mq:service=PersistenceManager">
+    <depends optional-attribute-name="ConnectionManager">jboss.jca:service=DataSourceBinding,name=jdbc/campaignAdminDS</depends>
+    <attribute name="SqlProperties">
+      BLOB_TYPE=BYTES_BLOB
+      INSERT_TX = INSERT INTO jms_transactions (txid) values(?)
+      INSERT_MESSAGE = INSERT INTO jms_messages (messageid, destination, messageblob, txid, txop) VALUES(?,?,?,?,?)
+      SELECT_ALL_UNCOMMITED_TXS = SELECT txid FROM jms_transactions
+      SELECT_MAX_TX = SELECT MAX(txid) FROM jms_messages 
+      DELETE_ALL_TX = DELETE FROM jms_transactions
+      SELECT_MESSAGES_IN_DEST = SELECT messageid, messageblob FROM jms_messages WHERE destination=?
+      SELECT_MESSAGE_KEYS_IN_DEST = SELECT messageid FROM jms_messages WHERE destination=?
+      SELECT_MESSAGE = SELECT messageid, messageblob FROM jms_messages WHERE messageid=? AND destination=?
+      MARK_MESSAGE = UPDATE jms_messages SET txid=?, txop=? WHERE messageid=? AND destination=?
+      UPDATE_MESSAGE = UPDATE jms_messages SET messageblob=? WHERE messageid=? AND destination=?
+      UPDATE_MARKED_MESSAGES = UPDATE jms_messages SET txid=?, txop=? WHERE txop=?
+      UPDATE_MARKED_MESSAGES_WITH_TX = UPDATE jms_messages SET txid=?, txop=? WHERE txop=? AND txid=?
+      DELETE_MARKED_MESSAGES_WITH_TX = DELETE jms_messages FROM jms_messages, jms_transactions WHERE jms_messages.txid = jms_transactions.txid AND jms_messages.txop=?
+      DELETE_TX = DELETE FROM jms_transactions WHERE txid = ?
+      DELETE_MARKED_MESSAGES = DELETE FROM jms_messages WHERE txid=? AND txop=?
+      DELETE_TEMPORARY_MESSAGES = DELETE FROM jms_messages WHERE txop='T'
+      DELETE_MESSAGE = DELETE FROM jms_messages WHERE messageid=? AND destination=?
+      CREATE_MESSAGE_TABLE = CREATE TABLE JMS_MESSAGES (MESSAGEID INTEGER NOT NULL, DESTINATION VARCHAR(150) NOT NULL, TXID INTEGER, TXOP CHAR(1), MESSAGEBLOB LONGBLOB, PRIMARY KEY (MESSAGEID, DESTINATION))
+      CREATE_IDX_MESSAGE_TXOP_TXID = CREATE INDEX JMS_MESSAGES_TXOP_TXID ON JMS_MESSAGES (TXOP, TXID)
+      CREATE_IDX_MESSAGE_DESTINATION = CREATE INDEX JMS_MESSAGES_DESTINATION ON JMS_MESSAGES (DESTINATION)
+      CREATE_TX_TABLE = CREATE TABLE JMS_TRANSACTIONS ( TXID INTEGER, PRIMARY KEY (TXID) )
+      CREATE_TABLES_ON_STARTUP = FALSE
+    </attribute>
+    <!-- Uncomment to override the transaction timeout for recovery per queue/subscription, in seconds -->
+    <!--attribute name="RecoveryTimeout">0</attribute-->
+    <!-- The number of blobs to load at once during message recovery -->
+    <attribute name="RecoverMessagesChunk">1</attribute>
+  </mbean>
+
+</server>

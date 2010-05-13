@@ -5,8 +5,12 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.KeywordVO;
 	import com.dbi.cat.constants.KeywordAvailableCheckState;
 	import com.dbi.cat.view.EditClientView;
+	import com.dbi.cat.view.profile.AddCreditsView;
 	import com.dbi.cat.view.profile.EditEntryPointView;
 	import com.dbi.cat.view.profile.EditKeywordView;
+	
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.IViewCursor;
@@ -32,6 +36,7 @@ package com.dbi.cat.business
 		private var editKeywordPopup:IFlexDisplayObject;
 		private var editClientPopup:IFlexDisplayObject;
 		private var editEntryPointPopup:IFlexDisplayObject;
+		private var addCreditsPopup:IFlexDisplayObject;
 		
 		public function ClientManager()
 		{
@@ -88,6 +93,13 @@ package com.dbi.cat.business
 				clients.addItem(client);
 				
 			clientMap[client.clientId] = client;
+			
+			// If the current client was updated replace it
+			if (currentClient.clientId == client.clientId)
+			{
+				currentClient = null;
+				currentClient = client;
+			}
 			closeEdit();
 		}
 	
@@ -233,6 +245,25 @@ package com.dbi.cat.business
 		{
 			currentKeyword = null;
 			currentClient = null;
+		}
+	
+		//
+		// Credits methods
+		//
+		public function openAddCredits():void
+		{
+			if (addCreditsPopup == null)
+				addCreditsPopup = new AddCreditsView();
+			PopUpManager.addPopUp(addCreditsPopup, UIComponent(Application.application), true);
+			PopUpManager.centerPopUp(addCreditsPopup);
+		}
+		public function closeAddCredits():void
+		{
+			PopUpManager.removePopUp(addCreditsPopup);
+		}
+		public function openPaymentURL(url:String):void
+		{
+			navigateToURL(new URLRequest(url));
 		}
 	}
 }

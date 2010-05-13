@@ -22,6 +22,7 @@ package com.dbi.cat.common.vo
 		public var addInMessages:ArrayCollection;
 		public var entryPoints:ArrayCollection;
 		public var keywordLimits:ArrayCollection;
+		public var clientInfos:ArrayCollection;
 		
 		public function get children():ArrayCollection
 		{

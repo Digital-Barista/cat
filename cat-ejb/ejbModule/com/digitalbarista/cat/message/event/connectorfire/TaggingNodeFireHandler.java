@@ -51,6 +51,9 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 				address=s.getTwitterUsername();
 				altID=s.getTwitterID();
 				break;
+			case Facebook:
+				address=s.getFacebookID();
+				break;
 		}
 		if(address!=null)
 			crit.add(Restrictions.eq("address",address));

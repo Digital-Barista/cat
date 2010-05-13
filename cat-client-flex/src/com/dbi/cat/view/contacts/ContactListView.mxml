@@ -98,8 +98,12 @@
 				// Setup search criteria
 				if (contactSearchCriteria == null)
 					contactSearchCriteria = new ContactSearchCriteriaVO();
+					
 				contactSearchCriteria.clientId = Client.selectedItem.clientId;
-				contactSearchCriteria.entryType = ContactType.selectedLabel;
+				
+				if (ContactType.selectedItem != null)
+					contactSearchCriteria.entryType = ContactType.selectedItem.name;
+					
 				event.searchCriteria = contactSearchCriteria;
 				event.pagingInfo = contactPagingInfo;
 				
@@ -126,7 +130,7 @@
 			private function get contactTypes():Array
 			{
 				var ret:Array = [""];
-				return ret.concat(EntryPointType.getAllTypes().toArray());
+				return ret.concat(EntryPointType.allTypes.toArray());
 			}
 		]]>
 	</mx:Script>
@@ -147,6 +151,7 @@
 			<controls:AdvancedComboBox id="ContactType"
 				selectedBindingValue="{contactSearchCriteria.entryType}"
 				dataProvider="{contactTypes}"
+				labelField="name"
 				change="doFilter()" />
 			<mx:Label text="Tags" />
 			<mx:Button label="{tagLabel}"
@@ -161,6 +166,9 @@
 				<mx:DataGridColumn headerText="Contact" dataField="address" width="150" />
 				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" width="80" />
 				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" sortable="false" />
+				<mx:DataGridColumn headerText="Blacklisted" dataField="blacklisted"
+								   itemRenderer="com.dbi.controls.CheckMarkItemRenderer"
+								   width="80"  />
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Canvas>

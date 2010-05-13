@@ -5,32 +5,34 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.event.ReportingEvent;
-			import com.dbi.cat.business.ReportingManager;
-			import com.dbi.cat.business.ImportManager;
-			import com.dbi.cat.event.ContactEvent;
-			import com.dbi.cat.business.ContactManager;
-			import com.dbi.cat.business.CampaignTemplateManager;
-			import com.dbi.cat.event.CampaignTemplateEvent;
-			import com.dbi.cat.business.CouponManager;
-			import com.dbi.cat.event.CouponEvent;
 			import com.asfusion.mate.events.UnhandledFaultEvent;
-			import com.dbi.cat.business.NavigationManager;
-			import com.dbi.cat.business.LayoutInfoManager;
-			import mx.managers.LayoutManager;
-			import com.dbi.cat.business.ClientManager;
-			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.business.AppManager;
 			import com.dbi.cat.business.CampaignManager;
-			import com.dbi.cat.event.LoadDataEvent;
-			import com.dbi.cat.event.CampaignEvent;
-			import com.dbi.cat.event.ChangePasswordEvent;
+			import com.dbi.cat.business.CampaignTemplateManager;
+			import com.dbi.cat.business.ClientManager;
+			import com.dbi.cat.business.ContactManager;
+			import com.dbi.cat.business.CouponManager;
+			import com.dbi.cat.business.ImportManager;
+			import com.dbi.cat.business.LayoutInfoManager;
 			import com.dbi.cat.business.LoginManager;
+			import com.dbi.cat.business.NavigationManager;
+			import com.dbi.cat.business.ReportingManager;
+			import com.dbi.cat.business.SubscriptionManager;
+			import com.dbi.cat.business.UserManager;
+			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.event.CampaignTemplateEvent;
+			import com.dbi.cat.event.ChangePasswordEvent;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.event.CouponEvent;
+			import com.dbi.cat.event.LoadDataEvent;
 			import com.dbi.cat.event.LoginEvent;
 			import com.dbi.cat.event.NavigationEvent;
-			import com.dbi.cat.business.UserManager;
+			import com.dbi.cat.event.ReportingEvent;
 			import com.dbi.cat.event.UserEvent;
-			import com.dbi.cat.business.AppManager;
+			
 			import mx.events.FlexEvent;
+			import mx.managers.LayoutManager;
 		]]>
 	</mx:Script>
 	
@@ -51,6 +53,7 @@
 		<ObjectBuilder generator="{ContactManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{ImportManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{ReportingManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{SubscriptionManager}" constructorArguments="{scope.dispatcher}" />
 		<ObjectBuilder generator="{ClientManager}"  />
 	</EventHandlers>
 	
@@ -86,6 +89,7 @@
 	
 	<!-- Data Events -->
 	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
+		<EventAnnouncer type="{ReportingEvent.LOAD_DASHBOARD}" />
 		<EventAnnouncer type="{CampaignEvent.LIST_CAMPAIGNS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_KEYWORDS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />

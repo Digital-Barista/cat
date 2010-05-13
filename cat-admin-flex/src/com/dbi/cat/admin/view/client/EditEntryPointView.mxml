@@ -31,18 +31,11 @@
 	<mx:Form width="100%">
 		<mx:FormItem label="Type" width="100%">
 			<controls:AdvancedComboBox id="Type"
-				labelField="label"
-				selectedBindingProperty="value"
+				labelField="name"
+				dataProvider="{EntryPointType.allTypes}"
+				selectedBindingProperty="name"
 				selectedBindingValue="{currentEntryPointDefinition.type}"
-				change="{currentEntryPointDefinition.type = Type.selectedItem.value}">
-				<controls:dataProvider>
-					<mx:ArrayCollection>
-						<mx:Object label="{EntryPointType.EMAIL}" value="{EntryPointType.EMAIL}" />
-						<mx:Object label="{EntryPointType.SMS}" value="{EntryPointType.SMS}" />
-						<mx:Object label="{EntryPointType.TWITTER}" value="{EntryPointType.TWITTER}" />
-					</mx:ArrayCollection>
-				</controls:dataProvider>
-			</controls:AdvancedComboBox>
+				change="{currentEntryPointDefinition.type = Type.selectedItem.name}" />
 		</mx:FormItem>
 		<mx:FormItem label="Restriction" width="100%">
 			<controls:AdvancedComboBox id="Restriction"

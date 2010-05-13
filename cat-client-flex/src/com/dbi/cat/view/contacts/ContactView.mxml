@@ -4,16 +4,22 @@
 	xmlns:controls="com.dbi.controls.*">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
+			import com.dbi.cat.common.vo.ContactVO;
 			import com.dbi.cat.common.vo.PagedListVO;
 			import com.dbi.cat.common.vo.PagingInfoVO;
-			import mx.events.IndexChangedEvent;
-			import com.dbi.cat.common.vo.ContactVO;
-			import com.dbi.cat.event.ContactEvent;
 			import com.dbi.cat.common.vo.UserVO;
-			import mx.collections.ArrayCollection;
+			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
+			import com.dbi.cat.event.ContactEvent;
 			import com.dbi.cat.event.UserEvent;
+			import com.dbi.controls.CustomMessage;
+			import com.dbi.event.CustomMessageEvent;
+			
 			import flash.events.MouseEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Menu;
+			import mx.events.IndexChangedEvent;
+			import mx.events.MenuEvent;
 			
 			[Bindable]
 			public var contacts:PagedListVO;
@@ -21,8 +27,18 @@
 			[Bindable]
 			public var selectedContacts:ArrayCollection;
 			
+			[Embed("/assets/img/button_down_arrow.png")]
+			public static const actionButtonIcon:Class;
+			
 			public var contactSearchCriteria:ContactSearchCriteriaVO;
 			public var contactPagingInfo:PagingInfoVO;
+			
+			private var actionMenu:Menu;
+			
+			private function get hasSelected():Boolean
+			{
+				return selectedContacts != null && selectedContacts.length > 0;
+			}
 			
 			private function refresh():void
 			{
@@ -50,6 +66,53 @@
 					selectedContacts.length > 0)
 					dispatchEvent(new ContactEvent(ContactEvent.OPEN_UNASSIGN_CONTACT_TAGS));
 			}
+			
+			private function confirmBlacklist():void
+			{
+				
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					CustomMessage.show("Are you sure you want to blacklist the " + selectedContacts.length + " addresses?",
+						["Yes", "No"],
+						blacklist);
+				}
+			}
+			private function blacklist(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes" &&
+					selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					var event:ContactEvent = new ContactEvent(ContactEvent.BLACKLIST_ADDRESSES);
+					event.contacts = selectedContacts;
+					dispatchEvent(event);
+				}
+			}
+			
+			private function confirmUnBlacklist():void
+			{
+				
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					CustomMessage.show("Are you sure you want to unblacklist the " + selectedContacts.length + " addresses?",
+						["Yes", "No"],
+						unBlacklist);
+				}
+			}
+			private function unBlacklist(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes" &&
+					selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					var event:ContactEvent = new ContactEvent(ContactEvent.UNBLACKLIST_ADDRESSES);
+					event.contacts = selectedContacts;
+					dispatchEvent(event);
+				}
+			}
+			
 			private function importContacts():void
 			{
 				dispatchEvent(new ContactEvent(ContactEvent.SELECT_CONTACT_IMPORT_FILE));
@@ -65,8 +128,73 @@
 				event.pagingInfo = contactPagingInfo;
 				dispatchEvent(event);
 			}
+			
+			private function openActions():void
+			{
+				
+				// Disable items if necessary
+				for each (var xml:XML in actionMenuXML..item)
+				{
+					if (xml.hasOwnProperty("@requireSelected"))
+						xml.@enabled = hasSelected;
+				}
+				
+				actionMenu = Menu.createMenu(null, actionMenuXML, false);
+				actionMenu.addEventListener(MenuEvent.ITEM_CLICK, onAction);
+				actionMenu.labelField = "@label";
+				
+				var global:Point = ButtonArea.localToGlobal(new Point(ActionButton.x, ActionButton.y + ActionButton.height));
+				actionMenu.show(global.x, global.y);
+			}
+			
+			private function onAction(e:MenuEvent):void
+			{
+				if (e.item.hasOwnProperty("@id"))
+				{
+					var action:String = e.item.@id;
+					
+					switch (action)
+					{
+						case "import":
+							importContacts();
+							break;
+						case "addContact":
+							addContact();
+							break;
+						case "addTag":
+							addTags();
+							break;
+						case "removeTag":
+							removeTags();
+							break;
+						case "blacklist":
+							confirmBlacklist();
+							break;
+						case "unblacklist":
+							confirmUnBlacklist();
+							break;
+						case "refresh":
+							refresh();
+							break;
+					}
+				}
+			}
 		]]>	
 	</mx:Script>
+	<mx:XML id="actionMenuXML" xmlns="">
+		<root>
+			<item label="Import Contacts" id="import" />
+			<item label="Add Contact" id="addContact" />	
+			<item type="separator"  />
+			<item label="Add Tags" id="addTag" requireSelected="true" />	
+			<item label="Remove Tags" id="removeTag" requireSelected="true" />
+			<item type="separator" />
+			<item label="Blacklist Addresses" id="blacklist" requireSelected="true" />	
+			<item label="Unblacklist Addresses" id="unblacklist" requireSelected="true" />
+			<item type="separator" />
+			<item label="Refresh" id="refresh" />	
+		</root>
+	</mx:XML>
 	<mx:Canvas
 		horizontalCenter="0"
 		width="90%"
@@ -85,21 +213,9 @@
 					selectedNavButtonStyleName="selectedNavButton" />
 			</mx:ControlBar>
 		</mx:TitleWindow>
-		<mx:HBox right="10" top="7" verticalAlign="middle">
-			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
-				width="25" height="25"
-				toolTip="Refresh"
-				click="refresh()" />
-			<mx:Button label="Add Tags"
-				enabled="{selectedContacts != null &amp;&amp; selectedContacts.length > 0}"
-				click="addTags()" />
-			<mx:Button label="Remove Tags"
-				enabled="{selectedContacts != null &amp;&amp; selectedContacts.length > 0}"
-				click="removeTags()" />
-			<mx:Button label="Add Contact"
-				click="addContact()" />
-			<mx:Button label="Import Contacts"
-				click="importContacts()" />
+		<mx:HBox id="ButtonArea" right="10" top="7" verticalAlign="middle">
+			<mx:Button id="ActionButton" label="Actions" click="openActions()"
+					   icon="{actionButtonIcon}"/>
 		</mx:HBox>
 	</mx:Canvas>
 </mx:Canvas>

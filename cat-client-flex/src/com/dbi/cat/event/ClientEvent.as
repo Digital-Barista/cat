@@ -30,9 +30,17 @@ package com.dbi.cat.event
 		public static const DELETE_ENTRY_POINT:String = "deleteEntryPointEvent";
 		public static const CLOSE_EDIT_ENTRY_POINT:String = "closeEditEntryPointEvent";
 		
+		// Credit events
+		public static const OPEN_ADD_CREDITS:String = "openAddCreditsEvent";
+		public static const CLOSE_ADD_CREDITS:String = "closeAddCreditsEvent";
+		public static const OPEN_PAYMENT_URL:String = "openPaymentURLEvent";
+		
+		
 		public var client:ClientVO;
 		public var keyword:KeywordVO;
 		public var entryPointDefinition:EntryPointDefinitionVO;
+		
+		public var paymentURL:String;
 		
 		public function ClientEvent(type:String)
 		{

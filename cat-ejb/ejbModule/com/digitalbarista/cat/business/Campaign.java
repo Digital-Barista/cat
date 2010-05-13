@@ -151,7 +151,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.currentVersion = currentVersion;
 	}
 	
-	
+	@XmlAttribute
 	public Boolean getIsAutoStart() {
 		return isAutoStart;
 	}
@@ -207,6 +207,8 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.mode = mode;
 	}
 
+	@XmlElementWrapper(name="AddInMessages")
+	@XmlElementRef
 	public Set<AddInMessage> getAddInMessages() {
 		return addInMessages;
 	}
@@ -215,6 +217,8 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.addInMessages = addInMessages;
 	}
 
+	@XmlElementWrapper(name="CampaignInfos")
+	@XmlElementRef
 	public Set<CampaignInfo> getCampaignInfos() {
 		return campaignInfos;
 	}
@@ -222,6 +226,5 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	public void setCampaignInfos(Set<CampaignInfo> campaignInfos) {
 		this.campaignInfos = campaignInfos;
 	}
-	
 	
 }

@@ -9,7 +9,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.event.ContactEvent;
 	import com.dbi.cat.event.LoadDataEvent;
 	import com.dbi.cat.event.NavigationEvent;
-	import com.dbi.cat.event.ReportingEvent;
+	import com.dbi.cat.event.SubscriptionEvent;
 	import com.dbi.cat.event.UserEvent;
 	import com.dbi.controls.CustomMessage;
 	
@@ -119,8 +119,9 @@ package com.dbi.cat.business
 			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_CONTACT));
 			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_ASSIGN_CONTACT_TAG));
 			dispatcher.dispatchEvent(new ClientEvent(ContactEvent.CLOSE_UNASSIGN_CONTACT_TAG));
-			dispatcher.dispatchEvent(new ReportingEvent(ReportingEvent.CLOSE_NODE_SUBSCRIBERS));
+			dispatcher.dispatchEvent(new SubscriptionEvent(SubscriptionEvent.CLOSE_NODE_SUBSCRIBERS));
 			dispatcher.dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.CLOSE_MESSAGE_PREVIEW));
+			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_ADD_CREDITS));
 		}
 		
 		/**
@@ -139,7 +140,7 @@ package com.dbi.cat.business
 			loginPassword = loginPassword == "" ? null : "";
 			
 			// Login to app
-			dispatcher.dispatchEvent(new NavigationEvent(NavigationEvent.CAMPAIGNS));
+			dispatcher.dispatchEvent(new NavigationEvent(NavigationEvent.DASHBOARD));
 		}
 		private function loginSuccess(result:ResultEvent):void
 		{

@@ -1,7 +1,5 @@
 package com.digitalbarista.cat.mail;
 
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
 import java.beans.PropertyEditorSupport;
 import java.util.HashMap;
 import java.util.Map;

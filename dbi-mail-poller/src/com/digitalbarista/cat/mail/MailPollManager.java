@@ -9,9 +9,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-
 public class MailPollManager{
 
 	private List<MailboxConfig> mailboxes;

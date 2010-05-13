@@ -5,50 +5,55 @@ package com.dbi.cat.common.constants
 	[Bindable]
 	public class EntryPointType
 	{
-		public function EntryPointType()
-		{
-		}
-
-		public static const EMAIL:String = "Email";
-		public static const SMS:String = "SMS";
-		public static const TWITTER:String = "Twitter";
+		public var name:String;
+		public var maxCharacters:Number;
+		public var defaultMessageCredits:Number; // NaN = Unlimited
 		
-		public static const EMAIL_MAX_CHARACTERS:Number = 0;
-		public static const SMS_MAX_CHARACTERS:Number = 160;
-		public static const TWITTER_MAX_CHARACTERS:Number = 140;
+		private static var _allTypes:ArrayCollection;
 		
-		public static function getMaxCharacters(entryPointType:String):Number
+		public function get allowAutoStart():Boolean
 		{
-			switch(entryPointType)
-			{
-				case EMAIL:
-					return EMAIL_MAX_CHARACTERS;
-					break;
-				case SMS:
-					return SMS_MAX_CHARACTERS;
-					break;
-				case TWITTER:
-					return TWITTER_MAX_CHARACTERS;
-					break;
-				default:
-					return 0;
-					break;
-			}
-		}
-		
-		public static function allowAutoStart(entryPointType:String):Boolean
-		{
-			if (entryPointType == TWITTER)
+			if (this == TWITTER ||
+				this == FACEBOOK)
 				return true;
 			return false;
 		}
 		
-		public static function getAllTypes():ArrayCollection
+		public function EntryPointType(name:String, maxChars:Number, defaultMessageCredits:Number=NaN)
 		{
-			return new ArrayCollection([
+			this.name = name;
+			this.maxCharacters = maxChars;
+			this.defaultMessageCredits = defaultMessageCredits;
+		}
+
+		public static const EMAIL:EntryPointType = new EntryPointType("Email", 0);
+		public static const SMS:EntryPointType = new EntryPointType("SMS", 160, 0);
+		public static const TWITTER:EntryPointType = new EntryPointType("Twitter", 140);
+		public static const FACEBOOK:EntryPointType = new EntryPointType("Facebook", 0);
+		
+		
+		public static function allowAutoStart(entryType:String):Boolean
+		{
+			for each (var type:EntryPointType in allTypes)
+			{
+				if (type.name == entryType)
+					return type.allowAutoStart;
+			}
+			return false;
+		}
+		
+		
+		public static function get allTypes():ArrayCollection
+		{
+			if (_allTypes == null)
+			{
+				_allTypes = new ArrayCollection([
 				EntryPointType.SMS,
 				EntryPointType.EMAIL,
-				EntryPointType.TWITTER]);
+				EntryPointType.TWITTER,
+				EntryPointType.FACEBOOK]);
+			}
+			return _allTypes;
 		}
 	}
 }

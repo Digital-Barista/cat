@@ -78,6 +78,11 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			input = e.getArgs().get("message");
 			auditEntry.setIncomingType(EntryPointType.Twitter);
 		}
+		else if (e.getSourceType().equals(CATEventSource.FacebookEndpoint))
+		{
+			input = e.getArgs().get("message");
+			auditEntry.setIncomingType(EntryPointType.Facebook);
+		}
 		
 		//Finish setting up the audit entry.  And save it.
 		//  The only way this WON'T save is if we roll back the transaction.
@@ -110,6 +115,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				q=getEntityManager().createNamedQuery("subscriber.by.twitter");
 				break;
 				
+			case FacebookEndpoint:
+				q=getEntityManager().createNamedQuery("subscriber.by.facebook");
+				break;
+				
 			default:
 				throw new IllegalArgumentException("Invalid endpoint type specified.");
 		}
@@ -140,6 +149,23 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				for(ContactDO contact : contactList)
 					contact.setAddress(e.getTarget());
 			}
+			
+			if(e.getSourceType()==CATEventSource.FacebookEndpoint)
+			{
+				Session session = (Session)getEntityManager().getDelegate();
+				Criteria crit = session.createCriteria(SubscriberDO.class);
+				crit.add(Restrictions.eq("facebookID", e.getArgs().get("facebookID")));
+				sub = (SubscriberDO)crit.uniqueResult();
+				if(sub!=null && sub.getFacebookID()==null)
+					sub.setFacebookID(e.getTarget());
+				
+				crit = session.createCriteria(ContactDO.class);
+				crit.add(Restrictions.eq("type", EntryPointType.Facebook));
+				crit.add(Restrictions.eq("alternateId", e.getArgs().get("facebookID")));
+				List<ContactDO> contactList = (List<ContactDO>)crit.list();
+				for(ContactDO contact : contactList)
+					contact.setAddress(e.getTarget());
+			}
 		}
 		
 		if(sub==null)
@@ -158,6 +184,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				case TwitterEndpoint:
 					sub.setTwitterUsername(e.getTarget());
 					sub.setTwitterID(e.getArgs().get("twitterID"));
+					break;
+					
+				case FacebookEndpoint:
+					sub.setFacebookID(e.getArgs().get("facebookID"));
 					break;
 			}
 			getEntityManager().persist(sub);
@@ -180,6 +210,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				
 			case TwitterEndpoint:
 				q.setParameter("type", EntryPointType.Twitter);
+				break;
+				
+			case FacebookEndpoint:
+				q.setParameter("type", EntryPointType.Facebook);
 				break;
 		}
 		q.setParameter("entryPoint", e.getSource());
@@ -217,6 +251,10 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 					
 				case TwitterEndpoint:
 					newBL.setType(EntryPointType.Twitter);
+					break;
+					
+				case FacebookEndpoint:
+					newBL.setType(EntryPointType.Facebook);
 					break;
 			}
 			newBL.setSubscriber(sub);
@@ -363,6 +401,9 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 								break;
 							case TwitterEndpoint:
 								if(!data.getEntryType().equals(EntryPointType.Twitter)) continue;
+								break;
+							case FacebookEndpoint:
+								if(!data.getEntryType().equals(EntryPointType.Facebook)) continue;
 								break;
 							default:
 								continue;
