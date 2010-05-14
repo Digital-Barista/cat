@@ -3,7 +3,6 @@
     <mbean name="dbi.config:service=DBITwitterPollerService-Controller" 
            code="org.jboss.ha.singleton.HASingletonController">
         <depends>dbi.config:service=DBITwitterPollerService</depends>
-        <attribute name="HAPartition"><inject bean="HAPartition" /></attribute>
         <attribute name="TargetName">dbi.config:service=DBITwitterPollerService</attribute>
         <attribute name="TargetStartMethod">startSingleton</attribute>
         <attribute name="TargetStopMethod">stopSingleton</attribute>
