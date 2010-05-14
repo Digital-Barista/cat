@@ -33,7 +33,7 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
     	try {
     		TwitterAccountPollManager pm=getAccountPollManager();
     		
-    		tx = (UserTransaction)getInitialContext().lookup("java:comp/UserTransaction");
+    		tx = (UserTransaction)getInitialContext().lookup("UserTransaction");
     		tx.begin();
     		ConnectionFactory cf = (ConnectionFactory)getInitialContext().lookup(cfName);
     		Destination dest = (Destination)getInitialContext().lookup(twitterSendDestName);
