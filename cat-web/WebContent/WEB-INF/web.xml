@@ -4,8 +4,7 @@
   <description>Messaging Campaign Administrative Tool</description>
   <context-param>
     <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/cat-spring-config.xml
-    			 /WEB-INF/cat-ejbs.xml</param-value>
+    <param-value>/WEB-INF/cat-ejbs.xml</param-value>
   </context-param>
   <context-param>
     <param-name>resteasy.jndi.resources</param-name>

@@ -4,7 +4,10 @@ import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public interface TwitterPollCoordinatorMBean {
+import javax.ejb.Remote;
+
+@Remote
+public interface TwitterPollCoordinator {
 
 	public class QueueInfo
 	{
@@ -29,4 +32,14 @@ public interface TwitterPollCoordinatorMBean {
 	public boolean startPolling(String account);
 	
 	public String refreshTwitterAccounts();
+	
+	public void start();
+
+	public void manualStart();
+	
+	public void stop();
+	
+	public void startSingleton();
+	
+	public void stopSingleton();
 }

@@ -10,8 +10,8 @@ import org.springframework.context.ApplicationContext;
 
 public class TwitterAccountRefresher extends TwitterPollWorker<Map<String,String>> {
 
-	protected TwitterAccountRefresher(ApplicationContext ctx) {
-		super(ctx,null);
+	protected TwitterAccountRefresher() {
+		super(null);
 	}
 
 	@Override

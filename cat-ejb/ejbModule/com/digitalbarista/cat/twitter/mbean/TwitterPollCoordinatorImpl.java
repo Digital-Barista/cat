@@ -5,58 +5,67 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.jboss.mx.util.MBeanServerLocator;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.jboss.annotation.ejb.Management;
+import org.jboss.annotation.ejb.Service;
 
-public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, ApplicationContextAware {
+@Service(objectName="dbi.config:service=DBITwitterPollerService")
+@Management(TwitterPollCoordinator.class)
+public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 
 	private Map<String,TwitterAccountPollManager> accountManagers = new HashMap<String,TwitterAccountPollManager>();
 	private String cfName = "java:/JmsXA";
 	private String destName = "cat/messaging/Events";
 	private String twitterSendDestName = "cat/messaging/TwitterOutgoing";
-	private ApplicationContext ctx;
 		
-	private Logger log = LogManager.getLogger(TwitterPollCoordinator.class);
+	private Logger log = LogManager.getLogger(TwitterPollCoordinatorImpl.class);
 	
 	@Override
 	public int checkMessages(String account) {
-		return new DirectMessageCheckWorker(ctx,accountManagers.get(account)).call();
+		return new DirectMessageCheckWorker(accountManagers.get(account)).call();
 	}
 
 	@Override
 	public String sendMessage(String account) {
-		return new SendDirectMessageWorker(ctx,accountManagers.get(account)).call();
+		return new SendDirectMessageWorker(accountManagers.get(account)).call();
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext ctx)
-			throws BeansException {
-		try {
-			MBeanServer server = MBeanServerLocator.locateJBoss();
-			try
-			{
-				server.registerMBean(this, new ObjectName("dbi.config:service=TwitterPollCoordinator"));
-			}catch(InstanceAlreadyExistsException e)
-			{
-				server.unregisterMBean(new ObjectName("dbi.config:service=TwitterPollCoordinator"));
-				server.registerMBean(this, new ObjectName("dbi.config:service=TwitterPollCoordinator"));
-			}
-			
-			refreshTwitterAccounts();
-		} catch (Exception e)
-		{
-			log.error("Couldn't register Twitter Poll Coordinator MBean",e);
-		}
+	public void startSingleton() {
+		log.info("Starting Twitter Poller as HA-Singleton");
+		refreshTwitterAccounts();
 	}
 
+	@Override
+	public void stopSingleton() {
+		log.info("Stopping Twitter Poller as HA-Singleton");
+		stop();
+	}
+
+	@Override
+	public void manualStart()
+	{
+		log.info("Manually Starting Twitter Poller");
+		refreshTwitterAccounts();
+	}
+
+	@Override
+	public void start()
+	{
+		log.info("Automated Twitter Poller start.  Waiting for singleton startup or manual startup.");
+	}
+
+	@Override
+	public void stop()
+	{
+		log.info("Stopping Twitter Poller");
+		for(TwitterAccountPollManager manager : accountManagers.values())
+		{
+			manager.stopPolling();
+		}
+	}
+	
 	public String getCfName() {
 		return cfName;
 	}
@@ -109,7 +118,7 @@ public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, Appl
 	public String refreshTwitterAccounts() {
 		try
 		{
-			Map<String,String> accountList = new TwitterAccountRefresher(ctx).call();
+			Map<String,String> accountList = new TwitterAccountRefresher().call();
 			Set<String> toBeRemoved = new HashSet<String>(accountManagers.keySet());
 			toBeRemoved.removeAll(accountList.keySet());
 			int added=0;
@@ -121,7 +130,7 @@ public class TwitterPollCoordinator implements TwitterPollCoordinatorMBean, Appl
 			{
 				if(!accountManagers.containsKey(entry.getKey()))
 				{
-					accountManagers.put(entry.getKey(), new TwitterAccountPollManager(entry.getKey(),entry.getValue(),ctx));
+					accountManagers.put(entry.getKey(), new TwitterAccountPollManager(entry.getKey(),entry.getValue()));
 					added++;
 				}
 			}

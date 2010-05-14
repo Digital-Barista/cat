@@ -29,8 +29,8 @@ import com.digitalbarista.cat.twitter.bindings.extras.DMComparator;
 
 public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 
-	public DirectMessageCheckWorker(ApplicationContext ctx, TwitterAccountPollManager pollManager) {
-		super(ctx,pollManager);
+	public DirectMessageCheckWorker(TwitterAccountPollManager pollManager) {
+		super(pollManager);
 	}
 
 	public Integer call()

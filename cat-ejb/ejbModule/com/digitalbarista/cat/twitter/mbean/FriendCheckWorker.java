@@ -16,8 +16,8 @@ import com.digitalbarista.cat.twitter.bindings.IdListNoCursor;
 
 public class FriendCheckWorker extends TwitterPollWorker<Set<Long>> {
 
-	public FriendCheckWorker(ApplicationContext ctx,TwitterAccountPollManager pollManager) {
-		super(ctx,pollManager);
+	public FriendCheckWorker(TwitterAccountPollManager pollManager) {
+		super(pollManager);
 	}
 
 	@Override

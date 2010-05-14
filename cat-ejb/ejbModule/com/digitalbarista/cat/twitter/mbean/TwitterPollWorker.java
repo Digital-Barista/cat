@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.context.ApplicationContext;
 
 public abstract class TwitterPollWorker<T> implements Callable<T> {
 
@@ -23,7 +22,6 @@ public abstract class TwitterPollWorker<T> implements Callable<T> {
 	protected static final String twitterSendDestName = "cat/messaging/TwitterOutgoing";
 	private InitialContext ic;
 	private DataSource ds;
-	private ApplicationContext ctx;
 		
 	protected Logger log = LogManager.getLogger(getClass());
 	
@@ -99,14 +97,8 @@ public abstract class TwitterPollWorker<T> implements Callable<T> {
 
 	}
 	
-	protected TwitterPollWorker(ApplicationContext ctx, TwitterAccountPollManager pm)
+	protected TwitterPollWorker(TwitterAccountPollManager pm)
 	{
-		this.ctx = ctx;
 		this.pollManager = pm;
-	}
-	
-	protected ApplicationContext getAppContext()
-	{
-		return ctx;
 	}
 }

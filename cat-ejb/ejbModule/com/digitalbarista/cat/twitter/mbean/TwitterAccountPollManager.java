@@ -84,18 +84,16 @@ public class TwitterAccountPollManager {
 	private Future friendCheckTask=null;
 	private Future followerCheckTask=null;
 	private boolean polling=false;
-	private ApplicationContext applicationContext;
 	
 	private DateFormat df()
 	{
 		return new ISO8601DateFormat();
 	}
 	
-	public TwitterAccountPollManager(String account, String credentials, ApplicationContext appCtx)
+	public TwitterAccountPollManager(String account, String credentials)
 	{
 		this.account=account;
 		this.credentials=credentials;
-		this.applicationContext=appCtx;
 		log("Created Poll Manager");
 		startPolling();
 	}
@@ -136,10 +134,10 @@ public class TwitterAccountPollManager {
 	{
 		log("poll START requested");
 		polling=true;
-		friendCheckTask = executor.submit(new FriendCheckWorker(applicationContext,this));
-		followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), (long)10, TimeUnit.SECONDS);
-		directMessageCheckTask = executor.submit(new DirectMessageCheckWorker(applicationContext,this));
-		sendDirectMessageTask = executor.submit(new SendDirectMessageWorker(applicationContext,this));		
+		friendCheckTask = executor.submit(new FriendCheckWorker(this));
+		followerCheckTask = executor.schedule(new FollowerCheckWorker(this), (long)10, TimeUnit.SECONDS);
+		directMessageCheckTask = executor.submit(new DirectMessageCheckWorker(this));
+		sendDirectMessageTask = executor.submit(new SendDirectMessageWorker(this));		
 		return true;
 	}
 	
@@ -253,12 +251,12 @@ public class TwitterAccountPollManager {
 		needToUnsubscribe.retainAll(temp);
 		if(polling)
 		{
-			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
+			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(this), 10, TimeUnit.SECONDS);
 			log("Subscribe Task Scheduled:10s(registerFollowerList)");
 		}
 		if(polling)
 		{
-			followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
+			followerCheckTask = executor.schedule(new FollowerCheckWorker(this), 1, TimeUnit.MINUTES);
 			log("Follower Check Task Scheduled:1m(registerFollowerList)");
 		}
 	}
@@ -266,7 +264,7 @@ public class TwitterAccountPollManager {
 	{
 		if(polling)
 		{
-			followerCheckTask = executor.schedule(new FollowerCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);		
+			followerCheckTask = executor.schedule(new FollowerCheckWorker(this), 10, TimeUnit.MINUTES);		
 			log("Follower Check Task Scheduled:10m(followerCheckFailed)");
 		}
 	}
@@ -303,7 +301,7 @@ public class TwitterAccountPollManager {
 			}
 			if(polling)
 			{
-				subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.SECONDS);
+				subscribeTask = executor.schedule(new ModifySubscriptionsWorker(this), 10, TimeUnit.SECONDS);
 				log("Modify Subscriptions Task Scheduled:1m(registerSubscribeChange)");
 			}
 		}
@@ -316,7 +314,7 @@ public class TwitterAccountPollManager {
 	{
 		if(polling)
 		{
-			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+			subscribeTask = executor.schedule(new ModifySubscriptionsWorker(this), 10, TimeUnit.MINUTES);
 			log("Modify Subscriptions Task Scheduled:10m(subscribeChangeFailed)");
 		}
 	}
@@ -324,7 +322,7 @@ public class TwitterAccountPollManager {
 	{
 		if(polling)
 		{
-			directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 1, TimeUnit.MINUTES);
+			directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(this), 1, TimeUnit.MINUTES);
 			log("Direct Message Check Task Scheduled:1m(directMessageCheckSucceeded)");
 		}
 	}
@@ -332,7 +330,7 @@ public class TwitterAccountPollManager {
 	{
 		if(polling)
 		{
-			directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+			directMessageCheckTask = executor.schedule(new DirectMessageCheckWorker(this), 10, TimeUnit.MINUTES);
 			log("Direct Message Check Task Scheduled:10m(directMessageCheckFailed)");
 		}
 	}	
@@ -340,7 +338,7 @@ public class TwitterAccountPollManager {
 	{
 		if(polling)
 		{
-			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
+			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(this), 5, TimeUnit.SECONDS);
 			log("Direct Message Send Task Scheduled:5s(directMessageSendSucceeded)");
 		}
 	}
@@ -348,7 +346,7 @@ public class TwitterAccountPollManager {
 	{
 		if(polling)
 		{
-			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 5, TimeUnit.SECONDS);
+			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(this), 5, TimeUnit.SECONDS);
 			//log("Direct Message Send Task Scheduled:5s(directMessageSendSucceededNoMessage)");
 		}
 	}
@@ -356,7 +354,7 @@ public class TwitterAccountPollManager {
 	{
 		if(polling)
 		{
-			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(applicationContext,this), 10, TimeUnit.MINUTES);
+			sendDirectMessageTask = executor.schedule(new SendDirectMessageWorker(this), 10, TimeUnit.MINUTES);
 			log("Direct Message Send Task Scheduled:10m(directMessageSendFailed)");
 		}
 	}

@@ -18,9 +18,8 @@ import com.digitalbarista.cat.twitter.mbean.TwitterAccountPollManager.SubscribeT
 
 public class ModifySubscriptionsWorker extends TwitterPollWorker<String> {
 
-	protected ModifySubscriptionsWorker(ApplicationContext ctx,
-			TwitterAccountPollManager pm) {
-		super(ctx, pm);
+	protected ModifySubscriptionsWorker(TwitterAccountPollManager pm) {
+		super(pm);
 	}
 
 	@Override

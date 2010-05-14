@@ -20,8 +20,8 @@ import org.springframework.context.ApplicationContext;
 
 public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 
-	public SendDirectMessageWorker(ApplicationContext ctx,TwitterAccountPollManager pm) {
-		super(ctx,pm);
+	public SendDirectMessageWorker(TwitterAccountPollManager pm) {
+		super(pm);
 	}
 	
 	@Override
