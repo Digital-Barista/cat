@@ -111,4 +111,5 @@
     <filter-name>ContentTypeByExtensionFilter</filter-name>
     <url-pattern>/rest/*</url-pattern>
   </filter-mapping>
+  <distributable/>
 </web-app>
