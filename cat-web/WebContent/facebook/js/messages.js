@@ -8,13 +8,8 @@ function MessageAPI()
 	var CHECKBOX_PREFIX = "message_select_";
 	var MESSAGE_LINE_PREFIX = "message_";
 	
-	var currentUID;
-	
-	this.loadMessages = function(uid)
+	this.loadMessages = function()
 	{
-		// Save UID
-		currentUID = uid;
-		
 		// Show loading screen
 		var loading = $("<img />");
 		loading.attr("src", "/cat/facebook/images/fb_loading.gif");
@@ -35,7 +30,8 @@ function MessageAPI()
 		var app = last;
 		
 		// Make the message request
-		var url = MESSAGE_URL + "/list/" + app  + "/" + window.location.search;
+		var url = MESSAGE_URL + "/list/" + app  + "/" + window.location.search + "&uid=" + currentUID;
+		console.log(url);
 		$.getJSON(url, function(data){
 
 			// Clear message area
@@ -90,7 +86,7 @@ function MessageAPI()
 		showResponseLoading(messageId)
 		
 		// Build URL
-		var url = MESSAGE_URL + "/" + messageId + "/" + response + "/" + window.location.search;
+		var url = MESSAGE_URL + "/" + messageId + "/" + response + "/" + window.location.search + "&uid=" + currentUID;
 		
 		// Make request
 		$.ajax({
@@ -134,7 +130,7 @@ function MessageAPI()
 		showDeleteLoading(messageId);
 		
 		// Build URL
-		var url = MESSAGE_URL + "/" + messageId + "/" + window.location.search;
+		var url = MESSAGE_URL + "/" + messageId + "/" + window.location.search + "&uid=" + currentUID;
 		
 		// Make request
 		$.ajax({
@@ -160,8 +156,7 @@ function MessageAPI()
 	
 	function refreshMessages()
 	{
-		if (currentUID != null)
-			messageAPI.loadMessages(currentUID);
+		messageAPI.loadMessages();
 	}
 	
 	function removeMessage(messageId)
@@ -208,17 +203,6 @@ function MessageAPI()
 		
 		cell.attr("class", "bannerTitle");
 		cell.text("Messages");
-		
-		cell = $("<td />");
-		cell.attr("class", "bannerBookmark");
-		row.append(cell);
-		
-		var bookmark = $("<img src='/cat/facebook/images/fb_bookmark.png' />");
-		bookmark.attr("class", "bookmarkButton");
-		bookmark.bind("click", function(){
-			FB.Connect.showBookmarkDialog();
-		});
-		cell.append(bookmark);
 		
 		return table;
 	}

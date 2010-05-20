@@ -62,7 +62,7 @@ public class FacebookManagerImpl implements FacebookManager {
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
 	private final static String FACEBOOK_PARAM_PREFIX = "fb_sig_";
 	private final static String FACEBOOK_PARAM_APP_ID = "fb_sig_app_id";
-	private final static String FACEBOOK_PARAM_USER_ID = "fb_sig_user";
+	private final static String FACEBOOK_PARAM_USER_ID = "uid"; //"fb_sig_user";
 	private final static String FACEBOOK_PARAM_SIGNATURE = "fb_sig";
 	
 	private Logger logger = LogManager.getLogger(getClass());

@@ -1,20 +1,98 @@
 var channel_path = '/cat/facebook/xd_receiver.htm'; 
+var currentUID;
 
+function fbInit()
+{
+	var appId = fetchQueryParameter("fb_sig_app_id");
+	console.log("appId: " + appId);
+	
+	// Initialize facebook API
+	FB.init({appId: appId, status: true, cookie: true, xfbml: true});
 
-FB_RequireFeatures(["Api"], function(){ 
-	// Create an ApiClient object, passing app's API key and 
-	// a site relative URL to xd_receiver.htm 
-	FB.Facebook.init(api_key, channel_path); 
+	// Start resize timer
+	window.fbAsyncInit = function() {
+		  FB.Canvas.setAutoResize();
+		}
 
-	 
-	var api = FB.Facebook.apiClient; 
+	// Listen for session change events
+	FB.Event.subscribe('auth.sessionChange', function(response) {
+		console.log(response);
+	  if (response.session) 
+	  {
+		  currentUID = response.session.uid;
+		  hideLogin();
+		  fetchMessages();
+	  } 
+	  else 
+	  {
+		  showLogin();
+	  }
+	});
+	
+	// Check the login status
+	FB.getLoginStatus(function(response) {
+		  if (response.session) 
+		  {
+			  currentUID = response.session.uid;
+			  hideLogin();
+			  fetchMessages();
+		  } 
+		  else 
+		  {
+			  showLogin();
+		  }
+		});
+}
 
-	FB.Connect.requireSession(function(){
-		FB.CanvasClient.startTimerToSizeToContent();
-		var uid = api.get_session().uid;
-		var messageApi = new MessageAPI();
-		messageApi.loadMessages(uid);
-	},null, true);
+function showLogin()
+{
+	$("#Login").css("display", "block");
+	$("#MessageArea").css("display", "none");
+}
+function hideLogin()
+{
+	$("#Login").css("display", "none");
+	$("#MessageArea").css("display", "block");
+}
+
+function fetchMessages()
+{
+	var messageApi = new MessageAPI();
+	messageApi.loadMessages();
+	
+}
+
+function fetchQueryParameter(name)
+{
+	var query = window.location.search;
+	
+	var parts = query.split("&");
+	for (var i = 0; i < parts.length; i++)
+	{
+		var param = parts[i].split("=");
+		if (param.length == 2 &&
+			param[0] == name)
+		{
+			return param[1];
+		}
+	}
+	return null;
+}
+
+//FB_RequireFeatures(["Api"], function(){ 
+//	// Create an ApiClient object, passing app's API key and 
+//	// a site relative URL to xd_receiver.htm 
+//	FB.Facebook.init(api_key, channel_path); 
+//
+//	 
+//	var api = FB.Facebook.apiClient; 
+//
+//	FB.Connect.requireSession(function(){
+//		FB.CanvasClient.startTimerToSizeToContent();
+//		var uid = api.get_session().uid;
+//		var messageApi = new MessageAPI();
+//		messageApi.loadMessages(uid);
+//	},null, true);
 	
 	
 	
@@ -34,7 +112,7 @@ FB_RequireFeatures(["Api"], function(){
 //		}
 //		 
 //	}); 
-});  
+//});  
 
 
 
