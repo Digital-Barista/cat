@@ -2,6 +2,7 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -41,8 +42,6 @@ import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.exception.ReportingManagerException;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 
 /**

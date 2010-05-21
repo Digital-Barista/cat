@@ -33,7 +33,7 @@
                               READ_UNCOMMITTED
                               NONE
         -->
-        <attribute name="IsolationLevel">REPEATABLE_READ</attribute>
+        <attribute name="IsolationLevel">SERIALIZABLE</attribute>
 
         <!-- Valid modes are LOCAL, REPL_ASYNC and REPL_SYNC
              
@@ -41,7 +41,7 @@
              we recommend you comment out the FC (flow control)
              protocol in the ClusterConfig section below.
         -->
-        <attribute name="CacheMode">REPL_ASYNC</attribute>
+        <attribute name="CacheMode">REPL_SYNC</attribute>
 
         <!-- 
           Indicates whether to the cache should unmarshall objects replicated
@@ -143,18 +143,18 @@
 		                   join_retry_timeout="2000" shun="true"
 		                   view_bundling="true"
 		                   view_ack_collection_timeout="5000"/>
-		          <FC max_credits="2000000" down_thread="false" up_thread="false"
-		              min_threshold="0.10"/>
+<!--		          <FC max_credits="2000000" down_thread="false" up_thread="false"
+		              min_threshold="0.10"/>-->
 		          <FRAG2 frag_size="60000" down_thread="false" up_thread="false"/>
 		          <pbcast.STATE_TRANSFER down_thread="false" up_thread="false" use_flush="false"/>
            </config>
-
            <!-- 
                Alternate TCP stack: customize it for your environment, 
                change bind_addr and initial_hosts -->
-           <!--
+
+	<!--
            <config>
-                <TCP bind_addr="thishost" start_port="6810" loopback="true"
+                <TCP bind_addr="206.72.101.220" start_port="6810" loopback="true"
                      tcp_nodelay="true"
 	                 recv_buf_size="20000000"
 	                 send_buf_size="640000"
@@ -168,7 +168,7 @@
 	                 use_send_queues="false"
 	                 sock_conn_timeout="300"
 	                 skip_suspected_members="true"/>
-	            <TCPPING initial_hosts="thishost[6810],otherhost[6810]" port_range="3"
+	            <TCPPING initial_hosts="206.72.101.220[6810],206.72.101.219[6810]" port_range="3"
 	                     timeout="3000"
 	                     down_thread="false" up_thread="false"
 	                     num_initial_members="3"/>
@@ -194,8 +194,7 @@
 	            <FRAG2 frag_size="60000" down_thread="false" up_thread="false"/>
 	            <pbcast.STATE_TRANSFER down_thread="false" up_thread="false" use_flush="false"/>
            </config>
-           -->
-
+	-->
         </attribute>
 
         <!--

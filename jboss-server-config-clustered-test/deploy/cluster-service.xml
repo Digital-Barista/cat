@@ -77,11 +77,10 @@
             <FRAG2 frag_size="60000" down_thread="false" up_thread="false"/>
             <pbcast.STATE_TRANSFER down_thread="false" up_thread="false" use_flush="false"/>
          </Config>
-
          <!-- Alternate TCP stack: customize it for your environment, change bind_addr and initial_hosts -->
-         <!--
+	<!--
          <Config>
-            <TCP bind_addr="thishost" start_port="6800" loopback="true"
+            <TCP bind_addr="206.72.101.220" start_port="6800" loopback="true"
                  tcp_nodelay="true"
                  recv_buf_size="20000000"
                  send_buf_size="640000"
@@ -95,7 +94,7 @@
                  use_send_queues="false"
                  sock_conn_timeout="300"
                  skip_suspected_members="true"/>
-            <TCPPING initial_hosts="thishost[6800],otherhost[6800]" port_range="3"
+            <TCPPING initial_hosts="206.72.101.220[6800],206.72.101.219[6800]" port_range="3"
                      timeout="3000"
                      down_thread="false" up_thread="false"
                      num_initial_members="3"/>
@@ -118,7 +117,7 @@
                         view_bundling="true"/>
             <pbcast.STATE_TRANSFER down_thread="false" up_thread="false" use_flush="false"/>
          </Config>
-         -->
+	-->
       </attribute>
       <depends>jboss:service=Naming</depends>
    </mbean>
