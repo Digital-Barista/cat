@@ -139,7 +139,7 @@
 
       For clustering purpose only.
       -->
-      <attribute name="UseJK">false</attribute>
+      <attribute name="UseJK">true</attribute>
 
       <!--
        Clustering only: Determines the maximum interval between requests, in 
