@@ -10,9 +10,7 @@ function fbInit()
 	FB.init({appId: appId, status: true, cookie: true, xfbml: true});
 
 	// Start resize timer
-	window.fbAsyncInit = function() {
-		  FB.Canvas.setAutoResize();
-		}
+	FB.Canvas.setAutoResize();
 
 	// Listen for session change events
 	FB.Event.subscribe('auth.sessionChange', function(response) {
