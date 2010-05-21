@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: mysql-ds.xml 41016 2006-02-07 14:23:00Z acoliver $ -->
+<!--  Datasource config for MySQL using 3.0.9 available from:
+http://www.mysql.com/downloads/api-jdbc-stable.html
+-->
+
+<datasources>
+  <xa-datasource>
+    <jndi-name>jdbc/campaignAdminDS</jndi-name>
+    <xa-datasource-property name="URL">jdbc:mysql://206.72.101.221:3306/campaign_admin_prod</xa-datasource-property>
+    <xa-datasource-property name="User">cat-cleanup</xa-datasource-property>
+    <xa-datasource-property name="Password">Yamahar6</xa-datasource-property>
+    <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
+    <user-name>cat_prod</user-name>
+    <password>Hondaf4</password>
+    <track-connection-by-tx>true</track-connection-by-tx>
+    <transaction-isolation>TRANSACTION_READ_COMMITTED</transaction-isolation>
+    <exception-sorter-class-name>org.jboss.resource.adapter.jdbc.vendor.MySQLExceptionSorter</exception-sorter-class-name>
+    <metadata>
+       <type-mapping>mySQL</type-mapping>
+    </metadata>
+  </xa-datasource>
+</datasources>
+

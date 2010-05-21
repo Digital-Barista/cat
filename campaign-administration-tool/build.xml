@@ -47,6 +47,7 @@
 			destfile="${deploy.dir}/campaign-administration-tool.ear"
 			manifest="${base.home}/META-INF/MANIFEST.MF">
 			<include name="META-INF/jboss-app.xml"/>
+			<include name="twitter-poller-service.xml"/>
 			<exclude name="lib/cfgatewayadapter.jar"/>
 			<fileset dir="${cat.utils.home}/deploy">
 				<include name="cat-utils.jar"/>

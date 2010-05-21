@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+    <mbean name="dbi.config:service=DBITwitterPollerService-Controller" 
+           code="org.jboss.ha.singleton.HASingletonController">
+        <depends>dbi.config:service=DBITwitterPollerService</depends>
+        <attribute name="TargetName">dbi.config:service=DBITwitterPollerService</attribute>
+        <attribute name="TargetStartMethod">startSingleton</attribute>
+        <attribute name="TargetStopMethod">stopSingleton</attribute>
+     </mbean>
+</server>

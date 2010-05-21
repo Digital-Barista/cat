@@ -39,7 +39,7 @@
     <Connector port="8109" address="${jboss.bind.address}" protocol="AJP/1.3"
          emptySessionPath="true" enableLookups="false" redirectPort="8543" />
 
-      <Engine name="jboss.web" defaultHost="localhost">
+      <Engine name="jboss.web" defaultHost="localhost" jvmRoute="alpha">
 
          <!-- The JAAS based authentication and authorization realm implementation
          that is compatible with the jboss 3.2.x realm implementation.
