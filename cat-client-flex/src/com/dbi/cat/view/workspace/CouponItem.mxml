@@ -242,6 +242,24 @@
 					selectedDate="{couponVO.unavailableDate}"
 					change="{couponVO.unavailableDate = UnavailableDate.selectedDate}" />
 			</mx:FormItem>
+			<mx:FormItem label="Expiration">
+				<mx:HBox>
+					<mx:RadioButtonGroup id="ExpirationGroup" />
+					<mx:RadioButton id="ExpirationNeverOption"
+									label="Never"
+									group="{ExpirationGroup}" />
+					<mx:RadioButton id="ExpirationDateOption"
+									label="Date"
+									group="{ExpirationGroup}" />
+					<mx:DateField id="ExpirationDate" />
+					<mx:RadioButton id="ExpirationDaysOption"
+									label="Days"
+									group="{ExpirationGroup}" />
+					<mx:TextInput id="ExpirationDays"
+								  width="30"
+								  restrict="0-9" />
+				</mx:HBox>
+			</mx:FormItem>
 			<mx:FormItem label="Available" required="true" width="100%" 
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
 					<mx:TextArea id="AvailableMessage"  width="225" height="60"

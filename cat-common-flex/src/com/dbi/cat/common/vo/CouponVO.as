@@ -16,6 +16,8 @@ package com.dbi.cat.common.vo
 		public var issuedCouponCount:Number;
 		public var totalRedemptionCount:Number;
 		public var averageRedemptionTime:Number;
+		public var expireDate:Date;
+		public var expireDays:Number;
 	
 		public function CouponVO()
 		{
