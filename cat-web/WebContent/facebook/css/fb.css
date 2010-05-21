@@ -105,8 +105,10 @@ h2
 }
 .bookmark
 {
+	display:none;
 	width:100%;
 	text-align:right;
+	float:right;
 }
 
 .login

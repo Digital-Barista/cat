@@ -17,33 +17,29 @@ function fbInit()
 	// Listen for session change events
 	FB.Event.subscribe('auth.sessionChange', function(response) {
 		console.log(response);
-	  if (response.session) 
-	  {
-		  currentUID = response.session.uid;
-		  hideLogin();
-		  fetchMessages();
-	  } 
-	  else 
-	  {
-		  showLogin();
-	  }
+		handleResponse(response);
 	});
 	
 	// Check the login status
 	FB.getLoginStatus(function(response) {
-		  if (response.session) 
-		  {
-			  currentUID = response.session.uid;
-			  hideLogin();
-			  fetchMessages();
-		  } 
-		  else 
-		  {
-			  showLogin();
-		  }
+		handleResponse(response);
 		});
 }
-
+function handleResponse(response)
+{
+	if (response.session) 
+	  {
+		  currentUID = response.session.uid;
+		  hideLogin();
+		  fetchMessages();
+		  showBookmark();
+	  } 
+	  else 
+	  {
+		  showLogin();
+		  hideBookmark();
+	  }
+}
 function showLogin()
 {
 	$("#Login").css("display", "block");
@@ -53,6 +49,14 @@ function hideLogin()
 {
 	$("#Login").css("display", "none");
 	$("#MessageArea").css("display", "block");
+}
+function showBookmark()
+{
+	$("#Bookmark").css("display", "block");
+}
+function hideBookmark()
+{
+	$("#Bookmark").css("display", "none");
 }
 
 function fetchMessages()
