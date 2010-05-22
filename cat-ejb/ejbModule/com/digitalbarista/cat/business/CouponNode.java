@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -31,6 +32,8 @@ public class CouponNode extends Node implements Auditable {
 	private static final String INFO_PROPERTY_MAX_REDEMPTIONS="MaxRedemptions";
 	private static final String INFO_PROPERTY_UNAVAILABLE_DATE="UnavailableDate";
 	private static final String INFO_PROPERTY_COUPON_CODE="CouponCode";
+	private static final String INFO_PROPERTY_EXPIRATION_DATE="ExpirationDate";
+	private static final String INFO_PROPERTY_EXPIRATION_DAYS="ExpirationDays";
 	
 	public static final Long INFINITE_REDEMPTION_COUNT = -1l;
 	public static final Long INFINITE_COUPONS_COUNT = -1l;
@@ -47,6 +50,8 @@ public class CouponNode extends Node implements Auditable {
 	private Long maxRedemptions = INFINITE_REDEMPTION_COUNT;
 	private Date unavailableDate = null;
 	private String couponCode = null;
+	private Date expireDate = null;
+	private Integer expireDays = null;
 	
 	@Override
 	public void copyFrom(NodeDO dataObject, Integer version) {
@@ -78,6 +83,12 @@ public class CouponNode extends Node implements Auditable {
 	
 				else if(ni.getName().equals(INFO_PROPERTY_COUPON_CODE))
 					couponCode = ni.getValue();
+
+				else if(ni.getName().equals(INFO_PROPERTY_EXPIRATION_DATE) && ni.getValue()!=null)
+					expireDate = new SimpleDateFormat(dateFormat).parse(ni.getValue());
+
+				else if(ni.getName().equals(INFO_PROPERTY_EXPIRATION_DAYS))
+					expireDays = new Integer(ni.getValue());
 	
 			}
 			catch(ParseException e)
@@ -158,6 +169,28 @@ public class CouponNode extends Node implements Auditable {
 			else
 				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_COUPON_CODE, couponCode, version);
 		}
+
+		if(expireDate != null)
+		{
+			if(nodes.containsKey(INFO_PROPERTY_EXPIRATION_DATE))
+				nodes.get(INFO_PROPERTY_EXPIRATION_DATE).setValue(new SimpleDateFormat(dateFormat).format(expireDate));
+			else
+				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_EXPIRATION_DATE, new SimpleDateFormat(dateFormat).format(expireDate), version);
+			
+			if (nodes.containsKey(INFO_PROPERTY_EXPIRATION_DAYS))
+				dataObject.getNodeInfo().remove(nodes.get(INFO_PROPERTY_EXPIRATION_DAYS));
+		}
+
+		if(expireDays != null)
+		{
+			if(nodes.containsKey(INFO_PROPERTY_EXPIRATION_DAYS))
+				nodes.get(INFO_PROPERTY_EXPIRATION_DAYS).setValue(expireDays.toString());
+			else
+				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_EXPIRATION_DAYS, expireDays.toString(), version);
+
+			if (nodes.containsKey(INFO_PROPERTY_EXPIRATION_DATE))
+				dataObject.getNodeInfo().remove(nodes.remove(INFO_PROPERTY_EXPIRATION_DATE));
+		}
 	}
 
 	@Override
@@ -173,6 +206,13 @@ public class CouponNode extends Node implements Auditable {
 			ret.append(";unavailableDate:null");
 		else
 			ret.append(";unavailableDate:"+new SimpleDateFormat(dateFormat).format(getUnavailableDate()));
+
+		ret.append(";expirationDays:"+getExpireDays());
+		if(getExpireDate()==null)
+			ret.append(";expirationDate:null");
+		else
+			ret.append(";expirationDate:"+new SimpleDateFormat(dateFormat).format(getExpireDate()));
+		
 		ret.append(";couponCode:"+getCouponCode());
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());
@@ -249,4 +289,25 @@ public class CouponNode extends Node implements Auditable {
 	public void setCouponCode(String couponCode) {
 		this.couponCode = couponCode;
 	}
+
+	@XmlAttribute
+	public Date getExpireDate() {
+		return expireDate;
+	}
+
+	public void setExpireDate(Date expireDate) {
+		this.expireDate = expireDate;
+	}
+
+
+	@XmlAttribute
+	public Integer getExpireDays() {
+		return expireDays;
+	}
+
+	public void setExpireDays(Integer expireDays) {
+		this.expireDays = expireDays;
+	}
+	
+	
 }

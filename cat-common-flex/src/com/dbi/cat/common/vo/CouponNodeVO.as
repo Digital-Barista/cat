@@ -27,6 +27,8 @@ package com.dbi.cat.common.vo
 		public var maxRedemptions:Number = INFINITE_REDEMPTION_COUNT;
 		public var unavailableDate:Date;
 		public var couponCode:String;
+		public var expireDate:Date;
+		public var expireDays:String;
 		
 		
 		override public function get valid():Boolean

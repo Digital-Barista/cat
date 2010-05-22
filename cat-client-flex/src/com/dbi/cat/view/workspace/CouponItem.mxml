@@ -4,7 +4,7 @@
 	xmlns:components="com.dbi.cat.view.components.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	width="400" height="300" xmlns:vo="com.dbi.cat.vo.*"
-	editWindowHeight="370"
+	editWindowHeight="430"
 	editWindowWidth="380"
 	displayIcon="{couponIcon}"
 	workspaceIcon="{couponIcon}"
@@ -22,6 +22,7 @@
 			import com.dbi.cat.common.vo.MessageVO;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			
+			public static const EXPIRATION_TOKEN:String = "[EXPIRE_DATE]";
 			
 			[Bindable(event="nodeUpdate")]
 			public function get couponVO():CouponNodeVO
@@ -64,6 +65,11 @@
 				updateAvailableMessage();
 				AvailableCharCount. visible = maxCharacters != 0;
 				UnavailableCharCount. visible = maxCharacters != 0;
+				
+				// Initialize expiration radio buttons only once
+				ExpirationNeverOption.selected = couponVO.expireDate == null && couponVO.expireDays == null;
+				ExpirationDateOption.selected = couponVO.expireDate != null;
+				ExpirationDaysOption.selected = couponVO.expireDays != null;
 			}
 			
 			private function updateAvailableMessage():void
@@ -144,6 +150,13 @@
 				{
 					ret += couponVO.availableMessage.length;
 					
+					// Correct count for expiration date
+					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) > -1)
+					{
+						ret -= EXPIRATION_TOKEN.length;
+						ret += "MM/DD/YYYY".length; // Assuming date format is always MM/DD/YYYY
+					}
+					
 					// Correct count for merged coupon codes
 					if (couponVO.availableMessage.indexOf(couponCodeToken) > -1)
 					{
@@ -174,6 +187,36 @@
 				event.campaign = workspace.campaign;
 				event.message = message;
 				dispatchEvent(event);
+			}
+			
+			private function changeExpireType():void
+			{
+				if (ExpirationGroup.selection == ExpirationNeverOption)
+				{
+					couponVO.expireDate = null;
+					couponVO.expireDays = null;
+					
+					// Remove token if necessary
+					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) > 0)
+						couponVO.availableMessage = couponVO.availableMessage.replace(EXPIRATION_TOKEN, "");
+				}
+				else if (ExpirationGroup.selection == ExpirationDateOption)
+				{
+					couponVO.expireDays = null;
+					
+					// Remove token if necessary
+					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) > 0)
+						couponVO.availableMessage = couponVO.availableMessage.replace(EXPIRATION_TOKEN, "");
+				}
+				else if (ExpirationGroup.selection == ExpirationDaysOption)
+				{
+					couponVO.expireDate = null;
+					
+					// Add expiration token if it doesn't exist
+					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) < 0)
+						couponVO.availableMessage += EXPIRATION_TOKEN;
+				}
+				dispatchEvent(new Event("availableCharacterUpdate"));
 			}
 		]]>
 	</mx:Script>
@@ -244,20 +287,36 @@
 			</mx:FormItem>
 			<mx:FormItem label="Expiration">
 				<mx:HBox>
-					<mx:RadioButtonGroup id="ExpirationGroup" />
+					<mx:RadioButtonGroup id="ExpirationGroup"
+									change="changeExpireType()" />
 					<mx:RadioButton id="ExpirationNeverOption"
 									label="Never"
 									group="{ExpirationGroup}" />
 					<mx:RadioButton id="ExpirationDateOption"
 									label="Date"
 									group="{ExpirationGroup}" />
-					<mx:DateField id="ExpirationDate" />
 					<mx:RadioButton id="ExpirationDaysOption"
 									label="Days"
 									group="{ExpirationGroup}" />
+				</mx:HBox>
+				<mx:HBox visible="{ExpirationDateOption.selected}"
+						includeInLayout="{ExpirationDateOption.selected}"
+						verticalAlign="middle">
+					<mx:Label text="Expire on " />
+					<mx:DateField id="ExpirationDate"
+						selectedDate="{couponVO.expireDate}"
+						change="{couponVO.expireDate = ExpirationDate.selectedDate}" />
+				</mx:HBox>
+				<mx:HBox visible="{ExpirationDaysOption.selected}"
+						includeInLayout="{ExpirationDaysOption.selected}"
+						verticalAlign="middle">
+					<mx:Label text="Expire" />
 					<mx:TextInput id="ExpirationDays"
 								  width="30"
-								  restrict="0-9" />
+								  restrict="0-9"
+								  text="{couponVO.expireDays}"
+								  change="{couponVO.expireDays = ExpirationDays.text}" />
+					<mx:Label text="days from send date" />
 				</mx:HBox>
 			</mx:FormItem>
 			<mx:FormItem label="Available" required="true" width="100%" 
