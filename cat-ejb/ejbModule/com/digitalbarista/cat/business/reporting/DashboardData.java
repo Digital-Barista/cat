@@ -10,7 +10,7 @@ public class DashboardData
 	private String clientCount;
 	private String campaignCount;
 	private String subscriberCount;
-	private Integer couponsSent;
+	private Long couponsSent;
 	private Integer couponsRedeemed;
 	private List<MessageCreditInfo> messageCreditInfos;
 	private List<DashboardCount> contactCounts;
@@ -63,10 +63,10 @@ public class DashboardData
 	public void setMessagesReceived(List<DashboardCount> messagesReceived) {
 		this.messagesReceived = messagesReceived;
 	}
-	public Integer getCouponsSent() {
+	public Long getCouponsSent() {
 		return couponsSent;
 	}
-	public void setCouponsSent(Integer couponsSent) {
+	public void setCouponsSent(Long couponsSent) {
 		this.couponsSent = couponsSent;
 	}
 	public Integer getCouponsRedeemed() {
