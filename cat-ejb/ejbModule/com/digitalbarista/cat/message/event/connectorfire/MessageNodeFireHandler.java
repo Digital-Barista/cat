@@ -2,7 +2,7 @@ package com.digitalbarista.cat.message.event.connectorfire;
 
 import java.util.List;
 
-import javax.naming.InitialContext;
+import javax.ejb.SessionContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 
@@ -22,24 +22,17 @@ import com.digitalbarista.cat.message.event.CATEvent;
 public class MessageNodeFireHandler extends ConnectorFireHandler {
 
 	@Override
-	public void handle(EntityManager em, CampaignManager cMan, EventManager eMan, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
+	public void handle(EntityManager em, SessionContext ctx, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
 	{
+		MessageManager mMan = (MessageManager)ctx.lookup("ejb/cat/MessageManager");
+		SubscriptionManager sMan = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
+		CampaignManager cMan = (CampaignManager)ctx.lookup("ejb/cat/CampaignManager");
+		EventManager eMan = (EventManager)ctx.lookup("ejb/cat/EventManager");
+
 		MessageNode mNode = (MessageNode)dest;
 		CATEvent sendMessageEvent=null;
 		NodeDO simpleNode=cMan.getSimpleNode(mNode.getUid());
 		
-		MessageManager mMan = null;
-		SubscriptionManager sMan = null;
-		
-		try
-		{
-			InitialContext ic = new InitialContext();
-			mMan = (MessageManager)ic.lookup("ejb/cat/MessageManager");
-			sMan = (SubscriptionManager)ic.lookup("ejb/cat/SubscriptionManager");
-		}catch(NamingException ex)
-		{
-			throw new RuntimeException("Unable to retrieve the message manager.",ex);
-		}
 		
 		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
 		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();

@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.ejb.SessionContext;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 
 import org.hibernate.Criteria;
@@ -23,12 +25,18 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
+import com.digitalbarista.cat.ejb.session.MessageManager;
+import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 import com.digitalbarista.cat.message.event.CATEvent;
 
 public class TaggingNodeFireHandler extends ConnectorFireHandler {
 
 	@Override
-	public void handle(EntityManager em, CampaignManager cMan, EventManager eMan, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) {
+	public void handle(EntityManager em, SessionContext ctx, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) {
+
+		CampaignManager cMan = (CampaignManager)ctx.lookup("ejb/cat/CampaignManager");
+		EventManager eMan = (EventManager)ctx.lookup("ejb/cat/EventManager");
+
 		TaggingNode tNode = (TaggingNode)dest;
 		NodeDO simpleNode=cMan.getSimpleNode(tNode.getUid());
 		List<ContactTagDO> tags = new ArrayList<ContactTagDO>();

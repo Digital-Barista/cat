@@ -1,8 +1,12 @@
 package com.digitalbarista.cat.message.event.connectorfire;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
+import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
@@ -29,8 +33,13 @@ import com.digitalbarista.cat.util.SequentialBitShuffler;
 public class CouponNodeFireHandler extends ConnectorFireHandler {
 
 	@Override
-	public void handle(EntityManager em, CampaignManager cMan, EventManager eMan, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
+	public void handle(EntityManager em, SessionContext ctx, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
 	{
+		MessageManager mMan = (MessageManager)ctx.lookup("ejb/cat/MessageManager");
+		SubscriptionManager sMan = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
+		CampaignManager cMan = (CampaignManager)ctx.lookup("ejb/cat/CampaignManager");
+		EventManager eMan = (EventManager)ctx.lookup("ejb/cat/EventManager");
+
 		CouponNode cNode = (CouponNode)dest;
 		CATEvent sendMessageEvent=null;
 		NodeDO simpleNode=cMan.getSimpleNode(cNode.getUid());
@@ -40,20 +49,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 
 		CouponOfferDO offer = em.find(CouponOfferDO.class, cNode.getCouponId());
 		CouponResponseDO response;
-		
-		MessageManager mMan = null;
-		SubscriptionManager sMan = null;
-		
-		try
-		{
-			InitialContext ic = new InitialContext();
-			mMan = (MessageManager)ic.lookup("ejb/cat/MessageManager");
-			sMan = (SubscriptionManager)ic.lookup("ejb/cat/SubscriptionManager");
-		}catch(NamingException ex)
-		{
-			throw new RuntimeException("Unable to retrieve the message manager.",ex);
-		}
-		
+						
 		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
 		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
 
@@ -86,11 +82,24 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 				counter.setNextNumber(counter.getNextNumber()+1);							
 			}
 			actualMessage = cNode.getAvailableMessage();
+			//This is for coupon code, and really should check it, but doesn't.
 			int startPos = actualMessage.indexOf('{');
 			int endPos = actualMessage.indexOf('}',-1)+1;
 			if(startPos==-1 || endPos==-1 || endPos<=startPos)
 				throw new IllegalArgumentException("Cannot insert coupon code, since braces are not inserted properly.");
 			actualMessage = actualMessage.substring(0,startPos) + couponCode + ((endPos<actualMessage.length())?actualMessage.substring(endPos):"");
+			//Same here for expiration date.
+			if(cNode.getExpireDays()>0)
+			{
+				Calendar expireDate = GregorianCalendar.getInstance();
+				expireDate.setTime(now);
+				expireDate.add(Calendar.DAY_OF_MONTH, cNode.getExpireDays());
+				startPos = actualMessage.indexOf('[');
+				endPos = actualMessage.indexOf(']',-1)+1;
+				if(startPos==-1 || endPos==-1 || endPos<=startPos)
+					throw new IllegalArgumentException("Cannot insert coupon code, since braces are not inserted properly.");
+				actualMessage = actualMessage.substring(0,startPos) + new SimpleDateFormat("MM/dd/yyyy").format(expireDate.getTime()) + ((endPos<actualMessage.length())?actualMessage.substring(endPos):"");
+			}
 			offer.setIssuedCouponCount(offer.getIssuedCouponCount()+1);
 			response = new CouponResponseDO();
 			response.setCouponOffer(offer);
