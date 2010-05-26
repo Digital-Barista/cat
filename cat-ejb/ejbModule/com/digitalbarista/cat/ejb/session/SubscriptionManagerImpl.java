@@ -168,7 +168,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		else if(subscriptionType.equals(EntryPointType.Twitter))
 			blacklistCrit.add(Restrictions.in("sub.twitterUsername", addresses));
 		else if(subscriptionType.equals(EntryPointType.Facebook))
-			blacklistCrit.add(Restrictions.in("sub.facebookUsername", addresses));
+			blacklistCrit.add(Restrictions.in("sub.facebookID", addresses));
 		List<SubscriberBlacklistDO> blacklisted = blacklistCrit.list();
 		for(SubscriberBlacklistDO subToRemove : blacklisted)
 		{
@@ -204,7 +204,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				break;
 				
 			case Facebook:
-				dj.add(Restrictions.in("facebookUsername", addresses));
 				dj.add(Restrictions.in("facebookID", addresses));
 				crit.add(dj);
 				break;
@@ -352,7 +351,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		// This is really dumb, but Flex sends the list as Integers
 		List<Long> ids = new ArrayList<Long>();
 		for (Object id : subscriberIds)
-			ids.add(new Long(id.toString()));
+			ids.add(((Integer)id).longValue());
 		
 		Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
 		crit.add(Restrictions.in("subscriber.primaryKey", ids));

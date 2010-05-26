@@ -114,7 +114,6 @@ public class ReportingManagerImpl implements ReportingManager {
 		return ret;
 	}
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
 	@Override
 	public DashboardData getDashboardData() throws ReportingManagerException 
 	{
@@ -163,14 +162,14 @@ public class ReportingManagerImpl implements ReportingManager {
 		return ret;
 	}
 	
-	private Integer getCouponsSent(Set<Long> clientIds)
+	private Long getCouponsSent(Set<Long> clientIds)
 	{
 		Criteria crit = session.createCriteria(CouponOfferDO.class);
 		crit.createAlias("campaign", "campaign");
 		crit.add(Restrictions.in("campaign.client.primaryKey", clientIds));
-		crit.setProjection(Projections.rowCount());
+		crit.setProjection(Projections.sum("issuedCouponCount"));
 		
-		return (Integer)crit.uniqueResult();
+		return (Long)crit.uniqueResult();
 	}
 	
 	private Integer getCouponsRedeemed(Set<Long> clientIds)

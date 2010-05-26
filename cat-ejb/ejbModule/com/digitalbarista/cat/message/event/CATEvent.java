@@ -187,4 +187,28 @@ public class CATEvent implements Serializable{
 	public void setArgs(Map<String, String> args) {
 		this.args = args;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj==null)
+			return false;
+		if(!(obj instanceof CATEvent))
+			return false;
+		CATEvent e = (CATEvent)obj;
+		if(!source.equals(e.source)) return false;
+		if(!sourceType.equals(e.sourceType)) return false;
+		if(!type.equals(e.type)) return false;
+		if(!target.equals(e.target)) return false;
+		if(!targetType.equals(e.targetType)) return false;
+		if(args==null && e.args!=null && e.args.size()>0) return false;
+		if(args!=null && args.size()>0 && e.args==null) return false;
+		for(Map.Entry<String, String> entry : args.entrySet())
+		{
+			if(!e.args.containsKey(entry.getKey()))
+				return false;
+			if(!e.args.get(entry.getKey()).equals(entry.getValue()))
+				return false;
+		}
+		return true;
+	}
 }

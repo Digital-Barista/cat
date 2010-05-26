@@ -63,7 +63,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 		{
 			SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
 			ConnectorFireHandler.getHandler(dest.getType())
-				.handle(getEntityManager(), getCampaignManager(), getEventManager(), conn, dest, version, s, e);
+				.handle(getEntityManager(), getSessionContext(), conn, dest, version, s, e);
 		} else if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers)){
 			Query q = getEntityManager().createNamedQuery("all.subscribers.on.node");
 			q.setParameter("nodeUID", conn.getSourceNodeUID());
@@ -71,7 +71,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 			for(SubscriberDO s : subs)
 			{
 				ConnectorFireHandler.getHandler(dest.getType())
-					.handle(getEntityManager(), getCampaignManager(), getEventManager(), conn, dest, version, s, e);
+					.handle(getEntityManager(), getSessionContext(), conn, dest, version, s, e);
 			}
 		}
 	}
