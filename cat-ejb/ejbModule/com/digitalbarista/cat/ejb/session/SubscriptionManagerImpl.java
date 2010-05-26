@@ -351,7 +351,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		// This is really dumb, but Flex sends the list as Integers
 		List<Long> ids = new ArrayList<Long>();
 		for (Object id : subscriberIds)
-			ids.add(new Long(id.toString()));
+			ids.add(((Integer)id).longValue());
 		
 		Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
 		crit.add(Restrictions.in("subscriber.primaryKey", ids));
