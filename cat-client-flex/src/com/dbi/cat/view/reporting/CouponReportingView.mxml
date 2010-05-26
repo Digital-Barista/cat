@@ -12,14 +12,17 @@
 			[Bindable]
 			public var coupons:ArrayCollection;
 			
-			private function formatDate(coupon:CouponVO, column:AdvancedDataGridColumn):String
+			private function formatDate(dataField:String):Function
 			{
-				if (coupon.unavailableDate == null)
-					return "Never";
-					
-				var df:DateFormatter = new DateFormatter();
-				df.formatString = "MM/DD/YYY";
-				return df.format(coupon.unavailableDate);
+				return function(coupon:CouponVO, column:AdvancedDataGridColumn):String
+				{
+					if (coupon[dataField] == null)
+						return "N/A";
+						
+					var df:DateFormatter = new DateFormatter();
+					df.formatString = "MM/DD/YYY";
+					return df.format(coupon[dataField]);
+				}
 			}
 			
 			private function formatInfinite(dataField:String):Function
@@ -30,6 +33,12 @@
 						return "Infinite";
 					return coupon[dataField];
 				}
+			}
+			private function formatExpirationDays(coupon:CouponVO, column:AdvancedDataGridColumn):String
+			{
+				if (coupon.expireDays == null)
+					return "N/A";
+				return coupon.expireDays;
 			}
 			
 			private function formatTime(coupon:CouponVO, column:AdvancedDataGridColumn):String
@@ -91,8 +100,9 @@
 				<mx:AdvancedDataGridColumn headerText="Coupon" dataField="couponName" />
 				<mx:AdvancedDataGridColumn headerText="Max Coupons" labelFunction="formatInfinite('maxCouponCount')" />
 				<mx:AdvancedDataGridColumn headerText="Max Redemptions" labelFunction="formatInfinite('maxRedemptions')" />
-				<mx:AdvancedDataGridColumn headerText="Unavailable Date"
-					labelFunction="formatDate" />
+				<mx:AdvancedDataGridColumn headerText="Unavailable Date" labelFunction="formatDate('unavailableDate')" />
+				<mx:AdvancedDataGridColumn headerText="Expiration Date" labelFunction="formatDate('expireDate')" />
+				<mx:AdvancedDataGridColumn headerText="Expiration Days" labelFunction="formatExpirationDays" />
 				<mx:AdvancedDataGridColumn headerText="Sent" dataField="issuedCouponCount" />
 				<mx:AdvancedDataGridColumn headerText="Redeemed" dataField="totalRedemptionCount" />
 				<mx:AdvancedDataGridColumn headerText="Avg. Time to Redeem" labelFunction="formatTime" />

@@ -35,7 +35,6 @@ public class SubscriberDO implements Serializable,DataObject {
 	private String phoneNumber;
 	private String twitterUsername;
 	private String twitterID;
-	private String facebookUsername;
 	private String facebookID;
 	private static final long serialVersionUID = 1L;
 	private Map<CampaignDO,CampaignSubscriberLinkDO> subscriptions = new HashMap<CampaignDO,CampaignSubscriberLinkDO>();

@@ -21,6 +21,8 @@ public class Coupon implements
 	private Long issuedCouponCount;
 	private Long totalRedemptionCount;
 	private Long averageRedemptionTime;
+	private Date expireDate;
+	private Integer expireDays;
 	
 	public void copyFrom(CouponOfferDO dataObject)
 	{
@@ -31,6 +33,8 @@ public class Coupon implements
 		maxRedemptions=dataObject.getMaxRedemptions();
 		unavailableDate=dataObject.getOfferUnavailableDate();
 		issuedCouponCount=dataObject.getIssuedCouponCount();
+		expireDate = dataObject.getCouponExpirationDate();
+		expireDays = dataObject.getCouponExpirationDays();
 		totalRedemptionCount=0l;
 		averageRedemptionTime=0l;
 		for(CouponResponseDO resp : dataObject.getResponses())
@@ -124,4 +128,28 @@ public class Coupon implements
 	public void setAverageRedemptionTime(Long averageRedemptionTime) {
 		this.averageRedemptionTime = averageRedemptionTime;
 	}
+
+
+	@XmlAttribute
+	public Date getExpireDate() {
+		return expireDate;
+	}
+
+
+	public void setExpireDate(Date expireDate) {
+		this.expireDate = expireDate;
+	}
+
+
+	@XmlAttribute
+	public Integer getExpireDays() {
+		return expireDays;
+	}
+
+
+	public void setExpireDays(Integer expireDays) {
+		this.expireDays = expireDays;
+	}
+	
+	
 }
