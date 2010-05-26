@@ -89,7 +89,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 				throw new IllegalArgumentException("Cannot insert coupon code, since braces are not inserted properly.");
 			actualMessage = actualMessage.substring(0,startPos) + couponCode + ((endPos<actualMessage.length())?actualMessage.substring(endPos):"");
 			//Same here for expiration date.
-			if(cNode.getExpireDays()>0)
+			if(cNode.getExpireDays()!=null && cNode.getExpireDays()>0)
 			{
 				Calendar expireDate = GregorianCalendar.getInstance();
 				expireDate.setTime(now);
