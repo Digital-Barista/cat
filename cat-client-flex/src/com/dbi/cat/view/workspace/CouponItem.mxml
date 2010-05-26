@@ -203,6 +203,7 @@
 				else if (ExpirationGroup.selection == ExpirationDateOption)
 				{
 					couponVO.expireDays = null;
+					couponVO.expireDate = new Date();
 					
 					// Remove token if necessary
 					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) > 0)
@@ -211,6 +212,7 @@
 				else if (ExpirationGroup.selection == ExpirationDaysOption)
 				{
 					couponVO.expireDate = null;
+					couponVO.expireDays = "";
 					
 					// Add expiration token if it doesn't exist
 					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) < 0)

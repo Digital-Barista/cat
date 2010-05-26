@@ -34,7 +34,8 @@ package com.dbi.cat.common.vo
 		override public function get valid():Boolean
 		{
 			return availableMessage != null &&
-				availableMessage.length > 0;
+				availableMessage.length > 0 &&
+				expireDays != "";
 		}
 	}
 }
