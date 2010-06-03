@@ -1,15 +1,13 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +39,13 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
-import bsh.StringUtil;
-
 import com.digitalbarista.cat.business.FacebookMessage;
+import com.digitalbarista.cat.data.ClientDO;
+import com.digitalbarista.cat.data.ContactDO;
+import com.digitalbarista.cat.data.ContactTagDO;
+import com.digitalbarista.cat.data.ContactTagLinkDO;
+import com.digitalbarista.cat.data.ContactTagType;
+import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.exception.FacebookManagerException;
@@ -62,8 +64,9 @@ public class FacebookManagerImpl implements FacebookManager {
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
 	private final static String FACEBOOK_PARAM_PREFIX = "fb_sig_";
 	private final static String FACEBOOK_PARAM_APP_ID = "fb_sig_app_id";
-	private final static String FACEBOOK_PARAM_USER_ID = "uid"; //"fb_sig_user";
+	private final static String FACEBOOK_PARAM_USER_ID = "uid";;
 	private final static String FACEBOOK_PARAM_SIGNATURE = "fb_sig";
+	private final static String CONTACT_TAGS = "tags";
 	
 	private Logger logger = LogManager.getLogger(getClass());
 	
@@ -100,6 +103,9 @@ public class FacebookManagerImpl implements FacebookManager {
 		if (uid == null ||
 			uid.length() == 0)
 			throw new FacebookManagerException("Could not find facebook user ID");
+		
+		// Make sure this user is a contact and has appropriate tags
+		updateContactInfo(ui);
 		
 		List<FacebookMessage> ret = new ArrayList<FacebookMessage>();
 		
@@ -275,6 +281,106 @@ public class FacebookManagerImpl implements FacebookManager {
 		return app;
 	}
 	
+	/**
+	 * Check the UID to see if it is a facebook contact adding
+	 * it if necessary.  If "tags" are specified in the URL
+	 * look them up and add them to the contact, creating new tags
+	 * if necessary.
+	 * 
+	 * @param ui
+	 */
+	private void updateContactInfo(UriInfo ui)
+	{
+		try
+		{
+			// Lookup facebook app
+			String appId = ui.getQueryParameters().getFirst(FACEBOOK_PARAM_APP_ID);
+			if (appId != null)
+			{
+				FacebookAppDO app = findFacebookApp(appId);
+				if (app != null)
+				{
+					// Lookup contact by UID
+					String uid = ui.getQueryParameters().getFirst(FACEBOOK_PARAM_USER_ID);
+					if (uid != null)
+					{
+						Criteria crit = session.createCriteria(ContactDO.class);
+						crit.add(Restrictions.eq("address", uid));
+						crit.add(Restrictions.eq("type", EntryPointType.Facebook));
+						crit.add(Restrictions.eq("client.primaryKey", app.getClient().getPrimaryKey()));
+						ContactDO contact = (ContactDO)crit.uniqueResult();
+						
+						// Create contact if it doesn't exist
+						if (contact == null)
+						{
+							contact = new ContactDO();
+							contact.setAddress(uid);
+							contact.setClient(app.getClient());
+							contact.setCreateDate(Calendar.getInstance());
+							contact.setType(EntryPointType.Facebook);
+							em.persist(contact);
+						}
+						
+						// Lookup tags from query string
+						String tagList = ui.getQueryParameters().getFirst(CONTACT_TAGS);
+						if (tagList != null)
+						{
+							String[] tags = tagList.split(",");
+							for (String tag : tags)
+							{
+								ContactTagDO contactTag = findTag(tag.trim(), app.getClient());
+								if (contact.findLink(contactTag) == null)
+								{
+									ContactTagLinkDO ctldo = new ContactTagLinkDO();
+									ctldo.setContact(contact);
+									ctldo.setTag(contactTag);
+									ctldo.setInitialTagDate(new Date());
+									contact.getContactTags().add(ctldo);
+									em.persist(ctldo);
+								}
+							}
+							
+							// Save any tag changes
+							em.persist(contact);
+						}
+					}
+				}
+			}
+		}
+		// Log failure, but hide the exception
+		catch(Exception e)
+		{
+			logger.error("Error trying to add contact and tags for facebook request", e);
+		}
+	}
+	
+	/**
+	 * Looks up a contact tag and creates it if not found.
+	 * 
+	 * @param tag
+	 * @param type
+	 * @param client
+	 * @return
+	 */
+	private ContactTagDO findTag(String tag, ClientDO client)
+	{
+		Criteria crit = session.createCriteria(ContactTagDO.class);
+		crit.add(Restrictions.eq("client.id", client.getPrimaryKey()));
+		crit.add(Restrictions.eq("tag", tag));
+		crit.add(Restrictions.eq("type", ContactTagType.USER));
+
+		ContactTagDO contactTag = (ContactTagDO)crit.uniqueResult();
+		if (contactTag == null)
+		{
+			contactTag = new ContactTagDO();
+			contactTag.setClient(client);
+			contactTag.setTag(tag);
+			contactTag.setType(ContactTagType.USER);
+			em.persist(contactTag);
+		}
+		
+		return contactTag;
+	}
 	
 	private String callFacebookMethod(String secret, Map<String, String> postParameters) throws FacebookManagerException
 	{
