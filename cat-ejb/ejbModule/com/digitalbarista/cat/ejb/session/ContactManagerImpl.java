@@ -288,8 +288,12 @@ public class ContactManagerImpl implements ContactManager {
 			for (ContactTag tag : tags)
 			{
 				ContactTagDO tagDO = em.find(ContactTagDO.class, tag.getContactTagId());
-				if (cDO.getContactTags().contains(tagDO))
-					cDO.getContactTags().remove(tagDO);
+				ContactTagLinkDO linkDO = cDO.findLink(tagDO);
+				if (linkDO != null)
+				{
+					cDO.getContactTags().remove(linkDO);
+					em.remove(linkDO);
+				}
 			}
 			em.persist(cDO);
 		}
@@ -339,7 +343,7 @@ public class ContactManagerImpl implements ContactManager {
 	@Override
 	public ContactTag findContactTag(Integer clientID, String tag, ContactTagType type) {
 		Criteria crit = session.createCriteria(ContactTagDO.class);
-		crit.add(Restrictions.eq("client.id", clientID.longValue()));
+		crit.add(Restrictions.eq("client.primaryKey", clientID.longValue()));
 		crit.add(Restrictions.eq("tag", tag));
 		crit.add(Restrictions.eq("type", type));
 		ContactTag ret = new ContactTag();
