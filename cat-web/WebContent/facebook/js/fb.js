@@ -4,7 +4,6 @@ var currentUID;
 function fbInit()
 {
 	var appId = fetchQueryParameter("fb_sig_app_id");
-	console.log("appId: " + appId);
 	
 	// Initialize facebook API
 	FB.init({appId: appId, status: true, cookie: true, xfbml: true});
@@ -14,7 +13,6 @@ function fbInit()
 
 	// Listen for session change events
 	FB.Event.subscribe('auth.sessionChange', function(response) {
-		console.log(response);
 		handleResponse(response);
 	});
 	
