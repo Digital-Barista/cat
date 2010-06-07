@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,7 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.FacebookMessage;
+import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
@@ -319,6 +321,7 @@ public class FacebookManagerImpl implements FacebookManager {
 							contact.setCreateDate(Calendar.getInstance());
 							contact.setType(EntryPointType.Facebook);
 							em.persist(contact);
+							
 						}
 						
 						// Lookup tags from query string
@@ -343,6 +346,19 @@ public class FacebookManagerImpl implements FacebookManager {
 							// Save any tag changes
 							em.persist(contact);
 						}
+						
+						crit = session.createCriteria(CampaignInfoDO.class);
+						crit.add(Restrictions.eq("entryType", EntryPointType.Facebook));
+						crit.add(Restrictions.eq("entryAddress", appId));
+						crit.add(Restrictions.eq("name", CampaignInfoDO.KEY_AUTO_START_NODE_UID));
+						CampaignInfoDO cInfo = (CampaignInfoDO)crit.uniqueResult();
+						
+						if(cInfo==null)
+							return;
+						
+						HashSet<String> addresses = new HashSet<String>();
+						addresses.add(uid);
+						subscriptionManager.subscribeToEntryPoint(addresses,cInfo.getValue(),EntryPointType.Facebook);
 					}
 				}
 			}
