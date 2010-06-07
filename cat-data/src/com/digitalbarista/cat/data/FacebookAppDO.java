@@ -4,7 +4,10 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -28,7 +31,10 @@ public class FacebookAppDO implements Serializable,DataObject {
 	
 	@Column(name="id")
 	private String id;
-	
+
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="client_id")
+	private ClientDO client;
 	
 	private static final long serialVersionUID = 1L;
 
@@ -68,5 +74,11 @@ public class FacebookAppDO implements Serializable,DataObject {
 		this.id = id;
 	}
 
-	
+	public ClientDO getClient() {
+		return client;
+	}
+
+	public void setClient(ClientDO client) {
+		this.client = client;
+	}
 }
