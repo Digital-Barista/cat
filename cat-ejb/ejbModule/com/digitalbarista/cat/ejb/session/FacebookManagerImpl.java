@@ -322,6 +322,18 @@ public class FacebookManagerImpl implements FacebookManager {
 							contact.setType(EntryPointType.Facebook);
 							em.persist(contact);
 							
+							crit = session.createCriteria(CampaignInfoDO.class);
+							crit.add(Restrictions.eq("entryType", EntryPointType.Facebook));
+							crit.add(Restrictions.eq("entryAddress", app.getFacebookAppId()));
+							crit.add(Restrictions.eq("name", CampaignInfoDO.KEY_AUTO_START_NODE_UID));
+							CampaignInfoDO cInfo = (CampaignInfoDO)crit.uniqueResult();
+							
+							if(cInfo==null)
+								return;
+							
+							HashSet<String> addresses = new HashSet<String>();
+							addresses.add(uid);
+							subscriptionManager.subscribeToEntryPoint(addresses,cInfo.getValue(),EntryPointType.Facebook);
 						}
 						
 						// Lookup tags from query string
@@ -346,19 +358,6 @@ public class FacebookManagerImpl implements FacebookManager {
 							// Save any tag changes
 							em.persist(contact);
 						}
-						
-						crit = session.createCriteria(CampaignInfoDO.class);
-						crit.add(Restrictions.eq("entryType", EntryPointType.Facebook));
-						crit.add(Restrictions.eq("entryAddress", appId));
-						crit.add(Restrictions.eq("name", CampaignInfoDO.KEY_AUTO_START_NODE_UID));
-						CampaignInfoDO cInfo = (CampaignInfoDO)crit.uniqueResult();
-						
-						if(cInfo==null)
-							return;
-						
-						HashSet<String> addresses = new HashSet<String>();
-						addresses.add(uid);
-						subscriptionManager.subscribeToEntryPoint(addresses,cInfo.getValue(),EntryPointType.Facebook);
 					}
 				}
 			}
