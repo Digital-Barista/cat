@@ -80,6 +80,7 @@ import com.digitalbarista.cat.ejb.session.interceptor.NodeFillInterceptor;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
 import com.digitalbarista.cat.util.MultiValueMap;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 /**
  * Session Bean implementation class CampaignManagerImpl
@@ -127,8 +128,8 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		if(!ctx.isCallerInRole("admin"))
 		{
-			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			crit.add(Restrictions.in("client.id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
 		}
 		
@@ -154,8 +155,8 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		if(!ctx.isCallerInRole("admin"))
 		{
-			crit.add(Restrictions.in("client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			crit.add(Restrictions.in("client.id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
 		}
 		

@@ -42,6 +42,7 @@ import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.exception.ReportingManagerException;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 
 /**
@@ -74,7 +75,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		
 		try
 		{
-			Set<Long> clientIDs = userManager.extractClientIds(ctx.getCallerPrincipal().getName());
+			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
 			
 			if (clientIDs.size() > 0)
 			{
@@ -122,7 +123,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		try
 		{
 			// Get client count
-			Set<Long> clientIDs = userManager.extractClientIds(ctx.getCallerPrincipal().getName());
+			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
 			ret.setClientCount(Integer.toString(clientIDs.size()) );
 			
 			// Get campaign count

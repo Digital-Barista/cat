@@ -40,6 +40,7 @@ import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.util.PagedList;
 import com.digitalbarista.cat.util.PagingUtil;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 /**
  * Session Bean implementation class ContactManagerImpl
@@ -95,8 +96,8 @@ public class ContactManagerImpl implements ContactManager {
 		// Limit query by allowed clients if necessary
     	if(!ctx.isCallerInRole("admin"))
     	{
-    		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+    		crit.add(Restrictions.in("client.primaryKey", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
     	}
     	
@@ -154,8 +155,8 @@ public class ContactManagerImpl implements ContactManager {
 		// Limit query by allowed clients if necessary
     	if(!ctx.isCallerInRole("admin"))
     	{
-    		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+    		crit.add(Restrictions.in("client.primaryKey", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
     	}
     	
