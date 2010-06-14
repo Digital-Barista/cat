@@ -62,6 +62,5 @@ public interface UserManager {
 	public Set<String> usernamesAllowed(@Wrapped(element="Usernames") Set<String> nameList);
 	@DELETE
 	public void delete(User user);
-	public Set<Long> extractClientIds(String username);
 	public boolean isUserAllowedForClientId(String username, Long clientId);
 }

@@ -28,6 +28,7 @@ import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
 import com.digitalbarista.cat.util.CodedMessage;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 /**
  * Session Bean implementation class ClientDO
@@ -111,8 +112,8 @@ public class CouponManagerImpl implements CouponManager {
 		} else if (!ctx.isCallerInRole("admin"))
 		{
 			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			crit.add(Restrictions.in("campaign.client.id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
 		}
 		Coupon temp;

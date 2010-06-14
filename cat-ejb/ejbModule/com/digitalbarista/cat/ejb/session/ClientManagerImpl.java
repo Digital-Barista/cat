@@ -50,6 +50,7 @@ import com.digitalbarista.cat.data.KeywordDO;
 import com.digitalbarista.cat.data.KeywordLimitDO;
 import com.digitalbarista.cat.data.ReservedKeywordDO;
 import com.digitalbarista.cat.exception.FlexException;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 /**
  * Session Bean implementation class ClientDO
@@ -82,8 +83,8 @@ public class ClientManagerImpl implements ClientManager {
     	Criteria crit = session.createCriteria(ClientDO.class);
     	if(!ctx.isCallerInRole("admin"))
     	{
-    		crit.add(Restrictions.in("id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+    		crit.add(Restrictions.in("id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
     	}
     	
@@ -109,9 +110,9 @@ public class ClientManagerImpl implements ClientManager {
     	if(!ctx.isCallerInRole("admin"))
     	{
     		crit.createAlias("clients", "clients");
-    		crit.add(Restrictions.in("clients.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
+    		crit.add(Restrictions.in("clients.primaryKey", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
 
-    		if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+    		if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
     			return ret;
     	}
     	
@@ -389,8 +390,8 @@ public class ClientManagerImpl implements ClientManager {
 		// Limit query by allowed clients if necessary
     	if(!ctx.isCallerInRole("admin"))
     	{
-    		crit.add(Restrictions.in("client.primaryKey", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+    		crit.add(Restrictions.in("client.primaryKey", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
     	}
     	

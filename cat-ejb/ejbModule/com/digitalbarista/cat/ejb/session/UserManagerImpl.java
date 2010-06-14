@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
+import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -32,6 +33,7 @@ import com.digitalbarista.cat.business.User;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.RoleDO;
 import com.digitalbarista.cat.data.UserDO;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 /**
  * Session Bean implementation class UserManagerImpl
@@ -50,6 +52,9 @@ public class UserManagerImpl implements UserManager {
 	
 	@PersistenceContext(unitName="cat-data")
 	private Session session;
+	
+	@EJB(name="ejb/cat/UserManager")
+	UserManager userManager;
 	
     /**
      * Default constructor. 
@@ -146,7 +151,7 @@ public class UserManagerImpl implements UserManager {
 			if(ctx.getCallerPrincipal().getName().equals(ret.getUsername()))
 				return ret;
 			
-			Set<Long> clientIds = this.extractClientIds(ctx.getCallerPrincipal().getName());
+			Set<Long> clientIds = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
 			
 			for(RoleDO role : ret.getRoles())
 			{
@@ -177,7 +182,7 @@ public class UserManagerImpl implements UserManager {
 		if(ctx.getCallerPrincipal().getName().equals(ret.getUsername()))
 			return ret;
 
-		Set<Long> clientIds = this.extractClientIds(ctx.getCallerPrincipal().getName());
+		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
 		
 		for(RoleDO role : ret.getRoles())
 		{
@@ -263,9 +268,9 @@ public class UserManagerImpl implements UserManager {
 				}
 				
 				//And ALL of their allowed IDs
-				Set<Long> allowedIDs = extractClientIds(ctx.getCallerPrincipal().getName());
+				Set<Long> allowedIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
 				//Have to match the client user's IDs
-				Set<Long> neededIDs = extractClientIds(user.getUsername());
+				Set<Long> neededIDs = SecurityUtil.extractClientIds(ctx,userManager,session,user.getUsername());
 				//Otherwise, they're booted!
 				if(!allowedIDs.containsAll(neededIDs))
 				{
@@ -366,8 +371,8 @@ public class UserManagerImpl implements UserManager {
 			crit = session.createCriteria(UserDO.class);
 			crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		} else {
-			Set<Long> clientIDs = extractClientIds(ctx.getCallerPrincipal().getName());
-			if(extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
 			crit = session.createCriteria(RoleDO.class);
 			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
@@ -392,36 +397,6 @@ public class UserManagerImpl implements UserManager {
 	public void delete(User user)
 	{
 		em.remove(getSimpleUserByUsername(user.getUsername()));
-	}
-
-	@Override
-	public Set<Long> extractClientIds(String username) {
-		Set<Long> clientIDs = new HashSet<Long>();
-		if("guest".equalsIgnoreCase(username))
-			return clientIDs;
-		
-		// If the user is an admin return all "active" client IDs
-		if(ctx.isCallerInRole("admin"))
-		{
-			Criteria crit = session.createCriteria(ClientDO.class);
-			crit.add(Restrictions.eq("active", true));
-			crit.setProjection(Projections.id());
-			clientIDs = new HashSet<Long>(crit.list());
-		}
-		else
-		{
-			for(RoleDO role : getSimpleUserByUsername(username).getRoles())
-				if(role.getRoleName().equals("account.manager") || role.getRoleName().equals("client"))
-					clientIDs.add(role.getRefId());
-			if(clientIDs.size()==0)
-				return clientIDs;
-			Criteria crit = session.createCriteria(ClientDO.class);
-			crit.add(Restrictions.eq("active", true));
-			crit.add(Restrictions.in("id", clientIDs));
-			crit.setProjection(Projections.id());
-			clientIDs = new HashSet<Long>(crit.list());
-		}
-		return clientIDs;
 	}
 
 	@Override

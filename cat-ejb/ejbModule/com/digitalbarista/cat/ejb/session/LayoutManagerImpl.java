@@ -25,6 +25,7 @@ import org.jboss.annotation.security.RunAsPrincipal;
 import com.digitalbarista.cat.business.LayoutInfo;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.LayoutInfoDO;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/LayoutManager")
@@ -81,8 +82,8 @@ public class LayoutManagerImpl implements LayoutManager {
 		if(!ctx.isCallerInRole("admin"))
 		{
 			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.id", userManager.extractClientIds(ctx.getCallerPrincipal().getName())));
-			if(userManager.extractClientIds(ctx.getCallerPrincipal().getName()).size()==0)
+			crit.add(Restrictions.in("campaign.client.id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
+			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
 				return ret;
 		}
 
