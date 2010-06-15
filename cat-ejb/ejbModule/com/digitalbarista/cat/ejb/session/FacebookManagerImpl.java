@@ -264,7 +264,8 @@ public class FacebookManagerImpl implements FacebookManager {
 		String hashed = md5(paramString);
 		
 		// Compare signature to our hash with our secret
-		return hashed.equals(params.getFirst(FACEBOOK_PARAM_SIGNATURE));
+		String sig = params.getFirst(FACEBOOK_PARAM_SIGNATURE);
+		return hashed.equals(sig);
 	}
 	
 	private FacebookAppDO findFacebookApp(String appId)
@@ -458,9 +459,18 @@ public class FacebookManagerImpl implements FacebookManager {
 		try 
 		{
 			md = MessageDigest.getInstance("MD5");
+			md.reset();
 	        md.update(value.getBytes());
-	        byte keyB[] = md.digest();
-	        hashed = new BigInteger(1, keyB).toString(16);
+	        byte data[] = md.digest();
+//	        hashed = new BigInteger(1, data).toString(16);
+	        
+	        hashed = "";
+	        for (byte element : data) 
+	        {
+	        	hashed += Character.forDigit((element >> 4) & 0xf, 16);
+	        	hashed += Character.forDigit(element & 0xf, 16);
+	        }
+
 		} 
 		catch (NoSuchAlgorithmException e) 
 		{
