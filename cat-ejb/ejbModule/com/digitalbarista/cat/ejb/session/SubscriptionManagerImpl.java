@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +22,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Disjunction;
@@ -57,6 +60,8 @@ import com.digitalbarista.cat.message.event.CATEvent;
 @RunAs("admin")
 public class SubscriptionManagerImpl implements SubscriptionManager {
 
+	private Logger logger = LogManager.getLogger(SubscriptionManagerImpl.class);
+	
 	@Resource
 	private SessionContext ctx; //Used to flag rollbacks.
 
@@ -348,22 +353,30 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void unsubscribeSubscribers(List<Long> subscriberIds, Long campaignId)
 	{
-		// This is really dumb, but Flex sends the list as Integers
-		List<Long> ids = new ArrayList<Long>();
-		for (Object id : subscriberIds)
+		try
 		{
-			if (id instanceof Integer)
-				ids.add(((Integer)id).longValue());
-			else
-				ids.add((Long)id);
+			// This is really dumb, but Flex sends the list as Integers
+			List<Long> ids = new ArrayList<Long>();
+			for (Object id : subscriberIds)
+			{
+				if (id instanceof Integer)
+					ids.add(((Integer)id).longValue());
+				else
+					ids.add((Long)id);
+			}
+
+			Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
+			crit.add(Restrictions.in("subscriber.primaryKey", ids));
+			crit.add(Restrictions.eq("campaign.primaryKey", campaignId));
+			
+			for (CampaignSubscriberLinkDO link : (List<CampaignSubscriberLinkDO>)crit.list())
+				em.remove(link);
 		}
-		
-		Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
-		crit.add(Restrictions.in("subscriber.primaryKey", ids));
-		crit.add(Restrictions.eq("campaign.primaryKey", campaignId));
-		
-		for (CampaignSubscriberLinkDO link : (List<CampaignSubscriberLinkDO>)crit.list())
-			em.remove(link);
+		catch(Exception e)
+		{
+			logger.error("Error unsubscribing", e);
+			throw new RuntimeException(e);
+		}
 	}
 	
 	@Override
