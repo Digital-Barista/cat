@@ -50,6 +50,8 @@ import com.digitalbarista.cat.data.SubscriberBlacklistDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.message.event.CATEvent;
 
+import flex.messaging.io.ArrayCollection;
+
 
 /**
  * Session Bean implementation class SubscriptionManagerImpl
@@ -357,14 +359,20 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		{
 			// This is really dumb, but Flex sends the list as Integers
 			List<Long> ids = new ArrayList<Long>();
-			for (Object id : subscriberIds)
+			if (subscriberIds instanceof ArrayCollection)
 			{
-				if (id instanceof Integer)
-					ids.add(((Integer)id).longValue());
-				else
-					ids.add((Long)id);
+				ArrayCollection collection = (ArrayCollection)subscriberIds;
+				for (Object id : collection)
+				{
+					Integer intID = (Integer)id;
+					ids.add(intID.longValue());
+				}
 			}
-
+			else
+			{
+				ids = subscriberIds;
+			}
+			
 			Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
 			crit.add(Restrictions.in("subscriber.primaryKey", ids));
 			crit.add(Restrictions.eq("campaign.primaryKey", campaignId));
