@@ -1,10 +1,12 @@
 .coupon 
 {
    width: 340px;
-   min-height:250px;
+   height:250px;
    padding: 10px 10px 10px 250px;
    text-align: center;
    border: 3px dashed #ccc; 
+   
 }
+
 
 

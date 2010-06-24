@@ -13,6 +13,8 @@ PrintUtil.showCoupon = function(messageId)
 	var w = window.open();
 	w.document.open();
 
+	// Write doc type
+	w.document.write('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">');
 	// Write CSS
 	w.document.write('<link href="/cat/facebook/css/coupon.css" type="text/css" rel="stylesheet" />');
 	
