@@ -23,4 +23,7 @@ PrintUtil.showCoupon = function(messageId)
 	
 	// Close stream
 	w.document.close();
+	
+	// Open print dialogue
+	w.window.print();
 }
