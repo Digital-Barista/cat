@@ -24,6 +24,7 @@ h2
 
 #MessageArea
 {
+	width:730px;
 }
 
 
@@ -106,9 +107,9 @@ h2
 .bookmark
 {
 	display:none;
-	width:100%;
 	text-align:right;
 	float:right;
+	width:730px;
 }
 
 .login

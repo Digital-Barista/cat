@@ -3,6 +3,7 @@ package com.digitalbarista.cat.business;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -13,6 +14,7 @@ public class FacebookMessage implements
 		BusinessObject<FacebookMessageDO> {
 
 	private Integer facebookMessageId;
+	private String facebookAppId;
 	private String title;
 	private String body;
 	private Calendar createDate;
@@ -23,6 +25,7 @@ public class FacebookMessage implements
 	@Override
 	public void copyFrom(FacebookMessageDO dataObject) {
 		facebookMessageId = dataObject.getFacebookMessageId();
+		facebookAppId = dataObject.getFacebookAppId();
 		title = dataObject.getTitle();
 		body = dataObject.getBody();
 		createDate = dataObject.getCreateDate();
@@ -84,6 +87,14 @@ public class FacebookMessage implements
 		this.response = response;
 	}
 
+	@XmlElement
+	public String getFacebookAppId() {
+		return facebookAppId;
+	}
+	public void setFacebookAppId(String facebookAppId) {
+		this.facebookAppId = facebookAppId;
+	}
+	
 	@XmlElement
 	public String getFormattedCreateDate()
 	{

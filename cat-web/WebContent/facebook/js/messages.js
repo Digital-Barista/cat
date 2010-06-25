@@ -75,7 +75,9 @@ function MessageAPI()
 				var footer = createFooter();
 				area.append(footer);
 			}
-			
+
+			// Resize frame after messages have loaded
+			FB.Canvas.setSize({ width: 750 });
 		 });
 	}
 	
@@ -308,6 +310,7 @@ function MessageAPI()
 		
 		// Create div to hold title and body content
 		cell = $("<td />");
+		cell.attr("class", "messageColumn");
 		row.append(cell);
 		var content = $("<div />");
 		cell.append(content);
@@ -320,6 +323,7 @@ function MessageAPI()
 		
 		// Add body
 		var body = $("<div />");
+		body.attr("class", "messageBody");
 		body.text(message.body);
 		content.append(body);
 		
@@ -357,11 +361,27 @@ function MessageAPI()
 				content.append(keywordDiv);
 		}
 		
+		// Add print column
+		cell = $("<td />");
+		cell.attr("class", "selectColumn");
+		var printLink = $("<a href='#'>Print</a>");
+		printLink.attr("class", "button");
+		
+		// Add print call
+		printLink.bind('click', {messageId: message.facebookMessageId}, function(event) {
+			PrintUtil.showCoupon(event.data.messageId);
+		});
+		
+
+		// Add print cell
+		cell.append(printLink);
+		row.append(cell);
+		
 		// Add delete column
 		cell = $("<td />");
 		cell.attr("class", "selectColumn");
-		var deleteLink = $("<a href='#' />");
-		deleteLink.attr("class", "removeButton");
+		var deleteLink = $("<a href='#'>Delete</a>");
+		deleteLink.attr("class", "button");
 		
 		
 		// Add delete call
