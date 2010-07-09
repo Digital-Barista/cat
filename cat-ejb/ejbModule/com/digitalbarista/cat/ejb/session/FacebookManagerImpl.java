@@ -435,6 +435,7 @@ public class FacebookManagerImpl implements FacebookManager {
 				do
 				{
 					size=in.read(buf);
+						if(size==-1) continue;
 					retBuffer.append(new String(buf,0,size));
 				}while(size>=0);
 				ret = retBuffer.toString();
