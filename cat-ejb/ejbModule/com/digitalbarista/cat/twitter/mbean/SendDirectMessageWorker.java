@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.twitter.mbean;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -18,6 +19,8 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import flex.messaging.util.URLEncoder;
 
 public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 
@@ -54,9 +57,9 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			producer = sess.createProducer(dest);
 
 			DefaultHttpClient client = new DefaultHttpClient();
-			HttpPost post = new HttpPost("http://api.twitter.com/1/direct_messages/new.xml");
-			post.getParams().setParameter("user_id",msg.getString("target"));
-			post.getParams().setParameter("text",msg.getString("message"));
+			HttpPost post = new HttpPost("http://api.twitter.com/1/direct_messages/new.xml?user_id="+msg.getString("target")+"&text="+URLEncoder.encode(msg.getString("message")));
+			post.getParams().setParameter("user",msg.getString("target"));
+			post.getParams().setParameter("text",URLEncoder.encode(msg.getString("message")));
 
 			if(pm.getCredentials().indexOf("|")==-1)
 			{
@@ -69,13 +72,29 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			
 			int status = -1;			
 			
+			HttpResponse response;
+			
 			try
 			{
-				HttpResponse response = client.execute(post);
+				response = client.execute(post);
 				if(response.getStatusLine().getStatusCode()==200)
 				{
 					getAccountPollManager().directMessageSendSucceeded();
 					return "Success - "+msg.getString("source")+" : "+msg.getString("message");	
+				} else {
+					tx.rollback();
+					InputStream in = response.getEntity().getContent();
+					StringBuffer errmsg = new StringBuffer();
+					byte[] buf = new byte[1024];
+					int size=-1;
+					do
+					{
+						size=in.read(buf);
+						if(size==-1)
+							continue;
+						errmsg.append(new String(buf,0,size));
+					}while(size>=0);
+					log.error("Couldn't send a twitter message: status-"+response.getStatusLine().getStatusCode()+", message="+errmsg.toString());
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();
@@ -87,7 +106,7 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			
 			return "Failure - status:"+status+" "+msg.getString("source")+" : "+msg.getString("message")+" -- requeued";
 			
-    	} catch (Exception ex) {
+    	} catch (Throwable ex) {
     		log.error("Couldn't de-queue a twitter message.",ex);
     		return "Failed to send twitter message: Please check logs.";
     	}
