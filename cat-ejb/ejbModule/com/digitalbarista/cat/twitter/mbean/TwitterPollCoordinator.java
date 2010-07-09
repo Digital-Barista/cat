@@ -9,6 +9,9 @@ import javax.ejb.Remote;
 @Remote
 public interface TwitterPollCoordinator {
 
+	public static final String APP_TOKEN="ypeczxLakmzTBNIDAjNXg";
+	public static final String APP_SECRET="s6aGMDy2JfiMQuZWi0NU4EOpg3L7WkVm9oHOv6EPvkw";
+	
 	public class QueueInfo
 	{
 		public int remainingQueries=-1;
@@ -42,4 +45,8 @@ public interface TwitterPollCoordinator {
 	public void startSingleton();
 	
 	public void stopSingleton();
+	
+	public String acquireRequestToken(String appKey, String appSecret);
+	
+	public String retrieveAccessToken(String appKey, String appSecret, String requestToken, String requestSecret, String pin);
 }

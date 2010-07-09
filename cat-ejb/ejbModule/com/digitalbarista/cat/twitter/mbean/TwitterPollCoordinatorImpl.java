@@ -1,14 +1,26 @@
 package com.digitalbarista.cat.twitter.mbean;
 
+import java.net.URLEncoder;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.annotation.ejb.Management;
 import org.jboss.annotation.ejb.Service;
+
+import com.digitalbarista.cat.twitter.bindings.IdListNoCursor;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 @Service(objectName="dbi.config:service=DBITwitterPollerService")
 @Management(TwitterPollCoordinator.class)
@@ -139,6 +151,109 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 		catch(Exception e)
 		{
 			return "Unable to refresh twitter accounts: "+e.getMessage()+": check logs.";
+		}
+	}
+
+	@Override
+	public String acquireRequestToken(String appKey, String appSecret) {
+		
+		HttpClient client = null;
+		GetMethod get = null;
+		
+		try
+		{
+			client = new HttpClient();
+			
+			get = new GetMethod("http://twitter.com/oauth/request_token");
+
+			Map<String,String> params = new HashMap<String,String>();
+			params.put("oauth_consumer_key", appKey);
+			params.put("oauth_signature_method","HMAC-SHA1");
+			params.put("oauth_timestamp", ""+(System.currentTimeMillis()/1000));
+			params.put("oauth_nonce", ""+System.nanoTime());			
+			params.put("oauth_signature", OAuthHasher.hashMe("GET", "http://twitter.com/oauth/request_token", params, appSecret, null));			
+			
+			StringBuffer authHeader = new StringBuffer();
+			authHeader.append("OAuth realm=\"http://twitter.com/\"");
+			for(Map.Entry<String, String> entry : params.entrySet())
+				authHeader.append(","+entry.getKey()+"=\""+OAuthHasher.percentEncode(entry.getValue())+"\"");
+			
+			get.addRequestHeader("Authorization", authHeader.toString());
+
+			int response = client.executeMethod(get);
+			
+			StringBuffer ret = new StringBuffer();
+			ret.append("<h1>Status&nbsp;:&nbsp;"+response+"<br/><br/>");
+			ret.append("<h1>Headers</h1><br/>");
+			for(Header header : get.getResponseHeaders())
+				ret.append("<b>"+header.getName()+"</b>&nbsp;:&nbsp;"+header.getValue()+"<br/>");
+			ret.append("<br/><br/><h1>Body</h1><br/>");
+			ret.append(get.getResponseBodyAsString());
+			ret.append("<br/><br/>");
+			return ret.toString();
+			
+		}
+		catch(Exception e)
+		{
+			log.error("Trouble requesting a request token.",e);
+			return null;
+		}
+		finally
+		{
+			try{get.releaseConnection();}catch(Exception e){}
+		}
+	}
+
+	@Override
+	public String retrieveAccessToken(String appKey, String appSecret,
+			String requestToken, String requestSecret, String pin) {
+		
+		HttpClient client = null;
+		GetMethod get = null;
+		
+		try
+		{
+			client = new HttpClient();
+			
+			get = new GetMethod("http://twitter.com/oauth/access_token");
+
+			Map<String,String> params = new HashMap<String,String>();
+			params.put("oauth_consumer_key", appKey);
+			params.put("oauth_token",requestToken);
+			params.put("oauth_signature_method","HMAC-SHA1");
+			params.put("oauth_timestamp", ""+(System.currentTimeMillis()/1000));
+			params.put("oauth_nonce", ""+System.nanoTime());
+			params.put("oauth_verifier", pin);
+			params.put("oauth_signature", OAuthHasher.hashMe("GET", "http://twitter.com/oauth/access_token", params, appSecret, null));			
+			
+			StringBuffer authHeader = new StringBuffer();
+			authHeader.append("OAuth realm=\"http://twitter.com/\"");
+			for(Map.Entry<String, String> entry : params.entrySet())
+				authHeader.append(","+entry.getKey()+"=\""+OAuthHasher.percentEncode(entry.getValue())+"\"");
+			
+			get.addRequestHeader("Authorization", authHeader.toString());
+
+			int response = client.executeMethod(get);
+			
+			StringBuffer ret = new StringBuffer();
+			ret.append("<h1>Status&nbsp;:&nbsp;"+response+"<br/><br/>");
+			ret.append("<h1>Headers</h1><br/>");
+			for(Header header : get.getResponseHeaders())
+				ret.append("<b>"+header.getName()+"</b>&nbsp;:&nbsp;"+header.getValue()+"<br/>");
+			ret.append("<br/><br/><h1>Body</h1><br/>");
+			ret.append(get.getResponseBodyAsString());
+			ret.append("<br/><br/>");
+			return ret.toString();
+			
+		}
+		catch(Exception e)
+		{
+			log.error("Trouble requesting a request token.",e);
+			return null;
+		}
+		finally
+		{
+			try{get.releaseConnection();}catch(Exception e){}
 		}
 	}
 }

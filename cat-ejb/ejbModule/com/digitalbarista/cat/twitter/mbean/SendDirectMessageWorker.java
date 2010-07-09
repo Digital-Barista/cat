@@ -10,13 +10,14 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.transaction.UserTransaction;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.springframework.context.ApplicationContext;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 
@@ -52,24 +53,30 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			
 			producer = sess.createProducer(dest);
 
-			HttpClient client = new HttpClient();
-			PostMethod post = new PostMethod("http://www.twitter.com/direct_messages/new.xml");
-			client.getParams().setAuthenticationPreemptive(true);
-			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(pm.getAccount(),pm.getCredentials()));
+			DefaultHttpClient client = new DefaultHttpClient();
+			HttpPost post = new HttpPost("http://api.twitter.com/1/direct_messages/new.xml");
+			post.getParams().setParameter("user_id",msg.getString("target"));
+			post.getParams().setParameter("text",msg.getString("message"));
+
+			if(pm.getCredentials().indexOf("|")==-1)
+			{
+				client.getCredentialsProvider().setCredentials(new AuthScope("api.twitter.com",AuthScope.ANY_PORT), new UsernamePasswordCredentials(pm.getAccount(),pm.getCredentials()));
+			} else {
+				OAuthConsumer oAuthConsumer = new CommonsHttpOAuthConsumer(TwitterPollCoordinator.APP_TOKEN,TwitterPollCoordinator.APP_SECRET);
+				oAuthConsumer.setTokenWithSecret(pm.getCredentials().split("\\|")[0], pm.getCredentials().split("\\|")[1]);
+				oAuthConsumer.sign(post);
+			}
 			
-			post.setQueryString(new NameValuePair[]{new NameValuePair("user_id",msg.getString("target")),new NameValuePair("text",msg.getString("message"))});
 			int status = -1;			
 			
 			try
 			{
-				status = client.executeMethod(post);
-				if(status==200)
+				HttpResponse response = client.execute(post);
+				if(response.getStatusLine().getStatusCode()==200)
 				{
 					getAccountPollManager().directMessageSendSucceeded();
 					return "Success - "+msg.getString("source")+" : "+msg.getString("message");	
 				}
-			} catch (HttpException ex) {
-				ex.printStackTrace();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
