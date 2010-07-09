@@ -210,8 +210,7 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 	}
 
 	@Override
-	public String retrieveAccessToken(String appKey, String appSecret,
-			String requestToken, String requestSecret, String pin) {
+	public String retrieveAccessToken(String requestToken, String requestSecret, String pin) {
 		
 		OAuthConsumer consumer = new CommonsHttpOAuthConsumer(APP_TOKEN,APP_SECRET);
 		consumer.setTokenWithSecret(requestToken, requestSecret);
