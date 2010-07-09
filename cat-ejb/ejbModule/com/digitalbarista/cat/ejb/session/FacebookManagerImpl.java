@@ -1,7 +1,7 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.io.IOException;
-import java.math.BigInteger;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -26,10 +26,10 @@ import javax.persistence.PersistenceContext;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -402,8 +402,8 @@ public class FacebookManagerImpl implements FacebookManager {
 	{
 		String ret = "";
 		
-		HttpClient client = new HttpClient();
-		PostMethod post = new PostMethod(FACEBOOK_REST_URL);
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPost post = new HttpPost(FACEBOOK_REST_URL);
 		
 		// Sort keys
 		Object[] keys = postParameters.keySet().toArray();
@@ -414,39 +414,40 @@ public class FacebookManagerImpl implements FacebookManager {
 		for (Object key : keys)
 		{
 			String value = postParameters.get(key);
-			post.addParameter(new NameValuePair(key.toString(), value));
+			post.getParams().setParameter(key.toString(), value);
 			params += key + "=" + value;
 		}
 
 		params += secret;
 		String hashed = md5(params);
-		post.addParameter("sig", hashed);
+		post.getParams().setParameter("sig", hashed);
 		
 		try 
 		{
-			int result = client.executeMethod(post);
+			HttpResponse result = client.execute(post);
 			
-			if (result == 200)
+			if (result!=null && result.getStatusLine().getStatusCode() == 200)
 			{
-				ret = post.getResponseBodyAsString();
+				InputStream in = result.getEntity().getContent();
+				StringBuffer retBuffer = new StringBuffer();
+				byte[] buf=new byte[1024];
+				int size=-1;
+				do
+				{
+					size=in.read(buf);
+					retBuffer.append(new String(buf,0,size));
+				}while(size>=0);
+				ret = retBuffer.toString();
 			}
 			else
 			{
 				throw new FacebookManagerException("Facebook request returned with status code: " + result);
 			}
 		} 
-		catch (HttpException e) 
-		{
-			throw new FacebookManagerException("Error making facebook request", e);
-		} 
 		catch (IOException e) 
 		{
 			throw new FacebookManagerException("Error making facebook request", e);
 		} 
-		finally 
-		{
-			post.releaseConnection();
-		}
 		
 		return ret;
 	}
