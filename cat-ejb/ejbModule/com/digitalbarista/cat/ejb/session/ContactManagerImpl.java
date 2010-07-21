@@ -258,6 +258,16 @@ public class ContactManagerImpl implements ContactManager {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void delete(List<Contact> contacts)
+	{
+		for (Contact c : contacts)
+		{
+			delete(c);
+		}
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void addTagsToContacts(List<Contact> contacts, List<ContactTag> tags) 
 	{
 		for (Contact c : contacts)

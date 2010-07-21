@@ -45,6 +45,7 @@ public interface ContactManager {
 	public void delete(ContactTag tag);
 	@DELETE
 	public void delete(Contact contact);
+	public void delete(List<Contact> contacts);
 	public void addTagsToContacts(List<Contact> contacts, List<ContactTag> tags);
 	public void removeTagsFromContacts(List<Contact> contacts, List<ContactTag> tags);
 	public List<Contact> importContacts(List<Contact> contacts);
