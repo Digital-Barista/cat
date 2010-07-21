@@ -17,6 +17,7 @@
 	<map:ApplicationEventMap />
 	<map:ClientEventMap />
 	<map:UserEventMap />
+	<map:AccountEventMap />
 	<map:ModelMap />
 	
 	<!-- Header -->

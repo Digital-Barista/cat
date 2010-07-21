@@ -47,4 +47,8 @@
 	<bean id="ejb.FacebookManager" class="org.springframework.jndi.JndiObjectFactoryBean" scope="request">
 		<property name="jndiName" value="ejb/cat/FacebookManager"/>
 	</bean>
+
+	<bean id="ejb.AccountManager" class="org.springframework.jndi.JndiObjectFactoryBean" scope="request">
+		<property name="jndiName" value="ejb/cat/AccountManager"/>
+	</bean>
 </beans>

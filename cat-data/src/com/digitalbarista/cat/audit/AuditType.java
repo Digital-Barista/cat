@@ -12,5 +12,7 @@ public enum AuditType {
 	SaveClient,
 	RedeemCoupon,
 	SaveContactTag,
-	SaveContact
+	SaveContact,
+	SaveFacebookApp,
+	DeleteFacebookApp
 }
