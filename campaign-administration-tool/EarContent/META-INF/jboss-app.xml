@@ -3,7 +3,7 @@
 		<loader-repository>cat:loader=CATRepository
 			<loader-repository-config>java2ParentDelegation=false</loader-repository-config>
 		</loader-repository>
-  <module>
+  <!-- <module>
   	<service>twitter-poller-service.xml</service>
-  </module>
+  </module>-->
 </jboss-app>
