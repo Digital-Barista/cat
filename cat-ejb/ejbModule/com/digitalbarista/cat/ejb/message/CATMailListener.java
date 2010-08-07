@@ -23,10 +23,6 @@ import com.digitalbarista.cat.message.event.CATEvent;
 @MessageDriven(activationConfig = {
 		@ActivationConfigProperty(propertyName = "destinationType",propertyValue = "javax.jms.Queue"),
         @ActivationConfigProperty(propertyName = "destination",propertyValue = "cat/messaging/MailEvents"),
-        @ActivationConfigProperty(propertyName="user", propertyValue="admin"),
-        @ActivationConfigProperty(propertyName="DLQUser", propertyValue="admin"),
-		@ActivationConfigProperty(propertyName="password", propertyValue="admin"),
-	    @ActivationConfigProperty(propertyName="DLQPassword", propertyValue="admin")
         })
 @RunAsPrincipal(value="admin")
 @RunAs("admin")
