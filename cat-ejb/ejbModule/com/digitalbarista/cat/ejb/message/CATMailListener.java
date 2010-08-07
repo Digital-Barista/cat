@@ -22,7 +22,7 @@ import com.digitalbarista.cat.message.event.CATEvent;
  */
 @MessageDriven(activationConfig = {
 		@ActivationConfigProperty(propertyName = "destinationType",propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination",propertyValue = "cat/messaging/MailEvents"),
+        @ActivationConfigProperty(propertyName = "destination",propertyValue = "cat/messaging/MailEvents")
         })
 @RunAsPrincipal(value="admin")
 @RunAs("admin")
