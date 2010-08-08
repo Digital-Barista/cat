@@ -19,6 +19,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.log4j.LogManager;
 
 import flex.messaging.util.URLEncoder;
 
@@ -35,6 +36,7 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
     	UserTransaction tx=null;
     	MessageProducer producer=null;
     	try {
+    		
     		TwitterAccountPollManager pm=getAccountPollManager();
     		
     		tx = (UserTransaction)getInitialContext().lookup("UserTransaction");
@@ -45,7 +47,7 @@ public class SendDirectMessageWorker extends TwitterPollWorker<String> {
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 			MessageConsumer consumer = sess.createConsumer(dest, "source='"+pm.getAccount()+"'");
 			conn.start();
-			MapMessage msg = (MapMessage)consumer.receiveNoWait();
+			MapMessage msg = (MapMessage)consumer.receive(1000);
 			if(msg==null)
 			{
 				getAccountPollManager().directMessageSendSucceededNoMessages();
