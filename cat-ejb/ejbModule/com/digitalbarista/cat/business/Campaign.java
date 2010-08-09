@@ -30,6 +30,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	private Set<Connector> connectors=new HashSet<Connector>();
 	private Set<AddInMessage> addInMessages = new HashSet<AddInMessage>();
 	private Set<CampaignInfo> campaignInfos = new HashSet<CampaignInfo>();
+	private int subscriberCount = 0;
 	
 	@PrimaryDescriminator
 	private Long clientPK;
@@ -72,6 +73,12 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 					campDO.getValue().length() > 0)
 					isAutoStart = true;
 			}
+		}
+		
+		// Add subscriber count
+		if (dataObject.getSubscribers() != null)
+		{
+			subscriberCount = dataObject.getSubscribers().size();
 		}
 	}
 	
@@ -225,6 +232,15 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 
 	public void setCampaignInfos(Set<CampaignInfo> campaignInfos) {
 		this.campaignInfos = campaignInfos;
+	}
+
+	@XmlAttribute
+	public int getSubscriberCount() {
+		return subscriberCount;
+	}
+
+	public void setSubscriberCount(int subscriberCount) {
+		this.subscriberCount = subscriberCount;
 	}
 	
 }

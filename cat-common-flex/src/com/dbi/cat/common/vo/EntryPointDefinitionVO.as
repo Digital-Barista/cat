@@ -24,6 +24,8 @@ package com.dbi.cat.common.vo
 		public var restrictionID:Number;
 		public var keywords:ArrayCollection;
 		
+		public var accountInformation:Object;
+		
 		public function get name():String
 		{
 			return value;

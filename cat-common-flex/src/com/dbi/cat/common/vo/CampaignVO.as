@@ -24,5 +24,6 @@ package com.dbi.cat.common.vo
 		public var addInMessages:ArrayCollection;
 		public var campaignInfos:ArrayCollection;
 		public var isAutoStart:Boolean;
+		public var subscriberCount:Number = 0;
 	}
 }

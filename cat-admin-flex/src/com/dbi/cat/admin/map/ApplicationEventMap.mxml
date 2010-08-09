@@ -4,16 +4,18 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.UnhandledFaultEvent;
+			import com.dbi.cat.admin.business.AppManager;
+			import com.dbi.cat.admin.business.LoginManager;
+			import com.dbi.cat.admin.business.NavigationManager;
 			import com.dbi.cat.admin.business.UserManager;
-			import com.dbi.cat.admin.event.UserEvent;
+			import com.dbi.cat.admin.event.AccountEvent;
 			import com.dbi.cat.admin.event.ClientEvent;
 			import com.dbi.cat.admin.event.LoadDataEvent;
-			import com.dbi.cat.admin.business.NavigationManager;
-			import com.dbi.cat.admin.business.LoginManager;
-			import com.dbi.cat.admin.business.AppManager;
-			import mx.events.FlexEvent;
 			import com.dbi.cat.admin.event.LoginEvent;
-			import com.asfusion.mate.events.UnhandledFaultEvent;
+			import com.dbi.cat.admin.event.UserEvent;
+			
+			import mx.events.FlexEvent;
 		]]>
 	</mx:Script>
 	
@@ -51,5 +53,6 @@
 		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_KEYWORDS}" />
 		<EventAnnouncer type="{ClientEvent.LIST_RESERVED_KEYWORD}" />
+		<EventAnnouncer type="{AccountEvent.LIST_FACEBOOK_ACCOUNTS}" />
 	</EventHandlers>
 </EventMap>

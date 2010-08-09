@@ -32,7 +32,7 @@ package com.dbi.cat.event
 		public static const SELECT_CONTACTS:String = "selectContactEvent";
 		public static const ADD_TAGS_TO_CONTACTS:String = "addTagsToContactEvent";
 		public static const REMOVE_TAGS_FROM_CONTACTS:String = "removeTagsFromContactEvent";
-		public static const DELETE_CONTACT:String = "deleteContactEvent";
+		public static const DELETE_CONTACTS:String = "deleteContactsEvent";
 		
 		public static const SELECT_CONTACT_IMPORT_FILE:String = "selectContactImportFileEvent";
 		public static const OPEN_CONTACT_IMPORT:String = "openContactImportEvent";

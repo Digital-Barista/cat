@@ -700,13 +700,15 @@ public class CampaignManagerImpl implements CampaignManager {
 						if(entryData.getEntryType()==EntryPointType.Twitter || entryData.getEntryType()==EntryPointType.Facebook)
 							ciDO.setEntryAddress(entryData.getEntryPoint());
 					}
+					em.persist(ciDO);
+					// Add info to list
+					if (camp.getCampaignInfos() == null)
+						camp.setCampaignInfos(new HashSet<CampaignInfoDO>());
+					camp.getCampaignInfos().add(ciDO);
+				} else {
+					camp.getCampaignInfos().remove(ciDO);
+					em.remove(ciDO);
 				}
-				em.persist(ciDO);
-				
-				// Add info to list
-				if (camp.getCampaignInfos() == null)
-					camp.setCampaignInfos(new HashSet<CampaignInfoDO>());
-				camp.getCampaignInfos().add(ciDO);
 			}
 		}
 		

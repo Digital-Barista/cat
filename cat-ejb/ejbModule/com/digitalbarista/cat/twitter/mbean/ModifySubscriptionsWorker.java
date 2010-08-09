@@ -3,14 +3,18 @@ package com.digitalbarista.cat.twitter.mbean;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityAssociation;
-import org.springframework.context.ApplicationContext;
 
 import com.digitalbarista.cat.twitter.bindings.Tweeter;
 import com.digitalbarista.cat.twitter.mbean.TwitterAccountPollManager.SubscribeAction;
@@ -30,8 +34,8 @@ public class ModifySubscriptionsWorker extends TwitterPollWorker<String> {
 		if(sa.getAction().equals(SubscribeType.NoAction))
 			return "All subscription changes have been completed.";
 		
-		HttpClient client = null;
-		PostMethod post = null;
+		DefaultHttpClient client = null;
+		HttpUriRequest post = null;
 		
 		try
 		{
@@ -41,20 +45,33 @@ public class ModifySubscriptionsWorker extends TwitterPollWorker<String> {
 			
 			TwitterAccountPollManager ps = getAccountPollManager();
 			
-			client = new HttpClient();
+			client = new DefaultHttpClient();
 			
-			post= new PostMethod("http://twitter.com/friendships/"+(sa.getAction().equals(SubscribeType.Subscribe)?"create":"destroy")+".xml");
-			post.setQueryString(new NameValuePair[]{new NameValuePair("user_id",""+sa.getSubscriberId()),new NameValuePair("follow","true")});
-			client.getParams().setAuthenticationPreemptive(true);
-			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
-			
-			if(client.executeMethod(post)!=200)
+			if(sa.getAction().equals(SubscribeType.Subscribe))
+				post=new HttpPost("http://api.twitter.com/1/friendships/create/"+sa.getSubscriberId()+".xml");
+			else
+				post=new HttpDelete("http://api.twitter.com/1/friendships/destroy/"+sa.getSubscriberId()+".xml");
+			post.getParams().setParameter("user_id",""+sa.getSubscriberId());
+			if(sa.getAction().equals(SubscribeType.Subscribe))
+				post.getParams().setParameter("follow","true");
+
+			if(ps.getCredentials().indexOf("|")==-1)
 			{
-				updateRateLimitInfo(post, ps);
+				client.getCredentialsProvider().setCredentials(new AuthScope("api.twitter.com",AuthScope.ANY_PORT), new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
+			} else {
+				OAuthConsumer consumer = new CommonsHttpOAuthConsumer(TwitterPollCoordinator.APP_TOKEN,TwitterPollCoordinator.APP_SECRET);
+				consumer.setTokenWithSecret(ps.getCredentials().split("\\|")[0], ps.getCredentials().split("\\|")[1]);
+				consumer.sign(post);
+			}
+			
+			HttpResponse response = client.execute(post);
+			if(response.getStatusLine().getStatusCode()!=200)
+			{
+				updateRateLimitInfo(response, ps);
 				return "Failed to "+sa.getAction().toString()+" user #"+sa.getSubscriberId();
 			}
 
-			updateRateLimitInfo(post, ps);
+			updateRateLimitInfo(response, ps);
 			
 			ps.registerSubscribeChange(sa);
 			return "Successfully "+sa.getAction().toString()+"ed user #"+sa.getSubscriberId();
@@ -67,7 +84,6 @@ public class ModifySubscriptionsWorker extends TwitterPollWorker<String> {
 		}
 		finally
 		{
-			try{post.releaseConnection();}catch(Exception e){}
 			SecurityAssociation.popRunAsIdentity();
 		}
 		

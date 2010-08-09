@@ -10,7 +10,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.http.HttpResponse;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -71,20 +71,20 @@ public abstract class TwitterPollWorker<T> implements Callable<T> {
 		return pollManager;
 	}
 	
-	protected void updateRateLimitInfo(HttpMethodBase method, TwitterAccountPollManager ps)
+	protected void updateRateLimitInfo(HttpResponse response, TwitterAccountPollManager ps)
 	{
 		ps.setLastPollTime(new Date());
 		Integer maxQueries = null;
 		Integer remainingQueries = null;
 		try
 		{
-			maxQueries = new Integer(method.getResponseHeader("X-experimental-RLS-maxvalue").getValue());
+			maxQueries = new Integer(response.getFirstHeader("X-experimental-RLS-maxvalue").getValue());
 			if(!maxQueries.equals(ps.getMaxQueries()))
 				ps.setMaxQueries(maxQueries);
 		}catch(Exception e){}
 		try
 		{
-			remainingQueries = new Integer(method.getResponseHeader("X-RateLimit-Remaining").getValue());
+			remainingQueries = new Integer(response.getFirstHeader("X-RateLimit-Remaining").getValue());
 			if(!remainingQueries.equals(ps.getRemainingQueries()))
 				ps.setRemainingQueries(remainingQueries);
 		}catch(Exception e){}
@@ -92,7 +92,7 @@ public abstract class TwitterPollWorker<T> implements Callable<T> {
 		{
 			if(ps.getResetTime()==null)
 				ps.setResetTime(new Date());
-			ps.getResetTime().setTime(new Long(method.getResponseHeader("X-RateLimit-Reset").getValue())*1000);
+			ps.getResetTime().setTime(new Long(response.getFirstHeader("X-RateLimit-Reset").getValue())*1000);
 		}catch(Exception e){}
 
 	}

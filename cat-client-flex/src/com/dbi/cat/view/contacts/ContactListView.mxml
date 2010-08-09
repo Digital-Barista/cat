@@ -129,7 +129,7 @@
 			
 			private function get contactTypes():Array
 			{
-				var ret:Array = [""];
+				var ret:Array = [{name:""}];
 				return ret.concat(EntryPointType.allTypes.toArray());
 			}
 		]]>
@@ -149,6 +149,7 @@
 				change="doFilter()" />
 			<mx:Label text="Type:" />
 			<controls:AdvancedComboBox id="ContactType"
+				selectedBindingProperty="name"
 				selectedBindingValue="{contactSearchCriteria.entryType}"
 				dataProvider="{contactTypes}"
 				labelField="name"

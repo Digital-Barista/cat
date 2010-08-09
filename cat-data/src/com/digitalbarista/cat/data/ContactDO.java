@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -17,6 +18,7 @@ import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
 
 /**
  * Entity implementation class for Contact: ContactDO
@@ -53,7 +55,7 @@ public class ContactDO implements DataObject,Serializable {
 	}
 
 
-	@OneToMany(mappedBy="contact", targetEntity=ContactTagLinkDO.class)
+	@OneToMany(mappedBy="contact", targetEntity=ContactTagLinkDO.class, cascade={CascadeType.REMOVE})
 	@JoinColumn(updatable=false,insertable=false,name="contact_id")
 	public Set<ContactTagLinkDO> getContactTags() {
 		return contactTags;

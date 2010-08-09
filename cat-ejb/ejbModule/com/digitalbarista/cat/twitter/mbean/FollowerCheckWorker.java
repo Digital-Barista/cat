@@ -1,16 +1,21 @@
 package com.digitalbarista.cat.twitter.mbean;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.springframework.context.ApplicationContext;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.digitalbarista.cat.twitter.bindings.IdListNoCursor;
 
@@ -22,8 +27,8 @@ public class FollowerCheckWorker extends TwitterPollWorker<Set<Long>> {
 
 	@Override
 	public Set<Long> call() throws Exception {
-		HttpClient client = null;
-		GetMethod get = null;
+		DefaultHttpClient client;
+		HttpGet get = null;
 		
 		try
 		{						
@@ -32,38 +37,41 @@ public class FollowerCheckWorker extends TwitterPollWorker<Set<Long>> {
 			
 			TwitterAccountPollManager ps = getAccountPollManager();
 			
-			client = new HttpClient();
+			client = new DefaultHttpClient();
 			
-			get = new GetMethod("http://www.twitter.com/followers/ids.xml");
-			get.setQueryString("screen_name="+ps.getAccount());
-			client.getParams().setAuthenticationPreemptive(true);
-			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
-			
-			int response = client.executeMethod(get);
-			if(response!=200)
+			get = new HttpGet("http://api.twitter.com/1/followers/ids.xml");
+			get.getParams().setParameter("screen_name", ps.getAccount());
+
+			if(ps.getCredentials().indexOf("|")==-1)
 			{
-				updateRateLimitInfo(get, ps);
-				throw new OperationFailedException("Could not check for followers.  response="+response);
+				client.getCredentialsProvider().setCredentials(new AuthScope("api.twitter.com",AuthScope.ANY_PORT), new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
+			} else {
+				OAuthConsumer consumer = new CommonsHttpOAuthConsumer(TwitterPollCoordinator.APP_TOKEN,TwitterPollCoordinator.APP_SECRET);
+				consumer.setTokenWithSecret(ps.getCredentials().split("\\|")[0], ps.getCredentials().split("\\|")[1]);
+				consumer.sign(get);
 			}
 			
-			updateRateLimitInfo(get, ps);
+			HttpResponse response = client.execute(get);
+			if(response.getStatusLine().getStatusCode()!=200)
+			{
+				updateRateLimitInfo(response, ps);
+				throw new OperationFailedException("Could not check for followers.  response="+response.getStatusLine().getStatusCode());
+			}
 			
-			IdListNoCursor idList = (IdListNoCursor)decoder.unmarshal(get.getResponseBodyAsStream());
+			updateRateLimitInfo(response, ps);
+			
+			IdListNoCursor idList = (IdListNoCursor)decoder.unmarshal(response.getEntity().getContent());
 			Set<Long> ret = new HashSet<Long>();
 			if(idList.getIds()!=null)
 				ret.addAll(idList.getIds());
 			ps.registerFollowerList(ret);			
 			return ret;
 		}
-		catch(Exception e)
+		catch(Throwable e)
 		{
 			log.error("Can't get friend list for account "+getAccountPollManager().getAccount(),e);
 			getAccountPollManager().followerCheckFailed();
 			return null;
-		}
-		finally
-		{
-			try{get.releaseConnection();}catch(Exception e){}
 		}
 	}
 }

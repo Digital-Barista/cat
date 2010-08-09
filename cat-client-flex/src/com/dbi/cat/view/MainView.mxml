@@ -47,10 +47,6 @@
 				if (currentUser != null)
 				{
 					var isManager:Boolean = currentUser.hasRole(Roles.ACCOUNT_MANAGER);
-					
-					var userTab:Button = Tabs.getTabAt(3);
-					userTab.visible = isManager;
-					userTab.includeInLayout = isManager;
 				}
 			}
 			

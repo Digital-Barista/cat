@@ -54,6 +54,18 @@
 				event.contact = new ContactVO();
 				dispatchEvent(event);
 			}
+			private function deleteContacts(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes" &&
+					selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					var event:ContactEvent = new ContactEvent(ContactEvent.DELETE_CONTACTS);
+					event.contacts = selectedContacts;
+					dispatchEvent(event);
+				}
+			}
+			
 			private function addTags():void
 			{
 				if (selectedContacts != null &&
@@ -87,6 +99,17 @@
 					var event:ContactEvent = new ContactEvent(ContactEvent.BLACKLIST_ADDRESSES);
 					event.contacts = selectedContacts;
 					dispatchEvent(event);
+				}
+			}
+			private function confirmDeleteContacts():void
+			{
+				
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					CustomMessage.show("Are you sure you want to delete the " + selectedContacts.length + " selected contacts?",
+						["Yes", "No"],
+						deleteContacts);
 				}
 			}
 			
@@ -161,6 +184,9 @@
 						case "addContact":
 							addContact();
 							break;
+						case "deleteContacts":
+							confirmDeleteContacts();
+							break;
 						case "addTag":
 							addTags();
 							break;
@@ -184,7 +210,8 @@
 	<mx:XML id="actionMenuXML" xmlns="">
 		<root>
 			<item label="Import Contacts" id="import" />
-			<item label="Add Contact" id="addContact" />	
+			<item label="Add Contact" id="addContact" />
+			<item label="Delete Contacts" id="deleteContacts" />	
 			<item type="separator"  />
 			<item label="Add Tags" id="addTag" requireSelected="true" />	
 			<item label="Remove Tags" id="removeTag" requireSelected="true" />

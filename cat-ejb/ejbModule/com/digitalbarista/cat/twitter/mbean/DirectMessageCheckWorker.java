@@ -3,7 +3,9 @@ package com.digitalbarista.cat.twitter.mbean;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -12,13 +14,15 @@ import javax.jms.Session;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.springframework.context.ApplicationContext;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.twitter.bindings.DirectMessage;
@@ -35,8 +39,8 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 
 	public Integer call()
 	{
-		HttpClient client=null;
-		GetMethod get=null;
+		DefaultHttpClient client=null;
+		HttpGet get=null;
 		
 		try
 		{
@@ -45,22 +49,29 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 			
 			TwitterAccountPollManager ps = getAccountPollManager();
 			
-			client = new HttpClient();
-			get = new GetMethod("http://www.twitter.com/direct_messages.xml");
-			get.setQueryString("since_id="+ps.getLowestReadMessage());
-			client.getParams().setAuthenticationPreemptive(true);
-			client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
+			client = new DefaultHttpClient();
+			get = new HttpGet("http://api.twitter.com/1/direct_messages.xml");
+			get.getParams().setParameter("since_id",ps.getLowestReadMessage());
 			
-			int result = client.executeMethod(get);
-			if(result!=200)
+			if(ps.getCredentials().indexOf("|")==-1)
 			{
-				updateRateLimitInfo(get, ps);
+				client.getCredentialsProvider().setCredentials(new AuthScope("api.twitter.com",AuthScope.ANY_PORT), new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
+			} else {
+				OAuthConsumer consumer = new CommonsHttpOAuthConsumer(TwitterPollCoordinator.APP_TOKEN,TwitterPollCoordinator.APP_SECRET);
+				consumer.setTokenWithSecret(ps.getCredentials().split("\\|")[0], ps.getCredentials().split("\\|")[1]);
+				consumer.sign(get);
+			}
+			
+			HttpResponse result = client.execute(get);
+			if(result.getStatusLine().getStatusCode()!=200)
+			{
+				updateRateLimitInfo(result, ps);
 				throw new OperationFailedException("Could not check for direct messages.  response="+result);
 			}
 
-			updateRateLimitInfo(get, ps);
+			updateRateLimitInfo(result, ps);
 
-			Object ret = decoder.unmarshal(get.getResponseBodyAsStream());
+			Object ret = decoder.unmarshal(result.getEntity().getContent());
 			if(ret instanceof ErrorMessage)
 				throw new OperationFailedException("Could not check for direct messages.  "+((ErrorMessage)ret).getErrorMessage());
 			DirectMessageCollection dmc = (DirectMessageCollection)ret;
@@ -79,10 +90,6 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 			getAccountPollManager().directMessageCheckFailed();
 			return -1;
 		}
-		finally
-		{
-			try{if(get!=null)get.releaseConnection();}catch(Exception e){}
-		}		
 	}
 	
 	private Long[] registerMessages(DirectMessageCollection messages,TwitterAccountPollManager stats)
@@ -129,24 +136,31 @@ public class DirectMessageCheckWorker extends TwitterPollWorker<Integer> {
 	public void deleteMessages(Long[] ids, TwitterAccountPollManager ps) {
 		try
 		{
-			HttpClient client = new HttpClient();
+			DefaultHttpClient client = new DefaultHttpClient();
 			
 			for(long id : ids)
 			{
-				DeleteMethod delete = new DeleteMethod("http://www.twitter.com/direct_messages/destroy/"+id+".xml");
-				client.getParams().setAuthenticationPreemptive(true);
-				client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(getAccountPollManager().getAccount(),getAccountPollManager().getCredentials()));
+				HttpDelete delete = new HttpDelete("http://api.twitter.com/1/direct_messages/destroy/"+id+".xml");
+
+				if(ps.getCredentials().indexOf("|")==-1)
+				{
+					client.getCredentialsProvider().setCredentials(new AuthScope("api.twitter.com",AuthScope.ANY_PORT), new UsernamePasswordCredentials(ps.getAccount(),ps.getCredentials()));
+				} else {
+					OAuthConsumer consumer = new CommonsHttpOAuthConsumer(TwitterPollCoordinator.APP_TOKEN,TwitterPollCoordinator.APP_SECRET);
+					consumer.setTokenWithSecret(ps.getCredentials().split("\\|")[0], ps.getCredentials().split("\\|")[1]);
+					consumer.sign(delete);
+				}
+				
+				HttpResponse resp = null;
 				
 				try
 				{
-					client.executeMethod(delete);
-				} catch (HttpException e) {
-					log.error("An error occurred while deleting DM id="+id,e);
+					resp = client.execute(delete);
 				} catch (IOException e) {
 					log.error("An error occurred while deleting DM id="+id,e);
 				}
 				
-				if(delete.getStatusCode()==200)
+				if(resp!=null && resp.getStatusLine().getStatusCode()==200)
 					ps.setHighestDeletedMessage(id);
 			}
 		} catch (Exception e) {

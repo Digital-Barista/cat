@@ -4,7 +4,7 @@
 	xmlns:components="com.dbi.cat.view.components.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	width="400" height="300" xmlns:vo="com.dbi.cat.vo.*"
-	editWindowHeight="430"
+	editWindowHeight="460"
 	editWindowWidth="380"
 	displayIcon="{couponIcon}"
 	workspaceIcon="{couponIcon}"
@@ -279,6 +279,11 @@
 						change="changeStaticCouponCode()"
 						visible="{StaticCode.selected}" />
 				</mx:HBox>
+			</mx:FormItem>
+			<mx:FormItem label="Offer Code">
+				<mx:TextInput id="OfferCode" width="225"
+							  text="{couponVO.offerCode}"
+							  change="{couponVO.offerCode = OfferCode.text}" />
 			</mx:FormItem>
 			<mx:FormItem label="Unavailable Date"
 				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">

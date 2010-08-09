@@ -128,15 +128,27 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
-	<EventHandlers type="{ContactEvent.DELETE_CONTACT}">
+	<EventHandlers type="{ContactEvent.DELETE_CONTACTS}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Deleting Contacts']}" />
 		<RemoteObjectInvoker destination="contactManager"
 			method="delete"
-			arguments="{event.contact}">
+			arguments="{event.contacts}">
 			<resultHandlers>
 				<MethodInvoker generator="{ContactManager}"
-					method="deleteContact"
-					arguments="{event.contact}" />
+							   method="deleteContacts"
+							   arguments="{event.contacts}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
 			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ContactEvent.ADD_TAGS_TO_CONTACTS}">

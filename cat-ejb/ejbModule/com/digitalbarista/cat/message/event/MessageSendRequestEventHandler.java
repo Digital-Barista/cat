@@ -18,9 +18,9 @@ import javax.mail.internet.MimeMessage;
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.digitalbarista.cat.audit.OutgoingMessageEntryDO;
 import com.digitalbarista.cat.business.Connector;
@@ -97,29 +97,24 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 		} else if(e.getSourceType().equals(CATEventSource.SMSEndpoint)){
 			outAudit.setMessageType(EntryPointType.SMS);
 			outAudit.setSubjectOrMessage(e.getArgs().get("message"));
-			HttpClient client=new HttpClient();
-			GetMethod method = new GetMethod("http://206.72.101.130:13013/cgi-bin/sendsms");
+			DefaultHttpClient client=new DefaultHttpClient();
+			HttpGet method = new HttpGet("http://206.72.101.130:13013/cgi-bin/sendsms");
 			try
 			{
-				NameValuePair[] params = new NameValuePair[6];
-				params[0]=new NameValuePair("username", "dbi");
-				params[1]=new NameValuePair("password", "Hondaf4");
-				params[2]=new NameValuePair("to", e.getTarget());
-				params[3]=new NameValuePair("from",e.getSource());
-				params[4]=new NameValuePair("text", e.getArgs().get("message"));
-				params[5]=new NameValuePair("smsc", e.getSource());
-				method.setQueryString(params);
-				int result = client.executeMethod(method);
-				if(result!=202)
+				method.getParams().setParameter("username", "dbi");
+				method.getParams().setParameter("password", "Hondaf4");
+				method.getParams().setParameter("to", e.getTarget());
+				method.getParams().setParameter("from",e.getSource());
+				method.getParams().setParameter("text", e.getArgs().get("message"));
+				method.getParams().setParameter("smsc", e.getSource());
+				HttpResponse result = client.execute(method);
+				if(result==null || result.getStatusLine().getStatusCode()!=202)
 				{
-					throw new RuntimeException("Could not send message.  code="+result+", response='"+method.getResponseBodyAsString()+"'");
+					throw new RuntimeException("Could not send message.  code="+result);
 				}
 			}catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);
-			}finally
-			{
-				method.releaseConnection();
 			}
 		} else if(e.getSourceType().equals(CATEventSource.TwitterEndpoint)){
 			outAudit.setMessageType(EntryPointType.Twitter);

@@ -115,19 +115,24 @@ package com.dbi.cat.business
 		{
 			selectedContacts = contacts;
 		}
-		public function deleteContact(contact:ContactVO):void
+		public function deleteContacts(contacts:ArrayCollection):void
 		{
-			var cur:IViewCursor = contacts.results.createCursor();
-			while (cur.current != null)
+			for each (var contact:ContactVO in contacts)
 			{
-				if (cur.current.contactId == contact.contactId)
+				var cur:IViewCursor = this.contacts.results.createCursor();
+				while (cur.current != null)
 				{
-					cur.remove();
-					break;
+					if (cur.current.contactId == contact.contactId)
+					{
+						cur.remove();
+						break;
+					}
+					cur.moveNext();
 				}
-				cur.moveNext();
+				contactMap[contact.contactId] = null;
 			}
-			contactMap[contact.contactId] = null;
+
+			refreshContactList();
 		}
 		public function blacklistAddresses(blacklistContacts:ArrayCollection):void
 		{
@@ -157,6 +162,13 @@ package com.dbi.cat.business
 					}
 				}
 			}
+		}
+		private function refreshContactList():void
+		{
+			var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+			event.searchCriteria = contactSearchCriteria;
+			event.pagingInfo = contactPagingInfo;
+			dispatcher.dispatchEvent(event);
 		}
 		
 		//
@@ -325,10 +337,7 @@ package com.dbi.cat.business
 				" of " + contactImportList.length + " contacts");
 				
 			// Refresh list
-			var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
-			event.searchCriteria = contactSearchCriteria;
-			event.pagingInfo = contactPagingInfo;
-			dispatcher.dispatchEvent(event);
+			refreshContactList();
 		}
 		public function selectContactImportFile():void
 		{
