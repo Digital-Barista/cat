@@ -442,7 +442,7 @@ public class FacebookManagerImpl implements FacebookManager {
 			}
 			else
 			{
-				throw new FacebookManagerException("Facebook request returned with status code: " + result);
+				throw new FacebookManagerException("Facebook request returned with status code: " + result.getStatusLine().getStatusCode());
 			}
 		} 
 		catch (IOException e) 
