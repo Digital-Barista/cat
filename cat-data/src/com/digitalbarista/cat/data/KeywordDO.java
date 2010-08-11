@@ -11,8 +11,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 @Entity
 @Table(name="keywords")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class KeywordDO implements Serializable,DataObject {
 
 	private Long primaryKey;

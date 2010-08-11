@@ -14,6 +14,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: ClientInfoDO
  *
@@ -21,6 +24,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="client_info")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class ClientInfoDO implements Serializable,DataObject {
 
 	public final static String KEY_MESSAGE_CREDITS = "messageCredits";

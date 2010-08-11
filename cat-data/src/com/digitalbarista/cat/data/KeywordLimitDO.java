@@ -13,8 +13,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 @Entity
 @Table(name="keyword_limit")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class KeywordLimitDO implements Serializable,DataObject {
 
 	private Long keywordLimitId;

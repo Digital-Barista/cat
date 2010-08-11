@@ -23,6 +23,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: NodeDO
  *
@@ -31,6 +34,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name="nodes")
 @NamedQuery(name="node.by.uuid", query="select n from NodeDO n where n.UID=:uuid")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class NodeDO implements Serializable,DataObject {
 	
 	private Long primaryKey;
@@ -101,6 +105,7 @@ public class NodeDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="node",targetEntity=CampaignNodeLinkDO.class)
 	@MapKey(name="version")
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Map<Integer, CampaignNodeLinkDO> getVersionedNodes() {
 		return versionedNodes;
 	}
@@ -111,6 +116,7 @@ public class NodeDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="node",targetEntity=NodeConnectorLinkDO.class)
 	@OrderBy("version DESC")
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<NodeConnectorLinkDO> getConnections() {
 		return connections;
 	}
@@ -122,6 +128,7 @@ public class NodeDO implements Serializable,DataObject {
 	@OneToMany(mappedBy="node",targetEntity=NodeInfoDO.class,cascade=CascadeType.ALL)
 	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<NodeInfoDO> getNodeInfo() {
 		return nodeInfo;
 	}
@@ -131,6 +138,7 @@ public class NodeDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(mappedBy="lastHitNode",targetEntity=CampaignSubscriberLinkDO.class)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<CampaignSubscriberLinkDO> getCurrentSubscribers() {
 		return currentSubscribers;
 	}

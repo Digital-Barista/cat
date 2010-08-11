@@ -16,6 +16,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: CampaignSubscriberLinkDO
  *
@@ -25,6 +28,7 @@ import javax.persistence.Table;
 @NamedQueries({
 	@NamedQuery(name="subscription.count.for.node", query="select count(csl.primaryKey) from CampaignSubscriberLinkDO csl where csl.lastHitNode.UID=:nodeUID")
 })
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class CampaignSubscriberLinkDO implements Serializable {
 
 	private Long primaryKey;

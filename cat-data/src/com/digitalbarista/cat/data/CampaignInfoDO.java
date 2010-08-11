@@ -14,6 +14,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: CampaignInfoDO
  *
@@ -21,6 +24,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="campaign_info")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class CampaignInfoDO implements Serializable,DataObject {
 
 	public final static String KEY_AUTO_START_NODE_UID = "autoStartNodeUID";

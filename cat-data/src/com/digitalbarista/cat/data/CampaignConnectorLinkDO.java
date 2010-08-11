@@ -12,6 +12,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: CampaignNodeLinkDO
  *
@@ -19,6 +22,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="campaign_connector_link")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class CampaignConnectorLinkDO implements Serializable,DataObject {
 
 	private Long primaryKey;

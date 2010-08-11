@@ -15,6 +15,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: NodeConnectorLinkDO
  *
@@ -22,6 +25,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="node_connector_link")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class NodeConnectorLinkDO implements Serializable,DataObject {
 	   
 	private Long primaryKey;
