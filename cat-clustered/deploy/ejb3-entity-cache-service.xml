@@ -24,7 +24,7 @@
                                  READ_UNCOMMITTED
                                  NONE
     -->
-    <attribute name="IsolationLevel">REPEATABLE_READ</attribute>
+    <attribute name="IsolationLevel">SERIALIZABLE</attribute>
 
     <!--     Valid modes are LOCAL
                              REPL_ASYNC
