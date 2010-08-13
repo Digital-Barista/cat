@@ -28,8 +28,10 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -401,9 +403,9 @@ public class FacebookManagerImpl implements FacebookManager {
 	private String callFacebookMethod(String secret, Map<String, String> postParameters) throws FacebookManagerException
 	{
 		String ret = "";
+		String url = FACEBOOK_REST_URL + "?";
 		
 		DefaultHttpClient client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(FACEBOOK_REST_URL);
 		
 		// Sort keys
 		Object[] keys = postParameters.keySet().toArray();
@@ -414,31 +416,24 @@ public class FacebookManagerImpl implements FacebookManager {
 		for (Object key : keys)
 		{
 			String value = postParameters.get(key);
-			post.getParams().setParameter(key.toString(), value);
 			params += key + "=" + value;
+			url += "&" + key + "=" + value;
 		}
 
 		params += secret;
 		String hashed = md5(params);
-		post.getParams().setParameter("sig", hashed);
+		
+		// Build a the URL with all parameters on it
+		url += "&sig=" + hashed;
+		HttpGet get = new HttpGet(url);
 		
 		try 
 		{
-			HttpResponse result = client.execute(post);
+			HttpResponse result = client.execute(get);
 			
 			if (result!=null && result.getStatusLine().getStatusCode() == 200)
 			{
-				InputStream in = result.getEntity().getContent();
-				StringBuffer retBuffer = new StringBuffer();
-				byte[] buf=new byte[1024];
-				int size=-1;
-				do
-				{
-					size=in.read(buf);
-						if(size==-1) continue;
-					retBuffer.append(new String(buf,0,size));
-				}while(size>=0);
-				ret = retBuffer.toString();
+				ret = EntityUtils.toString(result.getEntity());
 			}
 			else
 			{

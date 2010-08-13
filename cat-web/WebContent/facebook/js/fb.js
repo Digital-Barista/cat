@@ -19,7 +19,15 @@ function fbInit()
 	// Check the login status
 	FB.getLoginStatus(function(response) {
 		handleResponse(response);
-		});
+	});
+	
+	// Wire events
+	$("#InviteButton").click(function(){
+		if ($("#Invite").css("display") == "block")
+			$("#Invite").css("display", "none");
+		else
+			$("#Invite").css("display", "block");
+	});
 }
 function handleResponse(response)
 {

@@ -15,7 +15,29 @@
 		<div id="fb-root"></div>
 		
 		<div id="Bookmark" class="bookmark">
+			<a id="InviteButton" class="fb_button fb_button_medium">
+				<span class="fb_button_text">Invite Friends</span>
+			</a>
 			<fb:bookmark></fb:bookmark>
+		</div>
+		
+		<div id="Invite">
+			<fb:serverFbml>
+				<script type="text/fbml">
+					<fb:fbml>
+						<fb:request-form
+							method='POST'
+							type='join DBI'
+							invite='true'
+							action="<%= request.getRequestURL().toString() + '?' + request.getQueryString() %>"
+							content="<fb:req-choice url='http://apps.facebook.com/dbi_coupons/'
+									label='Try this app'/>" >
+							<fb:multi-friend-selector 
+								actiontext="Invite your friends to use this application">
+						</fb:request-form>
+					</fb:fbml>
+				</script>
+			</fb:serverFbml>
 		</div>
 		
 		<table id="Login" class="login">
