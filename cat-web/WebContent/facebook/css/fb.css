@@ -22,9 +22,13 @@ h2
 	color:#1C2A47;
 }
 
+#MainContainer
+{
+	width:740px;
+}
+
 #MessageArea
 {
-	width:730px;
 }
 
 #Invite
@@ -111,9 +115,12 @@ h2
 .bookmark
 {
 	display:none;
-	text-align:right;
+	width:100%;
+}
+.toolButton
+{
 	float:right;
-	width:730px;
+	margin-left:5px;
 }
 
 .login
