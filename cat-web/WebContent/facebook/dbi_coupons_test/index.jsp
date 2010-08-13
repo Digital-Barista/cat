@@ -24,19 +24,17 @@
 			</div>
 			
 			<div id="Invite">
-				<fb:serverFbml>
+				<fb:serverFbml width="740px">
 					<script type="text/fbml">
 						<fb:fbml>
 							<fb:request-form
-								style="width:740px"
 								method='POST'
 								type='join DBI'
 								invite='true'
 								action="<%= request.getRequestURL().toString() + '?' + request.getQueryString() %>"
-								content="<fb:req-choice url='http://apps.facebook.com/dbi_coupons_test'
+								content="<fb:req-choice url='http://apps.facebook.com/dbi_coupons_test/'
 										label='Try this app'/>" >
-								<fb:multi-friend-selector 
-									style="width:740px"
+								<fb:multi-friend-selector
 									actiontext="Invite your friends to use this application">
 							</fb:request-form>
 						</fb:fbml>
