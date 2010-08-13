@@ -1,7 +1,6 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -26,11 +25,12 @@ import javax.persistence.PersistenceContext;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -66,6 +66,9 @@ import com.digitalbarista.cat.message.event.CATEvent;
 public class FacebookManagerImpl implements FacebookManager {
 
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
+	private final static String FACEBOOK_GRAPH_API_URL = "https://graph.facebook.com";
+	private final static String FACEBOOK_ACCESS_TOKEN_URL = FACEBOOK_GRAPH_API_URL + "/oauth/access_token";
+	
 	private final static String FACEBOOK_PARAM_PREFIX = "fb_sig_";
 	private final static String FACEBOOK_PARAM_APP_ID = "fb_sig_app_id";
 	private final static String FACEBOOK_PARAM_USER_ID = "uid";;
@@ -489,4 +492,64 @@ public class FacebookManagerImpl implements FacebookManager {
 		subscriptionManager.removeFacebookFollower(uid, facebookAppId);
 	}
 
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Boolean isUserAllowingApp(String facebookUID, String facebookAppId)
+	{
+		Boolean ret = true;
+		String token = getFacebookAppAccessToken(facebookAppId);
+		
+		return ret;
+	}
+	
+	private String getFacebookAppAccessToken(String facebookAppId)
+	{
+		String token = null;
+		
+		try
+		{
+			// Get facebook app
+			FacebookAppDO appDO = em.find(FacebookAppDO.class, facebookAppId);
+			if (appDO != null)
+			{
+				DefaultHttpClient client = new DefaultHttpClient();
+				HttpPost post = new HttpPost(FACEBOOK_ACCESS_TOKEN_URL);
+				
+				List<BasicNameValuePair> formparams = new ArrayList<BasicNameValuePair>();
+				formparams.add(new BasicNameValuePair("type", "client_cred"));
+				formparams.add(new BasicNameValuePair("client_id", appDO.getId()));
+				formparams.add(new BasicNameValuePair("client_secret", appDO.getSecret()));
+
+				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, "UTF-8");
+				post.setEntity(entity);
+				
+				HttpResponse result = client.execute(post);
+				
+				if (result != null)
+				{
+					String content = EntityUtils.toString(result.getEntity());
+					String[] parts = content.split("=");
+					if (parts.length == 2 &&
+						parts[0].equals("access_token") )
+					{
+						token = parts[1];
+					}
+					else
+					{
+						throw new FacebookManagerException("Error returned from OAuth service: " + content);
+					}
+				}
+				else
+				{
+					throw new FacebookManagerException("Facebook request returned with status code: " + result.getStatusLine().getStatusCode());
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			logger.error("Error trying to retrieve access token", e);
+		}
+		
+		return token;
+	}
 }
