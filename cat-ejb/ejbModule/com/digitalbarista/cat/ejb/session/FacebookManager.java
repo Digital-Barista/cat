@@ -52,5 +52,5 @@ public interface FacebookManager
 
 	@GET
 	@Path("/allowed")
-	Boolean isUserAllowingApp(@QueryParam("facebookUID") String facebookUID, @QueryParam("facebookAppId") String facebookAppId);
+	Boolean isUserAllowingApp(@QueryParam("facebookUID") String facebookUID, @QueryParam("facebookAppId") String facebookAppId) throws FacebookManagerException;
 }
