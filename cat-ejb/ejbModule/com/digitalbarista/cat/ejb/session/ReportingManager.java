@@ -13,5 +13,5 @@ import com.digitalbarista.cat.exception.ReportingManagerException;
 public interface ReportingManager 
 {
 	List<OutgoingMessageSummary> getOutgoingMessageSummaries() throws ReportingManagerException ;
-	DashboardData getDashboardData() throws ReportingManagerException ;
+	DashboardData getDashboardData(List<Integer> clientIds) throws ReportingManagerException ;
 }

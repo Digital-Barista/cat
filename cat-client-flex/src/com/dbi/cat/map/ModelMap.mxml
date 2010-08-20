@@ -43,6 +43,8 @@
 			import com.dbi.cat.view.contacts.RemoveTagView;
 			import com.dbi.cat.view.contacts.TagChooser;
 			import com.dbi.cat.view.dashboard.DashboardView;
+			import com.dbi.cat.view.dashboard.SummaryView;
+			import com.dbi.cat.view.dashboard.TagSummaryView;
 			import com.dbi.cat.view.profile.AddCreditsView;
 			import com.dbi.cat.view.profile.ClientInfoEditor;
 			import com.dbi.cat.view.profile.ClientInformationView;
@@ -474,20 +476,26 @@
 			sourceKey="messageParts"
 			targetKey="messageParts" />
 	</Injectors>
-	<Injectors target="{DashboardView}">
+	<Injectors target="{SummaryView}">
 		<PropertyInjector
 			source="{ReportingManager}"
 			sourceKey="dashboardData"
 			targetKey="dashboardData" />
 		<PropertyInjector
 			source="{ClientManager}"
-			sourceKey="clients"
+			sourceKey="allClients"
 			targetKey="clients" />
 	</Injectors>
 	<Injectors target="{AddCreditsView}">
 		<PropertyInjector
 			source="{ClientManager}"
 			sourceKey="clients"
+			targetKey="clients" />
+	</Injectors>
+	<Injectors target="{TagSummaryView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="allClients"
 			targetKey="clients" />
 	</Injectors>
 </EventMap>

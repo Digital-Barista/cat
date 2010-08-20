@@ -116,19 +116,40 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 
 	@Override
-	public DashboardData getDashboardData() throws ReportingManagerException 
+	public DashboardData getDashboardData(List<Integer> clientIDs) throws ReportingManagerException 
 	{
 		DashboardData ret = new DashboardData();
 		
 		try
 		{
 			// Get client count
-			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
-			ret.setClientCount(Integer.toString(clientIDs.size()) );
+			Set<Long> allowedClientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+			ret.setClientCount(Integer.toString(allowedClientIDs.size()) );
+			
+			// Restrict to given client IDs if given
+			Set<Long> filterClientIDs = new HashSet<Long>();
+			if (clientIDs == null)
+			{
+				filterClientIDs = allowedClientIDs;
+			}
+			else
+			{
+				for (Long allowedClientId : allowedClientIDs)
+				{
+					for (int i = 0; i < clientIDs.size(); i++)
+					{
+						if (allowedClientId.equals(clientIDs.get(i).longValue()) )
+						{
+							filterClientIDs.add(allowedClientId);
+							break;
+						}
+					}
+				}
+			}
 			
 			// Get campaign count
 			Criteria crit = session.createCriteria(CampaignDO.class);
-			crit.add(Restrictions.in("client.primaryKey", clientIDs));
+			crit.add(Restrictions.in("client.primaryKey", filterClientIDs));
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
 			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.setProjection(Projections.rowCount());
@@ -136,19 +157,19 @@ public class ReportingManagerImpl implements ReportingManager {
 			
 
 			// Get per EntryPointType counts
-			ret.setContactCounts(getContactCounts(clientIDs));
-			ret.setCouponsRedeemed(getCouponsRedeemed(clientIDs));
-			ret.setCouponsSent(getCouponsSent(clientIDs));
-			ret.setMessagesReceived(getMessageReceivedCounts(clientIDs));
-			ret.setMessagesSent(getMessageSentCounts(clientIDs));
+			ret.setContactCounts(getContactCounts(filterClientIDs));
+			ret.setCouponsRedeemed(getCouponsRedeemed(filterClientIDs));
+			ret.setCouponsSent(getCouponsSent(filterClientIDs));
+			ret.setMessagesReceived(getMessageReceivedCounts(filterClientIDs));
+			ret.setMessagesSent(getMessageSentCounts(filterClientIDs));
 
 			// Get message credit infos
-			ret.setMessageCreditInfos(getMessageCreditInfos(clientIDs));
+			ret.setMessageCreditInfos(getMessageCreditInfos(filterClientIDs));
 			
 			// Get subscriber count
 			crit = session.createCriteria(CampaignSubscriberLinkDO.class);
 			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.primaryKey", clientIDs));
+			crit.add(Restrictions.in("campaign.client.primaryKey", filterClientIDs));
 			crit.setProjection(Projections.rowCount());
 			ret.setSubscriberCount(crit.uniqueResult().toString());
 			

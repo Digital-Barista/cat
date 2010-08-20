@@ -51,6 +51,7 @@
 			arguments="{ServiceStatusMessage.LOADING_DASHBOARD_DATA}" />
 		<RemoteObjectInvoker destination="reportingManager"
 			method="getDashboardData"
+			arguments="{event.clientIDs}"
 			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker

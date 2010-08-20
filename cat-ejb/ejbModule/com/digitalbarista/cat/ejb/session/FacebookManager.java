@@ -49,5 +49,5 @@ public interface FacebookManager
 	void updateMessageCounter(String appId, String uid);
 	void updateMessageCounter(String appId, String uid, Integer count);
 	
-	Boolean isUserAllowingApp(String facebookUID, String facebookAppId);
+	Boolean isUserAllowingApp(String facebookUID, String facebookAppId) throws FacebookManagerException;
 }

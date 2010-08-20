@@ -24,6 +24,7 @@ package com.dbi.cat.business
 	public class ClientManager
 	{
 		public var clients:ArrayCollection;
+		public var allClients:ArrayCollection; // Includes an "All Clients" option
 		public var clientMap:Object;
 		public var keywords:ArrayCollection;
 		public var entryPointDefinitions:ArrayCollection;
@@ -45,11 +46,15 @@ package com.dbi.cat.business
 		public function loadClients(list:ArrayCollection):void
 		{
 			clients = list;
+			allClients = new ArrayCollection([{name: "(All Clients)"}]);
 			
 			// Build client map indexed by clientId
 			clientMap = new Object();
 			for each (var client:ClientVO in clients)
+			{
 				clientMap[client.clientId] = client;
+				allClients.addItem(client);
+			}
 			
 			// Set the first client as the current when first loaded
 			if (clients.length > 0)
