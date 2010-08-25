@@ -497,5 +497,9 @@
 			source="{ClientManager}"
 			sourceKey="allClients"
 			targetKey="clients" />
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="tagSummaries"
+			targetKey="tagSummaries" />
 	</Injectors>
 </EventMap>

@@ -9,7 +9,8 @@ package com.dbi.cat.event
 	public class ReportingEvent extends Event
 	{
 		public static const LOAD_OUTGOING_MESSAGE_SUMMARIES:String = "loadOutgoingMessagesSummariesEvent";
-		public static const LOAD_DASHBOARD	:String = "loadDashboardEvent";
+		public static const LOAD_DASHBOARD:String = "loadDashboardEvent";
+		public static const LOAD_TAG_SUMMARIES:String = "loadTagSummariesEvent";
 		
 		public var clientIDs:ArrayCollection;
 			

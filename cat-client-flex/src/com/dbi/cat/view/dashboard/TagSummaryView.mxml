@@ -1,28 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:controls="com.dbi.controls.*">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+		   xmlns:controls="com.dbi.controls.*"
+		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.event.ReportingEvent;
+			
 			import mx.collections.ArrayCollection;
 			
 			[Bindable]
 			public var clients:ArrayCollection;
 			
-			private function refresh():void
+			[Bindable]
+			public var tagSummaries:ArrayCollection;
+			
+			private function get selectedClientIds():ArrayCollection
 			{
-				
+				return Client.selectedItem.clientId != null ? new ArrayCollection([Client.selectedItem.clientId]) : null;
 			}
 			
-			private function changeClient():void
+			
+			private function init():void
 			{
-				
+				refresh();
+			}
+			
+			private function refresh():void
+			{
+				var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_TAG_SUMMARIES);
+				event.clientIDs = selectedClientIds;
+				dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>
 	<mx:Canvas
 		horizontalCenter="0"
 		width="100%" height="100%" >
-		<mx:TitleWindow width="100%" height="100%" layout="horizontal" horizontalAlign="center">
-			
+		<mx:TitleWindow width="100%" height="100%" layout="absolute" horizontalAlign="center">
+			<mx:DataGrid id="TagSummaries"
+						 dataProvider="{tagSummaries}"
+						 right="0" left="0" bottom="0" top="0">
+				<mx:columns>
+					<mx:DataGridColumn dataField="clientName" headerText="Client" />
+					<mx:DataGridColumn dataField="entryPointType" headerText="Type" />
+					<mx:DataGridColumn dataField="tag" headerText="Tag" />
+					<mx:DataGridColumn dataField="userCount" headerText="User Count" />
+				</mx:columns>
+			</mx:DataGrid>
 		</mx:TitleWindow>
 		<mx:HBox right="5" top="7" verticalAlign="middle">
 			<mx:Label text="Client" />
@@ -32,7 +56,7 @@
 				bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
 				labelField="name" 
 				width="100%"
-				change="changeClient()"  />
+				change="refresh()"  />
 			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
 					  top="3" right="200"
 					  width="25" height="25"

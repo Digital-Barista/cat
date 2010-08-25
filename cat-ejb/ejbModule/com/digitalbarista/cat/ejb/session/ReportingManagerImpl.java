@@ -32,6 +32,7 @@ import com.digitalbarista.cat.business.reporting.DashboardCount;
 import com.digitalbarista.cat.business.reporting.DashboardData;
 import com.digitalbarista.cat.business.reporting.MessageCreditInfo;
 import com.digitalbarista.cat.business.reporting.OutgoingMessageSummary;
+import com.digitalbarista.cat.business.reporting.TagSummary;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignStatus;
@@ -75,7 +76,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		
 		try
 		{
-			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+			List<Long> clientIDs = getAllowedClientIDs(null);
 			
 			if (clientIDs.size() > 0)
 			{
@@ -116,40 +117,19 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 
 	@Override
-	public DashboardData getDashboardData(List<Integer> clientIDs) throws ReportingManagerException 
+	public DashboardData getDashboardData(List<Long> clientIDs) throws ReportingManagerException 
 	{
 		DashboardData ret = new DashboardData();
 		
 		try
 		{
 			// Get client count
-			Set<Long> allowedClientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
-			ret.setClientCount(Integer.toString(allowedClientIDs.size()) );
-			
-			// Restrict to given client IDs if given
-			Set<Long> filterClientIDs = new HashSet<Long>();
-			if (clientIDs == null)
-			{
-				filterClientIDs = allowedClientIDs;
-			}
-			else
-			{
-				for (Long allowedClientId : allowedClientIDs)
-				{
-					for (int i = 0; i < clientIDs.size(); i++)
-					{
-						if (allowedClientId.equals(clientIDs.get(i).longValue()) )
-						{
-							filterClientIDs.add(allowedClientId);
-							break;
-						}
-					}
-				}
-			}
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			ret.setClientCount(Integer.toString(allowedClientIDs.size()));
 			
 			// Get campaign count
 			Criteria crit = session.createCriteria(CampaignDO.class);
-			crit.add(Restrictions.in("client.primaryKey", filterClientIDs));
+			crit.add(Restrictions.in("client.primaryKey", allowedClientIDs));
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
 			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.setProjection(Projections.rowCount());
@@ -157,19 +137,19 @@ public class ReportingManagerImpl implements ReportingManager {
 			
 
 			// Get per EntryPointType counts
-			ret.setContactCounts(getContactCounts(filterClientIDs));
-			ret.setCouponsRedeemed(getCouponsRedeemed(filterClientIDs));
-			ret.setCouponsSent(getCouponsSent(filterClientIDs));
-			ret.setMessagesReceived(getMessageReceivedCounts(filterClientIDs));
-			ret.setMessagesSent(getMessageSentCounts(filterClientIDs));
+			ret.setContactCounts(getContactCounts(allowedClientIDs));
+			ret.setCouponsRedeemed(getCouponsRedeemed(allowedClientIDs));
+			ret.setCouponsSent(getCouponsSent(allowedClientIDs));
+			ret.setMessagesReceived(getMessageReceivedCounts(allowedClientIDs));
+			ret.setMessagesSent(getMessageSentCounts(allowedClientIDs));
 
 			// Get message credit infos
-			ret.setMessageCreditInfos(getMessageCreditInfos(filterClientIDs));
+			ret.setMessageCreditInfos(getMessageCreditInfos(allowedClientIDs));
 			
 			// Get subscriber count
 			crit = session.createCriteria(CampaignSubscriberLinkDO.class);
 			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.primaryKey", filterClientIDs));
+			crit.add(Restrictions.in("campaign.client.primaryKey", allowedClientIDs));
 			crit.setProjection(Projections.rowCount());
 			ret.setSubscriberCount(crit.uniqueResult().toString());
 			
@@ -183,8 +163,92 @@ public class ReportingManagerImpl implements ReportingManager {
 		
 		return ret;
 	}
+
+	public List<TagSummary> getTagSummaries(List<Long> clientIDs) throws ReportingManagerException 
+	{
+		List<TagSummary> ret = new ArrayList<TagSummary>();
+		
+		try
+		{
+			// Get allowed client IDs
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			
+			if (allowedClientIDs.size() > 0)
+			{
+				String queryString = 
+					"select cli.client_id, cli.name, c.type, t.tag, count(*) " +
+					"from contact c " +
+					"join client cli on cli.client_id = c.client_id " +
+					"join contact_tag_link ctl on c.contact_id = ctl.contact_id " +
+					"join contact_tag t on t.contact_tag_id = ctl.contact_tag_id " +
+					"where cli.client_id in (:clientIds) " +
+					"group by cli.client_id, cli.name, t.tag, c.type " +
+					"order by cli.name, c.type, t.tag ";
+				
+				Query query = em.createNativeQuery(queryString);
+				query.setParameter("clientIds", allowedClientIDs);
+				
+				for (Object item : query.getResultList())
+				{
+					Object[] row = (Object[])item;
+					TagSummary summary = new TagSummary();
+					summary.setClientId(((BigInteger)row[0]).longValue());
+					summary.setClientName((String)row[1]);
+					summary.setEntryPointType(EntryPointType.valueOf((String)row[2]));
+					summary.setTag((String)row[3]);
+					summary.setUserCount((BigInteger)row[4]);
+					ret.add(summary);
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			String error = "Error getting tag summary";
+			logger.error(error, e);
+			throw new ReportingManagerException(error, e);
+		}
+		return ret;
+	}
 	
-	private Long getCouponsSent(Set<Long> clientIds)
+	private List<Long> getAllowedClientIDs(List<Long> clientIDs)
+	{
+		// Get client count
+		Set<Long> allowedClientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+		
+		// Restrict to given client IDs if given
+		List<Long> filterClientIDs = new ArrayList<Long>();
+		if (clientIDs == null)
+		{
+			filterClientIDs.addAll(allowedClientIDs);
+		}
+		else
+		{
+			for (Long allowedClientId : allowedClientIDs)
+			{
+				for (int i = 0; i < clientIDs.size(); i++)
+				{
+					// Stupid check because Blaze thinks ArrayCollection<Integer> fits 
+					// the List<Long> interface
+					Object number = clientIDs.get(i);
+					Long value;
+					if (number instanceof Integer)
+						value = ((Integer)number).longValue();
+					else
+						value = ((Long)number).longValue();
+					
+					// Add allowed client IDs
+					if (allowedClientId.equals(value) )
+					{
+						filterClientIDs.add(allowedClientId);
+						break;
+					}
+				}
+			}
+		}
+		return filterClientIDs;
+	}
+	
+	private Long getCouponsSent(List<Long> clientIds)
 	{
 		Criteria crit = session.createCriteria(CouponOfferDO.class);
 		crit.createAlias("campaign", "campaign");
@@ -194,7 +258,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		return (Long)crit.uniqueResult();
 	}
 	
-	private Integer getCouponsRedeemed(Set<Long> clientIds)
+	private Integer getCouponsRedeemed(List<Long> clientIds)
 	{
 		Criteria crit = session.createCriteria(CouponRedemptionDO.class);
 		crit.createAlias("couponResponse", "couponResponse");
@@ -207,7 +271,7 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<DashboardCount> getMessageSentCounts(Set<Long> clientIds)
+	private List<DashboardCount> getMessageSentCounts(List<Long> clientIds)
 	{
 		List<DashboardCount> ret = new ArrayList<DashboardCount>();
 			
@@ -244,7 +308,7 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<DashboardCount> getMessageReceivedCounts(Set<Long> clientIds)
+	private List<DashboardCount> getMessageReceivedCounts(List<Long> clientIds)
 	{
 		List<DashboardCount> ret = new ArrayList<DashboardCount>();
 			
@@ -288,7 +352,7 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<DashboardCount> getContactCounts(Set<Long> clientIds)
+	private List<DashboardCount> getContactCounts(List<Long> clientIds)
 	{
 		List<DashboardCount> ret = new ArrayList<DashboardCount>();
 			
@@ -320,7 +384,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		return ret;
 	}
 	
-	private List<MessageCreditInfo> getMessageCreditInfos(Set<Long> clientIds)
+	private List<MessageCreditInfo> getMessageCreditInfos(List<Long> clientIds)
 	{
 		// Get message credit info
 		List<MessageCreditInfo> creditInfos = new ArrayList<MessageCreditInfo>();

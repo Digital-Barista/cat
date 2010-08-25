@@ -19,6 +19,7 @@ package com.dbi.cat.business
 		
 		public var dashboardData:DashboardDataVO;
 		public var outgoingMessageSummaries:ArrayCollection;
+		public var tagSummaries:ArrayCollection;
 		
 		public function ReportingManager(dispatcher:IEventDispatcher)
 		{
@@ -35,6 +36,10 @@ package com.dbi.cat.business
 		public function loadDashboardData(dashboardData:DashboardDataVO):void
 		{
 			this.dashboardData = dashboardData;
+		}
+		public function loadTagSummaries(summaries:ArrayCollection):void
+		{
+			this.tagSummaries = summaries;
 		}
 	}
 }

@@ -89,17 +89,9 @@
 	
 	<!-- Data Events -->
 	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
-		<EventAnnouncer type="{ReportingEvent.LOAD_DASHBOARD}" />
-		<EventAnnouncer type="{CampaignEvent.LIST_CAMPAIGNS}" />
-		<EventAnnouncer type="{ClientEvent.LIST_KEYWORDS}" />
-		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />
-		<EventAnnouncer type="{CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES}" />
-		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
 		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
-		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />
-		<EventAnnouncer type="{CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT}" />
 		<EventAnnouncer type="{ContactEvent.LIST_CONTACT_TAGS}" />
-		<EventAnnouncer type="{ReportingEvent.LOAD_OUTGOING_MESSAGE_SUMMARIES}" />
+		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
 	</EventHandlers>
 	
 </EventMap>

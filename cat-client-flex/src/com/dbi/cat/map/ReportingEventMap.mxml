@@ -73,4 +73,34 @@
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.LOAD_TAG_SUMMARIES}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_TAG_SUMMARIES}" />
+		<RemoteObjectInvoker destination="reportingManager"
+							 method="getTagSummaries"
+							 arguments="{event.clientIDs}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_TAG_SUMMARIES}" />
+				<MethodInvoker generator="{ReportingManager}"
+							   method="loadTagSummaries"
+							   arguments="{resultObject}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_TAG_SUMMARIES}" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 </EventMap>

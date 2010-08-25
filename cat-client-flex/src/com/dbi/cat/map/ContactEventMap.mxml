@@ -58,6 +58,9 @@
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ContactEvent.SAVE_CONTACT_TAG}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Creating Contacts Tag']}" />
 		<RemoteObjectInvoker destination="contactManager"
 			method="save"
 			arguments="{event.contactTag}">
@@ -65,7 +68,16 @@
 				<MethodInvoker generator="{ContactManager}"
 					method="saveTag"
 					arguments="{resultObject}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
 			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{ContactEvent.DELETE_CONTACT_TAG}">

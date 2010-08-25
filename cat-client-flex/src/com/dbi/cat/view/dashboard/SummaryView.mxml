@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
 		   xmlns:components="com.dbi.cat.view.components.*" 
-		   xmlns:controls="com.dbi.controls.*">
+		   xmlns:controls="com.dbi.controls.*"
+		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
@@ -122,6 +123,11 @@
 				}
 				
 				return ret;
+			}
+			
+			private function init():void
+			{
+				refresh();
 			}
 			
 			private function changeClient():void
