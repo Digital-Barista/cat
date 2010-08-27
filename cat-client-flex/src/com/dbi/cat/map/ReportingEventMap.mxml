@@ -103,4 +103,34 @@
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+		
+	<EventHandlers type="{ReportingEvent.LOAD_CONTACT_CREATES}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_CONTACT_CREATES}" />
+		<RemoteObjectInvoker destination="reportingManager"
+							 method="getContactCreates"
+							 arguments="{[event.clientIDs, event.startDate, event.endDate]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_CONTACT_CREATES}" />
+				<MethodInvoker generator="{ReportingManager}"
+							   method="loadContactCreateDates"
+							   arguments="{[resultObject, event.startDate, event.endDate]}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_CONTACT_CREATES}" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 </EventMap>

@@ -1,10 +1,12 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +32,7 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.reporting.DashboardCount;
 import com.digitalbarista.cat.business.reporting.DashboardData;
+import com.digitalbarista.cat.business.reporting.DateData;
 import com.digitalbarista.cat.business.reporting.MessageCreditInfo;
 import com.digitalbarista.cat.business.reporting.OutgoingMessageSummary;
 import com.digitalbarista.cat.business.reporting.TagSummary;
@@ -117,14 +120,14 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 
 	@Override
-	public DashboardData getDashboardData(List<Long> clientIDs) throws ReportingManagerException 
+	public DashboardData getDashboardData(List<Long> clientIds) throws ReportingManagerException 
 	{
 		DashboardData ret = new DashboardData();
 		
 		try
 		{
 			// Get client count
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIds);
 			ret.setClientCount(Integer.toString(allowedClientIDs.size()));
 			
 			// Get campaign count
@@ -164,14 +167,14 @@ public class ReportingManagerImpl implements ReportingManager {
 		return ret;
 	}
 
-	public List<TagSummary> getTagSummaries(List<Long> clientIDs) throws ReportingManagerException 
+	public List<TagSummary> getTagSummaries(List<Long> clientIds) throws ReportingManagerException 
 	{
 		List<TagSummary> ret = new ArrayList<TagSummary>();
 		
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIds);
 			
 			if (allowedClientIDs.size() > 0)
 			{
@@ -204,6 +207,66 @@ public class ReportingManagerImpl implements ReportingManager {
 		catch(Exception e)
 		{
 			String error = "Error getting tag summary";
+			logger.error(error, e);
+			throw new ReportingManagerException(error, e);
+		}
+		return ret;
+	}
+	
+	public List<DateData> getContactCreates(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
+	{
+		List<DateData> ret = new ArrayList<DateData>();
+		
+		if (start == null)
+		{
+			throw new ReportingManagerException("Invalid start date: " + start);
+		}
+		
+		try
+		{
+			// Get allowed client IDs
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			
+			// Default end date to now
+			Calendar endDate = end;
+			if (endDate == null)
+				endDate = Calendar.getInstance();
+			
+			if (allowedClientIDs.size() > 0)
+			{
+				String queryString = 
+					"select create_date, year(create_date), month(create_date), day(create_date), count(*), " +
+					"	(select count(*) from contact where client_id in (:clientIds) and create_date < :start) " +
+					"from contact " +
+					"where client_id in (:clientIds) and create_date >= :start and create_date <= :end " +
+					"group by year(create_date), month(create_date), day(create_date) " +
+					"order by year(create_date), month(create_date), day(create_date) "; 
+				
+				Query query = em.createNativeQuery(queryString);
+				query.setParameter("clientIds", allowedClientIDs);
+				query.setParameter("start", start);
+				query.setParameter("end", endDate);
+				
+				for (Object item : query.getResultList())
+				{
+					Object[] row = (Object[])item;
+					DateData data = new DateData();
+					Calendar createDate = Calendar.getInstance();
+					createDate.setTime(new Date(((Timestamp)row[0]).getTime()));
+					
+					data.setDate(createDate);
+					data.setYear((Integer)row[1]);
+					data.setMonth((Integer)row[2]);
+					data.setDay((Integer)row[3]);
+					data.setCount((BigInteger)row[4]);
+					data.setTotal((BigInteger)row[5]);
+					ret.add(data);
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			String error = "Error getting contact creates";
 			logger.error(error, e);
 			throw new ReportingManagerException(error, e);
 		}

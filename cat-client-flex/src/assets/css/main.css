@@ -129,3 +129,20 @@ RowIndex
 	fontSize:16;
 	disabledColor:#FFFFFF;
 }
+
+.rangeLabel
+{
+	fontWeight:bold;
+}
+.rangeButton
+{
+	padding-left:0;
+	padding-right:0;
+	padding-top:0;
+	padding-bottom:0;
+}
+
+.chartLabel
+{
+	fontWeight:bold;
+}

@@ -26,6 +26,7 @@
     <classEntry path="com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO"/>
     <classEntry path="com.dbi.cat.common.vo.KeywordVO"/>
     <classEntry path="com.dbi.cat.common.vo.LayoutInfoVO"/>
+    <classEntry path="com.dbi.cat.common.vo.DateData"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

@@ -11,15 +11,16 @@ package com.dbi.util
 	 */	
 	public class DateUtil
 	{
+		public static var formatter:DateFormatter = new DateFormatter();
+		
 		public function DateUtil()
 		{
 		}
 
 		public static function formatDate(date:Object):String
 		{
-			var df:DateFormatter = new DateFormatter();
-			df.formatString = "YYYY-MM-DD";
-			return df.format(date);	
+			formatter.formatString = "YYYY-MM-DD";
+			return formatter.format(date);	
 		}
 		
 		/**
@@ -58,9 +59,8 @@ package com.dbi.util
 			var ret:String = null;
 			if (date != null)
 			{
-				var df:DateFormatter = new DateFormatter();
-				df.formatString = "YYYY-MM-DDTJJ:NN:SSZ";
-				ret = df.format(date.toUTCString());
+				formatter.formatString = "YYYY-MM-DDTJJ:NN:SSZ";
+				ret = formatter.format(date.toUTCString());
 			}
 			
 			return ret;
