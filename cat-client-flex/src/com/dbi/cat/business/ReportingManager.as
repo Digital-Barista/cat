@@ -71,6 +71,8 @@ package com.dbi.cat.business
 					var empty:DateData = new DateData();
 					empty.date = d;
 					empty.count = 0;
+					if (creates.length > 0)
+						empty.total = creates.getItemAt(0).total;
 					this.contactCreateDates.addItem(empty);
 				}
 				
