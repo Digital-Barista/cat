@@ -21,6 +21,14 @@ public class CodedMessage {
 		this.detailedMessage=detailedMessage;
 	}
 	
+	public CodedMessage(int code, String message, String detailedMessage, String offerCode)
+	{
+		this.code=code;
+		this.message=message;
+		this.detailedMessage=detailedMessage;
+		this.offerCode=offerCode;
+	}
+	
 	public CodedMessage(int code, String message)
 	{
 		this(code,message,message);

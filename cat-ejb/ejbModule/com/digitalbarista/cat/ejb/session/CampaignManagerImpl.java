@@ -463,6 +463,7 @@ public class CampaignManagerImpl implements CampaignManager {
 					offer.setCampaign(cnl.getCampaign());
 					offer.setCouponExpirationDate(cNode.getExpireDate());
 					offer.setCouponExpirationDays(cNode.getExpireDays());
+					offer.setOfferCode(cNode.getOfferCode());
 					em.persist(offer);
 					
 					cNode.associateCouponOffer(offer);

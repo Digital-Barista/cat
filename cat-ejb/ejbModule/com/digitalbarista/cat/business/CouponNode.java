@@ -34,6 +34,7 @@ public class CouponNode extends Node implements Auditable {
 	private static final String INFO_PROPERTY_COUPON_CODE="CouponCode";
 	private static final String INFO_PROPERTY_EXPIRATION_DATE="ExpirationDate";
 	private static final String INFO_PROPERTY_EXPIRATION_DAYS="ExpirationDays";
+	private static final String INFO_PROPERTY_OFFER_CODE="OfferCode";
 	
 	public static final Long INFINITE_REDEMPTION_COUNT = -1l;
 	public static final Long INFINITE_COUPONS_COUNT = -1l;
@@ -52,6 +53,7 @@ public class CouponNode extends Node implements Auditable {
 	private String couponCode = null;
 	private Date expireDate = null;
 	private Integer expireDays = null;
+	private String offerCode = null;
 	
 	@Override
 	public void copyFrom(NodeDO dataObject, Integer version) {
@@ -89,6 +91,9 @@ public class CouponNode extends Node implements Auditable {
 
 				else if(ni.getName().equals(INFO_PROPERTY_EXPIRATION_DAYS))
 					expireDays = new Integer(ni.getValue());
+	
+				else if(ni.getName().equals(INFO_PROPERTY_OFFER_CODE))
+					offerCode = ni.getValue();
 	
 			}
 			catch(ParseException e)
@@ -191,6 +196,17 @@ public class CouponNode extends Node implements Auditable {
 			if (nodes.containsKey(INFO_PROPERTY_EXPIRATION_DATE))
 				dataObject.getNodeInfo().remove(nodes.remove(INFO_PROPERTY_EXPIRATION_DATE));
 		}
+
+		if(offerCode != null)
+		{
+			if(nodes.containsKey(INFO_PROPERTY_OFFER_CODE))
+				nodes.get(INFO_PROPERTY_OFFER_CODE).setValue(offerCode);
+			else
+				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_OFFER_CODE, offerCode, version);
+
+			if (nodes.containsKey(INFO_PROPERTY_OFFER_CODE))
+				dataObject.getNodeInfo().remove(nodes.remove(INFO_PROPERTY_OFFER_CODE));
+		}
 	}
 
 	@Override
@@ -214,6 +230,7 @@ public class CouponNode extends Node implements Auditable {
 			ret.append(";expirationDate:"+new SimpleDateFormat(dateFormat).format(getExpireDate()));
 		
 		ret.append(";couponCode:"+getCouponCode());
+		ret.append(";offerCode:"+getOfferCode());
 		ret.append(";name:"+getName());
 		ret.append(";UID:"+getUid());
 		ret.append(";campaign:"+getCampaignUID());
@@ -308,6 +325,13 @@ public class CouponNode extends Node implements Auditable {
 	public void setExpireDays(Integer expireDays) {
 		this.expireDays = expireDays;
 	}
-	
-	
+
+	@XmlAttribute
+	public String getOfferCode() {
+		return offerCode;
+	}
+
+	public void setOfferCode(String offerCode) {
+		this.offerCode = offerCode;
+	}
 }

@@ -22,6 +22,7 @@ public class Coupon implements
 	private Long totalRedemptionCount;
 	private Long averageRedemptionTime;
 	private Date expireDate;
+	private String offerCode;
 	private Integer expireDays;
 	
 	public void copyFrom(CouponOfferDO dataObject)
@@ -37,6 +38,7 @@ public class Coupon implements
 		expireDays = dataObject.getCouponExpirationDays();
 		totalRedemptionCount=0l;
 		averageRedemptionTime=0l;
+		offerCode = dataObject.getOfferCode();
 		for(CouponResponseDO resp : dataObject.getResponses())
 		{
 			for(CouponRedemptionDO redemption : resp.getRedemptions())
