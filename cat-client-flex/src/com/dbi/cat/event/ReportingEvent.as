@@ -12,6 +12,7 @@ package com.dbi.cat.event
 		public static const LOAD_DASHBOARD:String = "loadDashboardEvent";
 		public static const LOAD_TAG_SUMMARIES:String = "loadTagSummariesEvent";
 		public static const LOAD_CONTACT_CREATES:String = "loadContactCreatesEvent";
+		public static const LOAD_MESSAGE_SEND_DATES:String = "loadMessageSendDatesEvent";
 		
 		public var clientIDs:ArrayCollection;
 		public var startDate:Date;

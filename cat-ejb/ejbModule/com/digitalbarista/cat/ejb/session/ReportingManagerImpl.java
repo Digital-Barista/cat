@@ -273,6 +273,73 @@ public class ReportingManagerImpl implements ReportingManager {
 		return ret;
 	}
 	
+	public List<DateData> getMessageSendDates(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
+	{
+		List<DateData> ret = new ArrayList<DateData>();
+		
+		if (start == null)
+		{
+			throw new ReportingManagerException("Invalid start date: " + start);
+		}
+		
+		try
+		{
+			// Get allowed client IDs
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			
+			// Default end date to now
+			Calendar endDate = end;
+			if (endDate == null)
+				endDate = Calendar.getInstance();
+			
+			if (allowedClientIDs.size() > 0)
+			{
+				String queryString = 
+					"select date_sent, year(date_sent), month(date_sent), day(date_sent), count(*), " +
+					"  (select count(*) from audit_outgoing_message a " +
+					"    join nodes n on n.uid = a.node_uid " +
+					"    join campaigns as c on c.campaign_id = n.campaign_id " +
+					"    join client as cli on cli.client_id = c.client_id " +
+					"    where cli.client_id in (:clientIds)  and date_sent < :start) " +
+					"from audit_outgoing_message a " +
+					"join nodes n on n.uid = a.node_uid " +
+					"join campaigns as c on c.campaign_id = n.campaign_id " +
+					"join client as cli on cli.client_id = c.client_id " +
+					"where cli.client_id in (:clientIds) and date_sent >= :start and date_sent <= :end " +
+					"group by year(date_sent), month(date_sent), day(date_sent) " +
+					"order by date_sent ";
+				
+				Query query = em.createNativeQuery(queryString);
+				query.setParameter("clientIds", allowedClientIDs);
+				query.setParameter("start", start);
+				query.setParameter("end", endDate);
+				
+				for (Object item : query.getResultList())
+				{
+					Object[] row = (Object[])item;
+					DateData data = new DateData();
+					Calendar createDate = Calendar.getInstance();
+					createDate.setTime(new Date(((Timestamp)row[0]).getTime()));
+					
+					data.setDate(createDate);
+					data.setYear((Integer)row[1]);
+					data.setMonth((Integer)row[2]);
+					data.setDay((Integer)row[3]);
+					data.setCount((BigInteger)row[4]);
+					data.setTotal((BigInteger)row[5]);
+					ret.add(data);
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			String error = "Error getting message send dates";
+			logger.error(error, e);
+			throw new ReportingManagerException(error, e);
+		}
+		return ret;
+	}
+	
 	private List<Long> getAllowedClientIDs(List<Long> clientIDs)
 	{
 		// Get client count

@@ -44,6 +44,7 @@
 			import com.dbi.cat.view.contacts.TagChooser;
 			import com.dbi.cat.view.dashboard.ContactCreatesView;
 			import com.dbi.cat.view.dashboard.DashboardView;
+			import com.dbi.cat.view.dashboard.MessageSendDatesView;
 			import com.dbi.cat.view.dashboard.SummaryView;
 			import com.dbi.cat.view.dashboard.TagSummaryView;
 			import com.dbi.cat.view.profile.AddCreditsView;
@@ -512,5 +513,15 @@
 			source="{ReportingManager}"
 			sourceKey="contactCreateDates"
 			targetKey="contactCreateDates" />
+	</Injectors>
+	<Injectors target="{MessageSendDatesView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="allClients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="messageSendDates"
+			targetKey="messageSendDates" />
 	</Injectors>
 </EventMap>

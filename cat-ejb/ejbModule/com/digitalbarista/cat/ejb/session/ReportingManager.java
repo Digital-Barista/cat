@@ -19,4 +19,5 @@ public interface ReportingManager
 	DashboardData getDashboardData(List<Long> clientIds) throws ReportingManagerException ;
 	List<TagSummary> getTagSummaries(List<Long> clientIds) throws ReportingManagerException;
 	List<DateData> getContactCreates(List<Long> clientIds, Calendar start, Calendar end) throws ReportingManagerException;
+	List<DateData> getMessageSendDates(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException;
 }

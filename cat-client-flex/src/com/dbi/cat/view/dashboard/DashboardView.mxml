@@ -14,7 +14,7 @@
 		paddingTop="0">
 		<dashboard:SummaryView label="Summary" />
 		<dashboard:TagSummaryView label="Tags" />
-		<reporting:OutgoingMessageView label="Outgoing Messages" />
-		<dashboard:SubscriberSummary label="Contacts" />
+		<dashboard:ContactCreatesView label="Contacts" />
+		<dashboard:MessageSendDatesView label="Sent Messages" />
 	</mx:TabNavigator>
 </mx:Canvas>

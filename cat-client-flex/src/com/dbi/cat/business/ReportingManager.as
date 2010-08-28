@@ -24,6 +24,7 @@ package com.dbi.cat.business
 		public var outgoingMessageSummaries:ArrayCollection;
 		public var tagSummaries:ArrayCollection;
 		public var contactCreateDates:ArrayCollection;
+		public var messageSendDates:ArrayCollection;
 		
 		public function ReportingManager(dispatcher:IEventDispatcher)
 		{
@@ -37,6 +38,7 @@ package com.dbi.cat.business
 		{
 			outgoingMessageSummaries = summaries;
 		}
+		
 		public function loadDashboardData(dashboardData:DashboardDataVO):void
 		{
 			this.dashboardData = dashboardData;
@@ -45,14 +47,35 @@ package com.dbi.cat.business
 		{
 			this.tagSummaries = summaries;
 		}
+		
 		public function loadContactCreateDates(creates:ArrayCollection, start:Date, end:Date):void
 		{
+			this.contactCreateDates = fillEmptyDays(creates, start, end);
+		}
+		
+		public function loadMessageSendDates(messageDates:ArrayCollection, start:Date, end:Date):void
+		{
+			this.messageSendDates = fillEmptyDays(messageDates, start, end);
+		}
+		
+		/**
+		 * Take a list of DateData and fill a new collection with 
+		 * DateData for every day in a given range creating new ones
+		 * for the days missing in the dateData list given
+		 * 
+		 * @param dateData Data where counts are non zero
+		 * @param start Start date of the range to fill
+		 * @param end End date of the range to fill
+		 * @return A new ArrayCollection with DateData for each day in range
+		 */
+		private function fillEmptyDays(dateData:ArrayCollection, start:Date, end:Date):ArrayCollection
+		{
 			// Fill in missing dates with zero counts
-			this.contactCreateDates = new ArrayCollection();
+			var ret:ArrayCollection = new ArrayCollection();
 			
 			// Map the current data by date
 			var dateMap:Object = new Object();
-			for each (var data:DateData in creates)
+			for each (var data:DateData in dateData)
 				dateMap[data.date.fullYear + "-" + data.date.month + "-" + data.date.date] = data;
 			
 			// Go through every day in range
@@ -64,20 +87,22 @@ package com.dbi.cat.business
 				
 				if (existing != null)
 				{
-					this.contactCreateDates.addItem(existing);
+					ret.addItem(existing);
 				}
 				else
 				{
 					var empty:DateData = new DateData();
 					empty.date = d;
 					empty.count = 0;
-					if (creates.length > 0)
-						empty.total = creates.getItemAt(0).total;
-					this.contactCreateDates.addItem(empty);
+					if (dateData.length > 0)
+						empty.total = dateData.getItemAt(0).total;
+					ret.addItem(empty);
 				}
 				
 				time += 24*60*60*1000;
 			}
+			
+			return ret;
 		}
 	}
 }
