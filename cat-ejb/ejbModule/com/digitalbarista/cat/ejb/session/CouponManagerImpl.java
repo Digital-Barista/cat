@@ -149,7 +149,7 @@ public class CouponManagerImpl implements CouponManager {
 			if(cResp.getRedemptionCount()>=cResp.getCouponOffer().getMaxRedemptions())
 			return new CodedMessage(OVER_MAX_CODE,"This coupon has already been redeemed "+cResp.getRedemptionCount()+" times.");
 		}
-		return new CodedMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode());
+		return new CodedMessage(SUCCESS,"Coupon is valid.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode());
 	}
 
 }
