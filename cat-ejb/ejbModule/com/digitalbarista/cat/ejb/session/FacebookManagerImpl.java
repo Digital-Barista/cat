@@ -1,7 +1,9 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -25,11 +27,20 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIUtils;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -39,6 +50,9 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.digitalbarista.cat.business.FacebookMessage;
 import com.digitalbarista.cat.data.CampaignInfoDO;
@@ -64,6 +78,13 @@ import com.digitalbarista.cat.message.event.CATEvent;
 public class FacebookManagerImpl implements FacebookManager {
 
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
+	private final static String FACEBOOK_REST_API_URL = "https://api.facebook.com";
+	private final static String FACEBOOK_GRAPH_API_URL = "https://graph.facebook.com";
+	private final static String FACEBOOK_ACCESS_TOKEN_URL = FACEBOOK_GRAPH_API_URL + "/oauth/access_token";
+
+	private final static String FACEBOOK_REST_API_PROTOCAL = "https";
+	private final static String FACEBOOK_REST_API_DOMAIN = "api.facebook.com";
+	
 	private final static String FACEBOOK_PARAM_PREFIX = "fb_sig_";
 	private final static String FACEBOOK_PARAM_APP_ID = "fb_sig_app_id";
 	private final static String FACEBOOK_PARAM_USER_ID = "uid";;
@@ -401,9 +422,9 @@ public class FacebookManagerImpl implements FacebookManager {
 	private String callFacebookMethod(String secret, Map<String, String> postParameters) throws FacebookManagerException
 	{
 		String ret = "";
+		String url = FACEBOOK_REST_URL + "?";
 		
 		DefaultHttpClient client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(FACEBOOK_REST_URL);
 		
 		// Sort keys
 		Object[] keys = postParameters.keySet().toArray();
@@ -414,31 +435,24 @@ public class FacebookManagerImpl implements FacebookManager {
 		for (Object key : keys)
 		{
 			String value = postParameters.get(key);
-			post.getParams().setParameter(key.toString(), value);
 			params += key + "=" + value;
+			url += "&" + key + "=" + value;
 		}
 
 		params += secret;
 		String hashed = md5(params);
-		post.getParams().setParameter("sig", hashed);
+		
+		// Build a the URL with all parameters on it
+		url += "&sig=" + hashed;
+		HttpGet get = new HttpGet(url);
 		
 		try 
 		{
-			HttpResponse result = client.execute(post);
+			HttpResponse result = client.execute(get);
 			
 			if (result!=null && result.getStatusLine().getStatusCode() == 200)
 			{
-				InputStream in = result.getEntity().getContent();
-				StringBuffer retBuffer = new StringBuffer();
-				byte[] buf=new byte[1024];
-				int size=-1;
-				do
-				{
-					size=in.read(buf);
-						if(size==-1) continue;
-					retBuffer.append(new String(buf,0,size));
-				}while(size>=0);
-				ret = retBuffer.toString();
+				ret = EntityUtils.toString(result.getEntity());
 			}
 			else
 			{
@@ -494,4 +508,141 @@ public class FacebookManagerImpl implements FacebookManager {
 		subscriptionManager.removeFacebookFollower(uid, facebookAppId);
 	}
 
+	@Override
+	public Boolean isUserAllowingApp(String facebookUID, String facebookAppId) throws FacebookManagerException
+	{
+		Boolean ret = true;
+		String token = getFacebookAppAccessToken(facebookAppId);
+		if (token == null)
+		{
+			throw new FacebookManagerException("Could not retrieve access token for facebook app ID: " + facebookAppId);
+		}
+		else
+		{
+			// Call facebook method
+			List<NameValuePair> qparams = new ArrayList<NameValuePair>();
+			qparams.add(new BasicNameValuePair("uid", facebookUID));
+			qparams.add(new BasicNameValuePair("access_token", token));
+			
+			Document doc = callFacebookMethod("users.isAppUser", qparams);
+			
+			// Check return flag
+			String value = doc.getDocumentElement().getFirstChild().getNodeValue();
+			ret = !value.equals("0");
+		}
+		return ret;
+	}
+	
+	private Document callFacebookMethod(String method, List<NameValuePair> parameters) throws FacebookManagerException
+	{
+		Document ret = null;
+		
+		try 
+		{
+			DefaultHttpClient client = new DefaultHttpClient();
+			
+			URI uri = URIUtils.createURI(FACEBOOK_REST_API_PROTOCAL, 
+					FACEBOOK_REST_API_DOMAIN, 
+					-1, 
+					"/method/" + method, 
+					URLEncodedUtils.format(parameters, "UTF-8"), 
+					null);
+			HttpGet get = new HttpGet(uri);
+			
+			
+			HttpResponse result = client.execute(get);
+			String messageXML = null;
+			
+			if (result!=null && result.getStatusLine().getStatusCode() == 200)
+			{
+				messageXML = EntityUtils.toString(result.getEntity());
+			}
+			else
+			{
+				throw new FacebookManagerException("Facebook request returned with status code: " + result.getStatusLine().getStatusCode());
+			}
+
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = factory.newDocumentBuilder();
+			InputSource is = new InputSource();
+			is.setCharacterStream(new StringReader(messageXML));
+			Document doc = db.parse(is);
+			
+			// Check for error response
+			if (doc.getElementsByTagName("error_response").getLength() > 0)
+			{
+				throw new FacebookManagerException("Facebook returned an error: \n" + messageXML);
+			}
+			ret = doc;
+		} 
+		catch (IOException e) 
+		{
+			throw new FacebookManagerException("Error making facebook request", e);
+		} 
+		catch (URISyntaxException e) 
+		{
+			throw new FacebookManagerException("Error building facebook URI", e);
+		} 
+		catch (ParserConfigurationException e) 
+		{
+			throw new FacebookManagerException("Could not parse facebook response", e);
+		} 
+		catch (SAXException e) 
+		{
+			throw new FacebookManagerException("Could not parse facebook response", e);
+		} 
+		
+		return ret;
+	}
+	
+	private String getFacebookAppAccessToken(String facebookAppId)
+	{
+		String token = null;
+		
+		try
+		{
+			// Get facebook app
+			FacebookAppDO appDO = em.find(FacebookAppDO.class, facebookAppId);
+			if (appDO != null)
+			{
+				DefaultHttpClient client = new DefaultHttpClient();
+				HttpPost post = new HttpPost(FACEBOOK_ACCESS_TOKEN_URL);
+				
+				List<BasicNameValuePair> formparams = new ArrayList<BasicNameValuePair>();
+				formparams.add(new BasicNameValuePair("type", "client_cred"));
+				formparams.add(new BasicNameValuePair("client_id", appDO.getId()));
+				formparams.add(new BasicNameValuePair("client_secret", appDO.getSecret()));
+
+				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, "UTF-8");
+				post.setEntity(entity);
+				
+				HttpResponse result = client.execute(post);
+				
+				if (result != null)
+				{
+					String content = EntityUtils.toString(result.getEntity());
+					String[] parts = content.split("=");
+					if (parts.length == 2 &&
+						parts[0].equals("access_token") )
+					{
+						token = parts[1];
+					}
+					else
+					{
+						throw new FacebookManagerException("Error returned from OAuth service: " + content);
+					}
+				}
+				else
+				{
+					throw new FacebookManagerException("Facebook request returned with status code: " + result.getStatusLine().getStatusCode());
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			logger.error("Error trying to retrieve access token", e);
+		}
+		
+		return token;
+	}
 }

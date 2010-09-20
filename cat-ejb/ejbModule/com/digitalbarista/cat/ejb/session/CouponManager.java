@@ -23,6 +23,9 @@ public interface CouponManager {
     @Path("/{code}")
     @POST
 	public CodedMessage redeemCoupon(@PathParam("code") String couponCode);
+    @Path("/{code}")
+    @GET
+	public CodedMessage queryCoupon(@PathParam("code") String couponCode);
     @GET
     @Wrapped(element="Coupons")
 	public List<Coupon> couponSummaryByClient(@QueryParam("clientid") Long clientID);

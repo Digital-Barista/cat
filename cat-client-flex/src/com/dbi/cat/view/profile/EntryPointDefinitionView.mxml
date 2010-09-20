@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.event.ClientEvent;
@@ -8,6 +9,11 @@
 			
 			[Bindable]
 			public var entryPointDefinitions:ArrayCollection;
+			
+			private function init():void
+			{
+				refresh();
+			}
 			
 			private function addEntryPoint():void
 			{

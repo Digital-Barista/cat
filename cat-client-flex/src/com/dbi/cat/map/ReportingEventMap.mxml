@@ -51,6 +51,7 @@
 			arguments="{ServiceStatusMessage.LOADING_DASHBOARD_DATA}" />
 		<RemoteObjectInvoker destination="reportingManager"
 			method="getDashboardData"
+			arguments="{event.clientIDs}"
 			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker
@@ -69,6 +70,96 @@
 				<MethodInvoker generator="{AppManager}"
 					method="showFault"
 					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.LOAD_TAG_SUMMARIES}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_TAG_SUMMARIES}" />
+		<RemoteObjectInvoker destination="reportingManager"
+							 method="getTagSummaries"
+							 arguments="{event.clientIDs}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_TAG_SUMMARIES}" />
+				<MethodInvoker generator="{ReportingManager}"
+							   method="loadTagSummaries"
+							   arguments="{resultObject}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_TAG_SUMMARIES}" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+		
+	<EventHandlers type="{ReportingEvent.LOAD_CONTACT_CREATES}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_CONTACT_CREATES}" />
+		<RemoteObjectInvoker destination="reportingManager"
+							 method="getContactCreates"
+							 arguments="{[event.clientIDs, event.startDate, event.endDate]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_CONTACT_CREATES}" />
+				<MethodInvoker generator="{ReportingManager}"
+							   method="loadContactCreateDates"
+							   arguments="{[resultObject, event.startDate, event.endDate]}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_CONTACT_CREATES}" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.LOAD_MESSAGE_SEND_DATES}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_MESSAGE_SEND_DATES}" />
+		<RemoteObjectInvoker destination="reportingManager"
+							 method="getMessageSendDates"
+							 arguments="{[event.clientIDs, event.startDate, event.endDate]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_MESSAGE_SEND_DATES}" />
+				<MethodInvoker generator="{ReportingManager}"
+							   method="loadMessageSendDates"
+							   arguments="{[resultObject, event.startDate, event.endDate]}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_MESSAGE_SEND_DATES}" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{event.fault}" />
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" >
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.vo.UserVO;
@@ -9,6 +10,11 @@
 			
 			[Bindable]
 			public var userList:ArrayCollection;
+			
+			private function init():void
+			{
+				refresh();
+			}
 			
 			private function createUser():void
 			{

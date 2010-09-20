@@ -11,6 +11,9 @@ package com.dbi.cat.constants
 		public static const LOADING_COUPONS:String = "Loading coupons";
 		public static const LOADING_OUTGOING_MESSAGES:String = "Loading outgoing messages";
 		public static const LOADING_DASHBOARD_DATA:String = "Loading dashboard data";
+		public static const LOADING_TAG_SUMMARIES:String = "Loading tag summaries";
+		public static const LOADING_CONTACT_CREATES:String = "Loading subscriber creates";
+		public static const LOADING_MESSAGE_SEND_DATES:String = "Loading message send dates";
 		
 		public function ServiceStatusMessage()
 		{

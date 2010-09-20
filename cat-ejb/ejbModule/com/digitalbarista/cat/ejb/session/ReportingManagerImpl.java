@@ -1,10 +1,12 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,8 +32,10 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.reporting.DashboardCount;
 import com.digitalbarista.cat.business.reporting.DashboardData;
+import com.digitalbarista.cat.business.reporting.DateData;
 import com.digitalbarista.cat.business.reporting.MessageCreditInfo;
 import com.digitalbarista.cat.business.reporting.OutgoingMessageSummary;
+import com.digitalbarista.cat.business.reporting.TagSummary;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignStatus;
@@ -75,7 +79,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		
 		try
 		{
-			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+			List<Long> clientIDs = getAllowedClientIDs(null);
 			
 			if (clientIDs.size() > 0)
 			{
@@ -116,19 +120,19 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 
 	@Override
-	public DashboardData getDashboardData() throws ReportingManagerException 
+	public DashboardData getDashboardData(List<Long> clientIds) throws ReportingManagerException 
 	{
 		DashboardData ret = new DashboardData();
 		
 		try
 		{
 			// Get client count
-			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
-			ret.setClientCount(Integer.toString(clientIDs.size()) );
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIds);
+			ret.setClientCount(Integer.toString(allowedClientIDs.size()));
 			
 			// Get campaign count
 			Criteria crit = session.createCriteria(CampaignDO.class);
-			crit.add(Restrictions.in("client.primaryKey", clientIDs));
+			crit.add(Restrictions.in("client.primaryKey", allowedClientIDs));
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
 			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.setProjection(Projections.rowCount());
@@ -136,19 +140,19 @@ public class ReportingManagerImpl implements ReportingManager {
 			
 
 			// Get per EntryPointType counts
-			ret.setContactCounts(getContactCounts(clientIDs));
-			ret.setCouponsRedeemed(getCouponsRedeemed(clientIDs));
-			ret.setCouponsSent(getCouponsSent(clientIDs));
-			ret.setMessagesReceived(getMessageReceivedCounts(clientIDs));
-			ret.setMessagesSent(getMessageSentCounts(clientIDs));
+			ret.setContactCounts(getContactCounts(allowedClientIDs));
+			ret.setCouponsRedeemed(getCouponsRedeemed(allowedClientIDs));
+			ret.setCouponsSent(getCouponsSent(allowedClientIDs));
+			ret.setMessagesReceived(getMessageReceivedCounts(allowedClientIDs));
+			ret.setMessagesSent(getMessageSentCounts(allowedClientIDs));
 
 			// Get message credit infos
-			ret.setMessageCreditInfos(getMessageCreditInfos(clientIDs));
+			ret.setMessageCreditInfos(getMessageCreditInfos(allowedClientIDs));
 			
 			// Get subscriber count
 			crit = session.createCriteria(CampaignSubscriberLinkDO.class);
 			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.primaryKey", clientIDs));
+			crit.add(Restrictions.in("campaign.client.primaryKey", allowedClientIDs));
 			crit.setProjection(Projections.rowCount());
 			ret.setSubscriberCount(crit.uniqueResult().toString());
 			
@@ -162,8 +166,219 @@ public class ReportingManagerImpl implements ReportingManager {
 		
 		return ret;
 	}
+
+	public List<TagSummary> getTagSummaries(List<Long> clientIds) throws ReportingManagerException 
+	{
+		List<TagSummary> ret = new ArrayList<TagSummary>();
+		
+		try
+		{
+			// Get allowed client IDs
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIds);
+			
+			if (allowedClientIDs.size() > 0)
+			{
+				String queryString = 
+					"select cli.client_id, cli.name, c.type, t.tag, count(*) " +
+					"from contact c " +
+					"join client cli on cli.client_id = c.client_id " +
+					"join contact_tag_link ctl on c.contact_id = ctl.contact_id " +
+					"join contact_tag t on t.contact_tag_id = ctl.contact_tag_id " +
+					"where cli.client_id in (:clientIds) " +
+					"group by cli.client_id, cli.name, t.tag, c.type " +
+					"order by cli.name, c.type, t.tag ";
+				
+				Query query = em.createNativeQuery(queryString);
+				query.setParameter("clientIds", allowedClientIDs);
+				
+				for (Object item : query.getResultList())
+				{
+					Object[] row = (Object[])item;
+					TagSummary summary = new TagSummary();
+					summary.setClientId(((BigInteger)row[0]).longValue());
+					summary.setClientName((String)row[1]);
+					summary.setEntryPointType(EntryPointType.valueOf((String)row[2]));
+					summary.setTag((String)row[3]);
+					summary.setUserCount((BigInteger)row[4]);
+					ret.add(summary);
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			String error = "Error getting tag summary";
+			logger.error(error, e);
+			throw new ReportingManagerException(error, e);
+		}
+		return ret;
+	}
 	
-	private Long getCouponsSent(Set<Long> clientIds)
+	public List<DateData> getContactCreates(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
+	{
+		List<DateData> ret = new ArrayList<DateData>();
+		
+		if (start == null)
+		{
+			throw new ReportingManagerException("Invalid start date: " + start);
+		}
+		
+		try
+		{
+			// Get allowed client IDs
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			
+			// Default end date to now
+			Calendar endDate = end;
+			if (endDate == null)
+				endDate = Calendar.getInstance();
+			
+			if (allowedClientIDs.size() > 0)
+			{
+				String queryString = 
+					"select create_date, year(create_date), month(create_date), day(create_date), count(*), " +
+					"	(select count(*) from contact where client_id in (:clientIds) and create_date < :start) " +
+					"from contact " +
+					"where client_id in (:clientIds) and create_date >= :start and create_date <= :end " +
+					"group by year(create_date), month(create_date), day(create_date) " +
+					"order by year(create_date), month(create_date), day(create_date) "; 
+				
+				Query query = em.createNativeQuery(queryString);
+				query.setParameter("clientIds", allowedClientIDs);
+				query.setParameter("start", start);
+				query.setParameter("end", endDate);
+				
+				for (Object item : query.getResultList())
+				{
+					Object[] row = (Object[])item;
+					DateData data = new DateData();
+					Calendar createDate = Calendar.getInstance();
+					createDate.setTime(new Date(((Timestamp)row[0]).getTime()));
+					
+					data.setDate(createDate);
+					data.setYear((Integer)row[1]);
+					data.setMonth((Integer)row[2]);
+					data.setDay((Integer)row[3]);
+					data.setCount((BigInteger)row[4]);
+					data.setTotal((BigInteger)row[5]);
+					ret.add(data);
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			String error = "Error getting contact creates";
+			logger.error(error, e);
+			throw new ReportingManagerException(error, e);
+		}
+		return ret;
+	}
+	
+	public List<DateData> getMessageSendDates(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
+	{
+		List<DateData> ret = new ArrayList<DateData>();
+		
+		if (start == null)
+		{
+			throw new ReportingManagerException("Invalid start date: " + start);
+		}
+		
+		try
+		{
+			// Get allowed client IDs
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			
+			// Default end date to now
+			Calendar endDate = end;
+			if (endDate == null)
+				endDate = Calendar.getInstance();
+			
+			if (allowedClientIDs.size() > 0)
+			{
+				String queryString = 
+					"select date_sent, year(date_sent), month(date_sent), day(date_sent), count(*), " +
+					"  (select count(*) from audit_outgoing_message a " +
+					"    join nodes n on n.uid = a.node_uid " +
+					"    join campaigns as c on c.campaign_id = n.campaign_id " +
+					"    join client as cli on cli.client_id = c.client_id " +
+					"    where cli.client_id in (:clientIds)  and date_sent < :start) " +
+					"from audit_outgoing_message a " +
+					"join nodes n on n.uid = a.node_uid " +
+					"join campaigns as c on c.campaign_id = n.campaign_id " +
+					"join client as cli on cli.client_id = c.client_id " +
+					"where cli.client_id in (:clientIds) and date_sent >= :start and date_sent <= :end " +
+					"group by year(date_sent), month(date_sent), day(date_sent) " +
+					"order by date_sent ";
+				
+				Query query = em.createNativeQuery(queryString);
+				query.setParameter("clientIds", allowedClientIDs);
+				query.setParameter("start", start);
+				query.setParameter("end", endDate);
+				
+				for (Object item : query.getResultList())
+				{
+					Object[] row = (Object[])item;
+					DateData data = new DateData();
+					Calendar createDate = Calendar.getInstance();
+					createDate.setTime(new Date(((Timestamp)row[0]).getTime()));
+					
+					data.setDate(createDate);
+					data.setYear((Integer)row[1]);
+					data.setMonth((Integer)row[2]);
+					data.setDay((Integer)row[3]);
+					data.setCount((BigInteger)row[4]);
+					data.setTotal((BigInteger)row[5]);
+					ret.add(data);
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			String error = "Error getting message send dates";
+			logger.error(error, e);
+			throw new ReportingManagerException(error, e);
+		}
+		return ret;
+	}
+	
+	private List<Long> getAllowedClientIDs(List<Long> clientIDs)
+	{
+		// Get client count
+		Set<Long> allowedClientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+		
+		// Restrict to given client IDs if given
+		List<Long> filterClientIDs = new ArrayList<Long>();
+		if (clientIDs == null)
+		{
+			filterClientIDs.addAll(allowedClientIDs);
+		}
+		else
+		{
+			for (Long allowedClientId : allowedClientIDs)
+			{
+				for (int i = 0; i < clientIDs.size(); i++)
+				{
+					// Stupid check because Blaze thinks ArrayCollection<Integer> fits 
+					// the List<Long> interface
+					Object number = clientIDs.get(i);
+					Long value;
+					if (number instanceof Integer)
+						value = ((Integer)number).longValue();
+					else
+						value = ((Long)number).longValue();
+					
+					// Add allowed client IDs
+					if (allowedClientId.equals(value) )
+					{
+						filterClientIDs.add(allowedClientId);
+						break;
+					}
+				}
+			}
+		}
+		return filterClientIDs;
+	}
+	
+	private Long getCouponsSent(List<Long> clientIds)
 	{
 		Criteria crit = session.createCriteria(CouponOfferDO.class);
 		crit.createAlias("campaign", "campaign");
@@ -173,7 +388,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		return (Long)crit.uniqueResult();
 	}
 	
-	private Integer getCouponsRedeemed(Set<Long> clientIds)
+	private Integer getCouponsRedeemed(List<Long> clientIds)
 	{
 		Criteria crit = session.createCriteria(CouponRedemptionDO.class);
 		crit.createAlias("couponResponse", "couponResponse");
@@ -186,7 +401,7 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<DashboardCount> getMessageSentCounts(Set<Long> clientIds)
+	private List<DashboardCount> getMessageSentCounts(List<Long> clientIds)
 	{
 		List<DashboardCount> ret = new ArrayList<DashboardCount>();
 			
@@ -223,7 +438,7 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<DashboardCount> getMessageReceivedCounts(Set<Long> clientIds)
+	private List<DashboardCount> getMessageReceivedCounts(List<Long> clientIds)
 	{
 		List<DashboardCount> ret = new ArrayList<DashboardCount>();
 			
@@ -267,7 +482,7 @@ public class ReportingManagerImpl implements ReportingManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<DashboardCount> getContactCounts(Set<Long> clientIds)
+	private List<DashboardCount> getContactCounts(List<Long> clientIds)
 	{
 		List<DashboardCount> ret = new ArrayList<DashboardCount>();
 			
@@ -299,7 +514,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		return ret;
 	}
 	
-	private List<MessageCreditInfo> getMessageCreditInfos(Set<Long> clientIds)
+	private List<MessageCreditInfo> getMessageCreditInfos(List<Long> clientIds)
 	{
 		// Get message credit info
 		List<MessageCreditInfo> creditInfos = new ArrayList<MessageCreditInfo>();

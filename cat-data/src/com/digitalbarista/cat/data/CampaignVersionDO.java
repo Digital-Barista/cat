@@ -15,6 +15,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: CampaignVersionDO
  *
@@ -22,6 +25,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="campaign_versions")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class CampaignVersionDO implements Serializable,DataObject {
 
 	private long primaryKey;

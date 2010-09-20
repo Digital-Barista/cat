@@ -3,6 +3,7 @@ body
 	font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
 	font-size:11px;
 	color:#808080;
+	margin:0px;
 }
 
 a 
@@ -22,11 +23,21 @@ h2
 	color:#1C2A47;
 }
 
-#MessageArea
+#MainContainer
 {
-	width:730px;
+	width:735px;
 }
 
+#MessageArea
+{
+}
+
+#Invite
+{
+	display:none;
+	width:735px;
+	height:570px;
+}
 
 .loadingTable, .messageTable
 {
@@ -71,7 +82,7 @@ h2
 	direction:ltr;
 	text-align:left;
 	
-	margin-bottom:10px;
+	margin-bottom:10px; 
 }
 
 .footer
@@ -107,9 +118,11 @@ h2
 .bookmark
 {
 	display:none;
-	text-align:right;
+}
+.toolButton
+{
 	float:right;
-	width:730px;
+	margin-left:5px;
 }
 
 .login

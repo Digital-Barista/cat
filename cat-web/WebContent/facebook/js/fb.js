@@ -8,8 +8,8 @@ function fbInit()
 	// Initialize facebook API
 	FB.init({appId: appId, status: true, cookie: true, xfbml: true});
 
-	// Start resize timer
-	//FB.Canvas.setAutoResize();
+	// Set canvas size
+	FB.Canvas.setSize();
 
 	// Listen for session change events
 	FB.Event.subscribe('auth.sessionChange', function(response) {
@@ -19,7 +19,21 @@ function fbInit()
 	// Check the login status
 	FB.getLoginStatus(function(response) {
 		handleResponse(response);
+	});
+	
+	// Wire events
+	if ($("#InviteButton") &&
+		$("#Invite")
+	{
+		$("#InviteButton").click(function(){
+			if ($("#Invite").css("display") == "block")
+				$("#Invite").css("display", "none");
+			else
+				$("#Invite").css("display", "block");
+			
+			FB.Canvas.setSize();
 		});
+	}
 }
 function handleResponse(response)
 {
@@ -29,6 +43,8 @@ function handleResponse(response)
 		  hideLogin();
 		  fetchMessages();
 		  showBookmark();
+		  
+		  FB.Canvas.setSize();
 	  } 
 	  else 
 	  {

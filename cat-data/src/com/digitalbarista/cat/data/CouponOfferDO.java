@@ -32,6 +32,7 @@ public class CouponOfferDO implements Serializable,DataObject {
 	private Date offerUnavailableDate;
 	private String couponName;
 	private String nodeUID;
+	private String offerCode;
 	private CampaignDO campaign;
 	private Set<CouponResponseDO> responses;
 	
@@ -143,6 +144,13 @@ public class CouponOfferDO implements Serializable,DataObject {
 	public void setCouponExpirationDays(Integer couponExpirationDays) {
 		this.couponExpirationDays = couponExpirationDays;
 	}
-	
-	
+
+	@Column(name="offer_code")
+	public String getOfferCode() {
+		return offerCode;
+	}
+
+	public void setOfferCode(String offerCode) {
+		this.offerCode = offerCode;
+	}
 }

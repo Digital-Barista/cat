@@ -17,13 +17,16 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: EntryPointDO
  *
  */
 @Entity
 @Table(name="entry_points")
-
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class EntryPointDO implements DataObject,Serializable {
 
 	
@@ -97,6 +100,7 @@ public class EntryPointDO implements DataObject,Serializable {
 		joinColumns=@JoinColumn(name="entry_point_id"),
 		inverseJoinColumns=@JoinColumn(name="client_id")
 	)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<ClientDO> getClients() {
 		return clients;
 	}
@@ -115,6 +119,7 @@ public class EntryPointDO implements DataObject,Serializable {
 	}
 
 	@OneToMany(targetEntity=KeywordDO.class, mappedBy="entryPoint")
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<KeywordDO> getKeywords() {
 		return keywords;
 	}

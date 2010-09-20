@@ -23,6 +23,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Entity implementation class for Entity: ConnectorDO
  *
@@ -31,6 +34,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name="connectors")
 @NamedQuery(name="connector.by.uuid", query="select c from ConnectorDO c where c.UID=:uuid")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class ConnectorDO implements Serializable,DataObject {
 
 	private Set<NodeConnectorLinkDO> connections = new HashSet<NodeConnectorLinkDO>();
@@ -88,6 +92,7 @@ public class ConnectorDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="connector",targetEntity=NodeConnectorLinkDO.class)
 	@OrderBy("version DESC")
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<NodeConnectorLinkDO> getConnections() {
 		return connections;
 	}
@@ -98,6 +103,7 @@ public class ConnectorDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="connector",targetEntity=CampaignConnectorLinkDO.class)
 	@MapKey(name="version")
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Map<Integer, CampaignConnectorLinkDO> getVersionedConnectors() {
 		return versionedConnectors;
 	}
@@ -110,6 +116,7 @@ public class ConnectorDO implements Serializable,DataObject {
 	@OneToMany(mappedBy="connector",targetEntity=ConnectorInfoDO.class,cascade=CascadeType.ALL)
 	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<ConnectorInfoDO> getConnectorInfo() {
 		return connectorInfo;
 	}

@@ -80,7 +80,7 @@
 		<dashboard:DashboardView id="Dashboard" label="Dashboard" />
 		<campaign:CampaignsView id="Campaigs" label="Campaigns" />
 		<contacts:ContactView id="Contacts" label="Contacts" />
-		<reporting:ReportingView id="Reporting" label="Reporting" />
+		<reporting:ReportingView id="Reporting" label="Coupons" />
 		<user:UsersView id="Users" label="Users"  />
 		<profile:ProfileView id="Profile" label="Profile" />
 	</mx:TabNavigator>
