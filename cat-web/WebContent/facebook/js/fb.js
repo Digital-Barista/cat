@@ -22,14 +22,18 @@ function fbInit()
 	});
 	
 	// Wire events
-	$("#InviteButton").click(function(){
-		if ($("#Invite").css("display") == "block")
-			$("#Invite").css("display", "none");
-		else
-			$("#Invite").css("display", "block");
-		
-		FB.Canvas.setSize();
-	});
+	if ($("#InviteButton") &&
+		$("#Invite")
+	{
+		$("#InviteButton").click(function(){
+			if ($("#Invite").css("display") == "block")
+				$("#Invite").css("display", "none");
+			else
+				$("#Invite").css("display", "block");
+			
+			FB.Canvas.setSize();
+		});
+	}
 }
 function handleResponse(response)
 {
