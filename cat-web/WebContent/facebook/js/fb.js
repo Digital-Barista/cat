@@ -23,7 +23,7 @@ function fbInit()
 	
 	// Wire events
 	if ($("#InviteButton") &&
-		$("#Invite")
+		$("#Invite") )
 	{
 		$("#InviteButton").click(function(){
 			if ($("#Invite").css("display") == "block")
