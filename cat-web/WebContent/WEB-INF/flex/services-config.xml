@@ -67,7 +67,7 @@
 	</factories>
 
 	    <logging>
-        <target class="flex.messaging.log.ConsoleTarget" level="Debug">
+        <target class="flex.messaging.log.ConsoleTarget" level="Error">
             <properties>
                 <prefix>[BlazeDS] </prefix>
                 <includeDate>false</includeDate>
