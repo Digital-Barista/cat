@@ -176,6 +176,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	{
 			Criteria crit = session.createCriteria(ConnectorDO.class);
 			crit.add(Restrictions.eq("UID", connectorUUID));
+			crit.setCacheable(true);
 			ConnectorDO ret = (ConnectorDO)crit.uniqueResult();
 			
 			if(ret==null)
@@ -213,6 +214,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			Criteria crit = session.createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("UID", campaignUUID));
+			crit.setCacheable(true);
 			CampaignDO ret = (CampaignDO)crit.uniqueResult();
 			
 			if(ret==null)
@@ -267,6 +269,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			Criteria crit = session.createCriteria(NodeDO.class);
 			crit.add(Restrictions.eq("UID", nodeUUID));
+			crit.setCacheable(true);
 			NodeDO ret = (NodeDO)crit.uniqueResult();
 			
 			if(ret==null)

@@ -23,8 +23,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 /**
  * Entity implementation class for Entity: ConnectorDO
@@ -91,6 +94,8 @@ public class ConnectorDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(mappedBy="connector",targetEntity=NodeConnectorLinkDO.class)
+	@BatchSize(size=100)
+	@Fetch(FetchMode.SELECT)
 	@OrderBy("version DESC")
 	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<NodeConnectorLinkDO> getConnections() {
@@ -114,6 +119,8 @@ public class ConnectorDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(mappedBy="connector",targetEntity=ConnectorInfoDO.class,cascade=CascadeType.ALL)
+	@BatchSize(size=100)
+	@Fetch(FetchMode.SELECT)
 	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
 	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)

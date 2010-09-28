@@ -444,19 +444,15 @@ public class ReportingManagerImpl implements ReportingManager {
 			
 		// Get outgoing message counts
 		String queryString = 
-			"select incoming_type, count(*) " +
-			"from audit_incoming_message where incoming_audit_id in " +
-	
-			"(select distinct a.incoming_audit_id " +
-			"from audit_incoming_message a, nodes n, connectors con, campaigns cam, client cli " +
-	
-			"where (a.matched_uid = n.uid or a.matched_uid = con.uid) " +
-			"and n.campaign_id = cam.campaign_id " +
-			"and con.campaign_id = cam.campaign_id " +
+			"select a.incoming_type, count(*) " +
+			"from audit_incoming_message a "+
+			"left join nodes n on a.matched_uid=n.uid " +
+			"left join connectors con on a.matched_uid=con.uid " +
+			"inner join campaigns cam on n.campaign_id=cam.campaign_id or con.campaign_id=cam.campaign_id " +
+			"inner join client cli on cam.client_id=cli.client_id and cli.client_id in (:clientIds) " +
 			"and cam.client_id = cli.client_id " +
-			"and cli.client_id in (:clientIds)) " +
-	
-			"group by incoming_type";
+			"and cli.client_id in (:clientIds) " +
+			"group by a.incoming_type";
 
 		Query query = em.createNativeQuery(queryString);
 		query.setParameter("clientIds", clientIds);
