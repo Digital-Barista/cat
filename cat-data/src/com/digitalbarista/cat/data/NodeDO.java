@@ -36,7 +36,6 @@ import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name="nodes")
-@BatchSize(size=100)
 @NamedQuery(name="node.by.uuid", query="select n from NodeDO n where n.UID=:uuid")
 @Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/Node")
 public class NodeDO implements Serializable,DataObject {
