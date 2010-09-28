@@ -233,6 +233,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	
 	@Override
 	@PermitAll
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public Campaign getDetailedCampaign(String campaignUUID) {
 		Campaign campaign = new Campaign();
 		CampaignDO dataCPN = getSimpleCampaign(campaignUUID);
