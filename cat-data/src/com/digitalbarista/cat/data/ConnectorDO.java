@@ -36,6 +36,7 @@ import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name="connectors")
+@BatchSize(size=100)
 @NamedQuery(name="connector.by.uuid", query="select c from ConnectorDO c where c.UID=:uuid")
 @Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 public class ConnectorDO implements Serializable,DataObject {
