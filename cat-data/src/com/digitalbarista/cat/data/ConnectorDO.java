@@ -97,7 +97,6 @@ public class ConnectorDO implements Serializable,DataObject {
 	@BatchSize(size=100)
 	@Fetch(FetchMode.SELECT)
 	@OrderBy("version DESC")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/connector/connections")
 	public Set<NodeConnectorLinkDO> getConnections() {
 		return connections;
 	}
@@ -123,7 +122,6 @@ public class ConnectorDO implements Serializable,DataObject {
 	@Fetch(FetchMode.SELECT)
 	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/connector/connectorInfo")
 	public Set<ConnectorInfoDO> getConnectorInfo() {
 		return connectorInfo;
 	}

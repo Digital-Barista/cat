@@ -121,7 +121,6 @@ public class NodeDO implements Serializable,DataObject {
 	@BatchSize(size=100)
 	@Fetch(FetchMode.SELECT)
 	@OrderBy("version DESC")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/node/connections")
 	public Set<NodeConnectorLinkDO> getConnections() {
 		return connections;
 	}
@@ -135,7 +134,6 @@ public class NodeDO implements Serializable,DataObject {
 	@Fetch(FetchMode.SELECT)
 	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/node/nodeInfo")
 	public Set<NodeInfoDO> getNodeInfo() {
 		return nodeInfo;
 	}
