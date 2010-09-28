@@ -93,9 +93,8 @@ public class ConnectorDO implements Serializable,DataObject {
 		this.type = type;
 	}
 
-	@OneToMany(mappedBy="connector",targetEntity=NodeConnectorLinkDO.class)
+	@OneToMany(mappedBy="connector",targetEntity=NodeConnectorLinkDO.class,fetch=FetchType.EAGER)
 	@BatchSize(size=100)
-	@Fetch(FetchMode.SELECT)
 	@OrderBy("version DESC")
 	public Set<NodeConnectorLinkDO> getConnections() {
 		return connections;
@@ -117,9 +116,8 @@ public class ConnectorDO implements Serializable,DataObject {
 		this.versionedConnectors = versionedConnectors;
 	}
 
-	@OneToMany(mappedBy="connector",targetEntity=ConnectorInfoDO.class,cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="connector",targetEntity=ConnectorInfoDO.class,cascade=CascadeType.ALL,fetch=FetchType.EAGER)
 	@BatchSize(size=100)
-	@Fetch(FetchMode.SELECT)
 	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
 	public Set<ConnectorInfoDO> getConnectorInfo() {
