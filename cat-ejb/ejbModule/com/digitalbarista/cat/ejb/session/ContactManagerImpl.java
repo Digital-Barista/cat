@@ -49,6 +49,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @LocalBinding(jndiBinding = "ejb/cat/ContactManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class ContactManagerImpl implements ContactManager {
 
 	private Logger log = LogManager.getLogger(ContactManagerImpl.class);
@@ -170,7 +171,6 @@ public class ContactManagerImpl implements ContactManager {
 	}
 	
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	@AuditEvent(AuditType.SaveContactTag)
 	public ContactTag save(ContactTag tag) 
@@ -197,7 +197,6 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	@AuditEvent(AuditType.SaveContact)
 	public Contact save(Contact contact) 
@@ -225,7 +224,6 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(ContactTag tag) {
 		if(tag == null)
 			throw new IllegalArgumentException("Cannot delete a null tag.");
@@ -241,7 +239,6 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(Contact contact) {
 		if(contact == null)
 			throw new IllegalArgumentException("Cannot delete a null contact.");
@@ -257,7 +254,6 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(List<Contact> contacts)
 	{
 		for (Contact c : contacts)
@@ -267,7 +263,6 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void addTagsToContacts(List<Contact> contacts, List<ContactTag> tags) 
 	{
 		for (Contact c : contacts)

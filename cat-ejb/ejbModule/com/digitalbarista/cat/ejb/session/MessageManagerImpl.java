@@ -9,6 +9,8 @@ import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -31,6 +33,7 @@ import com.digitalbarista.cat.data.EntryPointType;
 @LocalBinding(jndiBinding = "ejb/cat/MessageManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class MessageManagerImpl implements MessageManager {
 
 	public static final String CONTINUED_INDICATOR = "\n(...)";

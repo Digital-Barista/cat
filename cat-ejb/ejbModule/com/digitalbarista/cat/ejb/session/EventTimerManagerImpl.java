@@ -34,6 +34,7 @@ import com.digitalbarista.cat.timer.CATTimer;
 @LocalBinding(jndiBinding="ejb/cat/EventTimerManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class EventTimerManagerImpl implements EventTimerManager {
 
 	private Logger log = LogManager.getLogger(EventTimerManagerImpl.class);
@@ -50,7 +51,6 @@ public class EventTimerManagerImpl implements EventTimerManager {
 	@EJB(name="ejb/cat/EventManager")
 	private EventManager eventManager;
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
     public void setTimer(String uid, String target, CATEventType type, Date scheduledDate) {
     	ScheduledTaskDO task = new ScheduledTaskDO();
@@ -77,7 +77,6 @@ public class EventTimerManagerImpl implements EventTimerManager {
     }
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	public void fireOverdueEvents() {
     	Query q = em.createNamedQuery("overdue.tasks.by.start");

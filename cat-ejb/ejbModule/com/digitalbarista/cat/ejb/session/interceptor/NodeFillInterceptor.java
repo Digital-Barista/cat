@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.UserTransaction;
 
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.ContactTag;
@@ -23,6 +25,9 @@ import com.digitalbarista.cat.ejb.session.ContactManager;
 
 public class NodeFillInterceptor {
 
+	@Resource
+	UserTransaction tx;
+	
 	@EJB(name="ejb/cat/CampaignManager")
 	CampaignManager campaignManager;
 		
@@ -35,18 +40,27 @@ public class NodeFillInterceptor {
 	@AroundInvoke
 	public Object fillNodes(InvocationContext ic) throws Exception
 	{
-		Integer version=null;
-		if(Campaign.class.isAssignableFrom(ic.getMethod().getReturnType()))
+		try
 		{
-			Campaign camp = (Campaign)ic.proceed();
-			for(Node node : camp.getNodes())
-				fillNode(node,camp.getCurrentVersion());
-			return camp;
-		} else if(Node.class.isAssignableFrom(ic.getMethod().getReturnType())){
-			if(ic.getParameters().length==2 && Integer.class.isAssignableFrom(ic.getParameters()[1].getClass()))
-				version=(Integer)ic.getParameters()[1];
-			Node ret = fillNode((Node)ic.proceed(),version);
-			return ret;
+			tx.begin();
+			Integer version=null;
+			if(Campaign.class.isAssignableFrom(ic.getMethod().getReturnType()))
+			{
+				Campaign camp = (Campaign)ic.proceed();
+				for(Node node : camp.getNodes())
+					fillNode(node,camp.getCurrentVersion());
+				tx.commit();
+				return camp;
+			} else if(Node.class.isAssignableFrom(ic.getMethod().getReturnType())){
+				if(ic.getParameters().length==2 && Integer.class.isAssignableFrom(ic.getParameters()[1].getClass()))
+					version=(Integer)ic.getParameters()[1];
+				Node ret = fillNode((Node)ic.proceed(),version);
+				tx.commit();
+				return ret;
+			}
+		}catch(Exception e)
+		{
+			tx.rollback();
 		}
 		return ic.proceed();
 	}

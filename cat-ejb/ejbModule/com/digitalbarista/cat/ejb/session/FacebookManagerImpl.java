@@ -75,6 +75,7 @@ import com.digitalbarista.cat.message.event.CATEvent;
 @LocalBinding(jndiBinding = "ejb/cat/FacebookManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class FacebookManagerImpl implements FacebookManager {
 
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
@@ -153,7 +154,6 @@ public class FacebookManagerImpl implements FacebookManager {
 
 	@Override
 	@PermitAll
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(Integer facebookMessageId, UriInfo ui) throws FacebookManagerException 
 	{
 		if (!isAuthorized(ui))
@@ -172,7 +172,6 @@ public class FacebookManagerImpl implements FacebookManager {
 
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public FacebookMessage respond(Integer facebookMessageId, String response, UriInfo ui) throws FacebookManagerException 
 	{
 		if (!isAuthorized(ui))
@@ -496,14 +495,12 @@ public class FacebookManagerImpl implements FacebookManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void userAuthorizeApp(String facebookAppId, String uid) {
 		subscriptionManager.registerFacebookFollower(uid, facebookAppId);
 	}
 
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void userDeauthorizeApp(String facebookAppId, String uid) {
 		subscriptionManager.removeFacebookFollower(uid, facebookAppId);
 	}

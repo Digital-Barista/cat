@@ -31,6 +31,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @LocalBinding(jndiBinding = "ejb/cat/LayoutManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class LayoutManagerImpl implements LayoutManager {
 
 	@Resource
@@ -45,7 +46,6 @@ public class LayoutManagerImpl implements LayoutManager {
 	@PersistenceContext(unitName="cat-data")
 	private Session session;
 	
-	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	@PermitAll
 	public LayoutInfoDO getSimpleLayoutInfo(String uuid, Integer version)
 	{
@@ -109,7 +109,6 @@ public class LayoutManagerImpl implements LayoutManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	public void save(LayoutInfo layout) {
 		if(layout==null)
@@ -192,7 +191,6 @@ public class LayoutManagerImpl implements LayoutManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	public void delete(String uid, Integer version) {
 		if(uid==null)

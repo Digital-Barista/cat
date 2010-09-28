@@ -60,6 +60,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @RunAsPrincipal("admin")
 @RunAs("admin")
 @Interceptors(AuditInterceptor.class)
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class ClientManagerImpl implements ClientManager {
 
 	public static final Integer DEFAULT_MAX_KEYWORDS = 5;
@@ -182,7 +183,6 @@ public class ClientManagerImpl implements ClientManager {
     }
     
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed("admin")
 	@AuditEvent(AuditType.SaveClient)
 	public Client save(Client client) {
@@ -290,7 +290,6 @@ public class ClientManagerImpl implements ClientManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"admin","account.manager", "client"})
 	public Keyword save(Keyword kwd) {
 		if(kwd == null)
@@ -350,7 +349,6 @@ public class ClientManagerImpl implements ClientManager {
 	}
 	
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed("admin")
 	public EntryPointDefinition save(EntryPointDefinition epd) {
 		if(epd == null)
@@ -462,7 +460,6 @@ public class ClientManagerImpl implements ClientManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"admin","account.manager"})
 	public void delete(Keyword kwd) {
 		if(kwd == null)
@@ -558,7 +555,6 @@ public class ClientManagerImpl implements ClientManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed("admin")
 	public void disableClient(Long clientID) {
 		if(clientID==null)
@@ -570,7 +566,6 @@ public class ClientManagerImpl implements ClientManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed("admin")
 	public void enableClient(Long clientID) {
 		if(clientID==null)
