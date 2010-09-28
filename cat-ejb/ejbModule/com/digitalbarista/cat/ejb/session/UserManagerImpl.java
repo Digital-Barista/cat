@@ -138,9 +138,10 @@ public class UserManagerImpl implements UserManager {
 	{
 		try
 		{
-			Query q = em.createNamedQuery("user.by.username");
-			q.setParameter("username", username);
-			UserDO ret = (UserDO)q.getSingleResult();
+			Criteria crit = session.createCriteria(UserDO.class);
+			crit.add(Restrictions.eq("username", username));
+			crit.setCacheable(true);
+			UserDO ret = (UserDO)crit.uniqueResult();
 			
 			if(ret==null)
 				return null;
