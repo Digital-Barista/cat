@@ -40,27 +40,18 @@ public class NodeFillInterceptor {
 	@AroundInvoke
 	public Object fillNodes(InvocationContext ic) throws Exception
 	{
-		try
+		Integer version=null;
+		if(Campaign.class.isAssignableFrom(ic.getMethod().getReturnType()))
 		{
-			ctx.getUserTransaction().begin();
-			Integer version=null;
-			if(Campaign.class.isAssignableFrom(ic.getMethod().getReturnType()))
-			{
-				Campaign camp = (Campaign)ic.proceed();
-				for(Node node : camp.getNodes())
-					fillNode(node,camp.getCurrentVersion());
-				ctx.getUserTransaction().commit();
-				return camp;
-			} else if(Node.class.isAssignableFrom(ic.getMethod().getReturnType())){
-				if(ic.getParameters().length==2 && Integer.class.isAssignableFrom(ic.getParameters()[1].getClass()))
-					version=(Integer)ic.getParameters()[1];
-				Node ret = fillNode((Node)ic.proceed(),version);
-				ctx.getUserTransaction().commit();
-				return ret;
-			}
-		}catch(Exception e)
-		{
-			ctx.getUserTransaction().rollback();
+			Campaign camp = (Campaign)ic.proceed();
+			for(Node node : camp.getNodes())
+				fillNode(node,camp.getCurrentVersion());
+			return camp;
+		} else if(Node.class.isAssignableFrom(ic.getMethod().getReturnType())){
+			if(ic.getParameters().length==2 && Integer.class.isAssignableFrom(ic.getParameters()[1].getClass()))
+				version=(Integer)ic.getParameters()[1];
+			Node ret = fillNode((Node)ic.proceed(),version);
+			return ret;
 		}
 		return ic.proceed();
 	}

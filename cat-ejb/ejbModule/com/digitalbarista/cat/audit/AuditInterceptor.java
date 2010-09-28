@@ -147,22 +147,15 @@ public class AuditInterceptor {
 			}
 		}
 		
-		try
-		{
-			ctx.getUserTransaction().begin();
-			AuditDO audit = new AuditDO();
-			audit.setAuditType(eventAnnotation.value());
-			audit.setUsername(ctx.getCallerPrincipal().getName());
-			audit.setTimestamp(new Date());
-			audit.setDescriminator1(makeString(d1Obj));
-			audit.setDescriminator2(makeString(d2Obj));
-			audit.setData(target.auditString());
-			em.persist(audit);
-			ctx.getUserTransaction().commit();
-		}catch(Exception e)
-		{
-			ctx.getUserTransaction().rollback();
-		}
+		AuditDO audit = new AuditDO();
+		audit.setAuditType(eventAnnotation.value());
+		audit.setUsername(ctx.getCallerPrincipal().getName());
+		audit.setTimestamp(new Date());
+		audit.setDescriminator1(makeString(d1Obj));
+		audit.setDescriminator2(makeString(d2Obj));
+		audit.setData(target.auditString());
+		em.persist(audit);
+		ctx.getUserTransaction().commit();
 		return iCtx.proceed();
 	}
 	
