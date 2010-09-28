@@ -28,7 +28,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @NamedQueries({
 	@NamedQuery(name="subscription.count.for.node", query="select count(csl.primaryKey) from CampaignSubscriberLinkDO csl where csl.lastHitNode.UID=:nodeUID")
 })
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/CampaignSubscriberLink")
 public class CampaignSubscriberLinkDO implements Serializable {
 
 	private Long primaryKey;

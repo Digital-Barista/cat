@@ -26,7 +26,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(name="entry_points")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/EntryPoint")
 public class EntryPointDO implements DataObject,Serializable {
 
 	
@@ -100,7 +100,7 @@ public class EntryPointDO implements DataObject,Serializable {
 		joinColumns=@JoinColumn(name="entry_point_id"),
 		inverseJoinColumns=@JoinColumn(name="client_id")
 	)
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/entryPoint/clients")
 	public Set<ClientDO> getClients() {
 		return clients;
 	}
@@ -119,7 +119,7 @@ public class EntryPointDO implements DataObject,Serializable {
 	}
 
 	@OneToMany(targetEntity=KeywordDO.class, mappedBy="entryPoint")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/entryPoint/keywords")
 	public Set<KeywordDO> getKeywords() {
 		return keywords;
 	}

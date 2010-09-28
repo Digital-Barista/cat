@@ -38,7 +38,7 @@ import org.hibernate.annotations.FetchMode;
 @Table(name="connectors")
 @BatchSize(size=100)
 @NamedQuery(name="connector.by.uuid", query="select c from ConnectorDO c where c.UID=:uuid")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/Connector")
 public class ConnectorDO implements Serializable,DataObject {
 
 	private Set<NodeConnectorLinkDO> connections = new HashSet<NodeConnectorLinkDO>();
@@ -98,7 +98,7 @@ public class ConnectorDO implements Serializable,DataObject {
 	@BatchSize(size=100)
 	@Fetch(FetchMode.SELECT)
 	@OrderBy("version DESC")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/connector/connections")
 	public Set<NodeConnectorLinkDO> getConnections() {
 		return connections;
 	}
@@ -109,7 +109,7 @@ public class ConnectorDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="connector",targetEntity=CampaignConnectorLinkDO.class)
 	@MapKey(name="version")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/connector/versionedConnectors")
 	public Map<Integer, CampaignConnectorLinkDO> getVersionedConnectors() {
 		return versionedConnectors;
 	}
@@ -124,7 +124,7 @@ public class ConnectorDO implements Serializable,DataObject {
 	@Fetch(FetchMode.SELECT)
 	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/connector/connectorInfo")
 	public Set<ConnectorInfoDO> getConnectorInfo() {
 		return connectorInfo;
 	}

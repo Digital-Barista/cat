@@ -24,7 +24,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="client_info")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/ClientInfo")
 public class ClientInfoDO implements Serializable,DataObject {
 
 	public final static String KEY_MESSAGE_CREDITS = "messageCredits";

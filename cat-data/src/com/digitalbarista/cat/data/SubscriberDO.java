@@ -31,7 +31,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 	@NamedQuery(name="subscriber.by.facebook",query="select s from SubscriberDO s where s.facebookID=:endpoint"),
 	@NamedQuery(name="all.subscribers.on.node",query="select s from CampaignSubscriberLinkDO l join l.subscriber s join l.lastHitNode n where n.UID=:nodeUID")
 })
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/Subscriber")
 public class SubscriberDO implements Serializable,DataObject {
 
 	private Long primaryKey;
@@ -78,7 +78,7 @@ public class SubscriberDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="subscriber",targetEntity=CampaignSubscriberLinkDO.class)
 	@MapKey(name="campaign")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/subscriber/subscriptions")
 	public Map<CampaignDO,CampaignSubscriberLinkDO> getSubscriptions() {
 		return subscriptions;
 	}
