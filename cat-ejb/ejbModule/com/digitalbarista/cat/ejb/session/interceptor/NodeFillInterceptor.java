@@ -7,11 +7,11 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.ejb.SessionContext;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.UserTransaction;
 
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.ContactTag;
@@ -26,7 +26,7 @@ import com.digitalbarista.cat.ejb.session.ContactManager;
 public class NodeFillInterceptor {
 
 	@Resource
-	UserTransaction tx;
+	SessionContext ctx;
 	
 	@EJB(name="ejb/cat/CampaignManager")
 	CampaignManager campaignManager;
@@ -42,25 +42,25 @@ public class NodeFillInterceptor {
 	{
 		try
 		{
-			tx.begin();
+			ctx.getUserTransaction().begin();
 			Integer version=null;
 			if(Campaign.class.isAssignableFrom(ic.getMethod().getReturnType()))
 			{
 				Campaign camp = (Campaign)ic.proceed();
 				for(Node node : camp.getNodes())
 					fillNode(node,camp.getCurrentVersion());
-				tx.commit();
+				ctx.getUserTransaction().commit();
 				return camp;
 			} else if(Node.class.isAssignableFrom(ic.getMethod().getReturnType())){
 				if(ic.getParameters().length==2 && Integer.class.isAssignableFrom(ic.getParameters()[1].getClass()))
 					version=(Integer)ic.getParameters()[1];
 				Node ret = fillNode((Node)ic.proceed(),version);
-				tx.commit();
+				ctx.getUserTransaction().commit();
 				return ret;
 			}
 		}catch(Exception e)
 		{
-			tx.rollback();
+			ctx.getUserTransaction().rollback();
 		}
 		return ic.proceed();
 	}
