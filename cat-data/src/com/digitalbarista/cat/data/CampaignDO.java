@@ -105,7 +105,6 @@ public class CampaignDO implements Serializable,DataObject {
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignNodeLinkDO.class, mappedBy="campaign")
 	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	@BatchSize(size=100)
 	public Set<CampaignNodeLinkDO> getNodes() {
 		return nodes;
@@ -152,7 +151,6 @@ public class CampaignDO implements Serializable,DataObject {
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignConnectorLinkDO.class, mappedBy="campaign")
 	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
 	@BatchSize(size=100)
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/connectors")
 	public Set<CampaignConnectorLinkDO> getConnectors() {
 		return connectors;
 	}
