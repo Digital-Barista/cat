@@ -151,8 +151,8 @@ public class CampaignDO implements Serializable,DataObject {
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignConnectorLinkDO.class, mappedBy="campaign")
 	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
-	@BatchSize(size=100)
 	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/connectors")
+	@BatchSize(size=100)
 	public Set<CampaignConnectorLinkDO> getConnectors() {
 		return connectors;
 	}
