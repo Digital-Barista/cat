@@ -155,7 +155,6 @@ public class AuditInterceptor {
 		audit.setDescriminator2(makeString(d2Obj));
 		audit.setData(target.auditString());
 		em.persist(audit);
-		ctx.getUserTransaction().commit();
 		return iCtx.proceed();
 	}
 	
