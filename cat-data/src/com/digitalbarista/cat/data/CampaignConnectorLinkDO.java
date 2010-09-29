@@ -57,6 +57,7 @@ public class CampaignConnectorLinkDO implements Serializable,DataObject {
 	}
 	
 	@ManyToOne(fetch=FetchType.LAZY)
+	@BatchSize(size=100)
 	@JoinColumn(name="connector_id")
 	public ConnectorDO getConnector() {
 		return this.connector;

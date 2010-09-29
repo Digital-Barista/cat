@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -57,6 +58,7 @@ public class CampaignNodeLinkDO implements Serializable,DataObject {
 	}
 	
 	@ManyToOne(fetch=FetchType.LAZY)
+	@BatchSize(size=100)
 	@JoinColumn(name="node_id")
 	public NodeDO getNode() {
 		return this.node;
