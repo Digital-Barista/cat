@@ -28,6 +28,7 @@ import javax.persistence.Query;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
@@ -210,11 +211,22 @@ public class CampaignManagerImpl implements CampaignManager {
 	@PermitAll
 	public CampaignDO getSimpleCampaign(String campaignUUID)
 	{
+		return getSimpleCampaign(campaignUUID, false);
+	}
+	
+	@PermitAll
+	public CampaignDO getSimpleCampaign(String campaignUUID, boolean eagerFetch)
+	{
 		try
 		{
 			Criteria crit = session.createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("UID", campaignUUID));
 			crit.setCacheable(true);
+			if(eagerFetch)
+			{
+				crit.setFetchMode("nodes", FetchMode.SELECT);
+				crit.setFetchMode("connectors", FetchMode.SELECT);
+			}
 			CampaignDO ret = (CampaignDO)crit.uniqueResult();
 			
 			if(ret==null)
