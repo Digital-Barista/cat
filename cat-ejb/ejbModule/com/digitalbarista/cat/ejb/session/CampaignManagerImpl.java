@@ -248,7 +248,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public Campaign getDetailedCampaign(String campaignUUID) {
 		Campaign campaign = new Campaign();
-		CampaignDO dataCPN = getSimpleCampaign(campaignUUID);
+		CampaignDO dataCPN = getSimpleCampaign(campaignUUID,true);
 		campaign.copyFrom(dataCPN);
 		
 		Node tempNode;
