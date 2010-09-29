@@ -139,7 +139,7 @@ public class UserManagerImpl implements UserManager {
 			Criteria crit = session.createCriteria(UserDO.class);
 			crit.add(Restrictions.eq("username", username));
 			crit.setCacheable(true);
-			crit.setCacheRegion("query/simpleUserByUsername");
+			crit.setCacheRegion("query/userByUsername");
 			UserDO ret = (UserDO)crit.uniqueResult();
 			
 			if(ret==null)
