@@ -222,8 +222,6 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			Criteria crit = session.createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("UID", campaignUUID));
-			crit.setCacheable(true);
-			crit.setCacheRegion("query/simpleCampaign");
 			if(eagerFetch)
 			{
 				crit.setFetchMode("nodes", FetchMode.SELECT);
