@@ -57,7 +57,7 @@ public class CampaignNodeLinkDO implements Serializable,DataObject {
 		this.campaign = campaign;
 	}
 	
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne
 	@BatchSize(size=100)
 	@JoinColumn(name="node_id")
 	public NodeDO getNode() {
