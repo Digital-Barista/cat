@@ -67,7 +67,7 @@
 	</factories>
 
 	    <logging>
-        <target class="flex.messaging.log.ConsoleTarget" level="Error">
+        <target class="com.digitalbarista.cat.remote.Log4JTarget" level="Debug">
             <properties>
                 <prefix>[BlazeDS] </prefix>
                 <includeDate>false</includeDate>
