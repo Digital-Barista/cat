@@ -225,7 +225,9 @@ public class CampaignManagerImpl implements CampaignManager {
 			if(eagerFetch)
 			{
 				crit.setFetchMode("nodes", FetchMode.SELECT);
+				crit.setFetchMode("nodes.node", FetchMode.SELECT);
 				crit.setFetchMode("connectors", FetchMode.SELECT);
+				crit.setFetchMode("connectors.connector", FetchMode.SELECT);
 			}
 			CampaignDO ret = (CampaignDO)crit.uniqueResult();
 			
