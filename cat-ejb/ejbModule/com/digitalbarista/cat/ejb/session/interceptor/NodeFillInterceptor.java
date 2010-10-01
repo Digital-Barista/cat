@@ -44,6 +44,8 @@ public class NodeFillInterceptor {
 		if(Campaign.class.isAssignableFrom(ic.getMethod().getReturnType()))
 		{
 			Campaign camp = (Campaign)ic.proceed();
+			if(camp==null)
+				return null;
 			for(Node node : camp.getNodes())
 				fillNode(node,camp.getCurrentVersion());
 			return camp;
