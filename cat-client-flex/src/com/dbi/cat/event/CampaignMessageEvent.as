@@ -1,6 +1,7 @@
 package com.dbi.cat.event
 {
 	import com.dbi.cat.common.vo.CampaignVO;
+	import com.dbi.cat.common.vo.NodeVO;
 	
 	import flash.events.Event;
 
@@ -12,6 +13,7 @@ package com.dbi.cat.event
 		
 		public var campaign:CampaignVO;
 		public var message:String;
+		public var node:NodeVO;
 			
 		public function CampaignMessageEvent(type:String)
 		{

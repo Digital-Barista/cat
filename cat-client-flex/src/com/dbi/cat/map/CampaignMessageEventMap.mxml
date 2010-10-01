@@ -18,7 +18,7 @@
 	<EventHandlers type="{CampaignMessageEvent.GET_MESSAGE_PARTS}">
 		<RemoteObjectInvoker destination="messageManager"
 			method="getMessageParts"
-			arguments="{[event.campaign, event.message]}"
+			arguments="{[event.campaign, event.node]}"
 			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{CampaignMessageManager}"

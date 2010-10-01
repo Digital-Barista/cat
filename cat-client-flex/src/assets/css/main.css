@@ -22,7 +22,28 @@ RowIndex
 {
 	color:#CCCCCC;
 }
-
+RichTextEditor
+{
+	
+	closeButtonDisabledSkin: ClassReference("com.dbi.skins.BlankSkin");
+	closeButtonDownSkin: ClassReference("com.dbi.skins.BlankSkin");
+	closeButtonOverSkin: ClassReference("com.dbi.skins.BlankSkin");
+	closeButtonUpSkin: ClassReference("com.dbi.skins.BlankSkin");
+	titleBackgroundSkin: ClassReference("com.dbi.skins.BlankSkin");
+	borderSkin: ClassReference("com.dbi.skins.BlankSkin");
+	
+	borderColor: #A1A5AF;
+	borderAlpha: 1;
+	backgroundColor: #eeeeee;
+	backgroundAlpha: 1;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 0;
+	borderThicknessLeft: 4;
+	borderThicknessRight: 4;
+	cornerRadius: 10;
+	headerHeight: 5;
+	
+}
 .dashboardLabel
 {
 	paddingTop:30;
