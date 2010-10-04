@@ -11,6 +11,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -152,6 +153,16 @@ public class LayoutManagerImpl implements LayoutManager {
 		layout.copyTo(info);
 		info.setVersion(info.getCampaign().getCurrentVersion());
 		em.persist(info);
+		try
+		{
+			em.flush();
+		}catch(EntityExistsException e)
+		{
+			info = getSimpleLayoutInfo(layout.getUUID(), layout.getVersion());
+			layout.copyTo(info);
+			em.persist(info);
+			System.out.println("****SAVED A COLLISION****");
+		}
 	}
 
 	@Override
