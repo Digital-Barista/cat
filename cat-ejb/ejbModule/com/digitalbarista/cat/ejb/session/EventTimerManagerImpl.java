@@ -53,17 +53,35 @@ public class EventTimerManagerImpl implements EventTimerManager {
 	
 	@PermitAll
     public void setTimer(String uid, String target, CATEventType type, Date scheduledDate) {
-    	ScheduledTaskDO task = new ScheduledTaskDO();
-    	task.setEventType(type.toString());
-    	task.setSourceUID(uid);
-    	task.setTarget(target);
-    	task.setScheduledDate(scheduledDate);
-    	em.persist(task);
-    	
-    	Transaction tx=null;
-    	try{tx=tm.getTransaction();}catch(Exception e){}
-    	CATTimer.eventScheduled(tx);
-    }
+//    	ScheduledTaskDO task = new ScheduledTaskDO();
+//    	task.setEventType(type.toString());
+//    	task.setSourceUID(uid);
+//    	task.setTarget(target);
+//    	task.setScheduledDate(scheduledDate);
+//    	em.persist(task);
+//    	
+//    	Transaction tx=null;
+//    	try{tx=tm.getTransaction();}catch(Exception e){}
+//    	CATTimer.eventScheduled(tx);
+
+		CATEvent e;
+		switch(type)
+		{
+			case ConnectorFired:
+				if(target==null || target.trim().length()==0)
+				{
+					e=CATEvent.buildFireConnectorForAllSubscribersEvent(uid);
+				} else {
+					e=CATEvent.buildFireConnectorForSubscriberEvent(uid, uid);
+				}
+				eventManager.queueEventForScheduledDelivery(e,scheduledDate);
+				break;
+			
+			default:
+				log.error("Scheduled task is not a valid schedulable event type.  Will not schedule.");
+		}
+		
+	}
 
 	@PermitAll
     public Date getNextEventTime()
