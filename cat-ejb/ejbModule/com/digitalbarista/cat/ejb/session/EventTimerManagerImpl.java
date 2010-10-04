@@ -72,7 +72,7 @@ public class EventTimerManagerImpl implements EventTimerManager {
 				{
 					e=CATEvent.buildFireConnectorForAllSubscribersEvent(uid);
 				} else {
-					e=CATEvent.buildFireConnectorForSubscriberEvent(uid, uid);
+					e=CATEvent.buildFireConnectorForSubscriberEvent(uid, target);
 				}
 				eventManager.queueEventForScheduledDelivery(e,scheduledDate);
 				break;
