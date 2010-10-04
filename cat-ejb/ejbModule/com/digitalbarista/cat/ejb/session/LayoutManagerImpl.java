@@ -152,9 +152,9 @@ public class LayoutManagerImpl implements LayoutManager {
 		
 		layout.copyTo(info);
 		info.setVersion(info.getCampaign().getCurrentVersion());
-		em.persist(info);
 		try
 		{
+			em.persist(info);
 			em.flush();
 		}catch(EntityExistsException e)
 		{
