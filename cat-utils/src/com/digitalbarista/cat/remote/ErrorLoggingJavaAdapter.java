@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.remote;
 
+import javax.ejb.EJBException;
 import javax.persistence.EntityExistsException;
 
 import org.apache.log4j.LogManager;
@@ -14,8 +15,13 @@ public class ErrorLoggingJavaAdapter extends JavaAdapter {
 		try
 		{
 			return super.invoke(message);
-		}catch(EntityExistsException e)
+		}catch(EJBException e)
 		{
+			if(!(e.getCause() instanceof EntityExistsException))
+			{
+				LogManager.getLogger(getClass()).error("An exception was swallowed by Blaze.  Here it is:",e);
+				throw e;
+			}
 			LogManager.getLogger(getClass()).warn("We're gonna try this one more time:",e);
 			try
 			{
