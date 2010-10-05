@@ -5,6 +5,7 @@ import javax.persistence.EntityExistsException;
 
 import org.apache.log4j.LogManager;
 
+import flex.messaging.MessageException;
 import flex.messaging.messages.Message;
 import flex.messaging.services.remoting.adapters.JavaAdapter;
 
@@ -15,9 +16,9 @@ public class ErrorLoggingJavaAdapter extends JavaAdapter {
 		try
 		{
 			return super.invoke(message);
-		}catch(EJBException e)
+		}catch(MessageException e)
 		{
-			if(!(e.getCause() instanceof EntityExistsException))
+			if((!(e.getCause() instanceof EJBException)) && !(e.getCause().getCause() instanceof EntityExistsException))
 			{
 				LogManager.getLogger(getClass()).error("An exception was swallowed by Blaze.  Here it is:",e);
 				throw e;
