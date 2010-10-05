@@ -1,5 +1,7 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
@@ -26,6 +28,7 @@ import com.digitalbarista.cat.message.event.CATEvent;
 @LocalBinding(jndiBinding = "ejb/cat/EventManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class EventManagerImpl implements EventManager {
 
 	@Resource
@@ -37,7 +40,6 @@ public class EventManagerImpl implements EventManager {
 	@Resource(mappedName="java:/JmsXA")
 	private ConnectionFactory cf;
 	
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     @RolesAllowed("admin")
     public void queueEvent(CATEvent e){
     	Connection conn=null;
@@ -46,6 +48,28 @@ public class EventManagerImpl implements EventManager {
 			conn = cf.createConnection();
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 			Message message = sess.createObjectMessage(e);
+			MessageProducer prod = sess.createProducer(eventQueue);
+			prod.send(message);
+    	} catch (Exception e1) {
+			ctx.setRollbackOnly();
+			throw new RuntimeException("Error queueing up an event:"+e.toString(),e1);
+		}
+    	finally
+    	{
+    		try{if(sess!=null)sess.close();}catch(Exception e1){}
+    		try{if(conn!=null)conn.close();}catch(Exception e1){}
+    	}
+    }
+
+    @RolesAllowed("admin")
+    public void queueEventForScheduledDelivery(CATEvent e, Date scheduledDate){
+    	Connection conn=null;
+    	Session sess=null;
+    	try {
+			conn = cf.createConnection();
+			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
+			Message message = sess.createObjectMessage(e);
+			message.setLongProperty("JMS_JBOSS_SCHEDULED_DELIVERY",scheduledDate.getTime());
 			MessageProducer prod = sess.createProducer(eventQueue);
 			prod.send(message);
     	} catch (Exception e1) {

@@ -42,6 +42,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @LocalBinding(jndiBinding = "ejb/cat/UserManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class UserManagerImpl implements UserManager {
 
 	@Resource
@@ -64,7 +65,6 @@ public class UserManagerImpl implements UserManager {
     }
 
 	@RolesAllowed({"admin","account.manager"})
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void addRole(Long userPK, Role roleToAdd) {
 		UserDO user = getSimpleUserByPK(userPK);
 		
@@ -85,7 +85,6 @@ public class UserManagerImpl implements UserManager {
 	}
 
 	@RolesAllowed({"admin","account.manager"})
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void addRoles(Long userPK, Set<Role> rolesToAdd) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -100,7 +99,6 @@ public class UserManagerImpl implements UserManager {
 	}
 
 	@RolesAllowed({"admin","account.manager"})
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	protected User createUser(User newUser) {
 		UserDO user = new UserDO();
 		newUser.copyTo(user);
@@ -138,9 +136,11 @@ public class UserManagerImpl implements UserManager {
 	{
 		try
 		{
-			Query q = em.createNamedQuery("user.by.username");
-			q.setParameter("username", username);
-			UserDO ret = (UserDO)q.getSingleResult();
+			Criteria crit = session.createCriteria(UserDO.class);
+			crit.add(Restrictions.eq("username", username));
+			crit.setCacheable(true);
+			crit.setCacheRegion("query/userByUsername");
+			UserDO ret = (UserDO)crit.uniqueResult();
 			
 			if(ret==null)
 				return null;
@@ -210,7 +210,6 @@ public class UserManagerImpl implements UserManager {
 	}
 
 	@RolesAllowed({"admin","account.manager"})
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void removeRole(Long userPK, Role roleToRemove) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -231,7 +230,6 @@ public class UserManagerImpl implements UserManager {
 	}
 
 	@RolesAllowed({"admin","account.manager"})
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void removeRoles(Long userPK, Set<Role> rolesToRemove) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -246,7 +244,6 @@ public class UserManagerImpl implements UserManager {
 	}
 
 	@PermitAll
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public User save(User user) {
 		UserDO current = getSimpleUserByPK(user.getPrimaryKey());
 		
@@ -295,7 +292,6 @@ public class UserManagerImpl implements UserManager {
 	}
 
 	@RolesAllowed({"admin","account.manager"})
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void syncRoles(Long userPK, Set<Role> roles) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -393,7 +389,6 @@ public class UserManagerImpl implements UserManager {
 	}
 	
 	@RolesAllowed({"admin","account.manager"})
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(User user)
 	{
 		em.remove(getSimpleUserByUsername(user.getUsername()));

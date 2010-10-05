@@ -22,7 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="connector_info")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/ConnectorInfo")
 public class ConnectorInfoDO implements Serializable,DataObject {
 
 	private Long primaryKey;

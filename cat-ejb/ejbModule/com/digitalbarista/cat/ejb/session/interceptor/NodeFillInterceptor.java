@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.ejb.SessionContext;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
@@ -23,6 +25,9 @@ import com.digitalbarista.cat.ejb.session.ContactManager;
 
 public class NodeFillInterceptor {
 
+	@Resource
+	SessionContext ctx;
+	
 	@EJB(name="ejb/cat/CampaignManager")
 	CampaignManager campaignManager;
 		
@@ -39,6 +44,8 @@ public class NodeFillInterceptor {
 		if(Campaign.class.isAssignableFrom(ic.getMethod().getReturnType()))
 		{
 			Campaign camp = (Campaign)ic.proceed();
+			if(camp==null)
+				return null;
 			for(Node node : camp.getNodes())
 				fillNode(node,camp.getCurrentVersion());
 			return camp;

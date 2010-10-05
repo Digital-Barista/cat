@@ -34,6 +34,7 @@ import com.digitalbarista.cat.timer.CATTimer;
 @LocalBinding(jndiBinding="ejb/cat/EventTimerManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class EventTimerManagerImpl implements EventTimerManager {
 
 	private Logger log = LogManager.getLogger(EventTimerManagerImpl.class);
@@ -50,20 +51,37 @@ public class EventTimerManagerImpl implements EventTimerManager {
 	@EJB(name="ejb/cat/EventManager")
 	private EventManager eventManager;
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
     public void setTimer(String uid, String target, CATEventType type, Date scheduledDate) {
-    	ScheduledTaskDO task = new ScheduledTaskDO();
-    	task.setEventType(type.toString());
-    	task.setSourceUID(uid);
-    	task.setTarget(target);
-    	task.setScheduledDate(scheduledDate);
-    	em.persist(task);
-    	
-    	Transaction tx=null;
-    	try{tx=tm.getTransaction();}catch(Exception e){}
-    	CATTimer.eventScheduled(tx);
-    }
+//    	ScheduledTaskDO task = new ScheduledTaskDO();
+//    	task.setEventType(type.toString());
+//    	task.setSourceUID(uid);
+//    	task.setTarget(target);
+//    	task.setScheduledDate(scheduledDate);
+//    	em.persist(task);
+//    	
+//    	Transaction tx=null;
+//    	try{tx=tm.getTransaction();}catch(Exception e){}
+//    	CATTimer.eventScheduled(tx);
+
+		CATEvent e;
+		switch(type)
+		{
+			case ConnectorFired:
+				if(target==null || target.trim().length()==0)
+				{
+					e=CATEvent.buildFireConnectorForAllSubscribersEvent(uid);
+				} else {
+					e=CATEvent.buildFireConnectorForSubscriberEvent(uid, target);
+				}
+				eventManager.queueEventForScheduledDelivery(e,scheduledDate);
+				break;
+			
+			default:
+				log.error("Scheduled task is not a valid schedulable event type.  Will not schedule.");
+		}
+		
+	}
 
 	@PermitAll
     public Date getNextEventTime()
@@ -77,7 +95,6 @@ public class EventTimerManagerImpl implements EventTimerManager {
     }
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	public void fireOverdueEvents() {
     	Query q = em.createNamedQuery("overdue.tasks.by.start");

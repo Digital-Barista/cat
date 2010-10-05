@@ -16,6 +16,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -27,6 +29,7 @@ import org.hibernate.annotations.CascadeType;
 @Entity
 @Table(name="users")
 @NamedQuery(name = "user.by.username", query = "select u from UserDO u where u.username=:username")
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/user")
 public class UserDO implements Serializable,DataObject {
 	
 	private String username; 

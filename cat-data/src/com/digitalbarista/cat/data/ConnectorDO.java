@@ -37,7 +37,7 @@ import org.hibernate.annotations.FetchMode;
 @Entity
 @Table(name="connectors")
 @NamedQuery(name="connector.by.uuid", query="select c from ConnectorDO c where c.UID=:uuid")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/Connector")
 public class ConnectorDO implements Serializable,DataObject {
 
 	private Set<NodeConnectorLinkDO> connections = new HashSet<NodeConnectorLinkDO>();
@@ -93,11 +93,9 @@ public class ConnectorDO implements Serializable,DataObject {
 		this.type = type;
 	}
 
-	@OneToMany(mappedBy="connector",targetEntity=NodeConnectorLinkDO.class)
+	@OneToMany(mappedBy="connector",targetEntity=NodeConnectorLinkDO.class,fetch=FetchType.EAGER)
 	@BatchSize(size=100)
-	@Fetch(FetchMode.SELECT)
 	@OrderBy("version DESC")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<NodeConnectorLinkDO> getConnections() {
 		return connections;
 	}
@@ -108,7 +106,7 @@ public class ConnectorDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="connector",targetEntity=CampaignConnectorLinkDO.class)
 	@MapKey(name="version")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/connector/versionedConnectors")
 	public Map<Integer, CampaignConnectorLinkDO> getVersionedConnectors() {
 		return versionedConnectors;
 	}
@@ -118,12 +116,10 @@ public class ConnectorDO implements Serializable,DataObject {
 		this.versionedConnectors = versionedConnectors;
 	}
 
-	@OneToMany(mappedBy="connector",targetEntity=ConnectorInfoDO.class,cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="connector",targetEntity=ConnectorInfoDO.class,cascade=CascadeType.ALL,fetch=FetchType.EAGER)
 	@BatchSize(size=100)
-	@Fetch(FetchMode.SELECT)
 	@org.hibernate.annotations.Cascade(value={org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
 	@OrderBy("version DESC")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
 	public Set<ConnectorInfoDO> getConnectorInfo() {
 		return connectorInfo;
 	}

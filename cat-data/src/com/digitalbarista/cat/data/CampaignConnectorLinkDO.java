@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -22,7 +23,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="campaign_connector_link")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/CampaignConnectorLink")
 public class CampaignConnectorLinkDO implements Serializable,DataObject {
 
 	private Long primaryKey;
@@ -56,7 +57,8 @@ public class CampaignConnectorLinkDO implements Serializable,DataObject {
 		this.campaign = campaign;
 	}
 	
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne
+	@BatchSize(size=100)
 	@JoinColumn(name="connector_id")
 	public ConnectorDO getConnector() {
 		return this.connector;

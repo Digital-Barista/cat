@@ -38,6 +38,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @RunAsPrincipal("admin")
 @RunAs("admin")
 @Interceptors(AuditInterceptor.class)
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class CouponManagerImpl implements CouponManager {
 
 	private static final int SUCCESS=0;
@@ -62,7 +63,6 @@ public class CouponManagerImpl implements CouponManager {
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
 
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
     @SuppressWarnings("unchecked")
     @RolesAllowed({"client","admin"})
 	public CodedMessage redeemCoupon(String couponCode) {

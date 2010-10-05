@@ -28,6 +28,7 @@ import javax.persistence.Query;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
@@ -91,6 +92,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @RunAsPrincipal("admin")
 @RunAs("admin")
 @Interceptors({AuditInterceptor.class,NodeFillInterceptor.class})
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class CampaignManagerImpl implements CampaignManager {
 
 	Logger log = LogManager.getLogger(getClass());
@@ -177,6 +179,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			Criteria crit = session.createCriteria(ConnectorDO.class);
 			crit.add(Restrictions.eq("UID", connectorUUID));
 			crit.setCacheable(true);
+			crit.setCacheRegion("query/simpleConnector");
 			ConnectorDO ret = (ConnectorDO)crit.uniqueResult();
 			
 			if(ret==null)
@@ -206,15 +209,26 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	@PermitAll
 	public CampaignDO getSimpleCampaign(String campaignUUID)
+	{
+		return getSimpleCampaign(campaignUUID, false);
+	}
+	
+	@PermitAll
+	public CampaignDO getSimpleCampaign(String campaignUUID, boolean eagerFetch)
 	{
 		try
 		{
 			Criteria crit = session.createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("UID", campaignUUID));
 			crit.setCacheable(true);
+			crit.setCacheRegion("query/simpleCampaign");
+			if(eagerFetch)
+			{
+				crit.setFetchMode("connectors", FetchMode.SELECT);
+				crit.setFetchMode("nodes", FetchMode.SELECT);
+			}
 			CampaignDO ret = (CampaignDO)crit.uniqueResult();
 			
 			if(ret==null)
@@ -233,9 +247,10 @@ public class CampaignManagerImpl implements CampaignManager {
 	
 	@Override
 	@PermitAll
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public Campaign getDetailedCampaign(String campaignUUID) {
 		Campaign campaign = new Campaign();
-		CampaignDO dataCPN = getSimpleCampaign(campaignUUID);
+		CampaignDO dataCPN = getSimpleCampaign(campaignUUID,true);
 		campaign.copyFrom(dataCPN);
 		
 		Node tempNode;
@@ -261,7 +276,6 @@ public class CampaignManagerImpl implements CampaignManager {
 		return campaign;
 	}
 
-	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	@PermitAll
 	public NodeDO getSimpleNode(String nodeUUID)
 	{
@@ -270,6 +284,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			Criteria crit = session.createCriteria(NodeDO.class);
 			crit.add(Restrictions.eq("UID", nodeUUID));
 			crit.setCacheable(true);
+			crit.setCacheRegion("query/SimpleNode");
 			NodeDO ret = (NodeDO)crit.uniqueResult();
 			
 			if(ret==null)
@@ -335,7 +350,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.PublishCampaign)
 	public void publish(String campaignUUID) {
@@ -623,7 +637,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.SaveCampaign)
 	public Campaign save(Campaign campaign) {
@@ -725,7 +738,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.CreateCampaignFromTemplate)
 	public Campaign createFromTemplate(Campaign campaign, String campaignTemplateUUID)
@@ -885,7 +897,6 @@ public class CampaignManagerImpl implements CampaignManager {
 		}
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	protected CampaignEntryPointDO getSpecificEntryPoint(String entryPoint, EntryPointType type, String keyword)
 	{
 		Query q = em.createNamedQuery("find.matching.entry.point");
@@ -902,7 +913,6 @@ public class CampaignManagerImpl implements CampaignManager {
 		}
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	protected boolean isEntryPointValid(String campaignUID, String entryPoint, EntryPointType type, String keyword)
 	{
 		CampaignEntryPointDO cep=getSpecificEntryPoint(entryPoint,type,keyword);
@@ -913,7 +923,6 @@ public class CampaignManagerImpl implements CampaignManager {
 		return false;
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	protected boolean isEntryPointDefinable(String entryPoint, String keyword, EntryPointType type)
 	{
 		if(entryPoint==null || 
@@ -926,7 +935,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	}
 	
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.SaveNode)
 	public void save(Node node) {
@@ -1152,7 +1160,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.SaveConnection)
 	public void save(Connector connector) {
@@ -1269,7 +1276,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.DeleteCampaign)
 	public void delete(Campaign campaign) {
@@ -1288,7 +1294,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.DeleteNode)
 	public void delete(Node node) {
@@ -1353,7 +1358,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.DeleteConnection)
 	public void delete(Connector connector) {

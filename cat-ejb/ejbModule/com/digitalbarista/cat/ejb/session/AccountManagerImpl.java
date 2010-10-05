@@ -36,6 +36,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @LocalBinding(jndiBinding = "ejb/cat/AccountManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class AccountManagerImpl implements AccountManager {
 
 	private Logger log = LogManager.getLogger(AccountManagerImpl.class);
@@ -80,7 +81,6 @@ public class AccountManagerImpl implements AccountManager {
 	
 	
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	@AuditEvent(AuditType.SaveFacebookApp)
 	public FacebookApp save(FacebookApp app) 
@@ -107,7 +107,6 @@ public class AccountManagerImpl implements AccountManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void delete(FacebookApp app) {
 		if(app == null)
 			throw new IllegalArgumentException("Cannot delete a null facebook app.");

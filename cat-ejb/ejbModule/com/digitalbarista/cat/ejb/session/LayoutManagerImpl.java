@@ -11,6 +11,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -31,6 +32,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @LocalBinding(jndiBinding = "ejb/cat/LayoutManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class LayoutManagerImpl implements LayoutManager {
 
 	@Resource
@@ -45,7 +47,6 @@ public class LayoutManagerImpl implements LayoutManager {
 	@PersistenceContext(unitName="cat-data")
 	private Session session;
 	
-	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	@PermitAll
 	public LayoutInfoDO getSimpleLayoutInfo(String uuid, Integer version)
 	{
@@ -109,7 +110,6 @@ public class LayoutManagerImpl implements LayoutManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	public void save(LayoutInfo layout) {
 		if(layout==null)
@@ -152,7 +152,17 @@ public class LayoutManagerImpl implements LayoutManager {
 		
 		layout.copyTo(info);
 		info.setVersion(info.getCampaign().getCurrentVersion());
-		em.persist(info);
+		try
+		{
+			em.persist(info);
+			em.flush();
+		}catch(EntityExistsException e)
+		{
+			info = getSimpleLayoutInfo(layout.getUUID(), layout.getVersion());
+			layout.copyTo(info);
+			em.persist(info);
+			System.out.println("****SAVED A COLLISION****");
+		}
 	}
 
 	@Override
@@ -192,7 +202,6 @@ public class LayoutManagerImpl implements LayoutManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	public void delete(String uid, Integer version) {
 		if(uid==null)

@@ -60,6 +60,7 @@ import flex.messaging.io.ArrayCollection;
 @LocalBinding(jndiBinding = "ejb/cat/SubscriptionManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class SubscriptionManagerImpl implements SubscriptionManager {
 
 	private Logger logger = LogManager.getLogger(SubscriptionManagerImpl.class);
@@ -130,7 +131,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	@PermitAll
 	public void subscribeToEntryPoint(Set<String> addresses, String entryPointUID, EntryPointType subscriptionType) {
 		//Get the campaign and entry node
@@ -352,7 +352,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void unsubscribeSubscribers(List<Long> subscriberIds, Long campaignId)
 	{
 		try
@@ -397,7 +396,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void registerTwitterFollower(String twitterID, String accountName) {
 		Criteria crit = session.createCriteria(SubscriberDO.class);
 		crit.add(Restrictions.eq("twitterID",twitterID));
@@ -451,7 +449,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void removeTwitterFollower(String twitterID, String accountName) {
 		Criteria crit = session.createCriteria(SubscriberDO.class);
 		crit.add(Restrictions.eq("twitterID",twitterID));
@@ -467,7 +464,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	}
 	
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void registerFacebookFollower(String facebookID, String accountName) {
 		Criteria crit = session.createCriteria(SubscriberDO.class);
 		crit.add(Restrictions.eq("facebookID",facebookID));
@@ -521,7 +517,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void removeFacebookFollower(String facebookID, String accountName) {
 		Criteria crit = session.createCriteria(SubscriberDO.class);
 		crit.add(Restrictions.eq("facebookID",facebookID));
@@ -538,7 +533,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	/**
 	 * Blacklist a set of contacts addresses.  These don't need to
 	 * be existing contacts, only the address and type will be used
@@ -587,7 +581,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void unBlacklistAddresses(List<Contact> contacts)
 	{
 		// List of addresses indexed by type
