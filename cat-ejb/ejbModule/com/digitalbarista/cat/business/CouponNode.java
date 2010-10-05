@@ -203,9 +203,6 @@ public class CouponNode extends Node implements Auditable {
 				nodes.get(INFO_PROPERTY_OFFER_CODE).setValue(offerCode);
 			else
 				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_OFFER_CODE, offerCode, version);
-
-			if (nodes.containsKey(INFO_PROPERTY_OFFER_CODE))
-				dataObject.getNodeInfo().remove(nodes.remove(INFO_PROPERTY_OFFER_CODE));
 		}
 	}
 
