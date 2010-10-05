@@ -26,6 +26,8 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.IndexColumn;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 /**
  * Entity implementation class for Entity: CampaignDO
@@ -181,6 +183,7 @@ public class CampaignDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="campaign",targetEntity=CampaignSubscriberLinkDO.class)
 	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/subscribers")
+	@LazyCollection(LazyCollectionOption.EXTRA)
 	public Set<CampaignSubscriberLinkDO> getSubscribers() {
 		return subscribers;
 	}
