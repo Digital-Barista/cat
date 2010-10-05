@@ -152,17 +152,7 @@ public class LayoutManagerImpl implements LayoutManager {
 		
 		layout.copyTo(info);
 		info.setVersion(info.getCampaign().getCurrentVersion());
-		try
-		{
-			em.persist(info);
-			em.flush();
-		}catch(EntityExistsException e)
-		{
-			info = getSimpleLayoutInfo(layout.getUUID(), layout.getVersion());
-			layout.copyTo(info);
-			em.persist(info);
-			System.out.println("****SAVED A COLLISION****");
-		}
+		em.persist(info);
 	}
 
 	@Override
