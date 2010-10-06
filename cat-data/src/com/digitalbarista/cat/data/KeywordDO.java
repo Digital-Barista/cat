@@ -16,7 +16,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="keywords")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/Keyword")
 public class KeywordDO implements Serializable,DataObject {
 
 	private Long primaryKey;

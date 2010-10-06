@@ -24,7 +24,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="campaign_info")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/CampaignInfo")
 public class CampaignInfoDO implements Serializable,DataObject {
 
 	public final static String KEY_AUTO_START_NODE_UID = "autoStartNodeUID";

@@ -18,7 +18,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="keyword_limit")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/KeywordLimit")
 public class KeywordLimitDO implements Serializable,DataObject {
 
 	private Long keywordLimitId;

@@ -37,7 +37,6 @@ import org.hibernate.annotations.FetchMode;
 @Entity
 @Table(name="connectors")
 @NamedQuery(name="connector.by.uuid", query="select c from ConnectorDO c where c.UID=:uuid")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/Connector")
 public class ConnectorDO implements Serializable,DataObject {
 
 	private Set<NodeConnectorLinkDO> connections = new HashSet<NodeConnectorLinkDO>();
@@ -106,7 +105,6 @@ public class ConnectorDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="connector",targetEntity=CampaignConnectorLinkDO.class)
 	@MapKey(name="version")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/connector/versionedConnectors")
 	public Map<Integer, CampaignConnectorLinkDO> getVersionedConnectors() {
 		return versionedConnectors;
 	}
