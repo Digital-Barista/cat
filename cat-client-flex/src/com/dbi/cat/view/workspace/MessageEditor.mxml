@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
-		   label="{entryType.name}">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+		   creationComplete="init()">
 	<mx:Metadata>
 		[Event(type="flash.events.Event", name="change")]
 	</mx:Metadata>
@@ -12,91 +12,53 @@
 			[Bindable]
 			private var editingHTML:Boolean = false;
 			
-			private var _entryType:EntryPointType;
+			private var _allowHTML:Boolean = false;
 			[Bindable]
-			public function get entryType():EntryPointType
+			public function get allowHTML():Boolean
 			{
-				return _entryType;
+				return _allowHTML;
 			}
-			public function set entryType(value:EntryPointType):void
+			public function set allowHTML(value:Boolean):void
 			{
-				_entryType = value;
-				updateMessageText();
+				_allowHTML = value;
 			}
 			
-			private var _messageVO:MessageVO;
+			private var _messageText:String;
 			[Bindable]
-			public function get messageVO():MessageVO
+			public function get messageText():String
 			{
-				return _messageVO;
+				return _messageText;
 			}
-			public function set messageVO(value:MessageVO):void
+			public function set messageText(value:String):void
 			{
-				_messageVO = value;
-				updateMessageText();
+				_messageText = value;
 			}
 			
-			public function updateMessageText():void
+			
+			private function init():void
 			{
-				if (messageVO != null &&
-					entryType != null &&
-					messageVO.messages != null &&
-					messageVO.messages[entryType.name] != null)
-				{
-					if (entryType.allowHTML)
-					{
-						Message.htmlText = messageVO.messages[entryType.name];
-					}
-					else
-					{
-						Message.text = messageVO.messages[entryType.name];
-					}
-				}
-				else
-				{
-					Message.text = "";
-				}
 			}
 			
 			private function updateMessage():void
 			{
-				if (messageVO != null &&
-					entryType != null &&
-					messageVO.messages != null)
-				{
-					if (entryType.allowHTML)
-						messageVO.messages[entryType.name] = Message.htmlText;
-					else
-						messageVO.messages[entryType.name] = Message.text;
-				}
-				updateMessageText();
+				messageText = Message.text;
 				dispatchEvent(new Event(Event.CHANGE));
 			}
 			private function updateHTML():void
 			{
-				if (messageVO != null &&
-					entryType != null &&
-					messageVO.messages != null)
-				{
-					messageVO.messages[entryType.name] = HTMLMessage.text;
-				}
-				updateMessageText();
+				messageText = HTMLMessage.text;
 			}
 			private function toggleHTML():void
 			{
 				editingHTML = !editingHTML;
-				Message.showControlBar = !editingHTML;
-				
-				updateMessageText();
-				HTMLMessage.text = messageVO.messages[entryType.name];
 			}
 		]]>
 	</mx:Script>
-	<mx:RichTextEditor id="Message"  
-					   borderStyle="none"
-					   left="0" right="0" top="0" bottom="0"
-				 	   change="updateMessage()"
-					   showControlBar="{entryType.allowHTML}" />
+	<mx:TextArea id="Message"  
+				 text="{messageText}"
+				 borderStyle="none"
+				 left="0" right="0" top="0" bottom="0"
+				 change="updateMessage()" />
 	<mx:TextArea id="HTMLMessage"
 				 left="0" right="0" top="0" bottom="0"
 				 borderStyle="none"
@@ -105,7 +67,7 @@
 	<mx:CheckBox label="Edit HTML"
 				 bottom="2" right="5"
 				 fontWeight="bold"
-				 visible="{entryType.allowHTML}"
+				 visible="{allowHTML}"
 				 selected="{editingHTML}"
 				 change="{toggleHTML()}" />
 </mx:Canvas>

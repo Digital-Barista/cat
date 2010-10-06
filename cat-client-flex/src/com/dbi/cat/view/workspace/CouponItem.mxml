@@ -4,8 +4,8 @@
 	xmlns:components="com.dbi.cat.view.components.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	width="400" height="300" xmlns:vo="com.dbi.cat.vo.*"
-	editWindowHeight="460"
-	editWindowWidth="380"
+	editWindowHeight="600"
+	editWindowWidth="800"
 	displayIcon="{couponIcon}"
 	workspaceIcon="{couponIcon}"
 	label="Coupon"
@@ -63,31 +63,10 @@
 			 */
 			private function init():void
 			{
-				updateAvailableMessage();
-				AvailableCharCount. visible = maxCharacters != 0;
-				UnavailableCharCount. visible = maxCharacters != 0;
-				
 				// Initialize expiration radio buttons only once
 				ExpirationNeverOption.selected = couponVO.expireDate == null && couponVO.expireDays == null;
 				ExpirationDateOption.selected = couponVO.expireDate != null;
 				ExpirationDaysOption.selected = couponVO.expireDays != null;
-			}
-			
-			private function updateAvailableMessage():void
-			{
-				// Update entered text
-				couponVO.availableMessage = AvailableMessage.text;
-				
-				// Replace tokens
-				var reg:RegExp = new RegExp("{.*?}", "/g");
-				couponVO.availableMessage = couponVO.availableMessage.replace(reg, couponCodeToken);
-				
-				dispatchEvent(new Event("availableCharacterUpdate"));
-			}
-			private function updateUnavailableMessage():void
-			{
-				couponVO.unavailableMessage = UnavailableMessage.text;
-				dispatchEvent(new Event("unavailableCharacterUpdate"));
 			}
 			
 			private function setInfiniteRedemptions():void
@@ -110,12 +89,13 @@
 					couponVO.couponCode = null;
 				else
 					couponVO.couponCode = "";
-				updateAvailableMessage();
+				
+				replaceTokens();
 			}
 			private function changeStaticCouponCode():void
 			{
 				couponVO.couponCode = StaticCodeValue.text;
-				updateAvailableMessage();
+				replaceTokens();
 			}
 			private function get couponCodeToken():String
 			{
@@ -178,6 +158,22 @@
 				return ret;
 			}
 			
+			
+			private function replaceTokens():void
+			{
+				var reg:RegExp = new RegExp("{.*?}", "/g");
+				
+				// Replace coupon tokens in available messages
+				if (couponVO.availableMessage)
+					couponVO.availableMessage = couponVO.availableMessage.replace(reg, couponCodeToken);
+				
+				for (var key:String in couponVO.availableMessages)
+				{
+					if (couponVO.availableMessages[key])
+						couponVO.availableMessages[key] = couponVO.availableMessages[key].replace(reg, couponCodeToken);
+				}
+			}
+			
 			private function previewMessage(available:Boolean):void
 			{
 				// Open the preview window
@@ -226,140 +222,125 @@
 		]]>
 	</mx:Script>
 	<editContent>
-		<mx:Form right="0" left="0" top="0" bottom="0" 
-			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
-			<mx:FormItem label="Title" width="100%">
-				<mx:TextInput id="Title" width="225"
-					text="{couponVO.name}"
-					change="{couponVO.name = Title.text}" />
-			</mx:FormItem>
-			<mx:FormItem label="Max Coupons"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:HBox width="100%">
-					<mx:TextInput id="MaxCoupons" width="80"
-						restrict="[0-9]"
-						text="{couponVO.maxCoupons}"
-						change="{couponVO.maxCoupons = new Number(MaxCoupons.text)}"
-						visible="{couponVO.maxCoupons != CouponNodeVO.INFINITE_COUPONS_COUNT}"
-						includeInLayout="{couponVO.maxCoupons != CouponNodeVO.INFINITE_COUPONS_COUNT}" />
-					<mx:CheckBox id="InfiniteCoupons"
-						label="Infinite"
-						selected="{couponVO.maxCoupons == CouponNodeVO.INFINITE_COUPONS_COUNT}"
-						change="{setInfiniteCoupons()}" />
-				</mx:HBox>
-			</mx:FormItem>
-			<mx:FormItem label="Max Redemptions"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:HBox width="100%">
-					<mx:TextInput id="MaxRedemptions" width="80"
-						restrict="[0-9]"
-						text="{couponVO.maxRedemptions}"
-						change="{couponVO.maxRedemptions = new Number(MaxRedemptions.text)}"
-						visible="{couponVO.maxRedemptions != CouponNodeVO.INFINITE_REDEMPTION_COUNT}"
-						includeInLayout="{couponVO.maxRedemptions != CouponNodeVO.INFINITE_REDEMPTION_COUNT}" />
-					<mx:CheckBox id="InfiniteRedemptions"
-						label="Infinite"
-						selected="{couponVO.maxRedemptions == CouponNodeVO.INFINITE_REDEMPTION_COUNT}"
-						change="{setInfiniteRedemptions()}" />
-				</mx:HBox>
-			</mx:FormItem>
-			<mx:FormItem label="Coupon Code"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:HBox width="100%">
-					<mx:RadioButtonGroup id="CouponType"
-						change="changeCodeType()" />
-					<mx:RadioButton id="RandomCode"
-						label="Random"
-						group="{CouponType}"
-						selected="{couponVO.couponCode == null}" />
-					<mx:RadioButton id="StaticCode"
-						label="Static"
-						group="{CouponType}"
-						selected="{couponVO.couponCode != null}" />
-					<mx:TextInput id="StaticCodeValue"
-						width="80"
-						text="{couponVO.couponCode}"
-						change="changeStaticCouponCode()"
-						visible="{StaticCode.selected}" />
-				</mx:HBox>
-			</mx:FormItem>
-			<mx:FormItem label="Offer Code">
-				<mx:TextInput id="OfferCode" width="225"
-							  text="{couponVO.offerCode}"
-							  change="{couponVO.offerCode = OfferCode.text}" />
-			</mx:FormItem>
-			<mx:FormItem label="Unavailable Date"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:DateField id="UnavailableDate"
-					editable="true"
-					selectedDate="{couponVO.unavailableDate}"
-					change="{couponVO.unavailableDate = UnavailableDate.selectedDate}" />
-			</mx:FormItem>
-			<mx:FormItem label="Expiration">
-				<mx:HBox>
-					<mx:RadioButtonGroup id="ExpirationGroup"
-									change="changeExpireType()" />
-					<mx:RadioButton id="ExpirationNeverOption"
-									label="Never"
-									group="{ExpirationGroup}" />
-					<mx:RadioButton id="ExpirationDateOption"
-									label="Date"
-									group="{ExpirationGroup}" />
-					<mx:RadioButton id="ExpirationDaysOption"
-									label="Days"
-									group="{ExpirationGroup}" />
-				</mx:HBox>
-				<mx:HBox visible="{ExpirationDateOption.selected}"
-						includeInLayout="{ExpirationDateOption.selected}"
-						verticalAlign="middle">
-					<mx:Label text="Expire on " />
-					<mx:DateField id="ExpirationDate"
-						selectedDate="{couponVO.expireDate}"
-						change="{couponVO.expireDate = ExpirationDate.selectedDate}" />
-				</mx:HBox>
-				<mx:HBox visible="{ExpirationDaysOption.selected}"
-						includeInLayout="{ExpirationDaysOption.selected}"
-						verticalAlign="middle">
-					<mx:Label text="Expire" />
-					<mx:TextInput id="ExpirationDays"
-								  width="30"
-								  restrict="0-9"
-								  text="{couponVO.expireDays}"
-								  change="{couponVO.expireDays = ExpirationDays.text}" />
-					<mx:Label text="days from send date" />
-				</mx:HBox>
-			</mx:FormItem>
-			<mx:FormItem label="Available" required="true" width="100%" 
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-					<mx:TextArea id="AvailableMessage"  width="225" height="60"
-						styleName="couponMessage"
-						text="{couponVO.availableMessage}" 
-						change="updateAvailableMessage()"/>
-			</mx:FormItem>
-			<mx:FormItem id="AvailableCharCount" width="100%"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:HBox width="100%">
-					<mx:Label htmlText="{availableCharacterCount + ' chars'}" />
-					<mx:Spacer width="100%" />
-					<mx:Button label="Preview Message"
-						click="previewMessage(true)" />
-				</mx:HBox>
-			</mx:FormItem>
-			<mx:FormItem label="Unavailable" 
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:TextArea id="UnavailableMessage" width="225" height="60"
-					text="{couponVO.unavailableMessage}"
-					change="updateUnavailableMessage()"  />
-			</mx:FormItem>
-			<mx:FormItem id="UnavailableCharCount" width="100%"
-				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-				<mx:HBox width="100%">
-					<mx:Label htmlText="{unavailableCharacterCount + ' chars'}" />
-					<mx:Spacer width="100%" />
-					<mx:Button label="Preview Message"
-						click="previewMessage(false)" />
-				</mx:HBox>
-			</mx:FormItem>
-		</mx:Form>
+		<mx:HBox width="100%" verticalAlign="top">
+			<mx:Form>
+				<mx:FormItem label="Title" width="100%">
+					<mx:TextInput id="Title" width="225"
+						text="{couponVO.name}"
+						change="{couponVO.name = Title.text}" />
+				</mx:FormItem>
+				<mx:FormItem label="Max Coupons"
+					enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:HBox width="100%">
+						<mx:TextInput id="MaxCoupons" width="80"
+							restrict="[0-9]"
+							text="{couponVO.maxCoupons}"
+							change="{couponVO.maxCoupons = new Number(MaxCoupons.text)}"
+							visible="{couponVO.maxCoupons != CouponNodeVO.INFINITE_COUPONS_COUNT}"
+							includeInLayout="{couponVO.maxCoupons != CouponNodeVO.INFINITE_COUPONS_COUNT}" />
+						<mx:CheckBox id="InfiniteCoupons"
+							label="Infinite"
+							selected="{couponVO.maxCoupons == CouponNodeVO.INFINITE_COUPONS_COUNT}"
+							change="{setInfiniteCoupons()}" />
+					</mx:HBox>
+				</mx:FormItem>
+				<mx:FormItem label="Max Redemptions"
+					enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:HBox width="100%">
+						<mx:TextInput id="MaxRedemptions" width="80"
+							restrict="[0-9]"
+							text="{couponVO.maxRedemptions}"
+							change="{couponVO.maxRedemptions = new Number(MaxRedemptions.text)}"
+							visible="{couponVO.maxRedemptions != CouponNodeVO.INFINITE_REDEMPTION_COUNT}"
+							includeInLayout="{couponVO.maxRedemptions != CouponNodeVO.INFINITE_REDEMPTION_COUNT}" />
+						<mx:CheckBox id="InfiniteRedemptions"
+							label="Infinite"
+							selected="{couponVO.maxRedemptions == CouponNodeVO.INFINITE_REDEMPTION_COUNT}"
+							change="{setInfiniteRedemptions()}" />
+					</mx:HBox>
+				</mx:FormItem>
+				<mx:FormItem label="Coupon Code"
+					enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:HBox width="100%">
+						<mx:RadioButtonGroup id="CouponType"
+							change="changeCodeType()" />
+						<mx:RadioButton id="RandomCode"
+							label="Random"
+							group="{CouponType}"
+							selected="{couponVO.couponCode == null}" />
+						<mx:RadioButton id="StaticCode"
+							label="Static"
+							group="{CouponType}"
+							selected="{couponVO.couponCode != null}" />
+						<mx:TextInput id="StaticCodeValue"
+							width="80"
+							text="{couponVO.couponCode}"
+							change="changeStaticCouponCode()"
+							visible="{StaticCode.selected}" />
+					</mx:HBox>
+				</mx:FormItem>
+			</mx:Form>
+		
+			<mx:Form>
+				<mx:FormItem label="Offer Code">
+					<mx:TextInput id="OfferCode" width="225"
+								  text="{couponVO.offerCode}"
+								  change="{couponVO.offerCode = OfferCode.text}" />
+				</mx:FormItem>
+				<mx:FormItem label="Unavailable Date"
+					enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:DateField id="UnavailableDate"
+						editable="true"
+						selectedDate="{couponVO.unavailableDate}"
+						change="{couponVO.unavailableDate = UnavailableDate.selectedDate}" />
+				</mx:FormItem>
+				<mx:FormItem label="Expiration">
+					<mx:HBox>
+						<mx:RadioButtonGroup id="ExpirationGroup"
+										change="changeExpireType()" />
+						<mx:RadioButton id="ExpirationNeverOption"
+										label="Never"
+										group="{ExpirationGroup}" />
+						<mx:RadioButton id="ExpirationDateOption"
+										label="Date"
+										group="{ExpirationGroup}" />
+						<mx:RadioButton id="ExpirationDaysOption"
+										label="Days"
+										group="{ExpirationGroup}" />
+					</mx:HBox>
+					<mx:HBox visible="{ExpirationDateOption.selected}"
+							includeInLayout="{ExpirationDateOption.selected}"
+							verticalAlign="middle">
+						<mx:Label text="Expire on " />
+						<mx:DateField id="ExpirationDate"
+							selectedDate="{couponVO.expireDate}"
+							change="{couponVO.expireDate = ExpirationDate.selectedDate}" />
+					</mx:HBox>
+					<mx:HBox visible="{ExpirationDaysOption.selected}"
+							includeInLayout="{ExpirationDaysOption.selected}"
+							verticalAlign="middle">
+						<mx:Label text="Expire" />
+						<mx:TextInput id="ExpirationDays"
+									  width="30"
+									  restrict="0-9"
+									  text="{couponVO.expireDays}"
+									  change="{couponVO.expireDays = ExpirationDays.text}" />
+						<mx:Label text="days from send date" />
+					</mx:HBox>
+				</mx:FormItem>
+			</mx:Form>
+			
+		</mx:HBox>
+		<CouponMessageEditor id="CouponEditor"
+							 couponVO="{couponVO}"
+							 couponToken="{couponCodeToken}"
+							 change="replaceTokens()" />
+		<mx:HBox width="100%"
+				 enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+			<mx:Label id="CharCountLabel" />
+			<mx:Spacer width="100%" />
+			<mx:Button label="Preview Message"
+					   click="previewMessage(false)" />
+		</mx:HBox>
 	</editContent>
 </Node>

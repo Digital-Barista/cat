@@ -73,13 +73,13 @@
 			{
 				var count:Number = 0;
 				
-				if (EntryTypeTabs.selectedChild == DefaultMessageTab)
+				if (EntryTypeTabs.selectedChild == DefaultMessage)
 				{
-					count = Message.text.length;
+					count = DefaultMessage.messageText.length;
 				}
 				else
 				{
-					count = MessageEditor(EntryTypeTabs.selectedChild).Message.text.length;
+					count = MessageEditor(EntryTypeTabs.selectedChild).messageText.length;
 				}
 				return count + " chars";
 			}
@@ -102,7 +102,12 @@
 			
 			private function updateDefaultMessage():void
 			{
-				messageVO.message = Message.text;
+				messageVO.message = DefaultMessage.messageText;
+				dispatchEvent(new Event("changeMessage"));
+			}
+			private function updateMessageType(text:String, entryType:EntryPointType):void
+			{
+				messageVO.messages[entryType.name] = text;
 				dispatchEvent(new Event("changeMessage"));
 			}
 		]]>
@@ -118,19 +123,16 @@
 						 width="100%" height="100%"
 						 tabOffset="20" paddingTop="0"
 						 change="{dispatchEvent(new Event('changeMessage'))}">
-			<mx:Canvas id="DefaultMessageTab"
-				label="Default Message"
-				width="100%" height="100%">
-				<mx:TextArea id="Message"  
-							 width="100%" height="100%"
-							 text="{messageVO.message}" 
-							 change="{updateDefaultMessage()}" />
-			</mx:Canvas>
+			<MessageEditor id="DefaultMessage"
+						   label="Default Message"
+						   messageText="{messageVO.message}"
+						   change="{updateDefaultMessage()}" />
 			<mx:Repeater id="EntryTypeRepeater" 
 						 dataProvider="{EntryPointType.allTypes}">
-				<MessageEditor entryType="{EntryTypeRepeater.currentItem}"
-							   messageVO="{messageVO}"
-							   change="{dispatchEvent(new Event('changeMessage'))}"/>
+				<MessageEditor id="MessageTypeEditor"
+							   label="{EntryTypeRepeater.currentItem.name}"
+							   messageText="{messageVO.messages[EntryTypeRepeater.currentItem.name]}"
+							   change="{updateMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
 			</mx:Repeater>
 		</mx:TabNavigator>
 		<mx:HBox id="CharCount" width="100%">

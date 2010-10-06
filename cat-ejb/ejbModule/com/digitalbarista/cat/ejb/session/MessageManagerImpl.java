@@ -21,6 +21,7 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.CampaignMessagePart;
+import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
@@ -69,6 +70,35 @@ public class MessageManagerImpl implements MessageManager {
 		return ret;
     }
 	
+	@Override
+	@PermitAll
+    public List<CampaignMessagePart> getAvailableMessageParts(Campaign campaign, CouponNode coupon)
+    {
+		List<CampaignMessagePart> ret = new ArrayList<CampaignMessagePart>();
+		
+		for (EntryPointType entryType : EntryPointType.values())
+		{
+			String text = coupon.getAvailableMessageForType(entryType);
+			CampaignMessagePart part = getMessagePart(campaign, entryType, text);
+			ret.add(part);
+		}
+		return ret;
+    }
+	
+	@Override
+	@PermitAll
+    public List<CampaignMessagePart> getUnavailableMessageParts(Campaign campaign, CouponNode coupon)
+    {
+		List<CampaignMessagePart> ret = new ArrayList<CampaignMessagePart>();
+		
+		for (EntryPointType entryType : EntryPointType.values())
+		{
+			String text = coupon.getUnavailableMessageForType(entryType);
+			CampaignMessagePart part = getMessagePart(campaign, entryType, text);
+			ret.add(part);
+		}
+		return ret;
+    }
     
 	@Override
 	@PermitAll
