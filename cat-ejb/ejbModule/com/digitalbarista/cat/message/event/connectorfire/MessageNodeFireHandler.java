@@ -10,6 +10,8 @@ import com.digitalbarista.cat.business.CampaignMessagePart;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
+import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
@@ -34,8 +36,17 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 		NodeDO simpleNode=cMan.getSimpleNode(mNode.getUid());
 		
 		
-		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
-		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+		CampaignSubscriberLinkDO csl=null;
+		for(CampaignDO subCamp : s.getSubscriptions().keySet())
+		{
+			if(subCamp.getUID().equalsIgnoreCase(simpleNode.getCampaign().getUID()))
+			{
+				csl=s.getSubscriptions().get(subCamp);
+				break;
+			}
+		}
+		String fromAddress = csl.getLastHitEntryPoint();
+		EntryPointType fromType = csl.getLastHitEntryType();
 
 		if(sMan.isSubscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
 			return;
@@ -68,7 +79,7 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 			eMan.queueEvent(sendMessageEvent);
 		}
 			
-		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
+		csl.setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 	}
 

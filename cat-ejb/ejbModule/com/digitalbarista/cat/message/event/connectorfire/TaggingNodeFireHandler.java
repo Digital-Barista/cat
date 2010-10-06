@@ -17,6 +17,8 @@ import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.TaggingNode;
+import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.ContactTagLinkDO;
@@ -44,7 +46,16 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 			tags.add(em.find(ContactTagDO.class, cTag.getContactTagId()));
 		ContactDO con;
 		Criteria crit = ((Session)em.getDelegate()).createCriteria(ContactDO.class);
-		EntryPointType ept = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+		CampaignSubscriberLinkDO csl=null;
+		for(CampaignDO subCamp : s.getSubscriptions().keySet())
+		{
+			if(subCamp.getUID().equalsIgnoreCase(simpleNode.getCampaign().getUID()))
+			{
+				csl=s.getSubscriptions().get(subCamp);
+				break;
+			}
+		}
+		EntryPointType ept = csl.getLastHitEntryType();
 		String address=null;
 		String altID=null;
 		switch(ept)
@@ -91,7 +102,7 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 				em.persist(ctldo);
 			}
 		}
-		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
+		csl.setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 
 	}
