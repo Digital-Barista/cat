@@ -24,6 +24,7 @@ import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
+import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.ConnectorType;
@@ -305,8 +306,20 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		if(mostLikelyEntry==null)
 			return;
 		
+		boolean isSubscribed=false;
+		CampaignSubscriberLinkDO csl=null;
+		for(CampaignDO subCamp : sub.getSubscriptions().keySet())
+		{
+			if(subCamp.getUID().equalsIgnoreCase(mostLikelyEntry.getCampaign().getUID()))
+			{
+				isSubscribed=true;
+				csl=sub.getSubscriptions().get(subCamp);
+				break;
+			}
+		}
+		
 		//If they are not subscribed, we check for an entry point.
-		if(!sub.getSubscriptions().containsKey(mostLikelyEntry.getCampaign()))
+		if(!isSubscribed)
 		{
 			EntryNode en=null;
 			Campaign camp = getCampaignManager().getLastPublishedCampaign(mostLikelyEntry.getCampaign().getUID());
@@ -351,7 +364,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			}catch(NoResultException ex){}
 			
 			//Now . . . get that guy subscribed.
-			CampaignSubscriberLinkDO csl = new CampaignSubscriberLinkDO();
+			csl = new CampaignSubscriberLinkDO();
 			csl.setCampaign(mostLikelyEntry.getCampaign());
 			csl.setSubscriber(sub);
 			csl.setLastHitNode(getCampaignManager().getSimpleNode(en.getUid()));
@@ -374,7 +387,6 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		} else {
 			//since they're subscribed, we're going to assume we're triggering a response
 			// connector.  Otherwise we ignore it.
-			CampaignSubscriberLinkDO csl = sub.getSubscriptions().get(mostLikelyEntry.getCampaign());
 			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
 			csl.setLastHitEntryType(mostLikelyEntry.getType());
 			Integer publishedVersion = csl.getCampaign().getCurrentVersion()-1;

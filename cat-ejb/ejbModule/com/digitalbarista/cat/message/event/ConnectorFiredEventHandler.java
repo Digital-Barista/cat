@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
@@ -45,13 +46,27 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 		{
 			SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
 			CampaignDO camp = getCampaignManager().getSimpleCampaign(conn.getCampaignUID());
-			if(s==null || !s.getSubscriptions().containsKey(camp))
+			if(s==null || camp==null)
+			{
+				log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
+				return;
+			}
+			CampaignSubscriberLinkDO csl=null;
+			for(CampaignDO subCamp : s.getSubscriptions().keySet())
+			{
+				if(subCamp.getUID().equalsIgnoreCase(camp.getUID()))
+				{
+					csl=s.getSubscriptions().get(subCamp);
+					break;
+				}
+			}
+			if(csl==null)
 			{
 				log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
 				return;
 			}
 			Node source = getCampaignManager().getSpecificNodeVersion(conn.getSourceNodeUID(), version);
-			String subscriberCurrent=s.getSubscriptions().get(camp).getLastHitNode().getUID();
+			String subscriberCurrent=csl.getLastHitNode().getUID();
 			if(source==null || !source.getUid().equals(subscriberCurrent))
 			{
 				log.warn("subscriber pk="+e.getTarget()+" is not on node uid="+source.getUid()+".  ConnectorDO "+conn.getUid()+" will not be fired.");

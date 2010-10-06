@@ -22,7 +22,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="node_info")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/NodeInfo")
 public class NodeInfoDO implements Serializable,DataObject {
 
 	private Long primaryKey;

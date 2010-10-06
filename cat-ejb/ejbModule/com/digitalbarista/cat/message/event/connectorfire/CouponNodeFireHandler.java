@@ -16,6 +16,8 @@ import com.digitalbarista.cat.business.CampaignMessagePart;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.Node;
+import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.CouponCounterDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
@@ -50,8 +52,17 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		CouponOfferDO offer = em.find(CouponOfferDO.class, cNode.getCouponId());
 		CouponResponseDO response;
 						
-		String fromAddress = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryPoint();
-		EntryPointType fromType = s.getSubscriptions().get(simpleNode.getCampaign()).getLastHitEntryType();
+		CampaignSubscriberLinkDO csl=null;
+		for(CampaignDO subCamp : s.getSubscriptions().keySet())
+		{
+			if(subCamp.getUID().equalsIgnoreCase(simpleNode.getCampaign().getUID()))
+			{
+				csl=s.getSubscriptions().get(subCamp);
+				break;
+			}
+		}
+		String fromAddress = csl.getLastHitEntryPoint();
+		EntryPointType fromType = csl.getLastHitEntryType();
 
 		if(sMan.isSubscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
 			return;
@@ -154,7 +165,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 				eMan.queueEvent(sendMessageEvent);
 			}
 		}		
-		s.getSubscriptions().get(simpleNode.getCampaign()).setLastHitNode(simpleNode);
+		csl.setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 	}
 }

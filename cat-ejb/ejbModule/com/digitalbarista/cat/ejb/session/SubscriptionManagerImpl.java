@@ -277,8 +277,17 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		
 		for(SubscriberDO sub : subscribers)
 		{
+			boolean isSubscribed=false;
+			for(CampaignDO subCamp : sub.getSubscriptions().keySet())
+			{
+				if(subCamp.getUID().equalsIgnoreCase(camp.getUID()))
+				{
+					isSubscribed=true;
+					break;
+				}
+			}
 			//Of course if they're already subscribe to this campaign, skip them.
-			if(sub.getSubscriptions().get(camp)!=null)
+			if(isSubscribed)
 				continue;
 			
 			//Otherwise actually subscribe them.
