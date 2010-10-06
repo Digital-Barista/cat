@@ -177,14 +177,14 @@
 				CouponEditor.updateRepeaterItems();
 			}
 			
-			private function previewMessage(available:Boolean):void
+			private function previewMessage():void
 			{
 				// Open the preview window
 				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
 				
 				// Request the message parts
 				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_AVAILABLE_COUPON_NODE_PARTS);
-				if (!available)
+				if (!CouponEditor.showingAvailable)
 					event = new CampaignMessageEvent(CampaignMessageEvent.GET_UNAVAILABLE_COUPON_NODE_PARTS);
 				event.campaign = workspace.campaign;
 				event.node = couponVO;
@@ -343,7 +343,7 @@
 			<mx:Label id="CharCountLabel" />
 			<mx:Spacer width="100%" />
 			<mx:Button label="Preview Message"
-					   click="previewMessage(false)" />
+					   click="previewMessage()" />
 		</mx:HBox>
 	</editContent>
 </Node>

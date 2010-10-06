@@ -10,7 +10,7 @@
 			import com.dbi.cat.common.vo.CouponVO;
 			
 			[Bindable]
-			private var showingAvailable:Boolean = true;
+			public var showingAvailable:Boolean = true;
 			
 			private var _couponToken:String;
 			[Bindable]

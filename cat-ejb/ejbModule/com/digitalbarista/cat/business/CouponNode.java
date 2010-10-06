@@ -306,7 +306,7 @@ public class CouponNode extends Node implements Auditable {
 	 */
 	public String getAvailableMessageForType(EntryPointType entryPointType)
 	{
-		String ret = availableMessage;
+		String ret = availableMessage != null ? availableMessage : "";
 		String key = entryPointType.getName();
 		if (availableMessages != null &&
 			availableMessages.containsKey(key) &&
@@ -327,7 +327,7 @@ public class CouponNode extends Node implements Auditable {
 	 */
 	public String getUnavailableMessageForType(EntryPointType entryPointType)
 	{
-		String ret = unavailableMessage;
+		String ret = unavailableMessage != null ? unavailableMessage : "";
 		String key = entryPointType.getName();
 		if (unavailableMessages != null &&
 			unavailableMessages.containsKey(key) &&

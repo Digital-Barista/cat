@@ -107,7 +107,7 @@ public class MessageNode extends Node implements Auditable {
 	 */
 	public String getMessageForType(EntryPointType entryPointType)
 	{
-		String ret = message;
+		String ret = message != null ? message : "";
 		String key = entryPointType.getName();
 		if (messages != null &&
 			messages.containsKey(key) &&
