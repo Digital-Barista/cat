@@ -11,6 +11,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
@@ -20,6 +23,8 @@ import com.digitalbarista.cat.data.NodeType;
 public class TaggingNode extends Node {
 
 	public static final String INFO_PROPERTY_TAG="Tag";
+	
+	private Logger log=LogManager.getLogger(getClass());
 	
 	private List<ContactTag> tags;
 	
@@ -43,6 +48,7 @@ public class TaggingNode extends Node {
 		{
 			if(!ni.getVersion().equals(version))
 				continue;
+			log.debug("sifting nodes : "+ni.getName()+":"+ni.getValue());
 			nodes.put(ni.getName(), ni);
 		}
 		
@@ -55,11 +61,13 @@ public class TaggingNode extends Node {
 					continue;
 				if(nodes.containsKey(INFO_PROPERTY_TAG+"["+loop+"]"))
 				{
+					log.debug("found existing node "+INFO_PROPERTY_TAG+"["+loop+"] setting value "+tags.get(loop).getContactTagId());
 					nodes.get(INFO_PROPERTY_TAG+"["+loop+"]").setValue(""+tags.get(loop).getContactTagId());
 					finalNodes.add(nodes.get(INFO_PROPERTY_TAG+"["+loop+"]"));
 				}
 				else
 				{
+					log.debug("no existing node "+INFO_PROPERTY_TAG+"["+loop+"] adding value "+tags.get(loop).getContactTagId());
 					buildAndAddNodeInfo(dataObject, INFO_PROPERTY_TAG+"["+loop+"]", ""+tags.get(loop).getContactTagId(), version);
 				}
 			}
@@ -67,6 +75,8 @@ public class TaggingNode extends Node {
 		Set<NodeInfoDO> removeNodes = new HashSet<NodeInfoDO>();
 		removeNodes.addAll(nodes.values());
 		removeNodes.removeAll(finalNodes);
+		for(NodeInfoDO ni : removeNodes)
+			log.debug("need to remove node info "+ni.getName()+":"+ni.getValue());
 		dataObject.getNodeInfo().removeAll(removeNodes);
 	}
 
