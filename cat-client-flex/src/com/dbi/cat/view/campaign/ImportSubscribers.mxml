@@ -60,6 +60,7 @@
 				
 				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
 				event.pagingInfo = contactPagingInfo;
+				event.searchCriteria = contactSearchCriteria;
 				dispatchEvent(event);
 			}
 		]]>
