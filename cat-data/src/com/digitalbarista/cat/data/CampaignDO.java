@@ -183,7 +183,6 @@ public class CampaignDO implements Serializable,DataObject {
 
 	@OneToMany(mappedBy="campaign",targetEntity=CampaignSubscriberLinkDO.class)
 	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/subscribers")
-	@LazyCollection(LazyCollectionOption.EXTRA)
 	public Set<CampaignSubscriberLinkDO> getSubscribers() {
 		return subscribers;
 	}
