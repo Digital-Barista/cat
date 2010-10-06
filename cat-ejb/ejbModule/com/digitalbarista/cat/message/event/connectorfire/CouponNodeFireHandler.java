@@ -92,7 +92,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 				couponCode = shuffler.generateCode(counter.getNextNumber());
 				counter.setNextNumber(counter.getNextNumber()+1);							
 			}
-			actualMessage = cNode.getAvailableMessage();
+			actualMessage = cNode.getAvailableMessageForType(fromType);
 			//This is for coupon code, and really should check it, but doesn't.
 			int startPos = actualMessage.indexOf('{');
 			int endPos = actualMessage.indexOf('}',-1)+1;
@@ -121,7 +121,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 			response.setRedemptionCount(0);
 		} else {
 			offer.setRejectedResponseCount(offer.getRejectedResponseCount()+1);
-			actualMessage = cNode.getUnavailableMessage();
+			actualMessage = cNode.getUnavailableMessageForType(fromType);
 			response = new CouponResponseDO();
 			response.setCouponOffer(offer);
 			response.setResponseDate(now);

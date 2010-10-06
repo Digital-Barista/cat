@@ -32,6 +32,15 @@
 			public function set couponVO(value:CouponNodeVO):void
 			{
 				_couponVO = value;
+				
+				if (couponVO)
+				{
+					if (!couponVO.availableMessages)
+						couponVO.availableMessages = new Object();
+					
+					if (!couponVO.unavailableMessages)
+						couponVO.unavailableMessages = new Object();
+				}
 			}
 			
 			

@@ -107,6 +107,8 @@
 			}
 			private function updateMessageType(text:String, entryType:EntryPointType):void
 			{
+				if (!messageVO.messages)
+					messageVO.messages = new Object();
 				messageVO.messages[entryType.name] = text;
 				dispatchEvent(new Event("changeMessage"));
 			}
