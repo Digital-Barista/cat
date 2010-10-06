@@ -324,7 +324,7 @@ function MessageAPI()
 		// Add body
 		var body = $("<div />");
 		body.attr("class", "messageBody");
-		body.text(message.body);
+		body.html(message.body);
 		content.append(body);
 		
 		// Show response if one has been submitted
