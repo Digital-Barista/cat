@@ -5,13 +5,16 @@
 	verticalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
-			import mx.events.ListEvent;
-			import mx.utils.ObjectUtil;
-			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.constants.ContactTagType;
 			import com.dbi.cat.common.vo.ContactTagVO;
+			
+			import mx.collections.ArrayCollection;
 			import mx.collections.HierarchicalData;
+			import mx.collections.IViewCursor;
 			import mx.events.CollectionEvent;
+			import mx.events.ListEvent;
+			import mx.managers.ICursorManager;
+			import mx.utils.ObjectUtil;
 			
 			[Event(name="checkboxChanged", type="flash.events.Event")]
 			
@@ -33,9 +36,16 @@
 				{
 					selectedTags.addItem(item.data);
 				}
-				else if (selectedTags.contains(item.data))
+				else
 				{
-					selectedTags.removeItemAt(selectedTags.getItemIndex(item.data))
+					var cur:IViewCursor = selectedTags.createCursor();
+					while (cur.current)
+					{
+						if (cur.current.contactTagId == item.data.contactTagId)
+							cur.remove();
+						else
+							cur.moveNext();
+					}
 				}
 			}
 		]]>

@@ -94,7 +94,7 @@
 				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
 				
 				// Request the message parts
-				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_PARTS);
+				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_NODE_PARTS);
 				event.campaign = workspace.campaign;
 				event.node = messageVO;
 				dispatchEvent(event);

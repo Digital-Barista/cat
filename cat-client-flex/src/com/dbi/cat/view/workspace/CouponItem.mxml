@@ -12,15 +12,16 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.event.CampaignMessageEvent;
 			import com.dbi.cat.common.constants.CampaignMode;
 			import com.dbi.cat.common.constants.EntryPointType;
-			import com.dbi.cat.common.vo.CouponNodeVO;
-			import mx.events.ChildExistenceChangedEvent;
-			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.CampaignVO;
-			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.CouponNodeVO;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
+			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.event.CampaignMessageEvent;
+			
+			import mx.events.ChildExistenceChangedEvent;
 			
 			public static const EXPIRATION_TOKEN:String = "[EXPIRE_DATE]";
 			
@@ -177,15 +178,17 @@
 				return ret;
 			}
 			
-			private function previewMessage(message:String):void
+			private function previewMessage(available:Boolean):void
 			{
 				// Open the preview window
 				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
 				
 				// Request the message parts
-				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_PARTS);
+				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_AVAILABLE_COUPON_NODE_PARTS);
+				if (!available)
+					event = new CampaignMessageEvent(CampaignMessageEvent.GET_UNAVAILABLE_COUPON_NODE_PARTS);
 				event.campaign = workspace.campaign;
-				event.message = message;
+				event.node = couponVO;
 				dispatchEvent(event);
 			}
 			
@@ -339,7 +342,7 @@
 					<mx:Label htmlText="{availableCharacterCount + ' chars'}" />
 					<mx:Spacer width="100%" />
 					<mx:Button label="Preview Message"
-						click="previewMessage(AvailableMessage.text)" />
+						click="previewMessage(true)" />
 				</mx:HBox>
 			</mx:FormItem>
 			<mx:FormItem label="Unavailable" 
@@ -354,7 +357,7 @@
 					<mx:Label htmlText="{unavailableCharacterCount + ' chars'}" />
 					<mx:Spacer width="100%" />
 					<mx:Button label="Preview Message"
-						click="previewMessage(UnavailableMessage.text)" />
+						click="previewMessage(false)" />
 				</mx:HBox>
 			</mx:FormItem>
 		</mx:Form>

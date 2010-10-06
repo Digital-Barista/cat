@@ -15,7 +15,7 @@
 	<Debugger level="{Debugger.ALL}" />
 	
 	
-	<EventHandlers type="{CampaignMessageEvent.GET_MESSAGE_PARTS}">
+	<EventHandlers type="{CampaignMessageEvent.GET_MESSAGE_NODE_PARTS}">
 		<RemoteObjectInvoker destination="messageManager"
 			method="getMessageParts"
 			arguments="{[event.campaign, event.node]}"
@@ -24,6 +24,32 @@
 				<MethodInvoker generator="{CampaignMessageManager}"
 					method="loadMessageParts"
 					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.GET_AVAILABLE_COUPON_NODE_PARTS}">
+		<RemoteObjectInvoker destination="messageManager"
+							 method="getAvailableMessageParts"
+							 arguments="{[event.campaign, event.node]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignMessageManager}"
+							   method="loadMessageParts"
+							   arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.GET_UNAVAILABLE_COUPON_NODE_PARTS}">
+		<RemoteObjectInvoker destination="messageManager"
+							 method="getUnavailableMessageParts"
+							 arguments="{[event.campaign, event.node]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignMessageManager}"
+							   method="loadMessageParts"
+							   arguments="{resultObject}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
