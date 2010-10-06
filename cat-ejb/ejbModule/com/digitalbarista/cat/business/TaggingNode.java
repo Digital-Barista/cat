@@ -75,7 +75,7 @@ public class TaggingNode extends Node {
 		Set<NodeInfoDO> removeNodes = new HashSet<NodeInfoDO>();
 		removeNodes.addAll(nodes.values());
 		removeNodes.removeAll(finalNodes);
-		for(NodeInfoDO ni : finalNodes)
+		for(NodeInfoDO ni : removeNodes)
 			log.debug("need to remove node info "+ni.getName()+":"+ni.getValue());
 		dataObject.getNodeInfo().removeAll(removeNodes);
 	}
