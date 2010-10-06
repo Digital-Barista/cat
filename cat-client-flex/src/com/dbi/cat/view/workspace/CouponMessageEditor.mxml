@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:workspace="com.dbi.cat.view.workspace.*">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:workspace="com.dbi.cat.view.workspace.*"
+		   creationComplete="init()">
 	<mx:Metadata>
 		[Event(type="flash.events.Event", name="change")]
 	</mx:Metadata>
@@ -43,6 +44,10 @@
 				}
 			}
 			
+			private function init():void
+			{
+				updateRepeaterItems();
+			}
 			
 			private function changeMessageShowing():void
 			{
@@ -51,11 +56,15 @@
 			
 			public function updateRepeaterItems():void
 			{
-				for (var i:int = 0; i < EntryPointType.allTypes.length; i++)
+				if (AvailableMessageType != null &&
+				    AvailableMessageType.length == EntryPointType.allTypes.length)
 				{
-					var type:EntryPointType = EntryPointType.allTypes[i];
-					var editor:MessageEditor = AvailableMessageType[i];
-					editor.messageText = couponVO.availableMessages[type.name];
+					for (var i:int = 0; i < EntryPointType.allTypes.length; i++)
+					{
+						var type:EntryPointType = EntryPointType.allTypes[i];
+						var editor:MessageEditor = AvailableMessageType[i];
+						editor.messageText = couponVO.availableMessages[type.name];
+					}
 				}
 			}
 			

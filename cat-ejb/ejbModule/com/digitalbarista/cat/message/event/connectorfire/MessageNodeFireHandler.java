@@ -1,9 +1,6 @@
 package com.digitalbarista.cat.message.event.connectorfire;
 
-import java.util.List;
-
 import javax.ejb.SessionContext;
-import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 
 import com.digitalbarista.cat.business.CampaignMessagePart;
@@ -51,7 +48,7 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 		if(sMan.isSubscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
 			return;
 
-		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getDetailedCampaign(mNode.getCampaignUID()), fromType, mNode.getMessage());
+		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getDetailedCampaign(mNode.getCampaignUID()), fromType, mNode.getMessageForType(fromType));
 		for(String actualMessage : messagePart.getMessages())
 		{
 			switch(fromType)

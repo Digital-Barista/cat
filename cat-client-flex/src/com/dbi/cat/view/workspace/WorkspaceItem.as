@@ -4,12 +4,15 @@ package com.dbi.cat.view.workspace
 	import com.dbi.controls.CustomMessage;
 	import com.dbi.event.CustomMessageEvent;
 	
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	
+	import mx.containers.TabNavigator;
 	import mx.containers.TitleWindow;
 	import mx.controls.SWFLoader;
+	import mx.core.Container;
 	import mx.core.UIComponent;
 	import mx.core.UITextField;
 	import mx.effects.Fade;
@@ -18,6 +21,7 @@ package com.dbi.cat.view.workspace
 	import mx.effects.Resize;
 	import mx.events.CloseEvent;
 	import mx.events.EffectEvent;
+	import mx.events.FlexEvent;
 	import mx.managers.PopUpManager;
 
 	[Event(name="selectWorkspaceItem", type="com.dbi.cat.event.WorkspaceEvent")]
@@ -133,6 +137,8 @@ package com.dbi.cat.view.workspace
 		public function WorkspaceItem()
 		{
 			super();
+			
+			addEventListener(FlexEvent.CREATION_COMPLETE, init);
 				
 			// Setup icon for opening edit menu
 			editLoader = new SWFLoader();
@@ -180,13 +186,39 @@ package com.dbi.cat.view.workspace
 			addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 		}
 		
+		private function init(e:FlexEvent):void
+		{
+			setEditState();
+		}
+		
 		private function setEditState():void
 		{
 			for each (var child:UIComponent in editWindow.getChildren())
 			{
-				child.enabled = !readonly;
+				// Special cases to not disable navigation
+				if (child is TabNavigator)
+				{
+					disableTabNavigatorChildren(TabNavigator(child));
+				}
+				else if (child is CouponMessageEditor)
+				{
+				}
+				else
+				{
+					child.enabled = !readonly;
+				}
 			}
 		}
+		
+		private function disableTabNavigatorChildren(tabNavigator:TabNavigator):void
+		{
+			for each (var tab:Container in tabNavigator.getChildren())
+			{
+				for each (var tabChild in tab.getChildren())
+					tabChild.enabled = !readonly;
+			}
+		}
+		
 		protected override function createChildren():void
 		{
 			super.createChildren();

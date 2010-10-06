@@ -33,6 +33,8 @@
 			public function set couponVO(c:CouponNodeVO):void
 			{
 				nodeVO = c;
+				if (couponVO != null)
+					replaceTokens();
 			}
 			
 			override public function get valid():Boolean
