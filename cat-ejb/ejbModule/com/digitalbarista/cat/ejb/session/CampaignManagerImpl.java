@@ -1236,9 +1236,10 @@ public class CampaignManagerImpl implements CampaignManager {
 					dest = ncl;
 			}
 			
-			if(source==null && connector.getSourceNodeUID()!=null)
+			if(connector.getSourceNodeUID()!=null)
 			{
-				source = new NodeConnectorLinkDO();
+				if (source == null)
+					source = new NodeConnectorLinkDO();
 				source.setNode(getSimpleNode(connector.getSourceNodeUID()));
 				if(source.getNode()==null)
 					throw new IllegalArgumentException("Source NodeDO could not be found.");
@@ -1253,9 +1254,10 @@ public class CampaignManagerImpl implements CampaignManager {
 				em.remove(source);
 			}
 			
-			if(dest==null && connector.getDestinationUID()!=null)
+			if(connector.getDestinationUID()!=null)
 			{
-				dest = new NodeConnectorLinkDO();
+				if (dest == null)
+					dest = new NodeConnectorLinkDO();
 				dest.setNode(getSimpleNode(connector.getDestinationUID()));
 				if(dest.getNode()==null)
 					throw new IllegalArgumentException("Destination NodeDO could not be found.");
