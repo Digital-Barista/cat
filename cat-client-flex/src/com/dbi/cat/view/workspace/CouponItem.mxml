@@ -172,6 +172,9 @@
 					if (couponVO.availableMessages[key])
 						couponVO.availableMessages[key] = couponVO.availableMessages[key].replace(reg, couponCodeToken);
 				}
+				
+				// Need to update message editors in repeaters manually
+				CouponEditor.updateRepeaterItems();
 			}
 			
 			private function previewMessage(available:Boolean):void

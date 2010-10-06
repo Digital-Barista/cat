@@ -40,6 +40,15 @@
 				showingAvailable = AvailableGroup.selection == Available;
 			}
 			
+			public function updateRepeaterItems():void
+			{
+				for (var i:int = 0; i < EntryPointType.allTypes.length; i++)
+				{
+					var type:EntryPointType = EntryPointType.allTypes[i];
+					var editor:MessageEditor = AvailableMessageType[i];
+					editor.messageText = couponVO.availableMessages[type.name];
+				}
+			}
 			
 			private function updateDefaultAvailable():void
 			{
@@ -57,6 +66,7 @@
 			{
 				couponVO.availableMessages[entryType.name] = text;
 				dispatchEvent(new Event(Event.CHANGE));
+				
 			}
 			private function updateUnavailableMessageType(text:String, entryType:EntryPointType):void
 			{
