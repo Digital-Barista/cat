@@ -29,7 +29,6 @@ import org.hibernate.annotations.CascadeType;
 @Entity
 @Table(name="users")
 @NamedQuery(name = "user.by.username", query = "select u from UserDO u where u.username=:username")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/user")
 public class UserDO implements Serializable,DataObject {
 	
 	private String username; 

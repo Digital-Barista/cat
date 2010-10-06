@@ -23,7 +23,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="campaign_node_link")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/CampaignNodeLink")
 public class CampaignNodeLinkDO implements Serializable,DataObject {
 
 	private Long primaryKey;

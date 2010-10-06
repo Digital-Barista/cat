@@ -41,7 +41,6 @@ import org.hibernate.annotations.LazyCollectionOption;
 	@NamedQuery(name = "campaign.by.status", query ="select c from CampaignDO c where c.status=:status"),
 	@NamedQuery(name = "campaign.by.status.with.security", query ="select c from CampaignDO c where c.status=:status and c.client.id in (:clientIds)")
 })
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign")
 public class CampaignDO implements Serializable,DataObject {
 	
 	private Long primaryKey;
@@ -96,7 +95,6 @@ public class CampaignDO implements Serializable,DataObject {
 	@OneToMany(targetEntity=CampaignVersionDO.class, fetch=FetchType.LAZY, cascade={CascadeType.ALL})
 	@JoinColumn(name="campaign_id")
 	@IndexColumn(name="version",base=1)
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/versions")
 	public List<CampaignVersionDO> getVersions() {
 		return versions;
 	}
@@ -119,7 +117,6 @@ public class CampaignDO implements Serializable,DataObject {
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=AddInMessageDO.class, mappedBy="campaign")
 	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/addInMessages")
 	public Set<AddInMessageDO> getAddInMessages() {
 		return addInMessages;
 	}
@@ -132,7 +129,6 @@ public class CampaignDO implements Serializable,DataObject {
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignInfoDO.class, mappedBy="campaign")
 	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/campaignInfos")
 	public Set<CampaignInfoDO> getCampaignInfos() {
 		return campaignInfos;
 	}
@@ -182,8 +178,6 @@ public class CampaignDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(mappedBy="campaign",targetEntity=CampaignSubscriberLinkDO.class)
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/subscribers")
-	@LazyCollection(LazyCollectionOption.EXTRA)
 	public Set<CampaignSubscriberLinkDO> getSubscribers() {
 		return subscribers;
 	}
@@ -193,7 +187,6 @@ public class CampaignDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(mappedBy="campaign",targetEntity=CampaignEntryPointDO.class)
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/campaign/nodes")
 	public Set<CampaignEntryPointDO> getEntryPoints() {
 		return entryPoints;
 	}

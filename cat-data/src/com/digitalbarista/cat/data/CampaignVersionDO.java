@@ -25,7 +25,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="campaign_versions")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/CampaignVersion")
 public class CampaignVersionDO implements Serializable,DataObject {
 
 	private long primaryKey;

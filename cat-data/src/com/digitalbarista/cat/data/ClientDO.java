@@ -26,7 +26,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="client")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/Client")
 public class ClientDO implements Serializable,DataObject {
 
 	private Long primaryKey;
@@ -69,7 +68,6 @@ public class ClientDO implements Serializable,DataObject {
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=AddInMessageDO.class, mappedBy="client")
 	@JoinColumn(name="client_id")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/client/addInMessages")
 	public Set<AddInMessageDO> getAddInMessages() {
 		return addInMessages;
 	}
@@ -80,7 +78,6 @@ public class ClientDO implements Serializable,DataObject {
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=ClientInfoDO.class, mappedBy="client")
 	@JoinColumn(name="client_id")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/client/clientInfos")
 	public Set<ClientInfoDO> getClientInfos() {
 		return clientInfos;
 	}
@@ -95,7 +92,6 @@ public class ClientDO implements Serializable,DataObject {
 		joinColumns=@JoinColumn(name="client_id"),
 		inverseJoinColumns=@JoinColumn(name="entry_point_id")
 	)
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/client/entryPoints")
 	public Set<EntryPointDO> getEntryPoints() {
 		return entryPoints;
 	}
@@ -107,7 +103,6 @@ public class ClientDO implements Serializable,DataObject {
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=KeywordLimitDO.class, mappedBy="client")
 	@JoinColumn(name="client_id")
-	@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/client/keywordLimits")
 	public Set<KeywordLimitDO> getKeywordLimits() {
 		return keywordLimits;
 	}

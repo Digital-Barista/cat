@@ -25,7 +25,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="node_connector_link")
-@Cache(usage=CacheConcurrencyStrategy.TRANSACTIONAL,region="cat/NodeConnectorLink")
 public class NodeConnectorLinkDO implements Serializable,DataObject {
 	   
 	private Long primaryKey;
