@@ -68,6 +68,8 @@ public class TaggingNode extends Node {
 		removeNodes.addAll(nodes.values());
 		removeNodes.removeAll(finalNodes);
 		dataObject.getNodeInfo().removeAll(removeNodes);
+		for(NodeInfoDO ni : removeNodes)
+			ni.setNode(null);
 	}
 
 	private <T> void fillListAndSet(List<T> theList, int pos, T value)
