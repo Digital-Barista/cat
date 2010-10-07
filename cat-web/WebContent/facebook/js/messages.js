@@ -319,7 +319,7 @@ function MessageAPI()
 		var title = $("<div />");
 		title.attr("class", "title");
 		title.text(message.title);
-		content.append(title)
+		content.append(title);
 		
 		// Add body
 		var body = $("<div />");
