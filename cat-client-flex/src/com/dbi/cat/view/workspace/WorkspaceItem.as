@@ -163,9 +163,6 @@ package com.dbi.cat.view.workspace
 			invalidWarningLoader.addEventListener(MouseEvent.CLICK, editClick, false, 0, true);
 			
 			// Setup window that will hold edit controls
-//			editWindow.x = width/2;
-//			editWindow.y = height/2;
-//			editWindow.alpha = 0;
 			editWindow.showCloseButton = true;
 			editWindow.verticalScrollPolicy = "off";
 			editWindow.horizontalScrollPolicy = "off";
@@ -214,7 +211,7 @@ package com.dbi.cat.view.workspace
 		{
 			for each (var tab:Container in tabNavigator.getChildren())
 			{
-				for each (var tabChild in tab.getChildren())
+				for each (var tabChild:UIComponent in tab.getChildren())
 					tabChild.enabled = !readonly;
 			}
 		}
@@ -249,6 +246,7 @@ package com.dbi.cat.view.workspace
 			{
 				x = info.x;
 				y = info.y;
+				trace('x: ' + info.x + ', y: ' + info.y);
 			}
 		}
 		
