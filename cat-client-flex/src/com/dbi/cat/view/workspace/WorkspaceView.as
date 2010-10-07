@@ -716,7 +716,11 @@ package com.dbi.cat.view.workspace
 			// If not in pan mode don't drag items
 			if (!readonly &&
 				selectedWorkspaceItems.contains(e.currentTarget))
+			{
+				lastMouseX = Application.application.mouseX;
+				lastMouseY = Application.application.mouseY;
 				startDragSelected();
+			}
 		}
 		private function workspaceItemMouseUp(e:MouseEvent):void
 		{
@@ -769,6 +773,7 @@ package com.dbi.cat.view.workspace
 					item.x += localNew.x - localOld.x;
 					item.y += localNew.y - localOld.y;
 				}
+				trace('x: ' + localNew.x + ', y: ' + localNew.y);
 			}
 			lastMouseX = Application.application.mouseX;
 			lastMouseY = Application.application.mouseY;
