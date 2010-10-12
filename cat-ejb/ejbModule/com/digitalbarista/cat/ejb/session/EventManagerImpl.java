@@ -14,6 +14,7 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.Message;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
@@ -52,6 +53,7 @@ public class EventManagerImpl implements EventManager {
 			conn = cf.createConnection();
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 			Message message = sess.createObjectMessage(e);
+			message.setStringProperty("CATEventSource", e.getSource());
 			MessageProducer prod = sess.createProducer(eventQueue);
 			prod.send(message);
     	} catch (Exception e1) {
@@ -73,6 +75,7 @@ public class EventManagerImpl implements EventManager {
 			conn = cf.createConnection();
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 			Message message = sess.createObjectMessage(e);
+			message.setStringProperty("CATEventSource", e.getSource());
 			message.setLongProperty("JMS_JBOSS_SCHEDULED_DELIVERY",scheduledDate.getTime());
 			MessageProducer prod = sess.createProducer(eventQueue);
 			prod.send(message);
@@ -87,7 +90,6 @@ public class EventManagerImpl implements EventManager {
     	}
     }
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void deQueueAllScheduledForConnector(String uid) {
 		Connection conn=null;
@@ -96,22 +98,18 @@ public class EventManagerImpl implements EventManager {
 		{
 			conn = cf.createConnection();
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-			QueueBrowser browser = sess.createBrowser((Queue)eventQueue);
-			Enumeration<ObjectMessage> queueEnum = (Enumeration<ObjectMessage>)browser.getEnumeration();
-			ObjectMessage msg;
-			CATEvent event;
-			while(queueEnum.hasMoreElements())
+			MessageConsumer consumer = sess.createConsumer(eventQueue,"CATEventSource="+uid);
+			Message msg;
+			do
 			{
-				msg = queueEnum.nextElement();
-				event = (CATEvent)msg.getObject();
-				if(uid.equals(event.getSource()))
-				{
-					msg.setBooleanProperty("ignoreMe", true);
-				}
-			}
+				msg = consumer.receiveNoWait();
+				if(msg==null) break;
+				msg.acknowledge();
+			}while(true);
 		} catch (Exception e)
 		{
-			
+			ctx.setRollbackOnly();
+			throw new RuntimeException("Error de-queueing events for connector:"+uid,e);
 		}
 		finally
 		{
