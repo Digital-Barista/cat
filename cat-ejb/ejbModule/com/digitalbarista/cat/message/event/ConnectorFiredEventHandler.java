@@ -45,7 +45,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 			log.warn("Connector "+e.getSource()+" version "+version+" no longer exists and was likely deleted on the last publish.");
 			return;
 		}
-		if(conn.getType()==ConnectorType.Calendar && e.getArgs().containsKey("scheduledDate"))
+		if(conn.getType()==ConnectorType.Calendar)
 		{
 			if(e.getArgs().containsKey("version"))
 			{
