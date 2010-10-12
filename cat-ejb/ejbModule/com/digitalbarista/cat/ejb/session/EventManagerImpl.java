@@ -53,7 +53,6 @@ public class EventManagerImpl implements EventManager {
 			conn = cf.createConnection();
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 			Message message = sess.createObjectMessage(e);
-			message.setStringProperty("CATEventSource", e.getSource());
 			MessageProducer prod = sess.createProducer(eventQueue);
 			prod.send(message);
     	} catch (Exception e1) {
@@ -75,7 +74,6 @@ public class EventManagerImpl implements EventManager {
 			conn = cf.createConnection();
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 			Message message = sess.createObjectMessage(e);
-			message.setStringProperty("CATEventSource", e.getSource());
 			message.setLongProperty("JMS_JBOSS_SCHEDULED_DELIVERY",scheduledDate.getTime());
 			MessageProducer prod = sess.createProducer(eventQueue);
 			prod.send(message);
@@ -89,33 +87,4 @@ public class EventManagerImpl implements EventManager {
     		try{if(conn!=null)conn.close();}catch(Exception e1){}
     	}
     }
-
-	@Override
-	public void deQueueAllScheduledForConnector(String uid) {
-		Connection conn=null;
-		Session sess=null;
-		try
-		{
-			conn = cf.createConnection();
-			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-			MessageConsumer consumer = sess.createConsumer(eventQueue,"CATEventSource="+uid);
-			Message msg;
-			do
-			{
-				msg = consumer.receiveNoWait();
-				if(msg==null) break;
-				msg.acknowledge();
-			}while(true);
-		} catch (Exception e)
-		{
-			ctx.setRollbackOnly();
-			throw new RuntimeException("Error de-queueing events for connector:"+uid,e);
-		}
-		finally
-		{
-    		try{if(sess!=null)sess.close();}catch(Exception e1){}
-    		try{if(conn!=null)conn.close();}catch(Exception e1){}
-		}
-	}
-
 }

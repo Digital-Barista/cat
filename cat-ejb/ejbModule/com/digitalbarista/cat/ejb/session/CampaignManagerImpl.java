@@ -554,8 +554,9 @@ public class CampaignManagerImpl implements CampaignManager {
 				{
 					case Calendar:
 					case Interval:
-						eventManager.deQueueAllScheduledForConnector(connUID);
-				}
+						q=em.createNamedQuery("clear.tasks.for.connector");
+						q.setParameter("sourceUID", connUID);
+						q.executeUpdate();				}
 			}
 			
 //			diffSet = new HashSet<String>(newVersionConnectors);
@@ -568,7 +569,6 @@ public class CampaignManagerImpl implements CampaignManager {
 				switch(tempConnector.getType())
 				{
 					case Calendar:
-						eventManager.deQueueAllScheduledForConnector(connUID);//Evidently the current date was wrong, so blast all those messages.
 						timer.setTimer(connUID, null, CATEventType.ConnectorFired, ((CalendarConnector)tempConnector).getTargetDate());
 					break;
 					

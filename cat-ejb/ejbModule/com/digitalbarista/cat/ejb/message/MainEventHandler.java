@@ -1,5 +1,7 @@
 package com.digitalbarista.cat.ejb.message;
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 import javax.annotation.security.RunAs;
 import javax.ejb.ActivationConfigProperty;
@@ -51,6 +53,10 @@ public class MainEventHandler implements MessageListener {
     		if(om.getBooleanProperty("ignoreMe"))
     			return;
 			CATEvent e = (CATEvent)om.getObject();
+			if(om.propertyExists("JMS_JBOSS_SCHEDULED_DELIVERY"))
+			{
+				e.getArgs().put("scheduledDate", ""+om.getLongProperty("JMS_JBOSS_SCHEDULED_DELIVERY"));
+			}
 			handlerFactory.getHandler(e.getType()).processEvent(e);
 		} catch (Exception ex) {
 			ctx.setRollbackOnly();
