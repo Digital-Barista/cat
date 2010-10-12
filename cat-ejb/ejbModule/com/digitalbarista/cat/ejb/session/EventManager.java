@@ -10,4 +10,5 @@ import com.digitalbarista.cat.message.event.CATEvent;
 public interface EventManager {
 	public void queueEvent(CATEvent e);
     public void queueEventForScheduledDelivery(CATEvent e, Date scheduledDate);
+    public void deQueueAllScheduledForConnector(String uid);
 }

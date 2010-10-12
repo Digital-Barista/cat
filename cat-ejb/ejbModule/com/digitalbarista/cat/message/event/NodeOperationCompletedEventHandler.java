@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.ejb.SessionContext;
 import javax.persistence.EntityManager;
 
+import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.ImmediateConnector;
 import com.digitalbarista.cat.business.IntervalConnector;
@@ -35,6 +36,7 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 		Node publishedNode = getCampaignManager().getSpecificNodeVersion(e.getSource(), version);
 		Connector connector;
 		ImmediateConnector ic=null;
+		CalendarConnector pastDue=null;
 		Set<IntervalConnector> intervals=new HashSet<IntervalConnector>();
 		for(String connUID : publishedNode.getDownstreamConnections())
 		{
@@ -53,6 +55,15 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 				intervals.add((IntervalConnector)connector);
 				continue;
 			}
+			if(connector.getType().equals(ConnectorType.Calendar))
+			{
+				if(((CalendarConnector)connector).getTargetDate().before(new Date()))
+				{
+					if(pastDue==null || ((CalendarConnector)connector).getTargetDate().after(pastDue.getTargetDate()))
+						pastDue=(CalendarConnector)connector;
+					continue;
+				}				
+			}
 		}
 		if(ic!=null)
 		{
@@ -61,6 +72,13 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 				connectorFiredEvent=CATEvent.buildFireConnectorForAllSubscribersEvent(ic.getUid());
 			else
 				connectorFiredEvent=CATEvent.buildFireConnectorForSubscriberEvent(ic.getUid(), e.getTarget());
+			getEventManager().queueEvent(connectorFiredEvent);
+		} else if (pastDue!=null) {
+			CATEvent connectorFiredEvent;
+			if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers))
+				connectorFiredEvent=CATEvent.buildFireConnectorForAllSubscribersEvent(pastDue.getUid());
+			else
+				connectorFiredEvent=CATEvent.buildFireConnectorForSubscriberEvent(pastDue.getUid(), e.getTarget());
 			getEventManager().queueEvent(connectorFiredEvent);
 		}
 		Calendar c = Calendar.getInstance();

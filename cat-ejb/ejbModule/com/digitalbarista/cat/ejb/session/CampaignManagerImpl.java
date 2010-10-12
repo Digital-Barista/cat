@@ -554,22 +554,21 @@ public class CampaignManagerImpl implements CampaignManager {
 				{
 					case Calendar:
 					case Interval:
-						q=em.createNamedQuery("clear.tasks.for.connector");
-						q.setParameter("sourceUID", connUID);
-						q.executeUpdate();
+						eventManager.deQueueAllScheduledForConnector(connUID);
 				}
 			}
 			
-			diffSet = new HashSet<String>(newVersionConnectors);
-			diffSet.removeAll(previousVersionConnectors);
+//			diffSet = new HashSet<String>(newVersionConnectors);
+//			diffSet.removeAll(previousVersionConnectors);
 			
-			//All new connectors . . . 
-			for(String connUID : diffSet)
+			//All connectors . . . 
+			for(String connUID : newVersionConnectors)
 			{
 				tempConnector=getSpecificConnectorVersion(connUID,version);
 				switch(tempConnector.getType())
 				{
 					case Calendar:
+						eventManager.deQueueAllScheduledForConnector(connUID);//Evidently the current date was wrong, so blast all those messages.
 						timer.setTimer(connUID, null, CATEventType.ConnectorFired, ((CalendarConnector)tempConnector).getTargetDate());
 					break;
 					
@@ -578,6 +577,8 @@ public class CampaignManagerImpl implements CampaignManager {
 					break;
 					
 					case Interval:
+						if(previousVersionConnectors.contains(connUID))
+							continue; //Don't do anything if this was in a previous version . . . changes will get caught on a case by case basis.
 						q = em.createNamedQuery("all.subscribers.on.node");
 						q.setParameter("nodeUID", tempConnector.getSourceNodeUID());
 						List<SubscriberDO> subs = q.getResultList();

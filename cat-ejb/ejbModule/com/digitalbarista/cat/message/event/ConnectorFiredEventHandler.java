@@ -37,6 +37,11 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 	public void processEvent(CATEvent e) {
 		Integer version = getCampaignManager().getSimpleConnector(e.getSource()).getCampaign().getCurrentVersion()-1;
 		Connector conn = getCampaignManager().getSpecificConnectorVersion(e.getSource(), version);
+		if(conn==null)
+		{
+			log.warn("Connector "+e.getSource()+" version "+version+" no longer exists and was likely deleted on the last publish.");
+			return;
+		}
 		if(conn.getDestinationUID()==null)
 			throw new IllegalStateException("ConnectorDO has no destination node. connector uid="+conn.getUid());
 		Node dest = getCampaignManager().getSpecificNodeVersion(conn.getDestinationUID(), version);

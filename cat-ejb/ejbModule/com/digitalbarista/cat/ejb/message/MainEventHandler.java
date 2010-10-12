@@ -48,6 +48,8 @@ public class MainEventHandler implements MessageListener {
     public void onMessage(Message message) {
     	ObjectMessage om = (ObjectMessage)message;
     	try {
+    		if(om.getBooleanProperty("ignoreMe"))
+    			return;
 			CATEvent e = (CATEvent)om.getObject();
 			handlerFactory.getHandler(e.getType()).processEvent(e);
 		} catch (Exception ex) {

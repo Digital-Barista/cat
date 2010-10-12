@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.util.Date;
+import java.util.Enumeration;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -14,6 +15,9 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
 import javax.jms.Session;
 
 import org.jboss.annotation.ejb.LocalBinding;
@@ -82,5 +86,38 @@ public class EventManagerImpl implements EventManager {
     		try{if(conn!=null)conn.close();}catch(Exception e1){}
     	}
     }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void deQueueAllScheduledForConnector(String uid) {
+		Connection conn=null;
+		Session sess=null;
+		try
+		{
+			conn = cf.createConnection();
+			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
+			QueueBrowser browser = sess.createBrowser((Queue)eventQueue);
+			Enumeration<ObjectMessage> queueEnum = (Enumeration<ObjectMessage>)browser.getEnumeration();
+			ObjectMessage msg;
+			CATEvent event;
+			while(queueEnum.hasMoreElements())
+			{
+				msg = queueEnum.nextElement();
+				event = (CATEvent)msg.getObject();
+				if(uid.equals(event.getSource()))
+				{
+					msg.setBooleanProperty("ignoreMe", true);
+				}
+			}
+		} catch (Exception e)
+		{
+			
+		}
+		finally
+		{
+    		try{if(sess!=null)sess.close();}catch(Exception e1){}
+    		try{if(conn!=null)conn.close();}catch(Exception e1){}
+		}
+	}
 
 }
