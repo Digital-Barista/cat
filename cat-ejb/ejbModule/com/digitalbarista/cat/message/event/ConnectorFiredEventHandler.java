@@ -47,11 +47,14 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 		}
 		if(conn.getType()==ConnectorType.Calendar && e.getArgs().containsKey("scheduledDate"))
 		{
-			Date scheduledDelivery = new Date(new Long(e.getArgs().get("scheduledDate")));
-			if(!scheduledDelivery.equals(((CalendarConnector)conn).getTargetDate()))
+			if(e.getArgs().containsKey("version"))
 			{
-				log.warn("Connector "+e.getSource()+" version "+version+" rescheduled this event for "+((CalendarConnector)conn).getTargetDate().toString()+".  Ignoring this ConnectorFire event for now.");
-				return;
+				Integer sentVersion = new Integer(e.getArgs().get("version"));
+				if(sentVersion!=null && !sentVersion.equals(-1) && !sentVersion.equals(version))
+				{
+					log.info("Connector "+conn.getUid()+" fire event came from an old version: "+sentVersion+" current:"+version);
+					return;
+				}
 			}
 		}
 		if(conn.getDestinationUID()==null)

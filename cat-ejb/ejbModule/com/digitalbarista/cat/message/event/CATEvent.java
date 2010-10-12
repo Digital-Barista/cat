@@ -79,7 +79,7 @@ public class CATEvent implements Serializable{
 	    return ret;
 	}
 	
-	public static CATEvent buildFireConnectorForSubscriberEvent(String connectorUID, String subscriberPK)
+	public static CATEvent buildFireConnectorForSubscriberEvent(String connectorUID, String subscriberPK, Integer version)
 	{
 		CATEvent ret = new CATEvent();
 		ret.source=connectorUID;
@@ -87,16 +87,18 @@ public class CATEvent implements Serializable{
 		ret.type=CATEventType.ConnectorFired;
 		ret.target=subscriberPK;
 		ret.targetType=CATTargetType.SpecificSubscriber;
+		ret.getArgs().put("version", ""+version);
 		return ret;
 	}
 	
-	public static CATEvent buildFireConnectorForAllSubscribersEvent(String connectorUID)
+	public static CATEvent buildFireConnectorForAllSubscribersEvent(String connectorUID, Integer version)
 	{
 		CATEvent ret = new CATEvent();
 		ret.source=connectorUID;
 		ret.sourceType=CATEventSource.Trigger;
 		ret.type=CATEventType.ConnectorFired;
 		ret.targetType=CATTargetType.AllAppliedSubscribers;
+		ret.getArgs().put("version", ""+version);
 		return ret;
 	}
 	

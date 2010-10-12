@@ -69,16 +69,16 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 		{
 			CATEvent connectorFiredEvent;
 			if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers))
-				connectorFiredEvent=CATEvent.buildFireConnectorForAllSubscribersEvent(ic.getUid());
+				connectorFiredEvent=CATEvent.buildFireConnectorForAllSubscribersEvent(ic.getUid(),-1);
 			else
-				connectorFiredEvent=CATEvent.buildFireConnectorForSubscriberEvent(ic.getUid(), e.getTarget());
+				connectorFiredEvent=CATEvent.buildFireConnectorForSubscriberEvent(ic.getUid(), e.getTarget(),-1);
 			getEventManager().queueEvent(connectorFiredEvent);
 		} else if (pastDue!=null) {
 			CATEvent connectorFiredEvent;
 			if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers))
-				connectorFiredEvent=CATEvent.buildFireConnectorForAllSubscribersEvent(pastDue.getUid());
+				connectorFiredEvent=CATEvent.buildFireConnectorForAllSubscribersEvent(pastDue.getUid(),-1);
 			else
-				connectorFiredEvent=CATEvent.buildFireConnectorForSubscriberEvent(pastDue.getUid(), e.getTarget());
+				connectorFiredEvent=CATEvent.buildFireConnectorForSubscriberEvent(pastDue.getUid(), e.getTarget(),-1);
 			getEventManager().queueEvent(connectorFiredEvent);
 		}
 		Calendar c = Calendar.getInstance();
@@ -104,7 +104,7 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 					c.add(Calendar.MONTH, conn.getInterval().intValue());
 					break;
 			}
-			getTimer().setTimer(conn.getUid(), e.getTarget(), CATEventType.ConnectorFired, c.getTime());
+			getTimer().setTimer(conn.getUid(), e.getTarget(), -1, CATEventType.ConnectorFired, c.getTime());
 		}
 	}
 

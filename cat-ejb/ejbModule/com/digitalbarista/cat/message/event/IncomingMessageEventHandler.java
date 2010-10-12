@@ -425,7 +425,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 						auditEntry.setMatchedUID(rConn.getUid());
 						auditEntry.setMatchedVersion(publishedVersion);
 						
-						CATEvent fireConnectorEvent = CATEvent.buildFireConnectorForSubscriberEvent(rConn.getUid(), sub.getPrimaryKey().toString());
+						CATEvent fireConnectorEvent = CATEvent.buildFireConnectorForSubscriberEvent(rConn.getUid(), sub.getPrimaryKey().toString(),-1);
 						getEventManager().queueEvent(fireConnectorEvent);
 						return;
 					}

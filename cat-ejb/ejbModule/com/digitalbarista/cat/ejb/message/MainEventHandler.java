@@ -50,8 +50,6 @@ public class MainEventHandler implements MessageListener {
     public void onMessage(Message message) {
     	ObjectMessage om = (ObjectMessage)message;
     	try {
-    		if(om.getBooleanProperty("ignoreMe"))
-    			return;
 			CATEvent e = (CATEvent)om.getObject();
 			if(om.propertyExists("JMS_JBOSS_SCHEDULED_DELIVERY"))
 			{

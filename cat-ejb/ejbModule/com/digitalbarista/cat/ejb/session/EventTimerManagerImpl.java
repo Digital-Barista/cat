@@ -52,7 +52,7 @@ public class EventTimerManagerImpl implements EventTimerManager {
 	private EventManager eventManager;
 	
 	@PermitAll
-    public void setTimer(String uid, String target, CATEventType type, Date scheduledDate) {
+    public void setTimer(String uid, String target, Integer version, CATEventType type, Date scheduledDate) {
 //    	ScheduledTaskDO task = new ScheduledTaskDO();
 //    	task.setEventType(type.toString());
 //    	task.setSourceUID(uid);
@@ -70,9 +70,9 @@ public class EventTimerManagerImpl implements EventTimerManager {
 			case ConnectorFired:
 				if(target==null || target.trim().length()==0)
 				{
-					e=CATEvent.buildFireConnectorForAllSubscribersEvent(uid);
+					e=CATEvent.buildFireConnectorForAllSubscribersEvent(uid, version);
 				} else {
-					e=CATEvent.buildFireConnectorForSubscriberEvent(uid, target);
+					e=CATEvent.buildFireConnectorForSubscriberEvent(uid, target, version);
 				}
 				eventManager.queueEventForScheduledDelivery(e,scheduledDate);
 				break;
@@ -128,9 +128,9 @@ public class EventTimerManagerImpl implements EventTimerManager {
     			case ConnectorFired:
     				if(task.getTarget()==null || task.getTarget().trim().length()==0)
     				{
-    					e=CATEvent.buildFireConnectorForAllSubscribersEvent(task.getSourceUID());
+    					e=CATEvent.buildFireConnectorForAllSubscribersEvent(task.getSourceUID(),-1);
     				} else {
-    					e=CATEvent.buildFireConnectorForSubscriberEvent(task.getSourceUID(), task.getTarget());
+    					e=CATEvent.buildFireConnectorForSubscriberEvent(task.getSourceUID(), task.getTarget(),-1);
     				}
     				eventManager.queueEvent(e);
     				break;

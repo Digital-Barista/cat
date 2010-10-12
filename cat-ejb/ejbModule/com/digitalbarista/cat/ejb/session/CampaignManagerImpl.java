@@ -569,11 +569,11 @@ public class CampaignManagerImpl implements CampaignManager {
 				switch(tempConnector.getType())
 				{
 					case Calendar:
-						timer.setTimer(connUID, null, CATEventType.ConnectorFired, ((CalendarConnector)tempConnector).getTargetDate());
+						timer.setTimer(connUID, null, version, CATEventType.ConnectorFired, ((CalendarConnector)tempConnector).getTargetDate());
 					break;
 					
 					case Immediate:
-						eventManager.queueEvent(CATEvent.buildFireConnectorForAllSubscribersEvent(connUID));
+						eventManager.queueEvent(CATEvent.buildFireConnectorForAllSubscribersEvent(connUID,version));
 					break;
 					
 					case Interval:
@@ -604,7 +604,7 @@ public class CampaignManagerImpl implements CampaignManager {
 						}
 						for(SubscriberDO sub : subs)
 						{
-							timer.setTimer(iConn.getUid(), sub.getPrimaryKey().toString(), CATEventType.ConnectorFired, c.getTime());
+							timer.setTimer(iConn.getUid(), sub.getPrimaryKey().toString(), version, CATEventType.ConnectorFired, c.getTime());
 						}
 					break;
 				}
