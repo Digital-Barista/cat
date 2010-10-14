@@ -34,14 +34,6 @@
 				else
 					return new Date(0, 0, 0, time.hours, time.minutes);
 			}
-			private function get calendarDate():Date
-			{
-				if (calendarConnectorVO != null &&
-					calendarConnectorVO.targetDate != null &&
-					calendarConnectorVO.targetDate.fullYear > 1900)
-					return calendarConnectorVO.targetDate;
-				return null;
-			}
 		]]>
 	</mx:Script>
 	<editContent>
@@ -58,7 +50,7 @@
 					selectedTime="{calendarConnectorVO.targetDate}"
 					timeChange="{calendarConnectorVO.targetDate = selectedTime}" />
 				<mx:DateChooser id="ExecuteDate"
-					selectedDate="{calendarDate}"
+					selectedDate="{calendarConnectorVO.targetDate}"
 					change="{calendarConnectorVO.targetDate = selectedTime}" />
 			</mx:FormItem>
 		</mx:Form>
