@@ -92,7 +92,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 				couponCode = shuffler.generateCode(counter.getNextNumber());
 				counter.setNextNumber(counter.getNextNumber()+1);							
 			}
-			actualMessage = cNode.getAvailableMessage();
+			actualMessage = cNode.getAvailableMessageForType(fromType);
 			//This is for coupon code, and really should check it, but doesn't.
 			int startPos = actualMessage.indexOf('{');
 			int endPos = actualMessage.indexOf('}',-1)+1;
@@ -121,7 +121,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 			response.setRedemptionCount(0);
 		} else {
 			offer.setRejectedResponseCount(offer.getRejectedResponseCount()+1);
-			actualMessage = cNode.getUnavailableMessage();
+			actualMessage = cNode.getUnavailableMessageForType(fromType);
 			response = new CouponResponseDO();
 			response.setCouponOffer(offer);
 			response.setResponseDate(now);
@@ -132,39 +132,35 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		
 		em.persist(response);
 		
-		List<CampaignMessagePart> messageParts = mMan.getMessageParts(cMan.getDetailedCampaign(cNode.getCampaignUID()), actualMessage);
+		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getDetailedCampaign(cNode.getCampaignUID()), fromType, actualMessage);
 
-		for(CampaignMessagePart messagePart : messageParts)
+		for(String splitMessage : messagePart.getMessages())
 		{
-			if(messagePart.getEntryType()!=fromType)
-				continue;
-			for(String splitMessage : messagePart.getMessages())
+			switch(fromType)
 			{
-				switch(fromType)
-				{
+				
+				case Email:
+					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), splitMessage, cNode.getName(),cNode.getUid(),version);
+					break;
+				
+				case SMS:
+					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), splitMessage, cNode.getName(),cNode.getUid(),version);
+					break;
 					
-					case Email:
-						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), splitMessage, cNode.getName(),cNode.getUid(),version);
-						break;
+				case Twitter:
+					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), splitMessage, cNode.getName(),cNode.getUid(),version);
+					break;
 					
-					case SMS:
-						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), splitMessage, cNode.getName(),cNode.getUid(),version);
-						break;
-						
-					case Twitter:
-						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), splitMessage, cNode.getName(),cNode.getUid(),version);
-						break;
-						
-					case Facebook:
-						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getFacebookID(), splitMessage, cNode.getName(),cNode.getUid(),version);
-						break;
-						
-					default:
-						throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
-				}
-				eMan.queueEvent(sendMessageEvent);
+				case Facebook:
+					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getFacebookID(), splitMessage, cNode.getName(),cNode.getUid(),version);
+					break;
+					
+				default:
+					throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
 			}
-		}		
+			eMan.queueEvent(sendMessageEvent);
+		}
+			
 		csl.setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 	}

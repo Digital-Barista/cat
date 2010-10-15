@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="25" height="25">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" height="25">
 	<mx:Script>
 		<![CDATA[
 			[Bindable]
@@ -9,11 +9,13 @@
 	</mx:Script>
 	<mx:SWFLoader
 		width="100%" height="100%"
-		source="{blueIcon}" />
+		minWidth="25" minHeight="25"
+		source="{blueIcon}"
+		maintainAspectRatio="false"/>
 	<mx:Label text="{data}"
+		width="100%"
 		color="0xFFFFFF"
 		fontWeight="bold"
-		width="100%"
 		verticalCenter="0"
 		textAlign="center" />
 </mx:Canvas>

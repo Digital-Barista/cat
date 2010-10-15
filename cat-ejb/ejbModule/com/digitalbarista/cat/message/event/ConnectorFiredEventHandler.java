@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.message.event;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.SessionContext;
@@ -9,10 +10,12 @@ import javax.persistence.Query;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
+import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
@@ -37,6 +40,23 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 	public void processEvent(CATEvent e) {
 		Integer version = getCampaignManager().getSimpleConnector(e.getSource()).getCampaign().getCurrentVersion()-1;
 		Connector conn = getCampaignManager().getSpecificConnectorVersion(e.getSource(), version);
+		if(conn==null)
+		{
+			log.warn("Connector "+e.getSource()+" version "+version+" no longer exists and was likely deleted on the last publish.");
+			return;
+		}
+		if(conn.getType()==ConnectorType.Calendar)
+		{
+			if(e.getArgs().containsKey("version"))
+			{
+				Integer sentVersion = new Integer(e.getArgs().get("version"));
+				if(sentVersion!=null && !sentVersion.equals(-1) && !sentVersion.equals(version))
+				{
+					log.info("Connector "+conn.getUid()+" fire event came from an old version: "+sentVersion+" current:"+version);
+					return;
+				}
+			}
+		}
 		if(conn.getDestinationUID()==null)
 			throw new IllegalStateException("ConnectorDO has no destination node. connector uid="+conn.getUid());
 		Node dest = getCampaignManager().getSpecificNodeVersion(conn.getDestinationUID(), version);

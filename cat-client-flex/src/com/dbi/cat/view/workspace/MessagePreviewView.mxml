@@ -2,21 +2,29 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	title="Preview"
 	layout="absolute" 
-	width="400" height="300"
+	width="800" height="600"
 	showCloseButton="true"
-	close="onClose()">
+	close="onClose()"
+	show="onShow()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.event.CampaignMessageEvent;
-			import com.dbi.cat.common.vo.CampaignMessagePartVO;
-			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.CampaignMessagePartVO;
+			import com.dbi.cat.event.CampaignMessageEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			
 			[Bindable]
 			public var messageParts:ArrayCollection;
 			
+			private function onShow():void
+			{
+				Alert.show('shown');
+			}
 			private function onClose():void
 			{
+				EntryTypeTabs.selectedIndex = 0;
 				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.CLOSE_MESSAGE_PREVIEW));
 			}
 			private function formatText(part:CampaignMessagePartVO):String

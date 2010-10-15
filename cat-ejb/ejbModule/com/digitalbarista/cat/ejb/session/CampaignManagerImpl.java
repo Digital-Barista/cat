@@ -556,28 +556,29 @@ public class CampaignManagerImpl implements CampaignManager {
 					case Interval:
 						q=em.createNamedQuery("clear.tasks.for.connector");
 						q.setParameter("sourceUID", connUID);
-						q.executeUpdate();
-				}
+						q.executeUpdate();				}
 			}
 			
-			diffSet = new HashSet<String>(newVersionConnectors);
-			diffSet.removeAll(previousVersionConnectors);
+//			diffSet = new HashSet<String>(newVersionConnectors);
+//			diffSet.removeAll(previousVersionConnectors);
 			
-			//All new connectors . . . 
-			for(String connUID : diffSet)
+			//All connectors . . . 
+			for(String connUID : newVersionConnectors)
 			{
 				tempConnector=getSpecificConnectorVersion(connUID,version);
 				switch(tempConnector.getType())
 				{
 					case Calendar:
-						timer.setTimer(connUID, null, CATEventType.ConnectorFired, ((CalendarConnector)tempConnector).getTargetDate());
+						timer.setTimer(connUID, null, version, CATEventType.ConnectorFired, ((CalendarConnector)tempConnector).getTargetDate());
 					break;
 					
 					case Immediate:
-						eventManager.queueEvent(CATEvent.buildFireConnectorForAllSubscribersEvent(connUID));
+						eventManager.queueEvent(CATEvent.buildFireConnectorForAllSubscribersEvent(connUID,version));
 					break;
 					
 					case Interval:
+						if(previousVersionConnectors.contains(connUID))
+							continue; //Don't do anything if this was in a previous version . . . changes will get caught on a case by case basis.
 						q = em.createNamedQuery("all.subscribers.on.node");
 						q.setParameter("nodeUID", tempConnector.getSourceNodeUID());
 						List<SubscriberDO> subs = q.getResultList();
@@ -603,7 +604,7 @@ public class CampaignManagerImpl implements CampaignManager {
 						}
 						for(SubscriberDO sub : subs)
 						{
-							timer.setTimer(iConn.getUid(), sub.getPrimaryKey().toString(), CATEventType.ConnectorFired, c.getTime());
+							timer.setTimer(iConn.getUid(), sub.getPrimaryKey().toString(), version, CATEventType.ConnectorFired, c.getTime());
 						}
 					break;
 				}
@@ -1236,9 +1237,10 @@ public class CampaignManagerImpl implements CampaignManager {
 					dest = ncl;
 			}
 			
-			if(source==null && connector.getSourceNodeUID()!=null)
+			if(connector.getSourceNodeUID()!=null)
 			{
-				source = new NodeConnectorLinkDO();
+				if (source == null)
+					source = new NodeConnectorLinkDO();
 				source.setNode(getSimpleNode(connector.getSourceNodeUID()));
 				if(source.getNode()==null)
 					throw new IllegalArgumentException("Source NodeDO could not be found.");
@@ -1253,9 +1255,10 @@ public class CampaignManagerImpl implements CampaignManager {
 				em.remove(source);
 			}
 			
-			if(dest==null && connector.getDestinationUID()!=null)
+			if(connector.getDestinationUID()!=null)
 			{
-				dest = new NodeConnectorLinkDO();
+				if (dest == null)
+					dest = new NodeConnectorLinkDO();
 				dest.setNode(getSimpleNode(connector.getDestinationUID()));
 				if(dest.getNode()==null)
 					throw new IllegalArgumentException("Destination NodeDO could not be found.");

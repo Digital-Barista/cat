@@ -37,6 +37,7 @@ import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.EntryPointDefinition;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.Subscriber;
+import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.BlacklistDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignInfoDO;
@@ -49,6 +50,7 @@ import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberBlacklistDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.message.event.CATEvent;
+import com.digitalbarista.cat.util.PagedList;
 
 import flex.messaging.io.ArrayCollection;
 
@@ -73,6 +75,9 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	
 	@PersistenceContext(unitName="cat-data")
 	private Session session;
+
+	@EJB(name="ejb/cat/ContactManager")
+	private ContactManager contactManager;
 	
 	@EJB(name="ejb/cat/CampaignManager")
 	private CampaignManager campaignManager;
@@ -133,6 +138,12 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	@Override
 	@PermitAll
 	public void subscribeToEntryPoint(Set<String> addresses, String entryPointUID, EntryPointType subscriptionType) {
+		
+		// If there are no addresses we're done
+		if (addresses == null ||
+			addresses.size() <= 0)
+			return;
+		
 		//Get the campaign and entry node
 		Node entryNode = campaignManager.getNode(entryPointUID);
 		CampaignDO camp = campaignManager.getSimpleCampaign(entryNode.getCampaignUID());
@@ -309,26 +320,45 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
 		// Sort contacts by type
 		Collections.sort(contacts);
+
+		// Get entry point types that are valid for this entry point
+		EntryNode entryNode = (EntryNode)campaignManager.getNode(entryPointUID);
+		List<EntryPointType> validEntryPointTypes = new ArrayList<EntryPointType>();
+		for(int loop = 0; loop < entryNode.getEntryData().size(); loop++)
+		{
+			validEntryPointTypes.add(entryNode.getEntryData().get(loop).getEntryType());
+		}
 		
 		EntryPointType lastType = null;
 		Set<String> addresses = new HashSet<String>();
 		for (Contact c : contacts)
 		{
-			if (lastType != null &&
-				lastType != c.getType())
+			// Ignore contacts that don't match a valid entry point type
+			if (validEntryPointTypes.contains(c.getType()) )
 			{
-				subscribeToEntryPoint(addresses, entryPointUID, lastType);
-				addresses = new HashSet<String>();
+				if (lastType != null &&
+					lastType != c.getType())
+				{
+					subscribeToEntryPoint(addresses, entryPointUID, lastType);
+					addresses = new HashSet<String>();
+				}
+				
+				addresses.add(c.getAddress());
+				lastType = c.getType();
 			}
-			
-			addresses.add(c.getAddress());
-			lastType = c.getType();
 		}
 
 		// Subscribe last type
 		subscribeToEntryPoint(addresses, entryPointUID, lastType);
 	}
 
+
+	public void subscribeContactFilterToEntryPoint(ContactSearchCriteria searchCriteria, String entryPointUID)
+	{
+		PagedList<Contact> contacts = contactManager.getContacts(searchCriteria, null);
+		subscribeContactsToEntryPoint(contacts.getResults(), entryPointUID);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	@PermitAll

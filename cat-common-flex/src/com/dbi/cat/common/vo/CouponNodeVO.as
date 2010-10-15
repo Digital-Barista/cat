@@ -1,5 +1,8 @@
 package com.dbi.cat.common.vo
 {
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
+	
 	import mx.collections.ArrayCollection;
 	
 	
@@ -30,6 +33,8 @@ package com.dbi.cat.common.vo
 		public var offerCode:String;
 		public var expireDate:Date;
 		public var expireDays:String;
+		public var availableMessages:Object; // Map of messages indexed by EntryPointType.name
+		public var unavailableMessages:Object; // Map of messages indexed by EntryPointType.name
 		
 		
 		override public function get valid():Boolean

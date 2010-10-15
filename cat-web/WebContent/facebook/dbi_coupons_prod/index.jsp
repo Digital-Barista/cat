@@ -33,7 +33,7 @@
 								type='join'
 								invite='true'
 								action="<%= request.getRequestURL().toString() + '?' + request.getQueryString() %>"
-								content="<fb:req-choice url='http://apps.facebook.com/osf_factory_insider/'
+								content="<fb:req-choice url='http://apps.facebook.com/dbi_coupons_prod/'
 										label='Try this app'/>" >
 								<fb:multi-friend-selector
 									actiontext="Invite your friends to use this application" />

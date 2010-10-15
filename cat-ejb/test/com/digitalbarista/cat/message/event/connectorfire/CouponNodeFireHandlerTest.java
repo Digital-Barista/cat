@@ -101,7 +101,7 @@ public class CouponNodeFireHandlerTest extends EasyMockSupport{
 		em.lock(cc,LockModeType.READ);
 		em.persist(matchCoupon());
 		
-		CATEvent e = CATEvent.buildFireConnectorForSubscriberEvent("MOCK-UID", "1");
+		CATEvent e = CATEvent.buildFireConnectorForSubscriberEvent("MOCK-UID", "1",-1);
 		
 		replayAll();
 		

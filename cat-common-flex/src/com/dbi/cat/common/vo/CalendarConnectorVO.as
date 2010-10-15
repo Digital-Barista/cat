@@ -10,6 +10,8 @@ package com.dbi.cat.common.vo
 		public function CalendarConnectorVO()
 		{
 			super();
+			var now:Date = new Date();
+			targetDate = new Date(now.fullYear, now.month, now.date);
 		}
 		override public function get valid():Boolean
 		{

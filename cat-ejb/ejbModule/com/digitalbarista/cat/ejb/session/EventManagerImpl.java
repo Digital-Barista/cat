@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.util.Date;
+import java.util.Enumeration;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -13,7 +14,11 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.Message;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
 import javax.jms.Session;
 
 import org.jboss.annotation.ejb.LocalBinding;
@@ -82,5 +87,4 @@ public class EventManagerImpl implements EventManager {
     		try{if(conn!=null)conn.close();}catch(Exception e1){}
     	}
     }
-
 }

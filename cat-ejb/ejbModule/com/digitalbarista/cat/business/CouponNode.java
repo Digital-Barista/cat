@@ -15,6 +15,7 @@ import org.apache.log4j.LogManager;
 
 import com.digitalbarista.cat.audit.Auditable;
 import com.digitalbarista.cat.data.CouponOfferDO;
+import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
@@ -54,6 +55,8 @@ public class CouponNode extends Node implements Auditable {
 	private Date expireDate = null;
 	private Integer expireDays = null;
 	private String offerCode = null;
+	private Map<String, String> availableMessages = new HashMap<String, String>(); // Keyed by EntryPointType.getName()
+	private Map<String, String> unavailableMessages = new HashMap<String, String>(); // Keyed by EntryPointType.getName()
 	
 	@Override
 	public void copyFrom(NodeDO dataObject, Integer version) {
@@ -94,6 +97,23 @@ public class CouponNode extends Node implements Auditable {
 	
 				else if(ni.getName().equals(INFO_PROPERTY_OFFER_CODE))
 					offerCode = ni.getValue();
+				
+
+				// Get available messages per EntryPointType
+				for (EntryPointType ept : EntryPointType.values())
+				{
+					String key = ept.getName() + "_" + INFO_PROPERTY_AVAILABLE_MESSAGE;
+					if (ni.getName().equals(key))
+						availableMessages.put(ept.getName(), ni.getValue());
+				}
+
+				// Get unavailable messages per EntryPointType
+				for (EntryPointType ept : EntryPointType.values())
+				{
+					String key = ept.getName() + "_" + INFO_PROPERTY_UNAVAILABLE_MESSAGE;
+					if (ni.getName().equals(key))
+						unavailableMessages.put(ept.getName(), ni.getValue());
+				}
 	
 			}
 			catch(ParseException e)
@@ -204,6 +224,49 @@ public class CouponNode extends Node implements Auditable {
 			else
 				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_OFFER_CODE, offerCode, version);
 		}
+		
+
+		if (availableMessages != null)
+		{
+			for (Map.Entry<String, String> entry : availableMessages.entrySet())
+			{
+				String key = entry.getKey() + "_" + INFO_PROPERTY_AVAILABLE_MESSAGE;
+				
+				if (entry.getValue() != null &&
+					entry.getValue().length() > 0)
+				{
+					if (nodes.containsKey(key))
+						nodes.get(key).setValue(entry.getValue());
+					else
+						buildAndAddNodeInfo(dataObject, key, entry.getValue(), version);
+				}
+				else if (nodes.containsKey(key))
+				{
+					nodes.remove(key);
+				}
+			}
+		}
+
+		if (unavailableMessages != null)
+		{
+			for (Map.Entry<String, String> entry : unavailableMessages.entrySet())
+			{
+				String key = entry.getKey() + "_" + INFO_PROPERTY_UNAVAILABLE_MESSAGE;
+				
+				if (entry.getValue() != null &&
+					entry.getValue().length() > 0)
+				{
+					if (nodes.containsKey(key))
+						nodes.get(key).setValue(entry.getValue());
+					else
+						buildAndAddNodeInfo(dataObject, key, entry.getValue(), version);
+				}
+				else if (nodes.containsKey(key))
+				{
+					nodes.remove(key);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -234,7 +297,48 @@ public class CouponNode extends Node implements Auditable {
 		return ret.toString();
 	}
 
+	/**
+	 * Get the available message text for a given EntryPointType and
+	 * return the default if not specified
+	 * 
+	 * @param entryPointType
+	 * @string
+	 */
+	public String getAvailableMessageForType(EntryPointType entryPointType)
+	{
+		String ret = availableMessage != null ? availableMessage : "";
+		String key = entryPointType.getName();
+		if (availableMessages != null &&
+			availableMessages.containsKey(key) &&
+			availableMessages.get(key) != null &&
+			availableMessages.get(key).length() > 0)
+		{
+			ret = availableMessages.get(key);
+		}
+		return ret;
+	}
 
+	/**
+	 * Get the unavailable message text for a given EntryPointType and
+	 * return the default if not specified
+	 * 
+	 * @param entryPointType
+	 * @string
+	 */
+	public String getUnavailableMessageForType(EntryPointType entryPointType)
+	{
+		String ret = unavailableMessage != null ? unavailableMessage : "";
+		String key = entryPointType.getName();
+		if (unavailableMessages != null &&
+			unavailableMessages.containsKey(key) &&
+			unavailableMessages.get(key) != null &&
+			unavailableMessages.get(key).length() > 0)
+		{
+			ret = unavailableMessages.get(key);
+		}
+		return ret;
+	}
+	
 	@Override
 	public NodeType getType() {
 		return NodeType.Coupon;
@@ -331,4 +435,26 @@ public class CouponNode extends Node implements Auditable {
 	public void setOfferCode(String offerCode) {
 		this.offerCode = offerCode;
 	}
+
+	public Map<String, String> getAvailableMessages()
+	{
+		return availableMessages;
+	}
+
+	public void setAvailableMessages(Map<String, String> availableMessages)
+	{
+		this.availableMessages = availableMessages;
+	}
+
+	public Map<String, String> getUnavailableMessages()
+	{
+		return unavailableMessages;
+	}
+
+	public void setUnavailableMessages(Map<String, String> unavailableMessages)
+	{
+		this.unavailableMessages = unavailableMessages;
+	}
+	
+	
 }
