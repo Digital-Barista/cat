@@ -506,7 +506,6 @@ package com.dbi.cat.view.workspace
 			item.addEventListener(WorkspaceEvent.CHANGE_CONNECTION_SOURCE, changeConnectionSource);
 			
 			item.addEventListener(WorkspaceEvent.OPEN_EDIT_MENU, onOpenEditMenu);
-			item.addEventListener(WorkspaceEvent.CLOSE_EDIT_MENU, onCloseEditMenu);
 		}
 		
 		private function removeWorkspaceItem(item:WorkspaceItem):void
@@ -578,10 +577,6 @@ package com.dbi.cat.view.workspace
 			closeMenuItems();
 			openWorkspaceItem = e.target as WorkspaceItem;
 			openWorkspaceItem.openEditWindow();
-		}
-		private function onCloseEditMenu(e:WorkspaceEvent):void
-		{
-			openWorkspaceItem = null;
 		}
 		
 		/**
@@ -716,11 +711,7 @@ package com.dbi.cat.view.workspace
 			// If not in pan mode don't drag items
 			if (!readonly &&
 				selectedWorkspaceItems.contains(e.currentTarget))
-			{
-				lastMouseX = Application.application.mouseX;
-				lastMouseY = Application.application.mouseY;
 				startDragSelected();
-			}
 		}
 		private function workspaceItemMouseUp(e:MouseEvent):void
 		{

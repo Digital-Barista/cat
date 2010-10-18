@@ -238,10 +238,6 @@
 			source="{CampaignTestManager}"
 			sourceKey="testCampaign"
 			targetKey="testCampaign" />
-		<PropertyInjector
-			source="{CampaignTestManager}"
-			sourceKey="validEntryPoints"
-			targetKey="validEntryPoints" />
 	</Injectors>
 	<Injectors target="{WorkspaceView}">
 		<PropertyInjector

@@ -36,7 +36,7 @@
 								content="<fb:req-choice url='http://apps.facebook.com/dbi_coupons/'
 										label='Try this app'/>" >
 								<fb:multi-friend-selector
-									actiontext="Invite your friends to use this application" />
+									actiontext="Invite your friends to use this application">
 							</fb:request-form>
 						</fb:fbml>
 					</script>

@@ -12,11 +12,9 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.IntervalConnectorVO;
 	import com.dbi.cat.common.vo.MessageVO;
 	import com.dbi.cat.common.vo.NodeVO;
-	import com.dbi.cat.common.vo.OutgoingEntryPointVO;
 	import com.dbi.cat.common.vo.ResponseConnectorVO;
 	import com.dbi.cat.common.vo.TaggingNodeVO;
 	
-	import mx.collections.ArrayCollection;
 	import mx.formatters.DateFormatter;
 	
 	[Bindable]
@@ -38,7 +36,6 @@ package com.dbi.cat.business
 		public var testCampaign:CampaignVO;
 		public var campaignTestOutput:String;
 		public var isTesting:Boolean = false;
-		public var validEntryPoints:ArrayCollection = new ArrayCollection();
 			
 		private function get adjustedDate():Date
 		{
@@ -79,26 +76,6 @@ package com.dbi.cat.business
 			currentNode = null;
 			testCampaign = null;
 			campaignTestOutput = "";
-		}
-		public function enterNode(node:NodeVO):void
-		{
-			if (currentNode != null)
-			{
-				out("", "Campaign already started", COLOR_RED);
-			}
-			else if (node != null &&
-				node.valid &&
-				(node is EntryPointVO ||
-				 node is OutgoingEntryPointVO))
-			{
-				currentNode = node;
-				out("Started entry point: ", node.name);
-			}
-			else
-			{
-				out("", "Not a valid entry point", COLOR_RED);
-			}
-			nextStep();
 		}
 		public function receiveResponse(response:String):void
 		{
@@ -180,10 +157,6 @@ package com.dbi.cat.business
 		}
 		private function matchKeyword(input:String, keyword:String):Boolean
 		{
-			if (input == null ||
-				keyword == null)
-				return false;
-			
 			// Strip all white space to a single space and ignore case for compare
 			var reg:RegExp = /\s+/g;
 			var responseText:String = input.replace(reg, " ").toLowerCase();
@@ -352,20 +325,16 @@ package com.dbi.cat.business
 			// If not started look for entry points
 			if (currentNode == null)
 			{
-				validEntryPoints.removeAll();
-				
+				var count:Number = 0;
 				for each (var node:NodeVO in testCampaign.nodes)
 				{
-					if ((node is EntryPointVO ||
-						node is OutgoingEntryPointVO) &&
-						node.valid)
-					{
-						validEntryPoints.addItem(node);
-					}
+					if (node is EntryPointVO &&
+						EntryPointVO(node).valid)
+						count++;
 				}
 				
-				if (validEntryPoints.length > 0)
-					out("", "Waiting to enter one of " + validEntryPoints.length + " valid entry points", COLOR_BLUE);
+				if (count > 0)
+					out("", "Waiting to enter one of " + count + " valid entry points", COLOR_BLUE);
 				else
 					out("", "There are no valid entry points", COLOR_RED);
 			}

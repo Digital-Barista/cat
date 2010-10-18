@@ -51,23 +51,6 @@
 					["Yes", "No"],
 					doImport);
 			}
-			private function confirmSubscribeFilter():void
-			{
-				CustomMessage.show("Subscribe the " + contacts.totalResultCount + " contacts in this filter?",
-					["Yes", "No"],
-					doSubscribeFilter);
-			}
-			private function doSubscribeFilter(e:CustomMessageEvent):void
-			{
-				if (e.ButtonText == "Yes")
-				{
-					var event:ImportEvent = new ImportEvent(ImportEvent.IMPORT_FILTER);
-					event.searchCriteria = contactSearchCriteria;
-					event.node = currentNode;
-					dispatchEvent(event);
-				}
-			}
-			
 			private function pageChange(e:IndexChangedEvent):void
 			{
 				if (contactPagingInfo == null)
@@ -97,9 +80,6 @@
 				selectedNavButtonStyleName="selectedNavButton" />
 		</mx:ControlBar>
 	</mx:TitleWindow>
-	<mx:Button label="Subscribe ALL in Filter"
-			   top="7" right="227"
-			   click="confirmSubscribeFilter()" />
 	<mx:Button label="Subscribe Selected Contacts"
 		top="7" right="35"
 		click="confirmImport()" />

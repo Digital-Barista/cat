@@ -4,24 +4,23 @@
 	xmlns:components="com.dbi.cat.view.components.*"
 	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
 	width="400" height="300" xmlns:vo="com.dbi.cat.vo.*"
-	editWindowHeight="600"
-	editWindowWidth="800"
+	editWindowHeight="260"
+	editWindowWidth="300"
 	displayIcon="{messageIcon}"
 	workspaceIcon="{messageIcon}"
 	label="Message"
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.constants.CampaignMode;
-			import com.dbi.cat.common.constants.EntryPointType;
-			import com.dbi.cat.common.vo.CampaignVO;
-			import com.dbi.cat.common.vo.ClientVO;
-			import com.dbi.cat.common.vo.LayoutInfoVO;
-			import com.dbi.cat.common.vo.MessageVO;
 			import com.dbi.cat.event.CampaignEvent;
 			import com.dbi.cat.event.CampaignMessageEvent;
-			
+			import com.dbi.cat.common.constants.CampaignMode;
+			import com.dbi.cat.common.constants.EntryPointType;
 			import mx.events.ChildExistenceChangedEvent;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.CampaignVO;
+			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.common.vo.LayoutInfoVO;
 			
 			// Add in message for current campaign and client
 			private var _addInMessage:String;
@@ -52,6 +51,7 @@
 			
 			private function updateMessage():void
 			{
+				messageVO.message = Message.text;
 				dispatchEvent(new Event("changeMessage"));
 			}
 			
@@ -73,19 +73,23 @@
 			{
 				var count:Number = 0;
 				
-				if (EntryTypeTabs.selectedChild == DefaultMessage)
-				{
-					count = DefaultMessage.messageText.length;
-				}
+				if (addInMessage != null)
+					count += addInMessage.length;
+					
+				if (messageVO != null &&
+					messageVO.message != null)
+					count += messageVO.message.length;
+					
+				if (count > maxCharacters)
+					return "<font color='#DD0000'>" + count + " chars</font>";
 				else
-				{
-					count = MessageEditor(EntryTypeTabs.selectedChild).messageText.length;
-				}
-				return count + " chars";
+					return count + " chars";
+				
 			}
 			
 			private function init():void
 			{
+				CharCount. visible = maxCharacters != 0;
 			}
 			
 			private function previewMessage():void
@@ -94,54 +98,35 @@
 				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
 				
 				// Request the message parts
-				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_NODE_PARTS);
+				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_PARTS);
 				event.campaign = workspace.campaign;
-				event.node = messageVO;
+				event.message = Message.text;
 				dispatchEvent(event);
-			}
-			
-			private function updateDefaultMessage():void
-			{
-				messageVO.message = DefaultMessage.messageText;
-				dispatchEvent(new Event("changeMessage"));
-			}
-			private function updateMessageType(text:String, entryType:EntryPointType):void
-			{
-				if (!messageVO.messages)
-					messageVO.messages = new Object();
-				messageVO.messages[entryType.name] = text;
-				dispatchEvent(new Event("changeMessage"));
 			}
 		]]>
 	</mx:Script>
 	<editContent>
-		<mx:HBox width="100%">
-			<mx:Label text="Title" />
-			<mx:TextInput id="Title" width="100%"
-				text="{messageVO.name}"
-				change="{messageVO.name = Title.text}" />
-		</mx:HBox>
-		<mx:TabNavigator id="EntryTypeTabs"
-						 width="100%" height="100%"
-						 tabOffset="20" paddingTop="0"
-						 change="{dispatchEvent(new Event('changeMessage'))}">
-			<MessageEditor id="DefaultMessage"
-						   label="Default Message"
-						   messageText="{messageVO.message}"
-						   change="{updateDefaultMessage()}" />
-			<mx:Repeater id="EntryTypeRepeater" 
-						 dataProvider="{EntryPointType.allTypes}">
-				<MessageEditor id="MessageTypeEditor"
-							   label="{EntryTypeRepeater.currentItem.name}"
-							   messageText="{messageVO.messages[EntryTypeRepeater.currentItem.name]}"
-							   change="{updateMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
-			</mx:Repeater>
-		</mx:TabNavigator>
-		<mx:HBox id="CharCount" width="100%">
-			<mx:Label htmlText="{characterCountMessage}" />
-			<mx:Spacer width="100%" />
-			<mx:Button label="Preview Message"
-				click="previewMessage()" />
-		</mx:HBox>
+		<mx:Form right="0" left="0" top="0" bottom="0" 
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
+			<mx:FormItem label="Title" width="100%">
+				<mx:TextInput id="Title" width="200"
+					text="{messageVO.name}"
+					change="{messageVO.name = Title.text}" />
+			</mx:FormItem>
+			<mx:FormItem label="Message" required="true" width="100%" 
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:TextArea id="Message"  width="200" height="120"
+						text="{messageVO.message}" 
+						change="updateMessage()"/>
+			</mx:FormItem>
+			<mx:FormItem id="CharCount" width="100%">
+				<mx:HBox width="100%">
+					<mx:Label htmlText="{characterCountMessage}" />
+					<mx:Spacer width="100%" />
+					<mx:Button label="Preview Message"
+						click="previewMessage()" />
+				</mx:HBox>
+			</mx:FormItem>
+		</mx:Form>
 	</editContent>
 </Node>

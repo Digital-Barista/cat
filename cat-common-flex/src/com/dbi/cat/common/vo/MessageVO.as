@@ -11,7 +11,6 @@ package com.dbi.cat.common.vo
 		}
 		
 		public var message:String;
-		public var messages:Object;
 		public var messageType:String;
 		public var type:String;
 		

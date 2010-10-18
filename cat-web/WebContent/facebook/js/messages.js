@@ -319,12 +319,12 @@ function MessageAPI()
 		var title = $("<div />");
 		title.attr("class", "title");
 		title.text(message.title);
-		content.append(title);
+		content.append(title)
 		
 		// Add body
 		var body = $("<div />");
 		body.attr("class", "messageBody");
-		body.html(message.body);
+		body.text(message.body);
 		content.append(body);
 		
 		// Show response if one has been submitted

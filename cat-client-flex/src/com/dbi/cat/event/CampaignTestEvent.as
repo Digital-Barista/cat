@@ -1,7 +1,6 @@
 package com.dbi.cat.event
 {
 	import com.dbi.cat.common.vo.CampaignVO;
-	import com.dbi.cat.common.vo.NodeVO;
 	
 	import flash.events.Event;
 
@@ -9,13 +8,11 @@ package com.dbi.cat.event
 	{
 		public static const START_TEST:String = "startTestEvent";
 		public static const END_TEST_CAMPAIGN:String = "endTestCampaignEvent";
-		public static const ENTER_NODE:String = "enterNodeEvent";
 		public static const SEND_RESPONSE:String = "sendResponseEvent";
 		public static const FOLLOW_NEXT_TIME_CONNECTOR:String = "followNextTimeConnectorEvent";
 	
 		public var startDate:Date;
 		public var campaign:CampaignVO;
-		public var node:NodeVO;
 		
 		public var response:String;
 			

@@ -17,7 +17,6 @@ import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.Subscriber;
-import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.EntryPointType;
 
 @Local
@@ -34,8 +33,6 @@ public interface SubscriptionManager {
 	public void subscribeToEntryPoint(@Wrapped(element="Addresses") Set<String> addresses, @PathParam("entryPointUID") String entryPointUID, @PathParam("type") EntryPointType subscriptionType);
 
 	public void subscribeContactsToEntryPoint(@Wrapped(element="Contact") List<Contact> contacts, @PathParam("entryPointUID") String entryPointUID);
-
-	public void subscribeContactFilterToEntryPoint(ContactSearchCriteria searchCriteria, String entryPointUID);
 	
 	public List<Subscriber> getSubscribedAddresses(String campaignUID);
 	

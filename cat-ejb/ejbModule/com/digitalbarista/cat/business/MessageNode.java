@@ -21,7 +21,6 @@ public class MessageNode extends Node implements Auditable {
 	public static final String INFO_PROPERTY_MESSAGE_TYPE="MessageType";
 	
 	private String message;
-	private Map<String, String> messages = new HashMap<String, String>(); // Keyed by EntryPointType.getName()
 	private EntryPointType messageType;
 	
 	@Override
@@ -37,14 +36,6 @@ public class MessageNode extends Node implements Auditable {
 
 			if(ni.getName().equals(INFO_PROPERTY_MESSAGE_TYPE))
 				messageType = EntryPointType.valueOf(ni.getValue());
-			
-			// Get messages per EntryPointType
-			for (EntryPointType ept : EntryPointType.values())
-			{
-				String key = ept.getName() + "_" + INFO_PROPERTY_MESSAGE;
-				if (ni.getName().equals(key))
-					messages.put(ept.getName(), ni.getValue());
-			}
 		}
 	}
 
@@ -75,50 +66,8 @@ public class MessageNode extends Node implements Auditable {
 			else
 				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_MESSAGE_TYPE, messageType.toString(), version);
 		}
-		
-		if (messages != null)
-		{
-			for (Map.Entry<String, String> entry : messages.entrySet())
-			{
-				String key = entry.getKey() + "_" + INFO_PROPERTY_MESSAGE;
-				
-				if (entry.getValue() != null &&
-					entry.getValue().length() > 0)
-				{
-					if (nodes.containsKey(key))
-						nodes.get(key).setValue(entry.getValue());
-					else
-						buildAndAddNodeInfo(dataObject, key, entry.getValue(), version);
-				}
-				else if (nodes.containsKey(key))
-				{
-					nodes.remove(key);
-				}
-			}
-		}
 	}
 
-	/**
-	 * Get the message text for a given EntryPointType and
-	 * return the default if not specified
-	 * 
-	 * @param entryPointType
-	 * @string
-	 */
-	public String getMessageForType(EntryPointType entryPointType)
-	{
-		String ret = message != null ? message : "";
-		String key = entryPointType.getName();
-		if (messages != null &&
-			messages.containsKey(key) &&
-			messages.get(key) != null &&
-			messages.get(key).length() > 0)
-		{
-			ret = messages.get(key);
-		}
-		return ret;
-	}
-	
 	@Override
 	public String auditString() {
 		StringBuffer ret = new StringBuffer();
@@ -153,15 +102,5 @@ public class MessageNode extends Node implements Auditable {
 
 	public void setMessageType(EntryPointType messageType) {
 		this.messageType = messageType;
-	}
-
-	public Map<String, String> getMessages()
-	{
-		return messages;
-	}
-
-	public void setMessages(Map<String, String> messages)
-	{
-		this.messages = messages;
 	}
 }

@@ -30,9 +30,4 @@
 		<MethodInvoker generator="{CampaignTestManager}"
 			method="followNextTimeConnector"  />
 	</EventHandlers>
-	<EventHandlers type="{CampaignTestEvent.ENTER_NODE}">
-		<MethodInvoker generator="{CampaignTestManager}"
-					   method="enterNode"
-					   arguments="{event.node}" />
-	</EventHandlers>
 </EventMap>

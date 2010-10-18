@@ -2,7 +2,6 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -21,8 +20,6 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.CampaignMessagePart;
-import com.digitalbarista.cat.business.CouponNode;
-import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignDO;
@@ -55,51 +52,7 @@ public class MessageManagerImpl implements MessageManager {
 	UserManager userManager;
 
 
-	@Override
-	@PermitAll
-    public List<CampaignMessagePart> getMessageParts(Campaign campaign, MessageNode message)
-    {
-		List<CampaignMessagePart> ret = new ArrayList<CampaignMessagePart>();
-		
-		for (EntryPointType entryType : EntryPointType.values())
-		{
-			String text = message.getMessageForType(entryType);
-			CampaignMessagePart part = getMessagePart(campaign, entryType, text);
-			ret.add(part);
-		}
-		return ret;
-    }
-	
-	@Override
-	@PermitAll
-    public List<CampaignMessagePart> getAvailableMessageParts(Campaign campaign, CouponNode coupon)
-    {
-		List<CampaignMessagePart> ret = new ArrayList<CampaignMessagePart>();
-		
-		for (EntryPointType entryType : EntryPointType.values())
-		{
-			String text = coupon.getAvailableMessageForType(entryType);
-			CampaignMessagePart part = getMessagePart(campaign, entryType, text);
-			ret.add(part);
-		}
-		return ret;
-    }
-	
-	@Override
-	@PermitAll
-    public List<CampaignMessagePart> getUnavailableMessageParts(Campaign campaign, CouponNode coupon)
-    {
-		List<CampaignMessagePart> ret = new ArrayList<CampaignMessagePart>();
-		
-		for (EntryPointType entryType : EntryPointType.values())
-		{
-			String text = coupon.getUnavailableMessageForType(entryType);
-			CampaignMessagePart part = getMessagePart(campaign, entryType, text);
-			ret.add(part);
-		}
-		return ret;
-    }
-    
+
 	@Override
 	@PermitAll
 	/**
@@ -109,9 +62,10 @@ public class MessageManagerImpl implements MessageManager {
 	 * be split into multiple messages and all but the last message will
 	 * have CONTINUED_INDICATOR appended to it.
 	 */
-	public CampaignMessagePart getMessagePart(Campaign campaign, EntryPointType entryType, String message) 
-	{
+	public List<CampaignMessagePart> getMessageParts(Campaign campaign, String message) {
 
+		List<CampaignMessagePart> ret = new ArrayList<CampaignMessagePart>();
+		
 		// Check permissions to this campaign
 		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), campaign.getClientPK()))
 			throw new SecurityException("Current user is not allowed access to this campaign.");	
@@ -120,47 +74,54 @@ public class MessageManagerImpl implements MessageManager {
 		if (campaignDO == null)
 			throw new IllegalArgumentException("The specified campaign does not exist");
 		
-		// Find campaign add in
-		String campaignAddIn = "";
-		if (campaignDO.getAddInMessages() != null)
+		// Iterate through each entry point type
+		for (EntryPointType entryType : EntryPointType.values())
 		{
-			for (AddInMessageDO addDO : campaignDO.getAddInMessages())
+			// Find campaign add in
+			String campaignAddIn = "";
+			if (campaignDO.getAddInMessages() != null)
 			{
-				if (addDO.getEntryType() == entryType)
+				for (AddInMessageDO addDO : campaignDO.getAddInMessages())
 				{
-					if (addDO.getType() == AddInMessageType.CLIENT)
-						campaignAddIn = addDO.getMessage();
+					if (addDO.getEntryType() == entryType)
+					{
+						if (addDO.getType() == AddInMessageType.CLIENT)
+							campaignAddIn = addDO.getMessage();
+					}
 				}
 			}
-		}
 
-		// Find client add ins
-		String clientClientAddIn = "";
-		String adminClientAddIn = "";
-		if (campaignDO.getClient().getAddInMessages() != null)
-		{
-			for (AddInMessageDO addDO : campaignDO.getClient().getAddInMessages())
+			// Find client add ins
+			String clientClientAddIn = "";
+			String adminClientAddIn = "";
+			if (campaignDO.getClient().getAddInMessages() != null)
 			{
-				if (addDO.getEntryType() == entryType)
+				for (AddInMessageDO addDO : campaignDO.getClient().getAddInMessages())
 				{
-					if (addDO.getType() == AddInMessageType.ADMIN)
-						adminClientAddIn = addDO.getMessage();
-					else if (addDO.getType() == AddInMessageType.CLIENT)
-						clientClientAddIn = addDO.getMessage();
+					if (addDO.getEntryType() == entryType)
+					{
+						if (addDO.getType() == AddInMessageType.ADMIN)
+							adminClientAddIn = addDO.getMessage();
+						else if (addDO.getType() == AddInMessageType.CLIENT)
+							clientClientAddIn = addDO.getMessage();
+					}
 				}
 			}
+			
+			// Build whole message
+			String wholeMessage = message + campaignAddIn + clientClientAddIn + adminClientAddIn;
+			
+			// Create message part object to hold message parts
+			CampaignMessagePart messagePart = new CampaignMessagePart();
+			messagePart.setEntryType(entryType);
+			messagePart.setMessages(new ArrayList<String>());
+			ret.add(messagePart);
+			messagePart.setMessages(splitMessage(wholeMessage, entryType.getMaxCharacters()));
+			
+			
 		}
 		
-		// Build whole message
-		String wholeMessage = message + campaignAddIn + clientClientAddIn + adminClientAddIn;
-		
-		// Create message part object to hold message parts
-		CampaignMessagePart messagePart = new CampaignMessagePart();
-		messagePart.setEntryType(entryType);
-		messagePart.setMessages(new ArrayList<String>());
-		messagePart.setMessages(splitMessage(wholeMessage, entryType.getMaxCharacters()));
-			
-		return messagePart;
+		return ret;
 	}
 	
 	private List<String> splitMessage(String message, Integer maxCharacters)

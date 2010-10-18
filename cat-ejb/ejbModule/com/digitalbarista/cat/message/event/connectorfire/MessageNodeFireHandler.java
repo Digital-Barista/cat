@@ -1,6 +1,9 @@
 package com.digitalbarista.cat.message.event.connectorfire;
 
+import java.util.List;
+
 import javax.ejb.SessionContext;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 
 import com.digitalbarista.cat.business.CampaignMessagePart;
@@ -48,34 +51,38 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 		if(sMan.isSubscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
 			return;
 
-		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getDetailedCampaign(mNode.getCampaignUID()), fromType, mNode.getMessageForType(fromType));
-		for(String actualMessage : messagePart.getMessages())
+		List<CampaignMessagePart> messageParts = mMan.getMessageParts(cMan.getDetailedCampaign(mNode.getCampaignUID()), mNode.getMessage());
+		for(CampaignMessagePart messagePart : messageParts)
 		{
-			switch(fromType)
+			if(messagePart.getEntryType()!=fromType)
+				continue;
+			for(String actualMessage : messagePart.getMessages())
 			{
-				
-				case Email:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), actualMessage, mNode.getName(),mNode.getUid(),version);
-					break;
-				
-				case SMS:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), actualMessage, mNode.getName(),mNode.getUid(),version);
-					break;
+				switch(fromType)
+				{
 					
-				case Twitter:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), actualMessage, mNode.getName(),mNode.getUid(),version);
-					break;
+					case Email:
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), actualMessage, mNode.getName(),mNode.getUid(),version);
+						break;
 					
-				case Facebook:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getFacebookID(), actualMessage, mNode.getName(),mNode.getUid(),version);
-					break;
-					
-				default:
-					throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
+					case SMS:
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), actualMessage, mNode.getName(),mNode.getUid(),version);
+						break;
+						
+					case Twitter:
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), actualMessage, mNode.getName(),mNode.getUid(),version);
+						break;
+						
+					case Facebook:
+						sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getFacebookID(), actualMessage, mNode.getName(),mNode.getUid(),version);
+						break;
+						
+					default:
+						throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
+				}
+				eMan.queueEvent(sendMessageEvent);
 			}
-			eMan.queueEvent(sendMessageEvent);
 		}
-			
 		csl.setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 	}
