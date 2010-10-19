@@ -58,7 +58,7 @@
 					borderStyle="none"
 					left="5" right="5" bottom="5" top="0"
 					 editable="false"
-					htmlText="{formatText(EntryTypeRepeater.currentItem as CampaignMessagePartVO)}" />
+					text="{formatText(EntryTypeRepeater.currentItem as CampaignMessagePartVO)}" />
 			</mx:Canvas>
 		</mx:Repeater>
 	</mx:TabNavigator>
