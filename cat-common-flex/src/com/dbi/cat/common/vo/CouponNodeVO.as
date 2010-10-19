@@ -39,9 +39,23 @@ package com.dbi.cat.common.vo
 		
 		override public function get valid():Boolean
 		{
-			return availableMessage != null &&
-				availableMessage.length > 0 &&
-				expireDays != "";
+			if (expireDays != "")
+			{
+				if ( availableMessage != null &&
+					availableMessage.length > 0)
+					return true;
+				
+				if (availableMessages != null)
+				{
+					for (var key:String in availableMessages)
+					{
+						if (availableMessages[key] != null &&
+							availableMessages[key].length > 0)
+							return true;
+					}
+				}
+			}
+			return false;
 		}
 	}
 }

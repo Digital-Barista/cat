@@ -127,12 +127,14 @@
 						 change="{dispatchEvent(new Event('changeMessage'))}">
 			<MessageEditor id="DefaultMessage"
 						   label="Default Message"
+						   useModifyMessage="false"
 						   messageText="{messageVO.message}"
 						   change="{updateDefaultMessage()}" />
 			<mx:Repeater id="EntryTypeRepeater" 
 						 dataProvider="{EntryPointType.allTypes}">
 				<MessageEditor id="MessageTypeEditor"
 							   label="{EntryTypeRepeater.currentItem.name}"
+							   defaultMessageText="{messageVO.message}"
 							   messageText="{messageVO.messages[EntryTypeRepeater.currentItem.name]}"
 							   change="{updateMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
 			</mx:Repeater>

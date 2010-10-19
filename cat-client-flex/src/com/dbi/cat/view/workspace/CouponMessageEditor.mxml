@@ -111,15 +111,18 @@
 						 width="100%" height="100%"
 						 tabOffset="-10" paddingTop="0"
 						 horizontalAlign="right"
+						 creationPolicy="all"
 						 change="{dispatchEvent(new Event('changeMessage'))}">
 			<workspace:MessageEditor id="DefaultAvailable"
 									 label="Default Message"
+									 useModifyMessage="false"
 									 messageText="{couponVO.availableMessage}"
 									 change="updateDefaultAvailable()" />
 			<mx:Repeater id="AvailableEntryTypeRepeater" 
 						 dataProvider="{EntryPointType.allTypes}">
 				<workspace:MessageEditor id="AvailableMessageType"
 										 label="{AvailableEntryTypeRepeater.currentItem.name}"
+										 defaultMessageText="{couponVO.availableMessage}"
 										 messageText="{couponVO.availableMessages[AvailableEntryTypeRepeater.currentItem.name]}"
 										 change="{updateAvailableMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
 			</mx:Repeater>
@@ -128,15 +131,18 @@
 						 width="100%" height="100%"
 						 tabOffset="-10" paddingTop="0"
 						 horizontalAlign="right"
+						 creationPolicy="all"
 						 change="{dispatchEvent(new Event('changeMessage'))}">
 			<workspace:MessageEditor id="DefaultUnavailable"
 									 label="Default Message"
+									 useModifyMessage="false"
 									 messageText="{couponVO.unavailableMessage}"
 									 change="updateDefaultUnavailable()" />
 			<mx:Repeater id="UnavailableEntryTypeRepeater" 
 						 dataProvider="{EntryPointType.allTypes}">
 					<workspace:MessageEditor id="UnavailableMessageType"
 											 label="{UnavailableEntryTypeRepeater.currentItem.name}"
+											 defaultMessageText="{couponVO.unavailableMessage}"
 											 messageText="{couponVO.unavailableMessages[UnavailableEntryTypeRepeater.currentItem.name]}"
 											 change="{updateUnavailableMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
 			</mx:Repeater>

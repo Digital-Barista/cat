@@ -17,8 +17,21 @@ package com.dbi.cat.common.vo
 		
 		override public function get valid():Boolean
 		{
-			return message != null &&
-				message.length > 0;
+			if ( message != null &&
+				message.length > 0)
+				return true;
+			
+			if (messages != null)
+			{
+				for (var key:String in messages)
+				{
+					if (messages[key] != null &&
+						messages[key].length > 0)
+						return true;
+				}
+			}
+			
+			return false;
 		}
 	}
 }
