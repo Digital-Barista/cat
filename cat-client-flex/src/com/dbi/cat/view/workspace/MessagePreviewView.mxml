@@ -45,6 +45,17 @@
 				}
 				return ret;
 			}
+			private function allowHTML(part:CampaignMessagePartVO):Boolean
+			{
+				for each (var type:EntryPointType in EntryPointType.allTypes)
+				{
+					if (part.entryType == type.name)
+					{
+						return type.allowHTML;
+					}
+				}
+				return false;
+			}
 		]]>
 	</mx:Script>
 	<mx:TabNavigator id="EntryTypeTabs"
@@ -57,8 +68,15 @@
 				<mx:TextArea id="MessageText"
 					borderStyle="none"
 					left="5" right="5" bottom="5" top="0"
-					 editable="false"
-					text="{formatText(EntryTypeRepeater.currentItem as CampaignMessagePartVO)}" />
+					editable="false"
+					text="{formatText(EntryTypeRepeater.currentItem as CampaignMessagePartVO)}"
+					visible="{allowHTML(EntryTypeRepeater.currentItem as CampaignMessagePartVO)}" />
+				<mx:TextArea id="HTMLMessageText"
+							 borderStyle="none"
+							 left="5" right="5" bottom="5" top="0"
+							 editable="false"
+							 htmlText="{formatText(EntryTypeRepeater.currentItem as CampaignMessagePartVO)}"
+							 visible="{!allowHTML(EntryTypeRepeater.currentItem as CampaignMessagePartVO)}" />
 			</mx:Canvas>
 		</mx:Repeater>
 	</mx:TabNavigator>
