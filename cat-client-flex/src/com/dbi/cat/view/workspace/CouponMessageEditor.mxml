@@ -197,7 +197,8 @@
 											 label="{UnavailableEntryTypeRepeater.currentItem.name}"
 											 defaultMessageText="{couponVO.unavailableMessage}"
 											 messageText="{couponVO.unavailableMessages[UnavailableEntryTypeRepeater.currentItem.name]}"
-											 change="{updateUnavailableMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
+											 change="{updateUnavailableMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}"
+											 creationComplete="{tabChange()}" />
 			</mx:Repeater>
 		</mx:TabNavigator>
 	</mx:ViewStack>
