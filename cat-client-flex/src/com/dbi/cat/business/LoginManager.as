@@ -142,7 +142,7 @@ package com.dbi.cat.business
 		 */
 		public function reloadApplication():void
 		{
-			var urlRequest:URLRequest = new URLRequest(Application.application.url);
+			var urlRequest:URLRequest = new URLRequest("javascript:location.reload(true)");
 			navigateToURL(urlRequest,"_self");
 		}
 		
