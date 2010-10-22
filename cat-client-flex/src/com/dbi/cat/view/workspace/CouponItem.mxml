@@ -339,13 +339,7 @@
 		<CouponMessageEditor id="CouponEditor"
 							 couponVO="{couponVO}"
 							 couponToken="{couponCodeToken}"
+							 campaign="{workspace.campaign}"
 							 change="replaceTokens()" />
-		<mx:HBox width="100%"
-				 enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
-			<mx:Label id="CharCountLabel" />
-			<mx:Spacer width="100%" />
-			<mx:Button label="Preview Message"
-					   click="previewMessage()" />
-		</mx:HBox>
 	</editContent>
 </Node>

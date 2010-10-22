@@ -7,11 +7,15 @@
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.CampaignVO;
 			import com.dbi.cat.common.vo.CouponNodeVO;
 			import com.dbi.cat.common.vo.CouponVO;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
+			
+			[Bindable]
+			public var campaign:CampaignVO;
 			
 			[Bindable]
 			public var showingAvailable:Boolean = true;
@@ -116,7 +120,7 @@
 							couponVO.availableMessages[type.name] != null &&
 							couponVO.availableMessages[type.name].length > 0)
 						{
-							availableTab.setStyle("color", 0xFF0000);
+							availableTab.setStyle("backgroundColor", 0xFF0000);
 						}
 						else
 						{
@@ -176,6 +180,8 @@
 				<workspace:MessageEditor id="AvailableMessageType"
 										 label="{AvailableEntryTypeRepeater.currentItem.name}"
 										 defaultMessageText="{couponVO.availableMessage}"
+										 campaign="{campaign}"
+										 entryType="{AvailableEntryTypeRepeater.currentItem}"
 										 messageText="{couponVO.availableMessages[AvailableEntryTypeRepeater.currentItem.name]}"
 										 change="{updateAvailableMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
 			</mx:Repeater>
@@ -196,6 +202,8 @@
 					<workspace:MessageEditor id="UnavailableMessageType"
 											 label="{UnavailableEntryTypeRepeater.currentItem.name}"
 											 defaultMessageText="{couponVO.unavailableMessage}"
+											 campaign="{campaign}"
+											 entryType="{UnavailableEntryTypeRepeater.currentItem}"
 											 messageText="{couponVO.unavailableMessages[UnavailableEntryTypeRepeater.currentItem.name]}"
 											 change="{updateUnavailableMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}"
 											 creationComplete="{tabChange()}" />

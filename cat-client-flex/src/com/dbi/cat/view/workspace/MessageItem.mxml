@@ -22,6 +22,7 @@
 			import com.dbi.cat.event.CampaignMessageEvent;
 			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Button;
 			import mx.events.ChildExistenceChangedEvent;
 			
 			// Add in message for current campaign and client
@@ -89,18 +90,6 @@
 			{
 			}
 			
-			private function previewMessage():void
-			{
-				// Open the preview window
-				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
-				
-				// Request the message parts
-				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_NODE_PARTS);
-				event.campaign = workspace.campaign;
-				event.node = messageVO;
-				dispatchEvent(event);
-			}
-			
 			private function updateDefaultMessage():void
 			{
 				messageVO.message = DefaultMessage.messageText;
@@ -158,16 +147,13 @@
 						 dataProvider="{EntryPointType.allTypes}">
 				<MessageEditor id="MessageTypeEditor"
 							   label="{EntryTypeRepeater.currentItem.name}"
+							   messageTitle="{messageVO.name}"
 							   defaultMessageText="{messageVO.message}"
+							   campaign="{workspace.campaign}"
+							   entryType="{EntryTypeRepeater.currentItem}"
 							   messageText="{messageVO.messages[EntryTypeRepeater.currentItem.name]}"
 							   change="{updateMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
 			</mx:Repeater>
 		</mx:TabNavigator>
-		<mx:HBox id="CharCount" width="100%">
-			<mx:Label htmlText="{characterCountMessage}" />
-			<mx:Spacer width="100%" />
-			<mx:Button label="Preview Message"
-				click="previewMessage()" />
-		</mx:HBox>
 	</editContent>
 </Node>

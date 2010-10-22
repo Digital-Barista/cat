@@ -8,7 +8,18 @@
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.CampaignVO;
 			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.event.CampaignMessageEvent;
+			
+			[Bindable]
+			public var campaign:CampaignVO;
+			
+			[Bindable]
+			public var entryType:EntryPointType;
+			
+			[Bindable]
+			public var messageTitle:String;
 			
 			private var _messageText:String;
 			[Bindable]
@@ -52,13 +63,32 @@
 				messageText = Message.text;
 				dispatchEvent(new Event(Event.CHANGE));
 			}
+			
+			private function previewMessage():void
+			{
+				// Request the message parts
+				if (campaign != null &&
+					entryType != null)
+				{
+					var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_MESSAGE_PART);
+					event.campaign = campaign;
+					event.entryType = entryType;
+					event.message = messageText;
+					event.title = messageTitle ? messageTitle : "";
+					dispatchEvent(event);
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:TextArea id="Message"  
 				 text="{messageText}"
 				 borderStyle="none"
-				 left="0" right="0" top="0" bottom="0"
+				 left="0" right="0" top="0" bottom="40"
 				 change="updateMessage()" />
+	<mx:Button label="Preview Message"
+			   bottom="5" right="5"
+			   visible="{campaign != null &amp;&amp; entryType != null}"
+			   click="previewMessage()" />
 	<mx:Canvas id="UnModifiedMessage"
 			   width="100%" height="100%"
 			   backgroundAlpha="0.5"

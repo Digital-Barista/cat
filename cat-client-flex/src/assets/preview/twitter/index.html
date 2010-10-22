@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	</head>
+	<style>
+		body
+		{
+			margin:0px;
+			font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
+			color:#333333;
+			font-size:16px;
+			background:url("bg-clouds.png") repeat-x scroll 0 0 #C0DEED;
+		}
+		#Header
+		{
+			-moz-box-shadow:0 1px 0 rgba(0, 0, 0, 0.15);
+			background:-moz-linear-gradient(center top , #00A0D1, #008DB8) repeat scroll 0 0 transparent;
+			color:#FFFFFF;
+			display:block;
+			font:bold 13px Helvetica Neue,Arial,Helvetica,'Liberation Sans',FreeSans,sans-serif;
+			height:35px;
+			left:0;
+			text-shadow:-1px -1px 0 #00799E;
+			top:0;
+			width:100%;
+		}
+		#Body
+		{
+			position:absolute;
+			left:50%;
+			margin-top:1px;
+			margin-left:-381px;
+			width:763px;
+			height:100%;
+			background-image:url('twitter_preview_bg.jpg');
+			background-repeat:no-repeat;
+			
+		}
+		#MessageArea
+		{
+			width:500px;
+			height:100%;
+			min-height:200px;
+			margin-top:300px;
+			margin-left:18px;
+		}
+		#MessageDate
+		{
+			color:#999999;
+			font-size:11px;
+		}
+		#MessageTable
+		{
+			width:100%;
+			border-bottom:1px solid #EEEEEE;
+		}
+	</style>
+	<script>
+		function setupData()
+		{
+			document.getElementById('MessageDate').innerHTML = this.date;
+			document.getElementById('MessageBody').innerHTML = this.message;
+		}
+	</script>
+	<body onload="setupData()">
+		<div id="Header"></div>
+		<div id="Body">
+			<div id="MessageArea">
+				<table id="MessageTable">
+					<tr>
+						<td width="50px"><img src="default_profile.png" /></td>
+						<td style="vertical-align:top">
+							<div id="MessageBody"></div>
+							<div id="MessageDate"></div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</body>
+</html>
