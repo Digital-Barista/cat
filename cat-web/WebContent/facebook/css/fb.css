@@ -30,6 +30,12 @@ h2
 
 #MessageArea
 {
+	display:none;
+}
+
+#MessageListDiv
+{
+	min-height:350px;
 }
 
 #Invite
@@ -38,18 +44,41 @@ h2
 	width:735px;
 	height:570px;
 }
-
-.loadingTable, .messageTable
+#NoMessagesDiv
 {
-	margin-top:100px;
-	width:100%;
+	display:none;
 }
-.loadingCell, .messageCell
+#LoadingMessage
+{
+	position:absolute;
+	width:150px;
+	height:50px;
+	border:8px solid #858585;
+	background-color:white;
+	left:50%;
+	top:130px;
+	margin-left:-50px;
+	padding-top:25px;
+	text-align:center;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	font-size:18px;
+}
+
+.noMessageContent
 {
 	text-align:center;
-	vertical-align:middle;
+	font-weight:bold;
+	font-size:16px;
+	padding-top:90px;
 }
-
+.errorMessage
+{
+	text-align:center;
+	font-weight:bold;
+	font-size:16px;
+	padding-top:90px;
+}
 .empty
 {
 	font-size:14;

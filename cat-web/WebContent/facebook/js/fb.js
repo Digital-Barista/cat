@@ -54,6 +54,7 @@ function handleResponse(response)
 }
 function showLogin()
 {
+	$("#LoadingMessage").css("display", "none");
 	$("#Login").css("display", "block");
 	$("#MessageArea").css("display", "none");
 }
