@@ -81,6 +81,8 @@
 	<EventHandlers type="{LoginEvent.LOGOUT}">
 		<MethodInvoker generator="{LoginManager}"
 			method="logout" />
+		<MethodInvoker generator="{LoginManager}"
+					   method="reloadApplication" />
 	</EventHandlers>
 	<EventHandlers type="{LoginEvent.UPDATE_LAST_ACTIVITY}">
 		<MethodInvoker generator="{LoginManager}"
