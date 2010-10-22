@@ -44,6 +44,7 @@
 			{
 				messageText = defaultMessageText;
 				UnModifiedMessage.visible = false;
+				dispatchEvent(new Event(Event.CHANGE));
 			}
 			
 			private function updateMessage():void

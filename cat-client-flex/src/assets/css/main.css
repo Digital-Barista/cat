@@ -167,3 +167,8 @@ RichTextEditor
 {
 	fontWeight:bold;
 }
+
+.modifiedMessageTab
+{
+	color:#FF0000;
+}

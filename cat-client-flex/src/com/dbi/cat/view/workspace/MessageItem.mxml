@@ -21,6 +21,7 @@
 			import com.dbi.cat.event.CampaignEvent;
 			import com.dbi.cat.event.CampaignMessageEvent;
 			
+			import mx.collections.ArrayCollection;
 			import mx.events.ChildExistenceChangedEvent;
 			
 			// Add in message for current campaign and client
@@ -112,6 +113,28 @@
 				messageVO.messages[entryType.name] = text;
 				dispatchEvent(new Event("changeMessage"));
 			}
+			
+			private function tabChange():void
+			{
+				var types:ArrayCollection = EntryPointType.allTypes;
+				for (var i:Number =0; i < types.length; i++)
+				{
+					var type:EntryPointType = types[i];
+					var tab:Button = EntryTypeTabs.getTabAt(i+1);
+					
+					if (messageVO.messages != null &&
+						messageVO.messages[type.name] != null &&
+						messageVO.messages[type.name].length > 0)
+					{
+						tab.setStyle("color", 0xFF0000);
+					}
+					else
+					{
+						tab.setStyle("color", null);
+					}
+				}
+				dispatchEvent(new Event('changeMessage'));
+			}
 		]]>
 	</mx:Script>
 	<editContent>
@@ -124,7 +147,8 @@
 		<mx:TabNavigator id="EntryTypeTabs"
 						 width="100%" height="100%"
 						 tabOffset="20" paddingTop="0"
-						 change="{dispatchEvent(new Event('changeMessage'))}">
+						 change="{tabChange()}"
+						 creationComplete="tabChange()">
 			<MessageEditor id="DefaultMessage"
 						   label="Default Message"
 						   useModifyMessage="false"

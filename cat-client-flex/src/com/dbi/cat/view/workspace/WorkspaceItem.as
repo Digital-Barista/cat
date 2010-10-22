@@ -4,6 +4,7 @@ package com.dbi.cat.view.workspace
 	import com.dbi.controls.CustomMessage;
 	import com.dbi.event.CustomMessageEvent;
 	
+	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
@@ -12,6 +13,7 @@ package com.dbi.cat.view.workspace
 	import mx.containers.TabNavigator;
 	import mx.containers.TitleWindow;
 	import mx.controls.SWFLoader;
+	import mx.core.Application;
 	import mx.core.Container;
 	import mx.core.UIComponent;
 	import mx.core.UITextField;
@@ -322,7 +324,7 @@ package com.dbi.cat.view.workspace
 				editWindow.width = editWindowWidth;
 				editWindow.height = editWindowHeight;
 				
-				PopUpManager.addPopUp(editWindow, workspace, true);
+				PopUpManager.addPopUp(editWindow, DisplayObject(Application.application), true);
 				PopUpManager.centerPopUp(editWindow);
 			}
 		}

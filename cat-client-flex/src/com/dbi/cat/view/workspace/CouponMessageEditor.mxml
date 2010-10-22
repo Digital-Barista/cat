@@ -10,6 +10,9 @@
 			import com.dbi.cat.common.vo.CouponNodeVO;
 			import com.dbi.cat.common.vo.CouponVO;
 			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Button;
+			
 			[Bindable]
 			public var showingAvailable:Boolean = true;
 			
@@ -52,6 +55,9 @@
 			private function changeMessageShowing():void
 			{
 				showingAvailable = AvailableGroup.selection == Available;
+				
+				// Update tab coloring
+				tabChange();
 			}
 			
 			public function updateRepeaterItems():void
@@ -91,6 +97,52 @@
 				couponVO.unavailableMessages[entryType.name] = text;
 				dispatchEvent(new Event(Event.CHANGE));
 			}
+			
+			/**
+			 * Update tab color if the message is not the default
+			 */
+			private function tabChange():void
+			{
+				var types:ArrayCollection = EntryPointType.allTypes;
+				for (var i:Number =0; i < types.length; i++)
+				{
+					var type:EntryPointType = types[i];
+					
+					// Update available tabs
+					if (AvailableEntryTypeTabs)
+					{
+						var availableTab:Button = AvailableEntryTypeTabs.getTabAt(i+1);
+						if (couponVO.availableMessages != null &&
+							couponVO.availableMessages[type.name] != null &&
+							couponVO.availableMessages[type.name].length > 0)
+						{
+							availableTab.setStyle("color", 0xFF0000);
+						}
+						else
+						{
+							availableTab.setStyle("color", null);
+						}
+					}
+					
+					// Update unavailable tabs
+					if (UnavailableEntryTypeTabs &&
+						UnavailableEntryTypeTabs.numChildren == types.length + 1)
+					{
+						var unavailableTab:Button = UnavailableEntryTypeTabs.getTabAt(i+1);
+						if (couponVO.unavailableMessages != null &&
+							couponVO.unavailableMessages[type.name] != null &&
+							couponVO.unavailableMessages[type.name].length > 0)
+						{
+							unavailableTab.setStyle("color", 0xFF0000);
+						}
+						else
+						{
+							unavailableTab.setStyle("color", null);
+						}
+					}
+				}
+				dispatchEvent(new Event('changeMessage'));
+			}
 		]]>
 	</mx:Script>
 	<mx:RadioButtonGroup id="AvailableGroup"
@@ -112,7 +164,8 @@
 						 tabOffset="-10" paddingTop="0"
 						 horizontalAlign="right"
 						 creationPolicy="all"
-						 change="{dispatchEvent(new Event('changeMessage'))}">
+						 change="{tabChange()}"
+						 creationComplete="{tabChange()}">
 			<workspace:MessageEditor id="DefaultAvailable"
 									 label="Default Message"
 									 useModifyMessage="false"
@@ -132,7 +185,7 @@
 						 tabOffset="-10" paddingTop="0"
 						 horizontalAlign="right"
 						 creationPolicy="all"
-						 change="{dispatchEvent(new Event('changeMessage'))}">
+						 change="{tabChange()}">
 			<workspace:MessageEditor id="DefaultUnavailable"
 									 label="Default Message"
 									 useModifyMessage="false"
