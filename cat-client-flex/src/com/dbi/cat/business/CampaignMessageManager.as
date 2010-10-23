@@ -33,17 +33,37 @@ package com.dbi.cat.business
 			var dateString:String = formatter.format(new Date());
 			
 			var wholeMessage:String = "";
-			for (var i:Number = 0; i < part.messages.length; i++)
+			if (part.entryType == EntryPointType.TWITTER.name)
 			{
-				var message:String = part.messages[i];
-				
-				if (i > 0)
-					wholeMessage += "<br /><br />";
-				
-				if (part.messages.length > 1)
-					wholeMessage += "<b>Message " + (i + 1) + ":</b><br />";
-				
-				wholeMessage += message;
+				for each (var m:String in part.messages)
+				{
+					var twitterContent:String = 
+						"<table id='MessageTable'>" +
+							"<tr>" +
+								"<td class='profileCell'></td>" +
+								"<td class='messageCell'>" +
+									"<div>" + m + "</div>" +
+									"<div id='MessageDate'>" + dateString + "</div>" +
+								"</td>" +
+							"</tr>" +
+						"</table>";
+					wholeMessage += twitterContent;
+				}
+			}
+			else if (part.entryType == EntryPointType.SMS.name)
+			{
+				for (var i:Number = 0; i < part.messages.length; i++)
+				{
+					var message:String = part.messages[i];
+					
+					if (i > 0)
+						wholeMessage += "<br /><br />";
+					
+					if (part.messages.length > 1)
+						wholeMessage += "<b>Message " + (i + 1) + ":</b><br />";
+					
+					wholeMessage += message;
+				}
 			}
 			
 			var escapedBody:String = escape(wholeMessage);
