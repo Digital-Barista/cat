@@ -50,7 +50,7 @@ package com.dbi.cat.business
 					wholeMessage += twitterContent;
 				}
 			}
-			else if (part.entryType == EntryPointType.SMS.name)
+			else
 			{
 				for (var i:Number = 0; i < part.messages.length; i++)
 				{
