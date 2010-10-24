@@ -69,7 +69,7 @@ package com.dbi.cat.business
 			var escapedBody:String = escape(wholeMessage);
 			var escapedTitle:String = escape(title);
 			
-			var script:String = "function(){var win = window.open('assets/preview/" + part.entryType + "/index.html');" + 
+			var script:String = "function(){var win = window.open('assets/preview/" + part.entryType.toLocaleLowerCase() + "/index.html');" + 
 				"win.date = '" + dateString + "';" +
 				"win.title = unescape('" +  escapedTitle + "');" +
 				"win.message = unescape('" + escapedBody + "');}";
