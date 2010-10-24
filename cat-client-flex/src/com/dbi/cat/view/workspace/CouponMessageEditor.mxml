@@ -120,7 +120,7 @@
 							couponVO.availableMessages[type.name] != null &&
 							couponVO.availableMessages[type.name].length > 0)
 						{
-							availableTab.setStyle("backgroundColor", 0xFF0000);
+							availableTab.setStyle("color", 0xFF0000);
 						}
 						else
 						{

@@ -122,7 +122,7 @@
 				if (contactSearchCriteria != null &&
 					contactSearchCriteria.contactTags)
 				{
-					ret = "Select (" + contactSearchCriteria.contactTags.length + ")";
+					ret = "Filter (" + contactSearchCriteria.contactTags.length + ")";
 				}
 				return ret;
 			}
