@@ -41,6 +41,7 @@
 			private function init():void
 			{
 				updateUnModifyMessage();
+				updateCharacterCount();
 			}
 			
 			private function updateUnModifyMessage():void
@@ -55,12 +56,14 @@
 			{
 				messageText = defaultMessageText;
 				UnModifiedMessage.visible = false;
+				updateCharacterCount();
 				dispatchEvent(new Event(Event.CHANGE));
 			}
 			
 			private function updateMessage():void
 			{
 				messageText = Message.text;
+				updateCharacterCount();
 				dispatchEvent(new Event(Event.CHANGE));
 			}
 			
@@ -78,6 +81,24 @@
 					dispatchEvent(event);
 				}
 			}
+			
+			private function updateCharacterCount():void
+			{
+				CharacterCount.text = "char: ";
+				if (messageText &&
+					messageText.length > 0)
+				{
+					CharacterCount.text += messageText.length;
+				}
+				else if (defaultMessageText)
+				{
+					CharacterCount.text += defaultMessageText.length;
+				}
+				else
+				{
+					CharacterCount.text += "0";
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:TextArea id="Message"  
@@ -85,9 +106,6 @@
 				 borderStyle="none"
 				 left="0" right="0" top="0" bottom="40"
 				 change="updateMessage()" />
-	<mx:Label id="CharacterCount"
-			  text="{'chars: ' + messageText.length}"
-			  bottom="5" left="5" />
 	<mx:Canvas id="UnModifiedMessage"
 			   width="100%" height="100%"
 			   backgroundAlpha="0.5"
@@ -99,6 +117,8 @@
 				   verticalCenter="0" horizontalCenter="0"
 				   click="modifyMessage()" />
 	</mx:Canvas>
+	<mx:Label id="CharacterCount"
+			  bottom="5" left="5" />
 	<mx:Button label="Preview Message"
 			   bottom="5" right="5"
 			   visible="{campaign != null &amp;&amp; entryType != null}"

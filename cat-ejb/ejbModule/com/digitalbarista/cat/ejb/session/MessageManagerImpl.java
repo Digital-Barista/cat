@@ -195,6 +195,9 @@ public class MessageManagerImpl implements MessageManager {
 							!temp.substring(endIndex, endIndex + 1).matches("\\s") )
 							endIndex--;
 						  
+					// If a space is never found break the message at the max length
+					if (endIndex <= 0)
+						endIndex = maxCharacters - continuedIndicator.length();
 					
 					String part = temp.substring(0, endIndex) + continuedIndicator;
 					messages.add(part);
