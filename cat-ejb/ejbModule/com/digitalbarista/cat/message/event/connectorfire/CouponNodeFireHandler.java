@@ -87,7 +87,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 					em.persist(counter);
 					counter = em.find(CouponCounterDO.class, COUPON_CODE_LENGTH);
 				}
-				em.lock(counter, LockModeType.READ);
+				em.lock(counter, LockModeType.WRITE);
 				SequentialBitShuffler shuffler = new SequentialBitShuffler(counter.getBitScramble(),COUPON_CODE_LENGTH);
 				couponCode = shuffler.generateCode(counter.getNextNumber());
 				counter.setNextNumber(counter.getNextNumber()+1);							
