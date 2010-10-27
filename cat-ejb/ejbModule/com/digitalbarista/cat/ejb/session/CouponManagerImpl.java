@@ -67,6 +67,9 @@ public class CouponManagerImpl implements CouponManager {
     @SuppressWarnings("unchecked")
     @RolesAllowed({"client","admin"})
 	public CodedMessage redeemCoupon(String couponCode) {
+		if(couponCode!=null)
+			couponCode=couponCode.trim();
+		
 		Criteria crit = session.createCriteria(CouponResponseDO.class);
 		crit.add(Restrictions.eq("responseDetail", couponCode));
 		crit.add(Restrictions.eq("responseType", CouponResponseDO.Type.Issued));
@@ -147,6 +150,9 @@ public class CouponManagerImpl implements CouponManager {
 
 	@Override
 	public CodedMessage queryCoupon(String couponCode) {
+		if(couponCode!=null)
+			couponCode=couponCode.trim();
+
 		Criteria crit = session.createCriteria(CouponResponseDO.class);
 		crit.add(Restrictions.eq("responseDetail", couponCode));
 		crit.add(Restrictions.eq("responseType", CouponResponseDO.Type.Issued));
