@@ -75,6 +75,7 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 			}
 			eMan.queueEvent(sendMessageEvent);
 		}
+			
 		csl.setLastHitNode(simpleNode);
 		eMan.queueEvent(CATEvent.buildNodeOperationCompletedEvent(dest.getUid(), ""+s.getPrimaryKey()));
 	}
