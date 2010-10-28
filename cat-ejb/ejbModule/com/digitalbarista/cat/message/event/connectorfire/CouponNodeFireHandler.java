@@ -10,7 +10,9 @@ import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
+
+import org.hibernate.LockMode;
+import org.hibernate.Session;
 
 import com.digitalbarista.cat.business.CampaignMessagePart;
 import com.digitalbarista.cat.business.Connector;
@@ -87,7 +89,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 					em.persist(counter);
 					counter = em.find(CouponCounterDO.class, COUPON_CODE_LENGTH);
 				}
-				em.lock(counter, LockModeType.WRITE);
+				((Session)em.getDelegate()).lock(counter, LockMode.UPGRADE);
 				SequentialBitShuffler shuffler = new SequentialBitShuffler(counter.getBitScramble(),COUPON_CODE_LENGTH);
 				couponCode = shuffler.generateCode(counter.getNextNumber());
 				counter.setNextNumber(counter.getNextNumber()+1);							
