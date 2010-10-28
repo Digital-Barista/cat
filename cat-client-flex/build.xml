@@ -108,7 +108,7 @@
 	
 	<target name="make-wrapped-swf" depends="build">
 		<html-wrapper 
-            title="CAT Client Tool v0.1.${build.number}"
+            title="CAT Client Tool v1.0.1.${build.number}"
             file="index.html"
             height="100%"
             width="100%"
