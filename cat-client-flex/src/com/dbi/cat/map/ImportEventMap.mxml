@@ -49,4 +49,26 @@
 			</faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	<EventHandlers type="{ImportEvent.IMPORT_FILTER}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{'Subscribing Contacts'}" />
+		<RemoteObjectInvoker destination="subscriptionManager"
+							 method="subscribeContactFilterToEntryPoint"
+							 arguments="{[event.searchCriteria, event.node.uid]}">
+			<resultHandlers>
+				<MethodInvoker generator="{ImportManager}"
+							   method="importSuccessfull" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
 </EventMap>

@@ -7,57 +7,52 @@ function MessageAPI()
 	var MESSAGE_URL = "/cat/unsecure/rest/facebook/messages";
 	var CHECKBOX_PREFIX = "message_select_";
 	var MESSAGE_LINE_PREFIX = "message_";
+
+	// Add click events
+	setupControls();
 	
 	this.loadMessages = function()
 	{
 		// Show loading screen
-		var loading = $("<img />");
-		loading.attr("src", "/cat/facebook/images/fb_loading.gif");
-		var loadContainer = $("<div>Loading Messages  </div>");
-		loadContainer.append(loading);
-		showMessage(loadContainer);
+		var loading = $("#LoadingMessage");
+		loading.css("display", "block");
+
+		
+		// Hide no message content
+		var noMessage = $("#NoMessagesDiv");
 		
 		// Show an error message if the request fails
 		$("#MessageArea").ajaxError(function() {
-				showMessage("An error occurred. Please refresh the page to try again.");
+			loading.css("display", "none");
+			showError("An error occurred. Please refresh the page to try again.");
 		});
 		
-		// Get app ID from path name
-		var parts = window.location.pathname.split("/");
-		var last = parts[parts.length - 1];
-		if (last.length == 0)
-			last = parts[parts.length - 2];
-		var app = last;
+		// Get app ID from querystring
+		var app = $.query.get("app_id");
 		
 		// Make the message request
 		var url = MESSAGE_URL + "/list/" + app  + "/" + window.location.search + "&uid=" + currentUID;
 		$.getJSON(url, function(data){
 
 			// Clear message area
-			var area = $("#MessageArea");
+			var area = $("#MessageListDiv");
 			area.html("");
+			
+			// Hide loading message
+			loading.css("display", "none");
+			
 			
 			// No messages
 			if (data == null ||
 				data.length == 0)
 			{
-				showMessage("You currently have no messages");
+				area.html(noMessage.html());
 			}
 			else
 			{
-				// Add banner
-				var banner = createBanner();
-				area.append(banner);
+				// Show message area
+				area.css("display", "block");
 				
-				// Add header
-				var header = createHeader();
-				area.append(header);
-
-				
-				// Add the control bar
-				var controls = createControls();
-				area.append(controls);
-
 				// Add container
 				var container = $("<div />");
 				container.attr("class", "messageContainer");
@@ -70,10 +65,6 @@ function MessageAPI()
 				   var row = createRow(o.message);
 				   container.append(row);
 				}
-
-				// Add footer
-				var footer = createFooter();
-				area.append(footer);
 			}
 
 			// Resize frame after messages have loaded
@@ -166,113 +157,45 @@ function MessageAPI()
 		line.remove();
 	}
 	
-	function showMessage(message, className)
+	function showError(message)
 	{
 		// Use a table to center message content
-		var table = $("<table />");
-		table.attr("class", "messageTable");
-		
-		var row = $("<tr />");
-		var cell = $("<td />");
-		cell.attr("class", "messageCell");
-		
-		var span = $("<span />");
-		if (className != null)
-			span.attr("class", className);
-		span.append(message);
-
-		cell.append(span);
-		row.append(cell);
-		table.append(row);
+		var div = $("<div />");
+		div.attr("class", "errorMessage");
+		div.html(message);
 		
 		// Replace content area with message
-		var area = $("#MessageArea");
+		var area = $("#MessageListDiv");
 		area.html("");
-		area.append(table);
+		area.append(div);
 	}
 	
-	function createBanner()
-	{
-		var table = $("<table />");
-		table.attr("class", "banner");
-		
-		var row = $("<tr />");
-		table.append(row);
-		
-		var cell = $("<td />");
-		row.append(cell);
-		
-		cell.attr("class", "bannerTitle");
-		cell.text("Messages");
-		
-		return table;
-	}
 	
-	function createHeader()
+	function setupControls()
 	{
-		var header = $("<div />");
-		header.attr("class", "header");
-		
-
-		// Add refresh button
-		var refresh = $("<a href='#'>" + "Refresh" + "</a>");
-		refresh.attr("class", "button");
+		// Wire refresh button
+		var refresh = $("#RefreshButton");
 		refresh.bind("click", function(){
 			refreshMessages();
 		});
-		header.append(refresh);
 		
-		// Add delete button
-		var deleteButton = $("<a href='#'>" + "Delete" + "</a>");
-		deleteButton.attr("class", "button");
+		// Wire delete button
+		var deleteButton = $("#DeleteButton");
 		deleteButton.bind("click", function(){
 			deleteSelected();
 		});
-		header.append(deleteButton);
-		
-		return header;
-	}
-
-	function createFooter()
-	{
-		var footer = $("<div />");
-		footer.attr("class", "footer");
-		return footer;
-	}
-	
-	function createControls()
-	{
-		var controls = $("<div />");
-		controls.attr("class", "controlBar");
 		
 
 		// Add select all/none links
-		var links = $("<span />");
-		links.text("Select: ");
-		controls.append(links);
-		
-		var all = $("<a />");
-		all.text("All");
-		all.attr("href", "#");
-		controls.append(all);
+		var all = $("#SelectAll");
 		all.bind('click', function() {
 			selectCheckboxes(true);
 		});
 
-		
-		var space = $("<span />");
-		space.text(", ");
-		controls.append(space);
-
-		var none = $("<a />");
-		none.text("None");
-		none.attr("href", "#");
-		controls.append(none);
+		var none = $("#SelectNone");
 		none.bind('click', function() {
 			selectCheckboxes(false);
 		});
-		
-		return controls;
 	}
 	
 	
@@ -319,12 +242,12 @@ function MessageAPI()
 		var title = $("<div />");
 		title.attr("class", "title");
 		title.text(message.title);
-		content.append(title)
+		content.append(title);
 		
 		// Add body
 		var body = $("<div />");
 		body.attr("class", "messageBody");
-		body.text(message.body);
+		body.html(message.body);
 		content.append(body);
 		
 		// Show response if one has been submitted

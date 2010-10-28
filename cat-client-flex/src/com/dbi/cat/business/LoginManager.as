@@ -12,11 +12,16 @@ package com.dbi.cat.business
 	import com.dbi.cat.event.SubscriptionEvent;
 	import com.dbi.cat.event.UserEvent;
 	import com.dbi.controls.CustomMessage;
+	import com.dbi.event.CustomMessageEvent;
 	
 	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
 	import flash.utils.Timer;
 	
 	import mx.controls.Alert;
+	import mx.core.Application;
 	import mx.messaging.ChannelSet;
 	import mx.messaging.config.ServerConfig;
 	import mx.rpc.AsyncToken;
@@ -65,8 +70,15 @@ package com.dbi.cat.business
 			if (diff > (TIMEOUT_MINUTES * 60 * 1000))
 			{
 				logout();
-				CustomMessage.show("You have been logged out after " + TIMEOUT_MINUTES + " minutes of inactivity");
+				CustomMessage.show("You have been logged out after " + TIMEOUT_MINUTES + " minutes of inactivity",
+					null, 
+					closeLogoutMessage);
 			}
+		}
+		
+		private function closeLogoutMessage(e:CustomMessageEvent):void
+		{
+			reloadApplication();
 		}
 		
 		/**
@@ -122,6 +134,16 @@ package com.dbi.cat.business
 			dispatcher.dispatchEvent(new SubscriptionEvent(SubscriptionEvent.CLOSE_NODE_SUBSCRIBERS));
 			dispatcher.dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.CLOSE_MESSAGE_PREVIEW));
 			dispatcher.dispatchEvent(new ClientEvent(ClientEvent.CLOSE_ADD_CREDITS));
+		}
+		
+		/**
+		 * Reload the application in the browser to clear everything
+		 * out of memory
+		 */
+		public function reloadApplication():void
+		{
+			var urlRequest:URLRequest = new URLRequest("javascript:location.reload(true)");
+			navigateToURL(urlRequest,"_self");
 		}
 		
 		/**

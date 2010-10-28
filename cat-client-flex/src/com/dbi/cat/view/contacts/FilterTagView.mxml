@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	width="600" height="500" xmlns:contacts="com.dbi.cat.view.contacts.*"
-	showCloseButton="true"
-	close="onClose()"
 	title="Tag Filter">
 	<mx:Script>
 		<![CDATA[
@@ -14,10 +12,6 @@
 			import com.dbi.cat.event.ContactEvent;
 			
 			
-			private function onClose():void
-			{
-				dispatchEvent(new ContactEvent(ContactEvent.CLOSE_CONTACT_TAG_FILTER));
-			}
 			private function doFilter():void
 			{
 				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
@@ -40,7 +34,7 @@
 		<mx:Button label="UnSelect All"
 			click="unselectAll()" />
 		<mx:Spacer width="100%" />
-		<mx:Button label="Filter By Tags"
+		<mx:Button label="Filter"
 			click="{doFilter()}" />
 	</mx:ControlBar>
 </mx:TitleWindow>

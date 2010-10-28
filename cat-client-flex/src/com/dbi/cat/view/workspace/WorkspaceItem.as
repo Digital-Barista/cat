@@ -4,12 +4,17 @@ package com.dbi.cat.view.workspace
 	import com.dbi.controls.CustomMessage;
 	import com.dbi.event.CustomMessageEvent;
 	
+	import flash.display.DisplayObject;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	
+	import mx.containers.TabNavigator;
 	import mx.containers.TitleWindow;
 	import mx.controls.SWFLoader;
+	import mx.core.Application;
+	import mx.core.Container;
 	import mx.core.UIComponent;
 	import mx.core.UITextField;
 	import mx.effects.Fade;
@@ -18,6 +23,8 @@ package com.dbi.cat.view.workspace
 	import mx.effects.Resize;
 	import mx.events.CloseEvent;
 	import mx.events.EffectEvent;
+	import mx.events.FlexEvent;
+	import mx.managers.PopUpManager;
 
 	[Event(name="selectWorkspaceItem", type="com.dbi.cat.event.WorkspaceEvent")]
 	[Event(name="unselectWorkspaceItem", type="com.dbi.cat.event.WorkspaceEvent")]
@@ -132,6 +139,8 @@ package com.dbi.cat.view.workspace
 		public function WorkspaceItem()
 		{
 			super();
+			
+			addEventListener(FlexEvent.CREATION_COMPLETE, init);
 				
 			// Setup icon for opening edit menu
 			editLoader = new SWFLoader();
@@ -156,11 +165,6 @@ package com.dbi.cat.view.workspace
 			invalidWarningLoader.addEventListener(MouseEvent.CLICK, editClick, false, 0, true);
 			
 			// Setup window that will hold edit controls
-			editWindow.width = 0;
-			editWindow.height = 0;
-			editWindow.x = width/2;
-			editWindow.y = height/2;
-			editWindow.alpha = 0;
 			editWindow.showCloseButton = true;
 			editWindow.verticalScrollPolicy = "off";
 			editWindow.horizontalScrollPolicy = "off";
@@ -181,13 +185,39 @@ package com.dbi.cat.view.workspace
 			addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 		}
 		
+		private function init(e:FlexEvent):void
+		{
+			setEditState();
+		}
+		
 		private function setEditState():void
 		{
 			for each (var child:UIComponent in editWindow.getChildren())
 			{
-				child.enabled = !readonly;
+				// Special cases to not disable navigation
+				if (child is TabNavigator)
+				{
+					disableTabNavigatorChildren(TabNavigator(child));
+				}
+				else if (child is CouponMessageEditor)
+				{
+				}
+				else
+				{
+					child.enabled = !readonly;
+				}
 			}
 		}
+		
+		private function disableTabNavigatorChildren(tabNavigator:TabNavigator):void
+		{
+			for each (var tab:Container in tabNavigator.getChildren())
+			{
+				for each (var tabChild:UIComponent in tab.getChildren())
+					tabChild.enabled = !readonly;
+			}
+		}
+		
 		protected override function createChildren():void
 		{
 			super.createChildren();
@@ -218,6 +248,7 @@ package com.dbi.cat.view.workspace
 			{
 				x = info.x;
 				y = info.y;
+				trace('x: ' + info.x + ', y: ' + info.y);
 			}
 		}
 		
@@ -290,81 +321,22 @@ package com.dbi.cat.view.workspace
 		{
 			if (workspace != null)
 			{
-				if (editWindowEffect != null &&
-					editWindowEffect.isPlaying)
-					editWindowEffect.stop();
-					
-				// Position window
-				var global:Point = parent.localToGlobal(new Point(x, y));
-				var local:Point = workspace.globalToLocal(global);
-				editWindow.x = local.x;
-				editWindow.y = local.y;
+				editWindow.width = editWindowWidth;
+				editWindow.height = editWindowHeight;
 				
-				// Add edit window to application so it doesn't scale and is on top of everything
-				workspace.addChild(editWindow);
-				
-				// Create effects
-				var resize:Resize = new Resize(editWindow);
-				var move:Move = new Move(editWindow);
-				var fade:Fade = new Fade(editWindow);
-				
-				editWindowEffect = new Parallel();
-				editWindowEffect.duration = 300;
-				editWindowEffect.addChild(resize);
-				editWindowEffect.addChild(move);
-				editWindowEffect.addChild(fade);
-				
-				// Setup resize
-				resize.widthTo = editWindowWidth;
-				resize.heightTo = editWindowHeight;
-				
-				// Setup move
-				move.xTo = editWindow.x + width/2 - editWindowWidth/2;
-				move.yTo = editWindow.y + height/2 - editWindowHeight/2;
-				
-				// Setup fade
-				fade.alphaTo = 1;
-				
-				// Play all effects
-				editWindowEffect.play();
+				PopUpManager.addPopUp(editWindow, DisplayObject(Application.application), true);
+				PopUpManager.centerPopUp(editWindow);
 			}
 		}
 		public function closeEditWindow():void
 		{
 			if (workspace != null)
 			{
-				if (editWindowEffect != null &&
-					editWindowEffect.isPlaying)
-					editWindowEffect.stop();
-					
 				// Save item if not readonly
 				if (!readonly)
 					dispatchEvent(new WorkspaceEvent(WorkspaceEvent.CLOSE_EDIT_MENU));
 				
-				// Create effects
-				var resize:Resize = new Resize(editWindow);
-				var move:Move = new Move(editWindow);
-				var fade:Fade = new Fade(editWindow);
-				
-				editWindowEffect = new Parallel();
-				editWindowEffect.duration = 300;
-				editWindowEffect.addEventListener(EffectEvent.EFFECT_END, closeEditEffectEnd, false, 0, true);
-				editWindowEffect.addChild(resize);
-				editWindowEffect.addChild(move);
-				
-				// Setup resize
-				resize.widthTo = 0;
-				resize.heightTo = 0;
-				
-				// Setup move
-				move.xTo = editWindow.x + editWindowWidth/2;
-				move.yTo = editWindow.y + editWindowHeight/2;
-				
-				// Setup fade
-				fade.alphaTo = 0;
-				
-				// Play all effects
-				editWindowEffect.play();
+				PopUpManager.removePopUp(editWindow);
 			}
 		}
 		private function closeEditEffectEnd(e:EffectEvent):void
@@ -372,6 +344,7 @@ package com.dbi.cat.view.workspace
 			if (workspace != null &&
 				workspace.getChildren().indexOf(editWindow) > -1)
 				workspace.removeChild(editWindow);
+			
 		}
 		
 		private function itemClick():void

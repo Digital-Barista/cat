@@ -118,11 +118,11 @@
 			[Bindable(event="filterUpdate")]
 			private function get tagLabel():String
 			{
-				var ret:String = "Select (0)";
+				var ret:String = "Filter (0)";
 				if (contactSearchCriteria != null &&
 					contactSearchCriteria.contactTags)
 				{
-					ret = "Select (" + contactSearchCriteria.contactTags.length + ")";
+					ret = "Filter (" + contactSearchCriteria.contactTags.length + ")";
 				}
 				return ret;
 			}

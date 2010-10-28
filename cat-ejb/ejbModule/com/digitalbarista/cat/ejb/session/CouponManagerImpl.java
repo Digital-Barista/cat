@@ -16,6 +16,7 @@ import javax.interceptor.Interceptors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.apache.log4j.LogManager;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -66,19 +67,40 @@ public class CouponManagerImpl implements CouponManager {
     @SuppressWarnings("unchecked")
     @RolesAllowed({"client","admin"})
 	public CodedMessage redeemCoupon(String couponCode) {
+		if(couponCode!=null)
+			couponCode=couponCode.trim();
+		
 		Criteria crit = session.createCriteria(CouponResponseDO.class);
 		crit.add(Restrictions.eq("responseDetail", couponCode));
 		crit.add(Restrictions.eq("responseType", CouponResponseDO.Type.Issued));
-		CouponResponseDO cResp = (CouponResponseDO)crit.uniqueResult();
+		List<CouponResponseDO> cRespList = (List<CouponResponseDO>)crit.list();
 		
+		if(cRespList==null || cRespList.size() ==0)
+		{
+			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
+		}
+
+		CouponResponseDO cResp = null;
+		for(CouponResponseDO cRespTemp : cRespList)
+		{
+			if(!ctx.isCallerInRole("admin") && !userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), cRespTemp.getCouponOffer().getCampaign().getClient().getPrimaryKey()))
+				continue;
+			if(cResp==null)
+			{
+				cResp = cRespTemp;
+			}
+			else
+			{
+				LogManager.getLogger(getClass()).error("Coupon code :"+couponCode+" has been DUPLICATED!!");
+				return new CodedMessage(UNKNOWN_ERROR, "An unknown internal error occurred.  Please contact the administrator if this continues.");
+			}
+		}
+
 		// If the coupon doesn't match return an appropriate error
 		if (cResp == null)
 		{
 			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
 		}
-		
-		if(!ctx.isCallerInRole("admin") && !userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), cResp.getCouponOffer().getCampaign().getClient().getPrimaryKey()))
-			throw new SecurityException("Current user is not allowed to redeem the specified coupon.");
 		
 		//Also . . . should we check to see if the campagin is active?
 		
@@ -128,19 +150,40 @@ public class CouponManagerImpl implements CouponManager {
 
 	@Override
 	public CodedMessage queryCoupon(String couponCode) {
+		if(couponCode!=null)
+			couponCode=couponCode.trim();
+
 		Criteria crit = session.createCriteria(CouponResponseDO.class);
 		crit.add(Restrictions.eq("responseDetail", couponCode));
 		crit.add(Restrictions.eq("responseType", CouponResponseDO.Type.Issued));
-		CouponResponseDO cResp = (CouponResponseDO)crit.uniqueResult();
+		List<CouponResponseDO> cRespList = (List<CouponResponseDO>)crit.list();
 		
+		if(cRespList==null || cRespList.size() ==0)
+		{
+			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
+		}
+
+		CouponResponseDO cResp = null;
+		for(CouponResponseDO cRespTemp : cRespList)
+		{
+			if(!ctx.isCallerInRole("admin") && !userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), cRespTemp.getCouponOffer().getCampaign().getClient().getPrimaryKey()))
+				continue;
+			if(cResp==null)
+			{
+				cResp = cRespTemp;
+			}
+			else
+			{
+				LogManager.getLogger(getClass()).error("Coupon code :"+couponCode+" has been DUPLICATED!!");
+				return new CodedMessage(UNKNOWN_ERROR, "An unknown internal error occurred.  Please contact the administrator if this continues.");
+			}
+		}
+
 		// If the coupon doesn't match return an appropriate error
 		if (cResp == null)
 		{
 			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
 		}
-		
-		if(!ctx.isCallerInRole("admin") && !userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), cResp.getCouponOffer().getCampaign().getClient().getPrimaryKey()))
-			throw new SecurityException("Current user is not allowed to redeem the specified coupon.");
 		
 		//Also . . . should we check to see if the campagin is active?
 		
