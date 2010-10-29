@@ -230,6 +230,11 @@ h2
 	border-top:1px solid #E5E5E5;
 }
 
+	.messageLine tr td
+	{
+		vertical-align:top;
+	}
+
 .selectColumn
 {
 	width:25px;
