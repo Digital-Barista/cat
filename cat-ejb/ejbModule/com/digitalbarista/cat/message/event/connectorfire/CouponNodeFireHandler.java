@@ -89,7 +89,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 					em.persist(counter);
 					counter = em.find(CouponCounterDO.class, COUPON_CODE_LENGTH);
 				}
-				((Session)em.getDelegate()).lock(counter, LockMode.UPGRADE);
+				((Session)em.getDelegate()).refresh(counter, LockMode.UPGRADE);
 				SequentialBitShuffler shuffler = new SequentialBitShuffler(counter.getBitScramble(),COUPON_CODE_LENGTH);
 				couponCode = shuffler.generateCode(counter.getNextNumber());
 				counter.setNextNumber(counter.getNextNumber()+1);							
@@ -110,7 +110,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 				startPos = actualMessage.indexOf('[');
 				endPos = actualMessage.indexOf(']',-1)+1;
 				if(startPos==-1 || endPos==-1 || endPos<=startPos)
-					throw new IllegalArgumentException("Cannot insert coupon code, since braces are not inserted properly.");
+					throw new IllegalArgumentException("Cannot insert expiration date, since braces are not inserted properly.");
 				actualMessage = actualMessage.substring(0,startPos) + new SimpleDateFormat("MM/dd/yyyy").format(expireDate.getTime()) + ((endPos<actualMessage.length())?actualMessage.substring(endPos):"");
 			}
 			offer.setIssuedCouponCount(offer.getIssuedCouponCount()+1);
