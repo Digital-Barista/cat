@@ -79,7 +79,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 			} else {
 				//Get the counter for 6-digit coupon codes.  This may need to change in the future.
 				int COUPON_CODE_LENGTH=6;
-				CouponCounterDO counter = em.find(CouponCounterDO.class, COUPON_CODE_LENGTH);
+				CouponCounterDO counter = (CouponCounterDO)((Session)em.getDelegate()).get(CouponCounterDO.class,COUPON_CODE_LENGTH, LockMode.UPGRADE);
 				if(counter==null)
 				{
 					counter = new CouponCounterDO();
@@ -87,9 +87,8 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 					counter.setNextNumber(1l);
 					counter.setBitScramble(SequentialBitShuffler.generateBitShuffle(COUPON_CODE_LENGTH));
 					em.persist(counter);
-					counter = em.find(CouponCounterDO.class, COUPON_CODE_LENGTH);
+					counter = (CouponCounterDO)((Session)em.getDelegate()).get(CouponCounterDO.class,COUPON_CODE_LENGTH, LockMode.UPGRADE);
 				}
-				((Session)em.getDelegate()).lock(counter, LockMode.UPGRADE);
 				SequentialBitShuffler shuffler = new SequentialBitShuffler(counter.getBitScramble(),COUPON_CODE_LENGTH);
 				couponCode = shuffler.generateCode(counter.getNextNumber());
 				counter.setNextNumber(counter.getNextNumber()+1);							
