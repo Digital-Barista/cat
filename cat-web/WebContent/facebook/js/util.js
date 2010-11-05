@@ -18,8 +18,11 @@ PrintUtil.showCoupon = function(messageId)
 	// Write CSS
 	w.document.write('<link href="/cat/facebook/css/coupon.css" type="text/css" rel="stylesheet" />');
 	
+	// Get app id
+	var app = $.query.get("app_id");
+	
 	// Write content
-	w.document.write('<div class="coupon" style="background:url(\'images/coupon_background.jpg\') no-repeat;">' + 
+	w.document.write('<div class="coupon" style="background:url(\'' + app + '/images/coupon_background.jpg\') no-repeat;">' + 
 			'<h2>' + title[0].innerHTML + "</h2>" + 
 			message[0].innerHTML + '</div>');
 	
