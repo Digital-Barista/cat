@@ -13,6 +13,7 @@ package com.dbi.cat.event
 		public static const LOAD_TAG_SUMMARIES:String = "loadTagSummariesEvent";
 		public static const LOAD_CONTACT_CREATES:String = "loadContactCreatesEvent";
 		public static const LOAD_MESSAGE_SEND_DATES:String = "loadMessageSendDatesEvent";
+		public static const LOAD_FACEBOOK_APP_VISITS:String = "loadFacebookAppVisitsEvent";
 		
 		public var clientIDs:ArrayCollection;
 		public var startDate:Date;

@@ -6,5 +6,13 @@ Class-Path: cat-data.jar
  lib/resteasy-jaxrs-1.2.GA.jar 
  lib/scannotation-1.0.2.jar 
  lib/signpost-core-1.2.1.1.jar 
- lib/httpclient-4.0.1.jar
+ lib/httpclient-4.0.1.jar 
+ gdata-analytics-2.1.jar 
+ gdata-analytics-meta-2.1.jar 
+ gdata-base-1.0.jar 
+ gdata-client-1.0.jar 
+ gdata-client-meta-1.0.jar 
+ gdata-core-1.0.jar 
+ google-collect-1.0-rc1.jar 
+ jsr305.jar
 

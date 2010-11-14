@@ -527,5 +527,9 @@
 			source="{ReportingManager}"
 			sourceKey="messageSendDates"
 			targetKey="messageSendDates" />
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="facebookAppVisits"
+			targetKey="facebookAppVisits" />
 	</Injectors>
 </EventMap>

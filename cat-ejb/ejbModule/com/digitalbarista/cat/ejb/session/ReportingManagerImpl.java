@@ -1,12 +1,16 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +53,14 @@ import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.exception.ReportingManagerException;
 import com.digitalbarista.cat.util.SecurityUtil;
+import com.google.gdata.client.analytics.AnalyticsService;
+import com.google.gdata.client.analytics.DataQuery;
+import com.google.gdata.data.analytics.AccountEntry;
+import com.google.gdata.data.analytics.AccountFeed;
+import com.google.gdata.data.analytics.DataEntry;
+import com.google.gdata.data.analytics.DataFeed;
+import com.google.gdata.util.AuthenticationException;
+import com.google.gdata.util.ServiceException;
 
 
 /**
@@ -59,8 +71,11 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @RunAsPrincipal("admin")
 @RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class ReportingManagerImpl implements ReportingManager {
-
+public class ReportingManagerImpl implements ReportingManager 
+{
+	public static final String ACCOUNTS_URL = "https://www.google.com/analytics/feeds/accounts/default";
+	private static final String ANALYTICS_DATA_URL = "https://www.google.com/analytics/feeds/data";
+	
 	@Resource
 	private SessionContext ctx; //Used to flag rollbacks.
 
@@ -74,6 +89,8 @@ public class ReportingManagerImpl implements ReportingManager {
 	UserManager userManager;
 	
 	Logger logger = LogManager.getLogger(ReportingManagerImpl.class);
+	SimpleDateFormat outgoingDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+	SimpleDateFormat incomingDateFormatter = new SimpleDateFormat("yyyyMMdd");
 	
 	@PermitAll
 	public List<OutgoingMessageSummary> getOutgoingMessageSummaries() throws ReportingManagerException 
@@ -339,6 +356,80 @@ public class ReportingManagerImpl implements ReportingManager {
 			String error = "Error getting message send dates";
 			logger.error(error, e);
 			throw new ReportingManagerException(error, e);
+		}
+		return ret;
+	}
+	
+	public List<DateData> getAnalyticsData(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
+	{
+		List<DateData> ret = new ArrayList<DateData>();
+		try
+		{
+
+			// Get allowed client IDs
+			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			
+			// Default end date to now
+			Calendar endDate = end;
+			if (endDate == null)
+				endDate = Calendar.getInstance();
+			
+			if (allowedClientIDs.size() > 0)
+			{
+				// Authenticate
+				AnalyticsService analytics = new AnalyticsService("digitalbarista");
+			
+				analytics.setUserCredentials("digitalbarista", "Yamahar6");
+			
+				// Get account feed
+				AccountFeed feed = analytics.getFeed(new URL(ACCOUNTS_URL), AccountFeed.class);
+				AccountEntry profile = feed.getEntries().get(0);
+				String tableId = profile.getTableId().getValue();
+				
+				// Do data query
+				DataQuery query = new DataQuery(new URL(ANALYTICS_DATA_URL));
+				query.setIds(tableId);
+				query.setStartDate(outgoingDateFormatter.format(start.getTime()));
+				query.setEndDate(outgoingDateFormatter.format(end.getTime()));
+				query.setMetrics("ga:visits");
+				query.setDimensions("ga:date");
+				query.setMaxResults(10000);
+				DataFeed dataFeed = analytics.getFeed(query, DataFeed.class);
+				
+				for (DataEntry entry : dataFeed.getEntries())
+				{
+					Long visits = entry.longValueOf("ga:visits");
+					String date = entry.stringValueOf("ga:date");
+					DateData data = new DateData();
+					data.setCount(BigInteger.valueOf(visits));
+					
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(incomingDateFormatter.parse(date));
+					data.setDate(cal);
+					
+					ret.add(data);
+				}
+			}
+		}
+		catch (AuthenticationException e)
+		{
+			throw new ReportingManagerException("Could not login to google analytics", e);
+		} 
+		catch (MalformedURLException e)
+		{
+			throw new ReportingManagerException("Invalid analytics data url: " + ANALYTICS_DATA_URL, e);
+		} 
+		catch (IOException e)
+		{
+			throw new ReportingManagerException("Could not retrieve accounts feed", e);
+		} 
+		catch (ServiceException e)
+		{
+			throw new ReportingManagerException("An error occurred calling the accounts feed", e);
+		} 
+		catch (ParseException e)
+		{
+			throw new ReportingManagerException("Could not parse feed date", e);
 		}
 		return ret;
 	}

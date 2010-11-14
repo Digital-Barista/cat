@@ -25,6 +25,7 @@ package com.dbi.cat.business
 		public var tagSummaries:ArrayCollection;
 		public var contactCreateDates:ArrayCollection;
 		public var messageSendDates:ArrayCollection;
+		public var facebookAppVisits:ArrayCollection;
 		
 		public function ReportingManager(dispatcher:IEventDispatcher)
 		{
@@ -56,6 +57,11 @@ package com.dbi.cat.business
 		public function loadMessageSendDates(messageDates:ArrayCollection, start:Date, end:Date):void
 		{
 			this.messageSendDates = fillEmptyDays(messageDates, start, end);
+		}
+		
+		public function loadFacebookAppVisits(visits:ArrayCollection, start:Date, end:Date):void
+		{
+			this.facebookAppVisits = fillEmptyDays(visits, start, end);;
 		}
 		
 		/**
