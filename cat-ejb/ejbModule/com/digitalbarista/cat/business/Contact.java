@@ -21,6 +21,7 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	private Long clientId;
 	private EntryPointType type;
 	private boolean blacklisted;
+	private String UID;
 	
 	
 	public Long getClientId() {
@@ -53,8 +54,12 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	public void setContactTags(Set<ContactTag> contactTags) {
 		this.contactTags = contactTags;
 	}
-	
-	
+	public String getUID() {
+		return UID;
+	}
+	public void setUID(String uID) {
+		UID = uID;
+	}
 	public EntryPointType getType() {
 		return type;
 	}
@@ -80,6 +85,7 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 		clientId = dataObject.getClient().getPrimaryKey();
 		type = dataObject.getType();
 		blacklisted = dataObject.getBlacklist() != null;
+		UID = dataObject.getUID();
 		
 		contactTags = new HashSet<ContactTag>();
 		if (dataObject.getContactTags() != null)

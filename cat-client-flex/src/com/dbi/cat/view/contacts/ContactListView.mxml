@@ -164,7 +164,7 @@
 			allowMultipleSelection="true">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Type" dataField="type" width="60" />
-				<mx:DataGridColumn headerText="Contact" dataField="address" width="150" />
+				<mx:DataGridColumn headerText="Contact" dataField="UID" width="150" />
 				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" width="80" />
 				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" sortable="false" />
 				<mx:DataGridColumn headerText="Blacklisted" dataField="blacklisted"

@@ -10,7 +10,7 @@ public class ContactSearchCriteria {
 	private Long clientId;
 	private EntryPointType entryType;
 	private List<ContactTag> contactTags;
-	
+	private String address;
 	
 	public Long getClientId() {
 		return clientId;
@@ -29,5 +29,11 @@ public class ContactSearchCriteria {
 	}
 	public void setContactTags(List<ContactTag> contactTags) {
 		this.contactTags = contactTags;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
 	}
 }

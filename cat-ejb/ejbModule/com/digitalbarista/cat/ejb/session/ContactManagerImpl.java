@@ -124,6 +124,11 @@ public class ContactManagerImpl implements ContactManager {
     			crit.createAlias("contactTags.tag", "tag");
     			crit.add(Restrictions.in("tag.contactTagId", tagIds));
     		}
+    		
+    		if(searchCriteria.getAddress()!=null)
+    		{
+    			crit.add(Restrictions.eq("address", searchCriteria.getAddress()));
+    		}
     	}
     	
     	// Get unpaged total results from criteria

@@ -13,6 +13,7 @@ package com.dbi.cat.common.vo
 		public var createDate:Date;
 		public var contactTags:ArrayCollection;
 		public var blacklisted:Boolean;
+		public var UID:String;
 		
 		private var _tagListLabel:String;
 		public function get tagListLabel():String

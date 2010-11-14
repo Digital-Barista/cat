@@ -6,32 +6,35 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name="CouponRedemption")
 @XmlType(name="CouponRedemption")
-public class CodedMessage {
+public class CouponRedemptionMessage {
 	private int code;
 	private String message;
 	private String detailedMessage;
 	private String offerCode;
+	private String contactUID;
 	
-	public CodedMessage(){}
+	public CouponRedemptionMessage(){}
 	
-	public CodedMessage(int code, String message, String detailedMessage)
+	public CouponRedemptionMessage(int code, String message, String detailedMessage, String contactUID)
 	{
 		this.code=code;
 		this.message=message;
 		this.detailedMessage=detailedMessage;
+		this.contactUID = contactUID;
 	}
 	
-	public CodedMessage(int code, String message, String detailedMessage, String offerCode)
+	public CouponRedemptionMessage(int code, String message, String detailedMessage, String offerCode, String contactUID)
 	{
 		this.code=code;
 		this.message=message;
 		this.detailedMessage=detailedMessage;
 		this.offerCode=offerCode;
+		this.contactUID=contactUID;
 	}
 	
-	public CodedMessage(int code, String message)
+	public CouponRedemptionMessage(int code, String message)
 	{
-		this(code,message,message);
+		this(code,message,message,null);
 	}
 	
 	@XmlAttribute(name="statusCode")
@@ -64,5 +67,13 @@ public class CodedMessage {
 	}
 	public void setOfferCode(String offerCode) {
 		this.offerCode = offerCode;
+	}
+
+	@XmlAttribute(name="contactUID")
+	public String getContactUID() {
+		return contactUID;
+	}
+	public void setContactUID(String contactUID) {
+		this.contactUID = contactUID;
 	}
 }
