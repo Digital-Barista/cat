@@ -117,29 +117,10 @@ public class CouponManagerImpl implements CouponManager {
 			return new CouponRedemptionMessage(OVER_MAX_CODE,"This coupon has already been redeemed "+cResp.getRedemptionCount()+" times.");
 		}
 
-		ContactSearchCriteria searchCrit = new ContactSearchCriteria();
-		searchCrit.setClientId(cResp.getCouponOffer().getCampaign().getClient().getPrimaryKey());
-		if(cResp.getSubscriber().getFacebookID()!=null)
+		Contact c = contactManager.getContactForSubscription(cResp.getSubscriber(),cResp.getCouponOffer().getCampaign());
+		if(c==null)
 		{
-			searchCrit.setEntryType(EntryPointType.Facebook);
-			searchCrit.setAddress(cResp.getSubscriber().getFacebookID());
-		}else if(cResp.getSubscriber().getTwitterID()!=null)
-		{
-			searchCrit.setEntryType(EntryPointType.Twitter);
-			searchCrit.setAddress(cResp.getSubscriber().getTwitterID());
-		}else if(cResp.getSubscriber().getPhoneNumber()!=null)
-		{
-			searchCrit.setEntryType(EntryPointType.SMS);
-			searchCrit.setAddress(cResp.getSubscriber().getPhoneNumber());
-		}else
-		{
-			searchCrit.setEntryType(EntryPointType.Email);
-			searchCrit.setAddress(cResp.getSubscriber().getEmail());
-		}
-		PagedList<Contact> matchingContacts = contactManager.getContacts(searchCrit, null);
-		if(matchingContacts.getTotalResultCount()!=1)
-		{
-			LogManager.getLogger(getClass()).error("Coupon code :"+couponCode+" belongs to "+matchingContacts.getTotalResultCount()+" contacts!!");
+			LogManager.getLogger(getClass()).error("Coupon code :"+couponCode+" belongs to more than 1 contact!!");
 			return new CouponRedemptionMessage(UNKNOWN_ERROR, "An unknown internal error occurred.  Please contact the administrator if this continues.");
 		}
 		
@@ -152,7 +133,7 @@ public class CouponManagerImpl implements CouponManager {
 		
 		em.persist(cRed);
 	
-		return new CouponRedemptionMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode(),matchingContacts.getResults().get(0).getUID());
+		return new CouponRedemptionMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode(),c.getUID());
 	}
 
 	@Override

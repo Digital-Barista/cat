@@ -384,6 +384,13 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		{
 			Subscriber s = new Subscriber();
 			s.copyFrom(subscriber);
+			Contact c = contactManager.getContactForSubscription(subscriber, camp);
+			if(c==null)
+			{
+				LogManager.getLogger(getClass()).warn("multiple contacts found for subscription! subID="+subscriber.getPrimaryKey()+", campaignID="+camp.getPrimaryKey());
+			} else {
+				s.setAddress(c.getUID());
+			}
 			ret.add(s);
 		}
 		
