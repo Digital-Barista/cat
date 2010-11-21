@@ -16,5 +16,6 @@
 		<dashboard:TagSummaryView label="Tags" />
 		<dashboard:ContactCreatesView label="Contacts" />
 		<dashboard:MessageSendDatesView label="Sent Messages" />
+		<dashboard:FacebookAnalyticsView label="Facebook" />
 	</mx:TabNavigator>
 </mx:Canvas>

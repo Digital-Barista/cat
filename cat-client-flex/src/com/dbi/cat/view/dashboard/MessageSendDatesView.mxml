@@ -18,9 +18,6 @@
 				public var messageSendDates:ArrayCollection;
 				
 				[Bindable]
-				public var facebookAppVisits:ArrayCollection;
-				
-				[Bindable]
 				public var clients:ArrayCollection;
 				
 				private function get selectedClientIds():ArrayCollection
@@ -39,13 +36,6 @@
 					
 					// Load message sends
 					var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_MESSAGE_SEND_DATES);
-					event.clientIDs = selectedClientIds;
-					event.startDate = DateRange.startDate;
-					event.endDate = DateRange.endDate;
-					dispatchEvent(event);
-					
-					// Load facebook visits
-					var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_FACEBOOK_APP_VISITS);
 					event.clientIDs = selectedClientIds;
 					event.startDate = DateRange.startDate;
 					event.endDate = DateRange.endDate;
@@ -86,7 +76,8 @@
 						  showDataTips="true" >
 				
 				<mx:horizontalAxis>
-					<mx:DateTimeAxis dataUnits="days"
+					<mx:DateTimeAxis id="dateAxis" 
+									 dataUnits="days"
 									 minimum="{DateRange.startDate}"
 									 maximum="{DateRange.endDate}"/>
 				</mx:horizontalAxis>
@@ -96,23 +87,15 @@
 								   xField="date" 
 								   form="segment" 
 								   displayName="New Message Count"
-								   dataProvider="{messageSendDates}">
+								   dataProvider="{messageSendDates}" >
 						<mx:lineStroke>
 							<mx:Stroke 
 								color="0xB2DC32" 
 								weight="0.2" />
 						</mx:lineStroke> 
-					</mx:LineSeries>
-					<mx:LineSeries yField="count" 
-								   xField="date" 
-								   form="segment" 
-								   displayName="Visit Count"
-								   dataProvider="{facebookAppVisits}">
-						<mx:lineStroke>
-							<mx:Stroke 
-								color="0xFF0000" 
-								weight="0.2" />
-						</mx:lineStroke> 
+						<mx:verticalAxis>
+							<mx:LinearAxis id="messageAxis" />           
+						</mx:verticalAxis>
 					</mx:LineSeries>
 				</mx:series>
 			</mx:LineChart>

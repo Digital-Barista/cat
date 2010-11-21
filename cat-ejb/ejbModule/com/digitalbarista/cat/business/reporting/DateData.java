@@ -2,6 +2,8 @@ package com.digitalbarista.cat.business.reporting;
 
 import java.math.BigInteger;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DateData 
 {
@@ -9,8 +11,8 @@ public class DateData
 	private Integer month;
 	private Integer day;
 	private Calendar date;
-	private BigInteger count;
-	private BigInteger total;
+	private BigInteger count = new BigInteger("0");
+	private BigInteger total = new BigInteger("0");
 	
 	public Calendar getDate()
 	{

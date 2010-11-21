@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -36,6 +38,8 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
+import com.digitalbarista.cat.business.reporting.AnalyticsData;
+import com.digitalbarista.cat.business.reporting.AnalyticsResponse;
 import com.digitalbarista.cat.business.reporting.DashboardCount;
 import com.digitalbarista.cat.business.reporting.DashboardData;
 import com.digitalbarista.cat.business.reporting.DateData;
@@ -51,12 +55,11 @@ import com.digitalbarista.cat.data.ClientInfoDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.exception.ReportingManagerException;
 import com.digitalbarista.cat.util.SecurityUtil;
 import com.google.gdata.client.analytics.AnalyticsService;
 import com.google.gdata.client.analytics.DataQuery;
-import com.google.gdata.data.analytics.AccountEntry;
-import com.google.gdata.data.analytics.AccountFeed;
 import com.google.gdata.data.analytics.DataEntry;
 import com.google.gdata.data.analytics.DataFeed;
 import com.google.gdata.util.AuthenticationException;
@@ -75,6 +78,18 @@ public class ReportingManagerImpl implements ReportingManager
 {
 	public static final String ACCOUNTS_URL = "https://www.google.com/analytics/feeds/accounts/default";
 	private static final String ANALYTICS_DATA_URL = "https://www.google.com/analytics/feeds/data";
+	
+
+	private static final String DBI_ANALYTICS_USERNAME = "dbigaviewonly@gmail.com";
+	private static final String DBI_ANALYTICS_PASSWORD = "Yamahar6";
+	private static final String DBI_ANALYTICS_TABLE_ID = "ga:38779239";
+	
+	private static final String GA_VISITS = "ga:visits";
+	private static final String GA_NEW_VISITS = "ga:newVisits";
+	private static final String GA_TIME_ON_SITE = "ga:timeOnSite";
+	private static final String GA_DATE = "ga:date";
+	private static final String GA_PAGE_PATH = "ga:pagePath";
+	
 	
 	@Resource
 	private SessionContext ctx; //Used to flag rollbacks.
@@ -360,12 +375,15 @@ public class ReportingManagerImpl implements ReportingManager
 		return ret;
 	}
 	
-	public List<DateData> getAnalyticsData(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
+	public AnalyticsResponse getAnalyticsData(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
 	{
-		List<DateData> ret = new ArrayList<DateData>();
+		Map<Calendar, AnalyticsData> dataMap = new HashMap<Calendar, AnalyticsData>();
+
+		// Find the max count for scaling the chart
+		Long maxCount = 0l;
+		
 		try
 		{
-
 			// Get allowed client IDs
 			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
 			
@@ -374,40 +392,60 @@ public class ReportingManagerImpl implements ReportingManager
 			if (endDate == null)
 				endDate = Calendar.getInstance();
 			
-			if (allowedClientIDs.size() > 0)
+			
+			// Get the facebook URL filter.  If there are no apps to filter
+			// by, don't bother doing the query
+			String filter = getAnalyticsFacebookFilter(allowedClientIDs);
+			
+			if (allowedClientIDs.size() > 0 &&
+				filter.length() > 0)
 			{
 				// Authenticate
 				AnalyticsService analytics = new AnalyticsService("digitalbarista");
-			
-				analytics.setUserCredentials("digitalbarista", "Yamahar6");
-			
-				// Get account feed
-				AccountFeed feed = analytics.getFeed(new URL(ACCOUNTS_URL), AccountFeed.class);
-				AccountEntry profile = feed.getEntries().get(0);
-				String tableId = profile.getTableId().getValue();
+				analytics.setUserCredentials(DBI_ANALYTICS_USERNAME, DBI_ANALYTICS_PASSWORD);
 				
 				// Do data query
 				DataQuery query = new DataQuery(new URL(ANALYTICS_DATA_URL));
-				query.setIds(tableId);
+				query.setIds(DBI_ANALYTICS_TABLE_ID);
 				query.setStartDate(outgoingDateFormatter.format(start.getTime()));
 				query.setEndDate(outgoingDateFormatter.format(end.getTime()));
-				query.setMetrics("ga:visits");
-				query.setDimensions("ga:date");
+				query.setMetrics(GA_NEW_VISITS + "," + GA_TIME_ON_SITE + "," + GA_VISITS);
+				query.setDimensions(GA_DATE + "," + GA_PAGE_PATH);
 				query.setMaxResults(10000);
+				query.setSort(GA_DATE + "," + GA_PAGE_PATH);
+				query.setFilters(filter);
 				DataFeed dataFeed = analytics.getFeed(query, DataFeed.class);
 				
 				for (DataEntry entry : dataFeed.getEntries())
 				{
-					Long visits = entry.longValueOf("ga:visits");
-					String date = entry.stringValueOf("ga:date");
-					DateData data = new DateData();
-					data.setCount(BigInteger.valueOf(visits));
-					
+					Long visits = entry.longValueOf(GA_VISITS);
+					Long newVisits = entry.longValueOf(GA_NEW_VISITS);
+					Long timeOnSite = entry.longValueOf(GA_TIME_ON_SITE);
+					String date = entry.stringValueOf(GA_DATE);
 					Calendar cal = Calendar.getInstance();
 					cal.setTime(incomingDateFormatter.parse(date));
+					
+					AnalyticsData data = null;
+					if (!dataMap.containsKey(cal))
+					{
+						data = new AnalyticsData();
+						dataMap.put(cal, data);
+					}
+					else
+					{
+						data = dataMap.get(cal);
+					}
+					
 					data.setDate(cal);
 					
-					ret.add(data);
+					// Set analytics data
+					data.setVisits(data.getVisits() + visits);
+					data.setNewVisits(data.getNewVisits() + newVisits);
+					data.setTimeOnSite(data.getTimeOnSite() + timeOnSite);
+					
+					if (data.getVisits() > maxCount) maxCount = data.getVisits();
+					if (data.getNewVisits() > maxCount) maxCount = data.getNewVisits();
+					if (data.getTimeOnSite() > maxCount) maxCount = data.getTimeOnSite();
 				}
 			}
 		}
@@ -431,7 +469,37 @@ public class ReportingManagerImpl implements ReportingManager
 		{
 			throw new ReportingManagerException("Could not parse feed date", e);
 		}
+		
+		AnalyticsResponse ret = new AnalyticsResponse();
+		ret.setDataList(new ArrayList<AnalyticsData>(dataMap.values()));
+		ret.setStartDate(start);
+		ret.setEndDate(end);
+		ret.setMaxCount(maxCount);
 		return ret;
+	}
+	
+	/**
+	 * Get all the facebook apps for the associated client IDs
+	 * and build a filter for the analytics query that will only
+	 * count URLs from those apps
+	 * 
+	 * @param clientIDs
+	 * @return
+	 */
+	private String getAnalyticsFacebookFilter(List<Long> clientIDs)
+	{
+		String filter = "";
+		Criteria crit = session.createCriteria(FacebookAppDO.class);
+		crit.add(Restrictions.in("client.primaryKey", clientIDs));
+		for (FacebookAppDO app : (List<FacebookAppDO>)crit.list())
+		{
+			if (filter.length() > 0)
+			{
+				filter += ",";
+			}
+			filter += "ga:pagePath=@" + app.getFacebookAppId() + "/";
+		}
+		return filter;
 	}
 	
 	private List<Long> getAllowedClientIDs(List<Long> clientIDs)

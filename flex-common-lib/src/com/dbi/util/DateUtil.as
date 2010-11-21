@@ -65,5 +65,36 @@ package com.dbi.util
 			
 			return ret;
 		}
+		
+		/**
+		 * Format a number of seconds as HH:MM:SS excluding parts the 
+		 * hour if it is zero
+		 */
+		public static function secondsToTimelabel(totalSeconds:Number):String
+		{
+			var minutes:Number = Math.floor(totalSeconds / 60);
+			var hours:Number = Math.floor(minutes / 60);
+			var seconds:Number = totalSeconds % 60;
+			
+			var ret:String = "";
+			if (hours > 0)
+			{
+				ret += hours + ":";
+			}
+			
+			if (minutes < 10)
+			{
+				ret += "0";
+			}
+			ret += minutes + ":";
+			
+			if (seconds < 10)
+			{
+				ret += "0";
+			}
+			ret += seconds.toString();
+			
+			return ret;
+		}
 	}
 }

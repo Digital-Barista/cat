@@ -139,11 +139,6 @@
 			generator="{AppManager}"
 			method="addGeneralStatusMessage"
 			arguments="{ServiceStatusMessage.LOADING_MESSAGE_SEND_DATES}" />
-		
-		<RemoteObjectInvoker destination="reportingManager"
-							 method="getAnalyticsData"
-							 arguments="{[event.clientIDs, event.startDate, event.endDate]}"
-							 showBusyCursor="true" />
 			
 		<RemoteObjectInvoker destination="reportingManager"
 							 method="getMessageSendDates"
