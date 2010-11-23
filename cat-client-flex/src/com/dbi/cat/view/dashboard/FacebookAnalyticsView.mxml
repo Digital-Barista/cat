@@ -216,7 +216,7 @@
 						<mx:LineSeries yField="timeOnSite" 
 									   xField="date" 
 									   form="segment" 
-									   displayName="Visit Length"
+									   displayName="Average Visit Length"
 									   dataProvider="{facebookAppVisits.dataList}"
 									   visible="{showVisitLength}" 
 									   fill="{visitLengthColor}"
@@ -238,7 +238,7 @@
 						<mx:CheckBox id="NewSubscribers" label="New Subscribers" selected="{showNewSubscribers}" change="{showNewSubscribers = !showNewSubscribers}" />
 						<mx:CheckBox id="Visits" label="Visits" selected="{showVisits}" change="{showVisits = !showVisits}" />
 						<mx:CheckBox id="NewVisits" label="New Visits" selected="{showNewVisits}" change="{showNewVisits = !showNewVisits}" />
-						<mx:CheckBox id="VisitLength" label="Visit Length" selected="{showVisitLength}" change="{showVisitLength = !showVisitLength}" />
+						<mx:CheckBox id="VisitLength" label="Average Visit Length" selected="{showVisitLength}" change="{showVisitLength = !showVisitLength}" />
 					</mx:VBox>
 					<mx:Spacer width="100%" />
 					<mx:Legend id="legend" dataProvider="{Chart}" />

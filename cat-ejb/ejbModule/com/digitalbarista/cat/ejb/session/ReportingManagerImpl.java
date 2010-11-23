@@ -445,7 +445,12 @@ public class ReportingManagerImpl implements ReportingManager
 					
 					if (data.getVisits() > maxCount) maxCount = data.getVisits();
 					if (data.getNewVisits() > maxCount) maxCount = data.getNewVisits();
-					if (data.getTimeOnSite() > maxCount) maxCount = data.getTimeOnSite();
+				}
+				
+				// Need to loop through again to average time on site values
+				for (AnalyticsData a : dataMap.values())
+				{
+					a.setTimeOnSite(a.getTimeOnSite() / a.getVisits());
 				}
 			}
 		}

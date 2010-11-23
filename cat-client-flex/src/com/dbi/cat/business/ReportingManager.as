@@ -89,10 +89,13 @@ package com.dbi.cat.business
 			
 			// Go through every day in range
 			var time:Number = start.time;
+			var previous:Object = null;
+			var previousDate:Date = null;
 			while (time < end.time)
 			{
 				var d:Date = new Date(time);
 				var existing:Object = dateMap[d.fullYear + "-" + d.month + "-" + d.date];
+				
 				
 				if (existing != null)
 				{
@@ -101,13 +104,15 @@ package com.dbi.cat.business
 				else
 				{
 					var empty:Object = new type();
-					empty.date = d;
+					empty.date = existing == null ? d : previousDate;
 					empty.count = 0;
 					if (dateData.length > 0)
 						empty.total = dateData.getItemAt(0).total;
 					ret.addItem(empty);
 				}
 				
+				previous = ret.getItemAt(ret.length - 1);
+				previousDate = d;
 				time += 24*60*60*1000;
 			}
 			

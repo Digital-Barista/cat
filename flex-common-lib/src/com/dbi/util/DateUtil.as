@@ -82,7 +82,8 @@ package com.dbi.util
 				ret += hours + ":";
 			}
 			
-			if (minutes < 10)
+			if (hours > 0 &&
+				minutes < 10)
 			{
 				ret += "0";
 			}
