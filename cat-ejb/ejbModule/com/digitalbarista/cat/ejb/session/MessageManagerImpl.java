@@ -40,6 +40,7 @@ import com.digitalbarista.cat.data.EntryPointType;
 public class MessageManagerImpl implements MessageManager {
 
 	public static final String CONTINUED_INDICATOR = "\n(...)";
+	public static final String MESSAGE_SPLIT_INDICATOR = "<br>";
 	
 	@Resource
 	private SessionContext ctx; 
@@ -189,12 +190,20 @@ public class MessageManagerImpl implements MessageManager {
 				
 				while (temp.length() + continuedIndicator.length() > maxCharacters)
 				{
-					// Break the message at the earliest space
-					Integer endIndex = maxCharacters - continuedIndicator.length();
-					while (endIndex > 0 &&
-							!temp.substring(endIndex, endIndex + 1).matches("\\s") )
-							endIndex--;
-						  
+					// Look for a split message indicator within range first
+					Integer endIndex = temp.indexOf(MESSAGE_SPLIT_INDICATOR);
+					if (endIndex < 0 ||
+						endIndex > maxCharacters - continuedIndicator.length())
+					{
+						// Break the message at the earliest space
+						endIndex = maxCharacters - continuedIndicator.length();
+						while (endIndex > 0 &&
+								!temp.substring(endIndex, endIndex + 1).matches("\\s"))
+						{
+								endIndex--;
+						}
+					}
+					
 					// If a space is never found break the message at the max length
 					if (endIndex <= 0)
 						endIndex = maxCharacters - continuedIndicator.length();
@@ -203,10 +212,12 @@ public class MessageManagerImpl implements MessageManager {
 					messages.add(part);
 					temp = temp.substring(endIndex);
 					
-					// Left trim whitespace
-					String whitespaceExpression = "^\\s+";
+					// Left trim whitespace and force message split indicator
+					String whitespaceExpression = "^(\\s+|" + MESSAGE_SPLIT_INDICATOR + ")";
 					if (temp.length() > 0)
+					{
 						temp = temp.replaceAll(whitespaceExpression, "");
+					}
 					
 					// Increment count
 					messageCount++;
