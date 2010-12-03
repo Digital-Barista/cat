@@ -370,12 +370,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			sub.setAddress(twitterID);
 			em.persist(sub);
 		} else {
-			crit = session.createCriteria(BlacklistDO.class);
-			crit.add(Restrictions.eq("address", accountName));
-			crit.add(Restrictions.eq("entryPointType", EntryPointType.Twitter));
-			BlacklistDO bl = (BlacklistDO)crit.uniqueResult();
-			if(bl!=null)
-				em.remove(bl);
+			unBlacklistAddressForEntryPoint(twitterID, EntryPointType.Twitter, accountName);
 		}
 		
 		EntryPointDefinition epd = clientManager.getEntryPointDefinition(EntryPointType.Twitter,accountName);
@@ -413,16 +408,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
 	@Override
 	public void removeTwitterFollower(String twitterID, String accountName) {
-		Criteria crit = session.createCriteria(SubscriberDO.class);
-		crit.add(Restrictions.eq("twitterID",twitterID));
-		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
-		if(sub!=null)
-		{
-			BlacklistDO bl = new BlacklistDO();
-			bl.setAddress(accountName);
-			bl.setEntryPointType(EntryPointType.Twitter);
-			em.persist(sub);
-		}
+		blacklistAddressForEntryPoint(twitterID, EntryPointType.Twitter, accountName);
 	}
 	
 	@Override
@@ -437,12 +423,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			sub.setAddress(facebookID);
 			em.persist(sub);
 		} else {
-			crit = session.createCriteria(BlacklistDO.class);
-			crit.add(Restrictions.eq("address", accountName));
-			crit.add(Restrictions.eq("entryPointType", EntryPointType.Facebook));
-			BlacklistDO bl = (BlacklistDO)crit.uniqueResult();
-			if(bl!=null)
-				em.remove(bl);
+			unBlacklistAddressForEntryPoint(facebookID, EntryPointType.Facebook, accountName);
 		}
 		
 		EntryPointDefinition epd = clientManager.getEntryPointDefinition(EntryPointType.Facebook,accountName);
@@ -480,17 +461,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
 	@Override
 	public void removeFacebookFollower(String facebookID, String accountName) {
-		Criteria crit = session.createCriteria(SubscriberDO.class);
-		crit.add(Restrictions.eq("type",EntryPointType.Facebook));
-		crit.add(Restrictions.eq("address",facebookID));
-		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
-		if(sub!=null)
-		{
-			BlacklistDO bl = new BlacklistDO();
-			bl.setAddress(accountName);
-			bl.setEntryPointType(EntryPointType.Facebook);
-			em.persist(sub);
-		}
+		blacklistAddressForEntryPoint(facebookID, EntryPointType.Facebook, accountName);
 	}
 
 	@SuppressWarnings("unchecked")
