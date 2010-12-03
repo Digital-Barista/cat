@@ -42,8 +42,8 @@ public interface FacebookManager
 	@Path("/messages/authorize/{facebookAppId}/{uid}")
 	void userAuthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
 	
-	@DELETE
-	@Path("/messages/authorize/{facebookAppId}/{uid}")
+	@GET
+	@Path("/messages/deauthorize/{facebookAppId}/{uid}")
 	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
 
 	void updateMessageCounter(String appId, String uid);

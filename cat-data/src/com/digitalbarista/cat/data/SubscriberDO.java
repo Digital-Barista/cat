@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,21 +24,14 @@ import javax.persistence.Table;
 @Entity
 @Table(name="subscribers")
 @NamedQueries({
-	@NamedQuery(name="subscriber.by.email",query="select s from SubscriberDO s where s.email=:endpoint"),
-	@NamedQuery(name="subscriber.by.phone",query="select s from SubscriberDO s where s.phoneNumber=:endpoint"),
-	@NamedQuery(name="subscriber.by.twitter",query="select s from SubscriberDO s where s.twitterUsername=:endpoint"),
-	@NamedQuery(name="subscriber.by.facebook",query="select s from SubscriberDO s where s.facebookID=:endpoint"),
+	@NamedQuery(name="subscriber.by.address",query="select s from SubscriberDO s where s.address=:endpoint and s.type=:type"),
 	@NamedQuery(name="all.subscribers.on.node",query="select s from CampaignSubscriberLinkDO l join l.subscriber s join l.lastHitNode n where n.UID=:nodeUID")
 })
 public class SubscriberDO implements Serializable,DataObject {
 
 	private Long primaryKey;
-	private String email;
-	private String phoneNumber;
-	private String twitterUsername;
-	private String twitterID;
-	private String facebookID;
-	private static final long serialVersionUID = 1L;
+	private EntryPointType type;
+	private String address;
 	private Map<CampaignDO,CampaignSubscriberLinkDO> subscriptions = new HashMap<CampaignDO,CampaignSubscriberLinkDO>();
 
 	public SubscriberDO() {
@@ -54,22 +49,23 @@ public class SubscriberDO implements Serializable,DataObject {
 		this.primaryKey = primaryKey;
 	}   
 
-	@Column(name="email")
-	public String getEmail() {
-		return this.email;
+	@Column(name="subscriber_type")
+	@Enumerated(EnumType.STRING)
+	public EntryPointType getType() {
+		return this.type;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setType(EntryPointType type) {
+		this.type = type;
 	}   
 	
-	@Column(name="phone_number")
-	public String getPhoneNumber() {
-		return this.phoneNumber;
+	@Column(name="address")
+	public String getAddress() {
+		return this.address;
 	}
 
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	@OneToMany(mappedBy="subscriber",targetEntity=CampaignSubscriberLinkDO.class)
@@ -81,33 +77,4 @@ public class SubscriberDO implements Serializable,DataObject {
 	public void setSubscriptions(Map<CampaignDO,CampaignSubscriberLinkDO> subscriptions) {
 		this.subscriptions = subscriptions;
 	}
-
-	@Column(name="twitter_name")
-	public String getTwitterUsername() {
-		return twitterUsername;
-	}
-
-	public void setTwitterUsername(String twitterUsername) {
-		this.twitterUsername = twitterUsername;
-	}
-
-	@Column(name="twitter_id")
-	public String getTwitterID() {
-		return twitterID;
-	}
-
-	public void setTwitterID(String twitterID) {
-		this.twitterID = twitterID;
-	}
-
-
-	@Column(name="facebook_id")
-	public String getFacebookID() {
-		return facebookID;
-	}
-
-	public void setFacebookID(String facebookID) {
-		this.facebookID = facebookID;
-	}
- 
 }

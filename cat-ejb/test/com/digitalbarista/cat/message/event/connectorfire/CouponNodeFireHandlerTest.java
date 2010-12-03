@@ -96,7 +96,7 @@ public class CouponNodeFireHandlerTest extends EasyMockSupport{
 		
 		EasyMock.expect(cMan.getSimpleNode(dest.getUid())).andStubReturn(destDO);
 		EasyMock.expect(em.find(EasyMock.eq(CouponOfferDO.class), EasyMock.eq(new Long(2)))).andStubReturn(couponDO);
-		EasyMock.expect(sMan.isSubscriberBlacklisted(1l, "555-1212", EntryPointType.SMS)).andStubReturn(false);
+//		EasyMock.expect(sMan.isSubscriberBlacklisted(1l, "555-1212", EntryPointType.SMS)).andStubReturn(false);
 		EasyMock.expect(em.find(CouponCounterDO.class, 6)).andStubReturn(cc);
 		em.lock(cc,LockModeType.READ);
 		em.persist(matchCoupon());

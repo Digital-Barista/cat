@@ -4,7 +4,6 @@
 		<jta-data-source>java:/jdbc/campaignAdminDS</jta-data-source>
 		<class>com.digitalbarista.cat.data.UserDO</class>
 		<class>com.digitalbarista.cat.data.SubscriberDO</class>
-		<class>com.digitalbarista.cat.data.SubscriberBlacklistDO</class>
 		<class>com.digitalbarista.cat.data.ScheduledTaskDO</class>
 		<class>com.digitalbarista.cat.data.RoleDO</class>
 		<class>com.digitalbarista.cat.data.ReservedKeywordDO</class>

@@ -1,13 +1,10 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -31,7 +28,6 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
-import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.EntryPointDefinition;
@@ -47,7 +43,6 @@ import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeType;
-import com.digitalbarista.cat.data.SubscriberBlacklistDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.util.PagedList;
@@ -106,30 +101,9 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		
 		for(SubscriberDO sub : (List<SubscriberDO>)q.getResultList())
 		{
-			if (type == EntryPointType.Email)
-			{
-				if (sub.getEmail() != null &&
-					sub.getEmail().length() > 0)
-					ret.add(sub.getEmail());
-			}
-			else if (type == EntryPointType.SMS)
-			{
-				if (sub.getPhoneNumber() != null &&
-					sub.getPhoneNumber().length() > 0)
-					ret.add(sub.getPhoneNumber());
-			}
-			else if (type == EntryPointType.Twitter)
-			{
-				if (sub.getTwitterUsername() != null &&
-					sub.getTwitterUsername().length() > 0)
-					ret.add(sub.getTwitterUsername());
-			}
-			else if (type == EntryPointType.Facebook)
-			{
-				if (sub.getFacebookID() != null &&
-					sub.getFacebookID().length() > 0)
-					ret.add(sub.getFacebookID());
-			}
+			if (sub.getAddress() != null &&
+				sub.getAddress().length() > 0)
+				ret.add(sub.getAddress());
 		}
 		return ret;
 	}
@@ -175,29 +149,22 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		}
 		
 		//Double-check blacklist and remove blacklisted addresses
-		Criteria blacklistCrit = session.createCriteria(SubscriberBlacklistDO.class);
-		blacklistCrit.add(Restrictions.eq("type", subscriptionType));
+		Criteria blacklistCrit = session.createCriteria(BlacklistDO.class);
+		blacklistCrit.add(Restrictions.eq("entryPointType", subscriptionType));
 		blacklistCrit.add(Restrictions.eq("incomingAddress", ((EntryNode)entryNode).getEntryData().get(entryPointIndex).getEntryPoint()));
-		blacklistCrit.createAlias("subscriber", "sub");
-		if(subscriptionType.equals(EntryPointType.Email))
-			blacklistCrit.add(Restrictions.in("sub.email",addresses));
-		else if(subscriptionType.equals(EntryPointType.SMS))
-			blacklistCrit.add(Restrictions.in("sub.phoneNumber", addresses));
-		else if(subscriptionType.equals(EntryPointType.Twitter))
-			blacklistCrit.add(Restrictions.in("sub.twitterUsername", addresses));
-		else if(subscriptionType.equals(EntryPointType.Facebook))
-			blacklistCrit.add(Restrictions.in("sub.facebookID", addresses));
-		List<SubscriberBlacklistDO> blacklisted = blacklistCrit.list();
-		for(SubscriberBlacklistDO subToRemove : blacklisted)
+		List<BlacklistDO> blacklisted = blacklistCrit.list();
+		for(BlacklistDO subToRemove : blacklisted)
 		{
-			if(subscriptionType.equals(EntryPointType.Email))
-				addresses.remove(subToRemove.getSubscriber().getEmail());
-			else if(subscriptionType.equals(EntryPointType.SMS))
-				addresses.remove(subToRemove.getSubscriber().getPhoneNumber());
-			else if(subscriptionType.equals(EntryPointType.Twitter))
-				addresses.remove(subToRemove.getSubscriber().getTwitterUsername());
-			else if(subscriptionType.equals(EntryPointType.Facebook))
-				addresses.remove(subToRemove.getSubscriber().getFacebookID());
+			addresses.remove(subToRemove.getAddress());
+		}
+		
+		blacklistCrit = session.createCriteria(BlacklistDO.class);
+		blacklistCrit.add(Restrictions.eq("entryPointType", subscriptionType));
+		blacklistCrit.add(Restrictions.eq("client.id", nodeDO.getCampaign().getClient().getPrimaryKey()));
+		blacklisted = blacklistCrit.list();
+		for(BlacklistDO subToRemove : blacklisted)
+		{
+			addresses.remove(subToRemove.getAddress());
 		}
 		
 		if(addresses.size()==0)
@@ -205,28 +172,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		
 		//Now that we've removed blacklisted addresses, get all the subscribers that match the list.
 		Disjunction dj = Restrictions.disjunction();
-		switch(subscriptionType)
-		{
-			case Email:
-				crit.add(Restrictions.in("email", addresses));
-				break;
-				
-			case SMS:
-				crit.add(Restrictions.in("phoneNumber", addresses));
-				break;
-				
-			case Twitter:
-				dj.add(Restrictions.in("twitterUsername", addresses));
-				dj.add(Restrictions.in("twitterID", addresses));
-				crit.add(dj);
-				break;
-				
-			case Facebook:
-				dj.add(Restrictions.in("facebookID", addresses));
-				crit.add(dj);
-				break;
-		}
-		
+		crit.add(Restrictions.eq("type", subscriptionType));
+		crit.add(Restrictions.in("address", addresses));
 		Set<SubscriberDO> subscribers = new HashSet<SubscriberDO>(crit.list());
 		
 		//So . . . this looks odd, but . . . we have CURRENT subscribers . . . 
@@ -235,25 +182,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		//  from scratch.
 		for(SubscriberDO sub : subscribers)
 		{
-			switch(subscriptionType)
-			{
-				case Email:
-					addresses.remove(sub.getEmail());
-					break;
-					
-				case SMS:
-					addresses.remove(sub.getPhoneNumber());
-					break;
-					
-				case Twitter:
-					addresses.remove(sub.getTwitterUsername());
-					addresses.remove(sub.getTwitterID());
-					break;
-					
-				case Facebook:
-					addresses.remove(sub.getFacebookID());
-					break;
-			}
+			addresses.remove(sub.getAddress());
 		}
 		
 		//And of course anything left is a NEW subscriber that needs to be created.
@@ -261,24 +190,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		for(String address : addresses)
 		{
 			subTemp = new SubscriberDO();
-			switch(subscriptionType)
-			{
-				case Email:
-					subTemp.setEmail(address);
-					break;
-					
-				case SMS:
-					subTemp.setPhoneNumber(address);
-					break;
-					
-				case Twitter:
-					subTemp.setTwitterUsername(address);
-					break;
-					
-				case Facebook:
-					subTemp.setFacebookID(address);
-					break;
-			}
+			subTemp.setType(subscriptionType);
+			subTemp.setAddress(address);
 			em.persist(subTemp);
 			subscribers.add(subTemp);
 		}
@@ -426,30 +339,41 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	}
 	
 	@Override
-	public boolean isSubscriberBlacklisted(Long subscriberId, String entryPoint, EntryPointType type) {
-		Criteria crit = session.createCriteria(SubscriberBlacklistDO.class);
-		crit.add(Restrictions.eq("subscriber.id", subscriberId));
-		crit.add(Restrictions.eq("incomingAddress", entryPoint));
-		crit.add(Restrictions.eq("type", type));
-		return crit.uniqueResult()!=null;
+	public boolean isSubscriberBlacklisted(String address, EntryPointType type, String incomingAddress, Long clientID)
+	{
+		Criteria crit = session.createCriteria(BlacklistDO.class);
+		crit.add(Restrictions.eq("address", address));
+		crit.add(Restrictions.eq("entryPointType", type));
+		List<BlacklistDO> entries = crit.list();
+		for(BlacklistDO entry : entries)
+		{
+			if(entry.getIncomingAddress()==null && entry.getClient()==null)
+				return true;
+			if(incomingAddress.equals(entry.getIncomingAddress()))
+				return true;
+			if(entry.getClient()!=null && clientID.equals(entry.getClient().getPrimaryKey()))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
 	public void registerTwitterFollower(String twitterID, String accountName) {
 		Criteria crit = session.createCriteria(SubscriberDO.class);
-		crit.add(Restrictions.eq("twitterID",twitterID));
+		crit.add(Restrictions.eq("type",EntryPointType.Twitter));
+		crit.add(Restrictions.eq("address",twitterID));
 		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
 		if(sub==null)
 		{
 			sub = new SubscriberDO();
-			sub.setTwitterID(twitterID);
+			sub.setType(EntryPointType.Twitter);
+			sub.setAddress(twitterID);
 			em.persist(sub);
 		} else {
-			crit = session.createCriteria(SubscriberBlacklistDO.class);
-			crit.add(Restrictions.eq("subscriber.id", sub.getPrimaryKey()));
-			crit.add(Restrictions.eq("incomingAddress", accountName));
-			crit.add(Restrictions.eq("type", EntryPointType.Twitter));
-			SubscriberBlacklistDO bl = (SubscriberBlacklistDO)crit.uniqueResult();
+			crit = session.createCriteria(BlacklistDO.class);
+			crit.add(Restrictions.eq("address", accountName));
+			crit.add(Restrictions.eq("entryPointType", EntryPointType.Twitter));
+			BlacklistDO bl = (BlacklistDO)crit.uniqueResult();
 			if(bl!=null)
 				em.remove(bl);
 		}
@@ -494,10 +418,9 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
 		if(sub!=null)
 		{
-			SubscriberBlacklistDO bl = new SubscriberBlacklistDO();
-			bl.setIncomingAddress(accountName);
-			bl.setType(EntryPointType.Twitter);
-			bl.setSubscriber(sub);
+			BlacklistDO bl = new BlacklistDO();
+			bl.setAddress(accountName);
+			bl.setEntryPointType(EntryPointType.Twitter);
 			em.persist(sub);
 		}
 	}
@@ -510,14 +433,14 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		if(sub==null)
 		{
 			sub = new SubscriberDO();
-			sub.setFacebookID(facebookID);
+			sub.setType(EntryPointType.Facebook);
+			sub.setAddress(facebookID);
 			em.persist(sub);
 		} else {
-			crit = session.createCriteria(SubscriberBlacklistDO.class);
-			crit.add(Restrictions.eq("subscriber.id", sub.getPrimaryKey()));
-			crit.add(Restrictions.eq("incomingAddress", accountName));
-			crit.add(Restrictions.eq("type", EntryPointType.Facebook));
-			SubscriberBlacklistDO bl = (SubscriberBlacklistDO)crit.uniqueResult();
+			crit = session.createCriteria(BlacklistDO.class);
+			crit.add(Restrictions.eq("address", accountName));
+			crit.add(Restrictions.eq("entryPointType", EntryPointType.Facebook));
+			BlacklistDO bl = (BlacklistDO)crit.uniqueResult();
 			if(bl!=null)
 				em.remove(bl);
 		}
@@ -558,14 +481,14 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	@Override
 	public void removeFacebookFollower(String facebookID, String accountName) {
 		Criteria crit = session.createCriteria(SubscriberDO.class);
-		crit.add(Restrictions.eq("facebookID",facebookID));
+		crit.add(Restrictions.eq("type",EntryPointType.Facebook));
+		crit.add(Restrictions.eq("address",facebookID));
 		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
 		if(sub!=null)
 		{
-			SubscriberBlacklistDO bl = new SubscriberBlacklistDO();
-			bl.setIncomingAddress(accountName);
-			bl.setType(EntryPointType.Facebook);
-			bl.setSubscriber(sub);
+			BlacklistDO bl = new BlacklistDO();
+			bl.setAddress(accountName);
+			bl.setEntryPointType(EntryPointType.Facebook);
 			em.persist(sub);
 		}
 	}
@@ -577,76 +500,157 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	 * be existing contacts, only the address and type will be used
 	 * add to the blacklist.
 	 */
-	public void blacklistAddresses(List<Contact> contacts) 
+	public void blacklistContacts(List<Contact> contacts) 
 	{
-		// List of addresses indexed by type
-		Map<EntryPointType, List<String>> contactTypes = new HashMap<EntryPointType, List<String>>();
-		
 		for (Contact c : contacts)
 		{
-			if (contactTypes.get(c.getType()) == null)
-				contactTypes.put(c.getType(), new ArrayList<String>());
-			contactTypes.get(c.getType()).add(c.getAddress());
-		}
-		
-		// Search for each address and type
-		for (EntryPointType type : contactTypes.keySet())
-		{
-			List<String> addresses = contactTypes.get(type);
-			
+			if(c.getClientId()==null && !ctx.isCallerInRole("admin"))
+				throw new SecurityException("Only admins may place or lift a blanket blacklist!  (address:"+c.getAddress()+", type:"+c.getType()+")");
+
 			// Create query
 			Criteria crit = session.createCriteria(BlacklistDO.class);
-			crit.add(Restrictions.in("address", addresses));
-			crit.add(Restrictions.eq("entryPointType", type));
+			crit.add(Restrictions.eq("address", c.getAddress()));
+			crit.add(Restrictions.eq("entryPointType", c.getType()));
+			crit.add(Restrictions.eq("client.id",c.getClientId()));
 			
-			// Filter out addresses already blacklisted
-			List<String> newAddresses = new ArrayList<String>(addresses);
-			for (BlacklistDO blacklist : (List<BlacklistDO>)crit.list())
-			{
-				if (newAddresses.contains(blacklist.getAddress()))
-						newAddresses.remove(blacklist.getAddress());
-			}
-			
-			// Create new blacklist records
-			for (String address : newAddresses)
+			List<BlacklistDO> blacklistEntries = (List<BlacklistDO>)crit.list();
+			if(blacklistEntries == null || blacklistEntries.size()==0)
 			{
 				BlacklistDO blacklist = new BlacklistDO();
-				blacklist.setEntryPointType(type);
-				blacklist.setAddress(address);
+				blacklist.setEntryPointType(c.getType());
+				blacklist.setAddress(c.getAddress());
+				blacklist.setClient(em.find(ClientDO.class, c.getClientId()));
 				em.persist(blacklist);
+
+				for(CampaignSubscriberLinkDO link : findSubscriptionsByClient(c.getAddress(),c.getType(),c.getClientId()))
+				{
+					link.setActive(false);
+				}
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void unBlacklistAddresses(List<Contact> contacts)
+	public void unBlacklistContacts(List<Contact> contacts)
 	{
-		// List of addresses indexed by type
-		Map<EntryPointType, List<String>> contactTypes = new HashMap<EntryPointType, List<String>>();
-		
 		for (Contact c : contacts)
 		{
-			if (contactTypes.get(c.getType()) == null)
-				contactTypes.put(c.getType(), new ArrayList<String>());
-			contactTypes.get(c.getType()).add(c.getAddress());
-		}
-		
-		// Search for each address and type
-		for (EntryPointType type : contactTypes.keySet())
-		{
-			List<String> addresses = contactTypes.get(type);
-			
-			// Create query
+			if(c.getClientId()==null && !ctx.isCallerInRole("admin"))
+				throw new SecurityException("Only admins may place or lift a blanket blacklist!  (address:"+c.getAddress()+", type:"+c.getType()+")");
 			Criteria crit = session.createCriteria(BlacklistDO.class);
-			crit.add(Restrictions.in("address", addresses));
-			crit.add(Restrictions.eq("entryPointType", type));
-			
+			crit.add(Restrictions.eq("address", c.getAddress()));
+			crit.add(Restrictions.eq("entryPointType", c.getType()));
+		
 			// Filter out addresses already blacklisted
 			for (BlacklistDO blacklist : (List<BlacklistDO>)crit.list())
 			{
 				em.remove(blacklist);
 			}
+			
+			for(CampaignSubscriberLinkDO link : findSubscriptionsByClient(c.getAddress(),c.getType(),c.getClientId()))
+			{
+				link.setActive(true);
+				eventManager.queueEvent(CATEvent.buildNodeOperationCompletedEvent(link.getLastHitNode().getUID(), ""+link.getSubscriber().getPrimaryKey()));
+			}
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	private List<CampaignSubscriberLinkDO> findSubscriptionsByClient(String address, EntryPointType type, Long clientId)
+	{
+		Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
+		crit.createAlias("subscriber","sub");
+		crit.createAlias("campaign","camp");
+		crit.add(Restrictions.eq("sub.address",address));
+		crit.add(Restrictions.eq("sub.type",type));
+		crit.add(Restrictions.eq("camp.client.id",clientId));
+		
+		return (List<CampaignSubscriberLinkDO>)crit.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<CampaignSubscriberLinkDO> findSubscriptionsByEntryPoint(String address, EntryPointType type, String incomingAddress)
+	{
+		String query = "select distinct ep.campaign " +
+		"from CampaignEntryPointDO ep " +
+		"where ep.entryPoint=:entryPoint " +
+		"and ep.type=:type " +
+		"and ep.published=:published";
+		Query q = em.createQuery(query);
+		q.setParameter("entryPoint", incomingAddress);
+		q.setParameter("type", type);
+		q.setParameter("published", true);
+		
+		List<CampaignDO> campaigns = (List<CampaignDO>)q.getResultList();
+		
+		Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
+		crit.createAlias("subscriber","sub");
+		crit.add(Restrictions.eq("sub.address",address));
+		crit.add(Restrictions.eq("sub.type", type));
+		crit.add(Restrictions.in("campaign", campaigns));
+		
+		return (List<CampaignSubscriberLinkDO>)crit.list();
+	}
+
+	@Override
+	public void blacklistAddressForEntryPoint(String address,
+			EntryPointType type, String incomingAddress) {
+		
+		if(incomingAddress==null && !ctx.isCallerInRole("admin"))
+			throw new SecurityException("Only admins may place or lift a blanket blacklist!  (address:"+address+", type:"+type+")");
+		
+		Criteria crit = session.createCriteria(BlacklistDO.class);
+		crit.add(Restrictions.eq("address", address));
+		crit.add(Restrictions.eq("entryPointType", type));
+		crit.add(Restrictions.eq("incomingAddress", incomingAddress));
+
+		List<BlacklistDO> blacklistEntries = (List<BlacklistDO>)crit.list();
+		if(blacklistEntries == null || blacklistEntries.size()==0)
+		{
+			BlacklistDO blacklist = new BlacklistDO();
+			blacklist.setEntryPointType(type);
+			blacklist.setAddress(address);
+			blacklist.setIncomingAddress(incomingAddress);
+			em.persist(blacklist);
+
+			for(CampaignSubscriberLinkDO link : findSubscriptionsByEntryPoint(address,type,incomingAddress))
+			{
+				link.setActive(false);
+			}
+		}
+		
+	}
+
+	@Override
+	public void unBlacklistAddressForEntryPoint(String address,
+			EntryPointType type, String incomingAddress) {
+
+		if(incomingAddress==null && !ctx.isCallerInRole("admin"))
+			throw new SecurityException("Only admins may place or lift a blanket blacklist!  (address:"+address+", type:"+type+")");
+		
+		Criteria crit = session.createCriteria(BlacklistDO.class);
+		crit.add(Restrictions.eq("address", address));
+		crit.add(Restrictions.eq("entryPointType", type));
+
+		List<BlacklistDO> bList = (List<BlacklistDO>)crit.list();
+		Set<Long> clientIDs = new HashSet<Long>();
+		// Filter out addresses already blacklisted
+		for (BlacklistDO blacklist : bList)
+		{
+			if(blacklist.getIncomingAddress().equals(incomingAddress))
+				em.remove(blacklist);
+			if(blacklist.getClient()!=null)
+				clientIDs.add(blacklist.getClient().getPrimaryKey());
+		}
+		
+		for(CampaignSubscriberLinkDO link : findSubscriptionsByEntryPoint(address, type, incomingAddress))
+		{
+			//Don't reactivate if the CLIENT is still blacklisted.
+			if(!clientIDs.contains(link.getCampaign().getClient().getPrimaryKey()))
+				link.setActive(true);
+		}
+	}
+	
+	
 }

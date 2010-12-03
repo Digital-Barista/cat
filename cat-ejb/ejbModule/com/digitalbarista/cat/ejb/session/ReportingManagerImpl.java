@@ -167,7 +167,7 @@ public class ReportingManagerImpl implements ReportingManager
 			
 			// Get campaign count
 			Criteria crit = session.createCriteria(CampaignDO.class);
-			crit.add(Restrictions.in("client.primaryKey", allowedClientIDs));
+			crit.add(Restrictions.in("client.id", allowedClientIDs));
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
 			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.setProjection(Projections.rowCount());

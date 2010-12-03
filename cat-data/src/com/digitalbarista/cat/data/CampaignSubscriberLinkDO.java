@@ -36,6 +36,7 @@ public class CampaignSubscriberLinkDO implements Serializable {
 	private NodeDO lastHitNode;
 	private String lastHitEntryPoint;
 	private EntryPointType lastHitEntryType;
+	private boolean active=true;
 	private static final long serialVersionUID = 1L;
 
 	public CampaignSubscriberLinkDO() {
@@ -100,6 +101,15 @@ public class CampaignSubscriberLinkDO implements Serializable {
 
 	public void setLastHitEntryType(EntryPointType lastHitEntryType) {
 		this.lastHitEntryType = lastHitEntryType;
+	}
+
+	@Column(name="active")
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
    
 }

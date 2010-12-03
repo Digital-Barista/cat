@@ -24,6 +24,7 @@ import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
+import com.digitalbarista.cat.data.BlacklistDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
@@ -32,7 +33,6 @@ import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.GlobalUnsubscribeKeywords;
 import com.digitalbarista.cat.data.NodeType;
-import com.digitalbarista.cat.data.SubscriberBlacklistDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
@@ -44,13 +44,9 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 	Logger log = LogManager.getLogger(getClass());
 	
 	IncomingMessageEventHandler(EntityManager em, 
-			SessionContext ctx, 
-			EventManager emi, 
-			CampaignManager cmi,
-			ContactManager contactMan,
-			EventTimerManager timer)
+			SessionContext ctx)
 	{
-		super(em,ctx,emi,cmi,contactMan,timer);
+		super(em,ctx);
 	}
 	
 	@Override
@@ -102,22 +98,23 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		}
 
 		//Query our subscriber by the return address that was sent to us.
+		q = getEntityManager().createNamedQuery("subscriber.by.address");
 		switch(e.getSourceType())
 		{
 			case EmailEndpoint:
-				q=getEntityManager().createNamedQuery("subscriber.by.email");
+				q.setParameter("type", EntryPointType.Email);
 				break;
 				
 			case SMSEndpoint:
-				q=getEntityManager().createNamedQuery("subscriber.by.phone");
+				q.setParameter("type", EntryPointType.SMS);
 				break;
 			
 			case TwitterEndpoint:
-				q=getEntityManager().createNamedQuery("subscriber.by.twitter");
+				q.setParameter("type", EntryPointType.Twitter);
 				break;
 				
 			case FacebookEndpoint:
-				q=getEntityManager().createNamedQuery("subscriber.by.facebook");
+				q.setParameter("type", EntryPointType.Facebook);
 				break;
 				
 			default:
@@ -138,10 +135,9 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			{
 				Session session = (Session)getEntityManager().getDelegate();
 				Criteria crit = session.createCriteria(SubscriberDO.class);
-				crit.add(Restrictions.eq("twitterID", e.getArgs().get("twitterID")));
+				crit.add(Restrictions.eq("type", EntryPointType.Twitter));
+				crit.add(Restrictions.eq("address", e.getArgs().get("twitterID")));
 				sub = (SubscriberDO)crit.uniqueResult();
-				if(sub!=null && sub.getTwitterUsername()==null)
-					sub.setTwitterUsername(e.getTarget());
 				
 				crit = session.createCriteria(ContactDO.class);
 				crit.add(Restrictions.eq("type", EntryPointType.Twitter));
@@ -155,10 +151,9 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			{
 				Session session = (Session)getEntityManager().getDelegate();
 				Criteria crit = session.createCriteria(SubscriberDO.class);
-				crit.add(Restrictions.eq("facebookID", e.getArgs().get("facebookID")));
+				crit.add(Restrictions.eq("type",EntryPointType.Facebook));
+				crit.add(Restrictions.eq("address", e.getArgs().get("facebookID")));
 				sub = (SubscriberDO)crit.uniqueResult();
-				if(sub!=null && sub.getFacebookID()==null)
-					sub.setFacebookID(e.getTarget());
 				
 				crit = session.createCriteria(ContactDO.class);
 				crit.add(Restrictions.eq("type", EntryPointType.Facebook));
@@ -175,20 +170,23 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			switch(e.getSourceType())
 			{
 				case EmailEndpoint:
-					sub.setEmail(e.getTarget());
+					sub.setType(EntryPointType.Email);
+					sub.setAddress(e.getTarget());
 					break;
 					
 				case SMSEndpoint:
-					sub.setPhoneNumber(e.getTarget());
+					sub.setType(EntryPointType.SMS);
+					sub.setAddress(e.getTarget());
 					break;
 					
 				case TwitterEndpoint:
-					sub.setTwitterUsername(e.getTarget());
-					sub.setTwitterID(e.getArgs().get("twitterID"));
+					sub.setType(EntryPointType.Twitter);
+					sub.setAddress(e.getArgs().get("twitterID"));
 					break;
 					
 				case FacebookEndpoint:
-					sub.setFacebookID(e.getArgs().get("facebookID"));
+					sub.setType(EntryPointType.Facebook);
+					sub.setAddress(e.getArgs().get("facebookID"));
 					break;
 			}
 			getEntityManager().persist(sub);
@@ -237,30 +235,25 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			/*for(CampaignEntryPointDO entry : entries)
 				getEntityManager().remove(sub.getSubscriptions().get(entry.getCampaign()));*/
 			
-			//And we'll create a blacklist entry.
-			SubscriberBlacklistDO newBL = new SubscriberBlacklistDO();
-			newBL.setIncomingAddress(e.getSource());
+			//And we'll blacklist them.
 			switch(e.getSourceType())
 			{
 				case EmailEndpoint:
-					newBL.setType(EntryPointType.Email);
+					getSubscriptionManager().blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Email,e.getSource());
 					break;
 					
 				case SMSEndpoint:
-					newBL.setType(EntryPointType.SMS);
+					getSubscriptionManager().blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.SMS,e.getSource());
 					break;
 					
 				case TwitterEndpoint:
-					newBL.setType(EntryPointType.Twitter);
+					getSubscriptionManager().blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Twitter,e.getSource());
 					break;
 					
 				case FacebookEndpoint:
-					newBL.setType(EntryPointType.Facebook);
+					getSubscriptionManager().blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Facebook,e.getSource());
 					break;
 			}
-			newBL.setSubscriber(sub);
-			getEntityManager().persist(newBL);
-			
 			//And do nothing else.
 			return;
 		}catch(IllegalArgumentException ex){}
@@ -318,6 +311,26 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			}
 		}
 		
+		//Second . . . clear the blacklist.
+		switch(e.getSourceType())
+		{
+			case EmailEndpoint:
+				getSubscriptionManager().unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Email,e.getSource());
+				break;
+				
+			case SMSEndpoint:
+				getSubscriptionManager().unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.SMS,e.getSource());
+				break;
+				
+			case TwitterEndpoint:
+				getSubscriptionManager().unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Twitter,e.getSource());
+				break;
+				
+			case FacebookEndpoint:
+				getSubscriptionManager().unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Facebook,e.getSource());
+				break;
+		}
+		
 		//If they are not subscribed, we check for an entry point.
 		if(!isSubscribed)
 		{
@@ -351,17 +364,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			//First . . . audit the match.
 			auditEntry.setMatchedType(KeywordMatchType.Node);
 			auditEntry.setMatchedUID(en.getUid());
-			auditEntry.setMatchedVersion(camp.getCurrentVersion()-1);
-			
-			//Second . . . clear the blacklist.
-			q = getEntityManager().createNamedQuery("blacklist.entry");
-			q.setParameter("subID", sub.getPrimaryKey());
-			q.setParameter("address", mostLikelyEntry.getEntryPoint());
-			q.setParameter("type", mostLikelyEntry.getType());
-			try
-			{
-				getEntityManager().remove(q.getSingleResult());
-			}catch(NoResultException ex){}
+			auditEntry.setMatchedVersion(camp.getCurrentVersion()-1);			
 			
 			//Now . . . get that guy subscribed.
 			csl = new CampaignSubscriberLinkDO();

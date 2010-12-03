@@ -56,35 +56,14 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 			}
 		}
 		EntryPointType ept = csl.getLastHitEntryType();
-		String address=null;
-		String altID=null;
-		switch(ept)
-		{
-			case Email:
-				address=s.getEmail();
-				break;
-			case SMS:
-				address=s.getPhoneNumber();
-				break;
-			case Twitter:
-				address=s.getTwitterUsername();
-				altID=s.getTwitterID();
-				break;
-			case Facebook:
-				address=s.getFacebookID();
-				break;
-		}
-		if(address!=null)
-			crit.add(Restrictions.eq("address",address));
-		else
-			crit.add(Restrictions.eq("alternateId", altID));
+		crit.add(Restrictions.eq("address",s.getAddress()));
 		crit.add(Restrictions.eq("type", ept));
 		crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
 		con = (ContactDO)crit.uniqueResult();
 		if(con==null)
 		{
 			con=new ContactDO();
-			con.setAddress(address);
+			con.setAddress(s.getAddress());
 			con.setType(ept);
 			con.setCreateDate(Calendar.getInstance());
 			em.persist(con);

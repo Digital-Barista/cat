@@ -9,6 +9,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -31,6 +33,13 @@ public class BlacklistDO implements Serializable,DataObject {
 	
 	@Column(name="address")
 	private String address;
+	
+	@Column(name="incoming_address")
+	private String incomingAddress;
+	
+	@ManyToOne
+	@JoinColumn(name="client_id")
+	private ClientDO client;
 	
 	private static final long serialVersionUID = 1L;
 
@@ -60,6 +69,22 @@ public class BlacklistDO implements Serializable,DataObject {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public String getIncomingAddress() {
+		return incomingAddress;
+	}
+
+	public void setIncomingAddress(String incomingAddress) {
+		this.incomingAddress = incomingAddress;
+	}
+
+	public ClientDO getClient() {
+		return client;
+	}
+
+	public void setClient(ClientDO client) {
+		this.client = client;
 	}   
 	
 	

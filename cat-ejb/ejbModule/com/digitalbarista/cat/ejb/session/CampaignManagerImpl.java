@@ -1442,7 +1442,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	public Map<String, Long> getNodeSubscriberCount(String campaignUUID) {
 		getSimpleCampaign(campaignUUID); // Do nothing with this except invoke security checks.
 		
-		String queryString="select csl.lastHitNode.UID, count(csl.lastHitNode.UID) from CampaignSubscriberLinkDO csl where csl.campaign.UID=:campaignUID group by csl.lastHitNode.UID";
+		String queryString="select csl.lastHitNode.UID, count(csl.lastHitNode.UID) from CampaignSubscriberLinkDO csl where csl.campaign.UID=:campaignUID and csl.active=1 group by csl.lastHitNode.UID";
 		Query q = em.createQuery(queryString);
 		q.setParameter("campaignUID", campaignUUID);
 		List<Object[]> result = q.getResultList();

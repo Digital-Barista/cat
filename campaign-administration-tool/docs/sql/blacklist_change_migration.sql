@@ -1,0 +1,11 @@
+alter table subscribers add (address varchar(64), subscriber_type varchar(16));
+update subscribers set address=email, subscriber_type='Email' where email is not null;
+update subscribers set address=phone_number, subscriber_type='SMS' where phone_number is not null;
+update subscribers set address=twitter_id, subscriber_type='Twitter' where twitter_id is not null;
+update subscribers set address=facebook_id, subscriber_type='Facebook' where facebook_id is not null;
+alter table subscribers drop column email, drop column phone_number, drop column twitter_name, drop column twitter_id, drop column facebook_id, drop column facebook_name;
+alter table subscribers add unique index sub_unq_index (address, subscriber_type);
+alter table campaign_subscriber_link add column active bool default 1;
+drop table subscriber_blacklist;
+alter table blacklist drop index unique_address_type;
+alter table blacklist add (incoming_address varchar(64), client_id bigint);

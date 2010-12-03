@@ -215,11 +215,11 @@
 			method="LoadingMessageView.show"
 			arguments="{['Blacklisting Contact Addresses']}" />
 		<RemoteObjectInvoker destination="subscriptionManager"
-							 method="blacklistAddresses"
+							 method="blacklistContacts"
 							 arguments="{event.contacts}">
 			<resultHandlers>
 				<MethodInvoker generator="{ContactManager}"
-							   method="blacklistAddresses"
+							   method="blacklistContacts"
 							   arguments="{event.contacts}" />
 				<InlineInvoker
 					method="LoadingMessageView.hide" />
@@ -239,11 +239,11 @@
 			method="LoadingMessageView.show"
 			arguments="{['Unblacklisting Contact Addresses']}" />
 		<RemoteObjectInvoker destination="subscriptionManager"
-							 method="unBlacklistAddresses"
+							 method="unBlacklistContacts"
 							 arguments="{event.contacts}">
 			<resultHandlers>
 				<MethodInvoker generator="{ContactManager}"
-							   method="unBlacklistAddresses"
+							   method="unBlacklistContacts"
 							   arguments="{event.contacts}" />
 				<InlineInvoker
 					method="LoadingMessageView.hide" />
