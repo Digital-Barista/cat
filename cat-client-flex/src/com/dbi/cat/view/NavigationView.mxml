@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
 	xmlns:components="com.dbi.cat.view.components.*"
 	xmlns:navigation="com.dbi.cat.view.navigation.*"
 	horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+	verticalAlign="middle"
 	styleName="navBar"> 
 	<mx:Script>
 		<![CDATA[
@@ -17,15 +18,6 @@
         	[Embed("/assets/swf/logout.swf")]
 	        public static const logoutIcon:Class;
         
-			[Bindable]
-			private var selectedViewIndex:Number = 0;
-			public function set selectedView(value:String):void
-			{
-				if (value != null &&
-					navHeader.getChildByName(value) != null)
-					selectedViewIndex = navHeader.getChildIndex(navHeader.getChildByName(value));
-			}
-			
 			private function doLogout():void
 			{
 				CustomMessage.show("Are you sure you want to logout?",
@@ -39,16 +31,11 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:ViewStack id="navHeader"
-		selectedIndex="{selectedViewIndex}"
-		top="0" bottom="0" right="300" left="0">
-		<navigation:DashboardHeader id="Dashboard" />
-		<navigation:CampaignHeader id="Campaigns" />
-		<navigation:ContactsHeader id="Contacts" />
-		<navigation:ReportingHeader id="Reporting" />
-		<navigation:UsersHeader id="Users" />
-		<navigation:ProfileHeader id="Profile" />
-	</mx:ViewStack>
+	<mx:Label text="CAT" styleName="headerTitle"
+			  verticalCenter="0"
+			  left="10" />
+	<navigation:MultiCampaignSelect />
+	<mx:Spacer width="100%" />
 	<mx:Canvas 
 		width="25"
 		height="25"
@@ -60,4 +47,4 @@
 		<mx:SWFLoader source="{logoutIcon}"
 			width="100%" height="100%" />
 	</mx:Canvas>
-</mx:Canvas>
+</mx:HBox>

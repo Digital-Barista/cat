@@ -65,7 +65,8 @@
 			method="addGeneralStatusMessage" 
 			arguments="{ServiceStatusMessage.LOADING_TEMPLATES}" />
 		<RemoteObjectInvoker destination="campaignManager"
-			method="getAllTemplates"
+			method="getCampaignTemplates"
+			arguments="{event.clientIds}"
 			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{CampaignTemplateManager}"

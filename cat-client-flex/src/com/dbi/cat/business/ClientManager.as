@@ -25,6 +25,7 @@ package com.dbi.cat.business
 	{
 		public var clients:ArrayCollection;
 		public var allClients:ArrayCollection; // Includes an "All Clients" option
+		public var filterClients:ArrayCollection; // Globally selected clients to filter by. null == "all"
 		public var clientMap:Object;
 		public var keywords:ArrayCollection;
 		public var entryPointDefinitions:ArrayCollection;
@@ -59,6 +60,12 @@ package com.dbi.cat.business
 			// Set the first client as the current when first loaded
 			if (clients.length > 0)
 				currentClient = clients[0];
+		}
+		
+		public function setFilterClients(clients:ArrayCollection):void
+		{
+			filterClients = null;
+			filterClients = clients;
 		}
 		
 		public function changeClient(client:ClientVO):void

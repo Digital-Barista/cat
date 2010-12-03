@@ -94,53 +94,55 @@ public class ContactManagerImpl implements ContactManager {
 		PagedList<Contact> ret = new PagedList<Contact>();
 		crit = session.createCriteria(ContactDO.class);
 
-		// Limit query by allowed clients if necessary
-    	if(!ctx.isCallerInRole("admin"))
-    	{
-    		crit.add(Restrictions.in("client.primaryKey", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
-				return ret;
-    	}
-    	
-		// Apply search criteria
-    	if (searchCriteria != null)
-    	{
-    		// Filter by client ID
-    		if (searchCriteria.getClientId() != null)
-    			crit.add(Restrictions.eq("client.primaryKey", searchCriteria.getClientId()));
-    		
-    		// Filter by entry point type
-    		if (searchCriteria.getEntryType() != null)
-    			crit.add(Restrictions.eq("type", searchCriteria.getEntryType()));
-    		
-    		// Filter by list of contacts associated with the contact
-    		if (searchCriteria.getContactTags() != null &&
-    			searchCriteria.getContactTags().size() > 0)
-    		{
-    			List<Long> tagIds = new ArrayList<Long>();
-    			for (ContactTag tag : searchCriteria.getContactTags())
-    				tagIds.add(tag.getContactTagId());
-    			crit.createAlias("contactTags", "contactTags");
-    			crit.createAlias("contactTags.tag", "tag");
-    			crit.add(Restrictions.in("tag.contactTagId", tagIds));
-    		}
-    	}
-    	
-    	// Get unpaged total results from criteria
-    	ret.setTotalResultCount(PagingUtil.getTotalResultCount(crit));
-    	
-    	// Apply paging info
-    	PagingUtil.applyPagingInfo(crit, paging);
-    	
-    	// Get only distinct contacts
-    	crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-    	
-    	// Convert data objects to business objects
-		for(ContactDO contact : (List<ContactDO>)crit.list())
+		// Find allowed client IDs to query on
+		List<Long> requestedClientIds = null;
+		if (searchCriteria != null)
 		{
-			Contact c = new Contact();
-			c.copyFrom(contact);
-			ret.getResults().add(c);
+			requestedClientIds = searchCriteria.getClientIds();
+		}
+		List<Long> allowedClientIds = userManager.getAllowedClientIDs(requestedClientIds);
+		
+		
+		if (allowedClientIds.size() > 0)
+		{
+			crit.add(Restrictions.in("client.primaryKey", allowedClientIds));
+    	
+			// Apply search criteria
+	    	if (searchCriteria != null)
+	    	{
+	    		// Filter by entry point type
+	    		if (searchCriteria.getEntryType() != null)
+	    			crit.add(Restrictions.eq("type", searchCriteria.getEntryType()));
+	    		
+	    		// Filter by list of contacts associated with the contact
+	    		if (searchCriteria.getContactTags() != null &&
+	    			searchCriteria.getContactTags().size() > 0)
+	    		{
+	    			List<Long> tagIds = new ArrayList<Long>();
+	    			for (ContactTag tag : searchCriteria.getContactTags())
+	    				tagIds.add(tag.getContactTagId());
+	    			crit.createAlias("contactTags", "contactTags");
+	    			crit.createAlias("contactTags.tag", "tag");
+	    			crit.add(Restrictions.in("tag.contactTagId", tagIds));
+	    		}
+	    	}
+	    	
+	    	// Get unpaged total results from criteria
+	    	ret.setTotalResultCount(PagingUtil.getTotalResultCount(crit));
+	    	
+	    	// Apply paging info
+	    	PagingUtil.applyPagingInfo(crit, paging);
+	    	
+	    	// Get only distinct contacts
+	    	crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+	    	
+	    	// Convert data objects to business objects
+			for(ContactDO contact : (List<ContactDO>)crit.list())
+			{
+				Contact c = new Contact();
+				c.copyFrom(contact);
+				ret.getResults().add(c);
+			}
 		}
 		return ret;
 	}

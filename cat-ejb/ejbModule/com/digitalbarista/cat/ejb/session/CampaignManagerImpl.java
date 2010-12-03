@@ -121,57 +121,68 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@SuppressWarnings("unchecked")
 	@PermitAll
-	public List<Campaign> getAllCampaigns() {
-		List<Campaign> ret = new ArrayList<Campaign>();
-		Campaign c;
-		Criteria crit = session.createCriteria(CampaignDO.class);
-		crit.add(Restrictions.eq("status", CampaignStatus.Active));
-		crit.add(Restrictions.eq("mode", CampaignMode.Normal));
-		
-		if(!ctx.isCallerInRole("admin"))
-		{
-			crit.add(Restrictions.in("client.id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
-				return ret;
-		}
-		
-		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
-		{
-			c = new Campaign();
-			c.copyFrom(cmp);
-			ret.add(c);
-		}
-		
-		return ret;
+	public List<Campaign> getAllCampaigns() 
+	{
+		return getCampaigns(null);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	@PermitAll
-	public List<Campaign> getAllTemplates() {
+	public List<Campaign> getAllTemplates() 
+	{
+		return getCampaignTemplates(null);
+	}
+
+	public List<Campaign> getCampaigns(List<Long> clientIDs)
+	{
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
-		Criteria crit = session.createCriteria(CampaignDO.class);
-		crit.add(Restrictions.eq("status", CampaignStatus.Active));
-		crit.add(Restrictions.eq("mode", CampaignMode.Template));
 		
-		if(!ctx.isCallerInRole("admin"))
-		{
-			crit.add(Restrictions.in("client.id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
-				return ret;
-		}
+		List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
 		
-		for(CampaignDO cmp : (List<CampaignDO>)crit.list())
+		if (allowedClientIDs.size() > 0)
 		{
-			c = new Campaign();
-			c.copyFrom(cmp);
-			ret.add(c);
+			Criteria crit = session.createCriteria(CampaignDO.class);
+			crit.add(Restrictions.eq("status", CampaignStatus.Active));
+			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
+			crit.add(Restrictions.in("client.id", allowedClientIDs));
+			
+			for(CampaignDO cmp : (List<CampaignDO>)crit.list())
+			{
+				c = new Campaign();
+				c.copyFrom(cmp);
+				ret.add(c);
+			}
 		}
 		
 		return ret;
 	}
-
+	
+	public List<Campaign> getCampaignTemplates(List<Long> clientIDs)
+	{
+		List<Campaign> ret = new ArrayList<Campaign>();
+		Campaign c;
+		List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
+		
+		if (allowedClientIDs.size() > 0)
+		{
+			Criteria crit = session.createCriteria(CampaignDO.class);
+			crit.add(Restrictions.eq("status", CampaignStatus.Active));
+			crit.add(Restrictions.eq("mode", CampaignMode.Template));
+			crit.add(Restrictions.in("client.id", allowedClientIDs));
+			
+			for(CampaignDO cmp : (List<CampaignDO>)crit.list())
+			{
+				c = new Campaign();
+				c.copyFrom(cmp);
+				ret.add(c);
+			}
+		}
+		
+		return ret;
+	}
+	
 	@TransactionAttribute(TransactionAttributeType.MANDATORY)
 	@PermitAll
 	public ConnectorDO getSimpleConnector(String connectorUUID)

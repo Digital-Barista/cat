@@ -4,16 +4,25 @@
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.vo.UserVO;
-			import mx.collections.ArrayCollection;
 			import com.dbi.cat.event.UserEvent;
+			import com.dbi.util.ListUtil;
+			
 			import flash.events.MouseEvent;
+			
+			import mx.collections.ArrayCollection;
 			
 			[Bindable]
 			public var userList:ArrayCollection;
 			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
+			
 			private function init():void
 			{
-				refresh();
 			}
 			
 			private function createUser():void
@@ -35,7 +44,9 @@
 			}
 			private function refresh():void
 			{
-				dispatchEvent(new UserEvent(UserEvent.GET_USER_LIST));
+				var event:UserEvent = new UserEvent(UserEvent.GET_USER_LIST);
+				event.clientIds = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(event);
 			}
 		]]>	
 	</mx:Script>

@@ -59,7 +59,8 @@
 			method="addGeneralStatusMessage" 
 			arguments="{ServiceStatusMessage.LOADING_USERS}" />
 		<RemoteObjectInvoker destination="userManager"
-			method="getAllVisibleUsers">
+			method="getVisibleUsers"
+			arguments="{event.clientIds}">
 			<resultHandlers>
 				<MethodInvoker generator="{UserManager}"
 					method="getUserList"

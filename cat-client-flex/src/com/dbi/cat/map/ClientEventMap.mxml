@@ -55,6 +55,11 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CHANGE_FILTER_CLIENTS}">
+		<MethodInvoker generator="{ClientManager}"
+					   method="setFilterClients"
+					   arguments="{event.clients}" />
+	</EventHandlers>
 	<EventHandlers type="{ClientEvent.CHANGE_CLIENT}">
 		<MethodInvoker generator="{ClientManager}"
 			method="changeClient"
@@ -108,9 +113,10 @@
 	<EventHandlers type="{ClientEvent.LIST_KEYWORDS}">
 		<MethodInvoker generator="{AppManager}" 
 			method="addGeneralStatusMessage" 
-			arguments="{ServiceStatusMessage.LOADING_KEYWORDS}" />
+			arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
 		<RemoteObjectInvoker destination="clientManager"
-			method="getAllKeywords">
+			method="getKeywords"
+			arguments="{event.clientIds}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadKeywords"
@@ -118,13 +124,13 @@
 				<MethodInvoker
 					generator="{AppManager}"
 					method="removeGeneralStatusMessage"
-					arguments="{ServiceStatusMessage.LOADING_KEYWORDS}" />
+					arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
 			</resultHandlers>
 			<faultHandlers>
 				<MethodInvoker
 					generator="{AppManager}"
 					method="removeGeneralStatusMessage"
-					arguments="{ServiceStatusMessage.LOADING_KEYWORDS}" />
+					arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
 				<MethodInvoker generator="{AppManager}"
 					method="showFault"
 					arguments="{event.fault}" />
@@ -154,7 +160,8 @@
 			method="addGeneralStatusMessage" 
 			arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
 		<RemoteObjectInvoker destination="clientManager"
-			method="getEntryPointDefinitions">
+			method="getEntryPointDefinitions"
+			arguments="{event.clientIds}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="loadEntryPoints"

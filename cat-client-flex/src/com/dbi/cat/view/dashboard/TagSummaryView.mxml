@@ -4,7 +4,9 @@
 		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.event.ReportingEvent;
+			import com.dbi.util.ListUtil;
 			
 			import mx.collections.ArrayCollection;
 			
@@ -14,15 +16,21 @@
 			[Bindable]
 			public var tagSummaries:ArrayCollection;
 			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
+			
 			private function get selectedClientIds():ArrayCollection
 			{
-				return Client.selectedItem.clientId != null ? new ArrayCollection([Client.selectedItem.clientId]) : null;
+				return ListUtil.getIdList(_filterClients, "clientId");
 			}
 			
 			
 			private function init():void
 			{
-				refresh();
 			}
 			
 			private function refresh():void
@@ -49,14 +57,6 @@
 			</mx:DataGrid>
 		</mx:TitleWindow>
 		<mx:HBox right="5" top="7" verticalAlign="middle">
-			<mx:Label text="Client" />
-			<controls:AdvancedComboBox
-				id="Client"
-				dataProvider="{clients}"
-				bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
-				labelField="name" 
-				width="100%"
-				change="refresh()"  />
 			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
 					  top="3" right="200"
 					  width="25" height="25"

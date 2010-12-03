@@ -172,3 +172,10 @@ RichTextEditor
 {
 	color:#FF0000;
 }
+
+.campaignSelectMenu
+{
+	backgroundColor:#FFFFFF;
+	borderStyle:solid;
+	borderColor:#000000;
+}

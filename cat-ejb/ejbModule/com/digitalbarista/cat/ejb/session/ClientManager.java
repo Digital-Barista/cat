@@ -30,10 +30,13 @@ public interface ClientManager {
     @GET
     @Wrapped(element="Clients")
 	public List<Client> getVisibleClients();
-	@GET
+	
+    @GET
 	@Path("/entryPoints")
 	@Wrapped(element="EntryPoints")
 	public List<EntryPointDefinition> getEntryPointDefinitions();
+	public List<EntryPointDefinition> getEntryPointDefinitions(List<Long> clientIds);
+	
 	@GET
 	@Path("/entryPoints")
 	@Wrapped(element="EntryPoints")
@@ -49,10 +52,13 @@ public interface ClientManager {
 	@DELETE
 	@Path("/keywords")
 	public void delete(Keyword kwd);
+	
 	@Path("/keywords")
 	@GET
 	@Wrapped(element="Keywords")
 	public List<Keyword> getAllKeywords();
+	public List<Keyword> getKeywords(List<Long> clientIds);
+	
 	@Path("/entryPoints/{id}/keywords")
 	@GET
 	@Wrapped(element="Keywords")

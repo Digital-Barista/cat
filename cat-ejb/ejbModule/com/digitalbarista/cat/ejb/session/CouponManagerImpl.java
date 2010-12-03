@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.apache.log4j.LogManager;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.hsqldb.lib.ArrayUtil;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
@@ -124,30 +126,40 @@ public class CouponManagerImpl implements CouponManager {
 
 	@Override
     @RolesAllowed({"client","admin","account.manager"})
-    public List<Coupon> couponSummaryByClient(Long clientID) {
-		List<Coupon> ret = new ArrayList<Coupon>();
-		Criteria crit = session.createCriteria(CouponOfferDO.class);
-		if(clientID!=null)
+    public List<Coupon> couponSummaryByClient(Long clientID) 
+    {
+		List<Long> clientIds = null;
+		
+		if (clientID != null)
 		{
-			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.eq("campaign.client.id", clientID));
-		} else if (!ctx.isCallerInRole("admin"))
-		{
-			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
-				return ret;
+			clientIds = new ArrayList<Long>();
+			clientIds.add(clientID);
 		}
-		Coupon temp;
-		for(CouponOfferDO offer : (List<CouponOfferDO>)crit.list())
+		return getCouponSummaries(clientIds);
+	}
+
+	public List<Coupon> getCouponSummaries(List<Long> clientIDs)
+	{
+		List<Coupon> ret = new ArrayList<Coupon>();
+		List<Long> allowedClientIds = userManager.getAllowedClientIDs(clientIDs);
+		
+		if (allowedClientIds.size() > 0)
 		{
-			temp = new Coupon();
-			temp.copyFrom(offer);
-			ret.add(temp);
+			Criteria crit = session.createCriteria(CouponOfferDO.class);
+			crit.createAlias("campaign", "campaign");
+			crit.add(Restrictions.in("campaign.client.id", allowedClientIds));
+			
+			Coupon temp;
+			for(CouponOfferDO offer : (List<CouponOfferDO>)crit.list())
+			{
+				temp = new Coupon();
+				temp.copyFrom(offer);
+				ret.add(temp);
+			}
 		}
 		return ret;
 	}
-
+	
 	@Override
 	public CodedMessage queryCoupon(String couponCode) {
 		if(couponCode!=null)

@@ -359,31 +359,35 @@ public class UserManagerImpl implements UserManager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllVisibleUsers() {
+	public List<User> getAllVisibleUsers() 
+	{
+		return getVisibleUsers(null);
+	}
+	
+	public List<User> getVisibleUsers(List<Long> clientIds)
+	{
 		Criteria crit = null;
 		List<User> ret = new ArrayList<User>();
-		if(ctx.isCallerInRole("admin"))
+		
+		List<Long> allowedClientIds = getAllowedClientIDs(clientIds);
+		
+		if (allowedClientIds.size() > 0)
 		{
-			crit = session.createCriteria(UserDO.class);
-			crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-		} else {
-			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
-				return ret;
 			crit = session.createCriteria(RoleDO.class);
 			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
-			crit.add(Restrictions.in("refId", clientIDs));
+			crit.add(Restrictions.in("refId", allowedClientIds));
 			crit.createAlias("user", "user");
 			crit.setProjection(Projections.distinct(Projections.groupProperty("user")));
-		}
-
-		User u;
-		List<UserDO> list = (List<UserDO>)crit.list();
-		for(UserDO user : list)
-		{
-			u = new User();
-			u.copyFrom(user);
-			ret.add(u);
+			crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+			
+			User u;
+			List<UserDO> list = (List<UserDO>)crit.list();
+			for(UserDO user : list)
+			{
+				u = new User();
+				u.copyFrom(user);
+				ret.add(u);
+			}
 		}
 		return ret;
 	}
@@ -411,6 +415,45 @@ public class UserManagerImpl implements UserManager {
 		return false;
 	}
 
+	@PermitAll
+	public List<Long> getAllowedClientIDs(List<Long> clientIDs)
+	{
+		// Get client count
+		Set<Long> allowedClientIDs = SecurityUtil.extractClientIds(ctx, this, session,ctx.getCallerPrincipal().getName());
+		
+		// Restrict to given client IDs if given
+		List<Long> filterClientIDs = new ArrayList<Long>();
+		if (clientIDs == null)
+		{
+			filterClientIDs.addAll(allowedClientIDs);
+		}
+		else
+		{
+			for (Long allowedClientId : allowedClientIDs)
+			{
+				for (int i = 0; i < clientIDs.size(); i++)
+				{
+					// Stupid check because Blaze thinks ArrayCollection<Integer> fits 
+					// the List<Long> interface
+					Object number = clientIDs.get(i);
+					Long value;
+					if (number instanceof Integer)
+						value = ((Integer)number).longValue();
+					else
+						value = ((Long)number).longValue();
+					
+					// Add allowed client IDs
+					if (allowedClientId.equals(value) )
+					{
+						filterClientIDs.add(allowedClientId);
+						break;
+					}
+				}
+			}
+		}
+		return filterClientIDs;
+	}
+	
 	private boolean isAdmin(String username)
 	{
 		for(RoleDO role : getSimpleUserByUsername(username).getRoles())

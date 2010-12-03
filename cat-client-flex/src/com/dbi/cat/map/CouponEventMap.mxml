@@ -20,9 +20,9 @@
 			arguments="{ServiceStatusMessage.LOADING_COUPONS}" />
 		<RemoteObjectInvoker 
 			destination="couponManager"
-			method="couponSummaryByClient"
+			method="getCouponSummaries"
 			showBusyCursor="true"
-			arguments="{event.clientId}">
+			arguments="{event.clientIds}">
 			<resultHandlers>
 				<MethodInvoker generator="{CouponManager}"
 					method="loadCoupon"

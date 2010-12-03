@@ -114,7 +114,7 @@ public class ReportingManagerImpl implements ReportingManager
 		
 		try
 		{
-			List<Long> clientIDs = getAllowedClientIDs(null);
+			List<Long> clientIDs = userManager.getAllowedClientIDs(null);
 			
 			if (clientIDs.size() > 0)
 			{
@@ -162,34 +162,46 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get client count
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIds);
-			ret.setClientCount(Integer.toString(allowedClientIDs.size()));
+			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIds);
 			
-			// Get campaign count
-			Criteria crit = session.createCriteria(CampaignDO.class);
-			crit.add(Restrictions.in("client.id", allowedClientIDs));
-			crit.add(Restrictions.eq("status", CampaignStatus.Active));
-			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
-			crit.setProjection(Projections.rowCount());
-			ret.setCampaignCount(crit.uniqueResult().toString());
+			if (allowedClientIDs.size() <= 0)
+			{
+				ret.setClientCount("0");
+				ret.setCampaignCount("0");
+				ret.setSubscriberCount("0");
+				ret.setCouponsRedeemed(0);
+				ret.setCouponsSent(0l);
+			}
+			else
+			{
+				ret.setClientCount(Integer.toString(allowedClientIDs.size()));
 			
-
-			// Get per EntryPointType counts
-			ret.setContactCounts(getContactCounts(allowedClientIDs));
-			ret.setCouponsRedeemed(getCouponsRedeemed(allowedClientIDs));
-			ret.setCouponsSent(getCouponsSent(allowedClientIDs));
-			ret.setMessagesReceived(getMessageReceivedCounts(allowedClientIDs));
-			ret.setMessagesSent(getMessageSentCounts(allowedClientIDs));
-
-			// Get message credit infos
-			ret.setMessageCreditInfos(getMessageCreditInfos(allowedClientIDs));
-			
-			// Get subscriber count
-			crit = session.createCriteria(CampaignSubscriberLinkDO.class);
-			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.primaryKey", allowedClientIDs));
-			crit.setProjection(Projections.rowCount());
-			ret.setSubscriberCount(crit.uniqueResult().toString());
+				// Get campaign count
+				Criteria crit = session.createCriteria(CampaignDO.class);
+				crit.add(Restrictions.in("client.id", allowedClientIDs));
+				crit.add(Restrictions.eq("status", CampaignStatus.Active));
+				crit.add(Restrictions.eq("mode", CampaignMode.Normal));
+				crit.setProjection(Projections.rowCount());
+				ret.setCampaignCount(crit.uniqueResult().toString());
+				
+	
+				// Get per EntryPointType counts
+				ret.setContactCounts(getContactCounts(allowedClientIDs));
+				ret.setCouponsRedeemed(getCouponsRedeemed(allowedClientIDs));
+				ret.setCouponsSent(getCouponsSent(allowedClientIDs));
+				ret.setMessagesReceived(getMessageReceivedCounts(allowedClientIDs));
+				ret.setMessagesSent(getMessageSentCounts(allowedClientIDs));
+	
+				// Get message credit infos
+				ret.setMessageCreditInfos(getMessageCreditInfos(allowedClientIDs));
+				
+				// Get subscriber count
+				crit = session.createCriteria(CampaignSubscriberLinkDO.class);
+				crit.createAlias("campaign", "campaign");
+				crit.add(Restrictions.in("campaign.client.primaryKey", allowedClientIDs));
+				crit.setProjection(Projections.rowCount());
+				ret.setSubscriberCount(crit.uniqueResult().toString());
+			}
 			
 		}
 		catch(Exception e)
@@ -209,7 +221,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIds);
+			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIds);
 			
 			if (allowedClientIDs.size() > 0)
 			{
@@ -260,7 +272,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
 			
 			// Default end date to now
 			Calendar endDate = end;
@@ -320,7 +332,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
 			
 			// Default end date to now
 			Calendar endDate = end;
@@ -385,7 +397,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
 			
 			// Default end date to now
 			Calendar endDate = end;
@@ -507,43 +519,6 @@ public class ReportingManagerImpl implements ReportingManager
 		return filter;
 	}
 	
-	private List<Long> getAllowedClientIDs(List<Long> clientIDs)
-	{
-		// Get client count
-		Set<Long> allowedClientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
-		
-		// Restrict to given client IDs if given
-		List<Long> filterClientIDs = new ArrayList<Long>();
-		if (clientIDs == null)
-		{
-			filterClientIDs.addAll(allowedClientIDs);
-		}
-		else
-		{
-			for (Long allowedClientId : allowedClientIDs)
-			{
-				for (int i = 0; i < clientIDs.size(); i++)
-				{
-					// Stupid check because Blaze thinks ArrayCollection<Integer> fits 
-					// the List<Long> interface
-					Object number = clientIDs.get(i);
-					Long value;
-					if (number instanceof Integer)
-						value = ((Integer)number).longValue();
-					else
-						value = ((Long)number).longValue();
-					
-					// Add allowed client IDs
-					if (allowedClientId.equals(value) )
-					{
-						filterClientIDs.add(allowedClientId);
-						break;
-					}
-				}
-			}
-		}
-		return filterClientIDs;
-	}
 	
 	private Long getCouponsSent(List<Long> clientIds)
 	{
