@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -501,8 +502,12 @@ public class FacebookManagerImpl implements FacebookManager {
 
 
 	@Override
-	public void userDeauthorizeApp(String facebookAppId, String uid) {
-		subscriptionManager.removeFacebookFollower(uid, facebookAppId);
+	public void userDeauthorizeApp(String facebookAppId, String signedRequest) {
+		//Need to implement sig checking.
+		signedRequest = signedRequest.substring(signedRequest.indexOf('.')+1);
+		signedRequest = new String(new Base64().decode(signedRequest.getBytes()));
+		LogManager.getLogger(FacebookManagerImpl.class).error("Facebook deauth data is '"+signedRequest+"'");
+//		subscriptionManager.removeFacebookFollower(uid, facebookAppId);
 	}
 
 	@Override
