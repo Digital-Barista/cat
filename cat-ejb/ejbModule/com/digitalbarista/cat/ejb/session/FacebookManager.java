@@ -45,6 +45,7 @@ public interface FacebookManager
 	void userAuthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
 	
 	@POST
+	@Consumes("application/x-www-form-urlencoded")
 	@Path("/deauthorize/{facebookAppId}")
 	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @FormParam("uid") String uid);
 
