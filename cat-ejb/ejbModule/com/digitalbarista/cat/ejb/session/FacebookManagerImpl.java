@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -25,13 +26,13 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -501,12 +502,13 @@ public class FacebookManagerImpl implements FacebookManager {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void userDeauthorizeApp(String facebookAppId, String signedRequest) {
-		//Need to implement sig checking.
-		signedRequest = signedRequest.substring(signedRequest.indexOf('.')+1);
-		signedRequest = new String(new Base64().decode(signedRequest.getBytes()));
-		LogManager.getLogger(FacebookManagerImpl.class).error("Facebook deauth data is '"+signedRequest+"'");
+	public void userDeauthorizeApp(String facebookAppId, HttpServletRequest request) {
+		for(Map.Entry<String, String> entry : (Set<Map.Entry<String, String>>)request.getParameterMap().entrySet())
+		{
+			LogManager.getLogger(FacebookManagerImpl.class).error("Facebook deauth data is '"+entry.getKey()+"':'"+entry.getValue()+"'");
+		}
 //		subscriptionManager.removeFacebookFollower(uid, facebookAppId);
 	}
 
