@@ -141,7 +141,7 @@ public class CouponManagerImpl implements CouponManager {
 	public List<Coupon> getCouponSummaries(List<Long> clientIDs)
 	{
 		List<Coupon> ret = new ArrayList<Coupon>();
-		List<Long> allowedClientIds = userManager.getAllowedClientIDs(clientIDs);
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 		
 		if (allowedClientIds.size() > 0)
 		{

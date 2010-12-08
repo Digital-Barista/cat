@@ -84,8 +84,8 @@ public class ClientManagerImpl implements ClientManager {
     	Criteria crit = session.createCriteria(ClientDO.class);
     	if(!ctx.isCallerInRole("admin"))
     	{
-    		crit.add(Restrictions.in("id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
+    		crit.add(Restrictions.in("id", SecurityUtil.extractClientIds(ctx, session)));
+			if(SecurityUtil.extractClientIds(ctx, session).size() == 0)
 				return ret;
     	}
     	
@@ -114,7 +114,7 @@ public class ClientManagerImpl implements ClientManager {
 	{
     	List<EntryPointDefinition> ret = new ArrayList<EntryPointDefinition>();
 
-		List<Long> allowedClientIds = userManager.getAllowedClientIDs(clientIds);
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 		
 		if (allowedClientIds.size() > 0)
 		{
@@ -394,7 +394,7 @@ public class ClientManagerImpl implements ClientManager {
 	public List<Keyword> getKeywords(List<Long> clientIds)
 	{
 		List<Keyword> ret = new ArrayList<Keyword>();
-		List<Long> allowedClientIds = userManager.getAllowedClientIDs(clientIds);
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 		
 		if (allowedClientIds.size() > 0)
 		{

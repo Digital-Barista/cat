@@ -30,7 +30,6 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.Role;
 import com.digitalbarista.cat.business.User;
-import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.RoleDO;
 import com.digitalbarista.cat.data.UserDO;
 import com.digitalbarista.cat.util.SecurityUtil;
@@ -151,7 +150,7 @@ public class UserManagerImpl implements UserManager {
 			if(ctx.getCallerPrincipal().getName().equals(ret.getUsername()))
 				return ret;
 			
-			Set<Long> clientIds = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+			Set<Long> clientIds = SecurityUtil.extractClientIds(ctx, session);
 			
 			for(RoleDO role : ret.getRoles())
 			{
@@ -182,7 +181,7 @@ public class UserManagerImpl implements UserManager {
 		if(ctx.getCallerPrincipal().getName().equals(ret.getUsername()))
 			return ret;
 
-		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx, session);
 		
 		for(RoleDO role : ret.getRoles())
 		{
@@ -265,9 +264,9 @@ public class UserManagerImpl implements UserManager {
 				}
 				
 				//And ALL of their allowed IDs
-				Set<Long> allowedIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+				Set<Long> allowedIDs = SecurityUtil.extractClientIds(ctx, session);
 				//Have to match the client user's IDs
-				Set<Long> neededIDs = SecurityUtil.extractClientIds(ctx,userManager,session,user.getUsername());
+				Set<Long> neededIDs = SecurityUtil.extractClientIds(ctx, session, user.getUsername());
 				//Otherwise, they're booted!
 				if(!allowedIDs.containsAll(neededIDs))
 				{
@@ -369,7 +368,7 @@ public class UserManagerImpl implements UserManager {
 		Criteria crit = null;
 		List<User> ret = new ArrayList<User>();
 		
-		List<Long> allowedClientIds = getAllowedClientIDs(clientIds);
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 		
 		if (allowedClientIds.size() > 0)
 		{
@@ -415,44 +414,7 @@ public class UserManagerImpl implements UserManager {
 		return false;
 	}
 
-	@PermitAll
-	public List<Long> getAllowedClientIDs(List<Long> clientIDs)
-	{
-		// Get client count
-		Set<Long> allowedClientIDs = SecurityUtil.extractClientIds(ctx, this, session,ctx.getCallerPrincipal().getName());
-		
-		// Restrict to given client IDs if given
-		List<Long> filterClientIDs = new ArrayList<Long>();
-		if (clientIDs == null)
-		{
-			filterClientIDs.addAll(allowedClientIDs);
-		}
-		else
-		{
-			for (Long allowedClientId : allowedClientIDs)
-			{
-				for (int i = 0; i < clientIDs.size(); i++)
-				{
-					// Stupid check because Blaze thinks ArrayCollection<Integer> fits 
-					// the List<Long> interface
-					Object number = clientIDs.get(i);
-					Long value;
-					if (number instanceof Integer)
-						value = ((Integer)number).longValue();
-					else
-						value = ((Long)number).longValue();
-					
-					// Add allowed client IDs
-					if (allowedClientId.equals(value) )
-					{
-						filterClientIDs.add(allowedClientId);
-						break;
-					}
-				}
-			}
-		}
-		return filterClientIDs;
-	}
+	
 	
 	private boolean isAdmin(String username)
 	{

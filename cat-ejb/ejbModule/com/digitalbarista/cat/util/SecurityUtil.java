@@ -1,8 +1,11 @@
 package com.digitalbarista.cat.util;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.SessionContext;
 
 import org.hibernate.Criteria;
@@ -16,7 +19,20 @@ import com.digitalbarista.cat.ejb.session.UserManager;
 
 public class SecurityUtil {
 
-	public static Set<Long> extractClientIds(SessionContext ctx, UserManager uMan, Session session, String username) {
+	public static Set<Long> extractClientIds(SessionContext ctx, Session session)
+	{
+		return extractClientIds(ctx, session, null);
+	}
+	
+	public static Set<Long> extractClientIds(SessionContext ctx, Session session, String user) 
+	{
+		UserManager uMan = (UserManager)ctx.lookup("ejb/cat/UserManager");
+		String username = user;
+		if (username == null)
+		{
+			username = ctx.getCallerPrincipal().getName();
+		}
+		
 		Set<Long> clientIDs = new HashSet<Long>();
 		if("guest".equalsIgnoreCase(username))
 			return clientIDs;
@@ -44,6 +60,44 @@ public class SecurityUtil {
 			clientIDs = new HashSet<Long>(crit.list());
 		}
 		return clientIDs;
+	}
+	
+	public static List<Long> getAllowedClientIDs(SessionContext ctx, Session session, List<Long> clientIDs)
+	{
+		// Get client count
+		Set<Long> allowedClientIDs = extractClientIds(ctx, session);
+		
+		// Restrict to given client IDs if given
+		List<Long> filterClientIDs = new ArrayList<Long>();
+		if (clientIDs == null)
+		{
+			filterClientIDs.addAll(allowedClientIDs);
+		}
+		else
+		{
+			for (Long allowedClientId : allowedClientIDs)
+			{
+				for (int i = 0; i < clientIDs.size(); i++)
+				{
+					// Stupid check because Blaze thinks ArrayCollection<Integer> fits 
+					// the List<Long> interface
+					Object number = clientIDs.get(i);
+					Long value;
+					if (number instanceof Integer)
+						value = ((Integer)number).longValue();
+					else
+						value = ((Long)number).longValue();
+					
+					// Add allowed client IDs
+					if (allowedClientId.equals(value) )
+					{
+						filterClientIDs.add(allowedClientId);
+						break;
+					}
+				}
+			}
+		}
+		return filterClientIDs;
 	}
 
 }

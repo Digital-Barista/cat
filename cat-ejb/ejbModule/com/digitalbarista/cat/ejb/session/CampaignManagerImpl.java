@@ -139,7 +139,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
 		
-		List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
+		List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 		
 		if (allowedClientIDs.size() > 0)
 		{
@@ -163,7 +163,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	{
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
-		List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
+		List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 		
 		if (allowedClientIDs.size() > 0)
 		{

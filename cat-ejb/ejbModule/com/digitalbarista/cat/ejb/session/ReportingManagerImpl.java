@@ -114,7 +114,7 @@ public class ReportingManagerImpl implements ReportingManager
 		
 		try
 		{
-			List<Long> clientIDs = userManager.getAllowedClientIDs(null);
+			List<Long> clientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, null);
 			
 			if (clientIDs.size() > 0)
 			{
@@ -162,7 +162,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get client count
-			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIds);
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 			
 			if (allowedClientIDs.size() <= 0)
 			{
@@ -221,7 +221,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIds);
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 			
 			if (allowedClientIDs.size() > 0)
 			{
@@ -272,7 +272,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 			
 			// Default end date to now
 			Calendar endDate = end;
@@ -332,7 +332,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 			
 			// Default end date to now
 			Calendar endDate = end;
@@ -397,7 +397,7 @@ public class ReportingManagerImpl implements ReportingManager
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = userManager.getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 			
 			// Default end date to now
 			Calendar endDate = end;

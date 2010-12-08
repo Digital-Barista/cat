@@ -67,6 +67,4 @@ public interface UserManager {
 	public boolean isUserAllowedForClientId(String username, Long clientId);
 	
 	public List<User> getVisibleUsers(List<Long> clientIds);
-	
-	public List<Long> getAllowedClientIDs(List<Long> clientIDs);
 }

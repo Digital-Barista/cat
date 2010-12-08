@@ -100,7 +100,7 @@ public class ContactManagerImpl implements ContactManager {
 		{
 			requestedClientIds = searchCriteria.getClientIds();
 		}
-		List<Long> allowedClientIds = userManager.getAllowedClientIDs(requestedClientIds);
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, requestedClientIds);
 		
 		
 		if (allowedClientIds.size() > 0)
@@ -158,8 +158,8 @@ public class ContactManagerImpl implements ContactManager {
 		// Limit query by allowed clients if necessary
     	if(!ctx.isCallerInRole("admin"))
     	{
-    		crit.add(Restrictions.in("client.primaryKey", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
+    		crit.add(Restrictions.in("client.primaryKey", SecurityUtil.extractClientIds(ctx, session)));
+			if(SecurityUtil.extractClientIds(ctx, session).size() == 0)
 				return ret;
     	}
     	
