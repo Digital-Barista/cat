@@ -3,9 +3,9 @@ package com.digitalbarista.cat.ejb.session;
 import java.util.List;
 
 import javax.ejb.Local;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -47,7 +47,7 @@ public interface FacebookManager
 	@POST
 	@Consumes("application/x-www-form-urlencoded")
 	@Path("/deauthorize/{facebookAppId}")
-	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @Context HttpServletRequest request);
+	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @FormParam("fb_sig_user") String uid);
 
 	void updateMessageCounter(String appId, String uid);
 	void updateMessageCounter(String appId, String uid, Integer count);
