@@ -555,6 +555,9 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		
 		List<CampaignDO> campaigns = (List<CampaignDO>)q.getResultList();
 		
+		if(campaigns==null || campaigns.size()==0)
+			return new ArrayList<CampaignSubscriberLinkDO>();
+		
 		Criteria crit = session.createCriteria(CampaignSubscriberLinkDO.class);
 		crit.createAlias("subscriber","sub");
 		crit.add(Restrictions.eq("sub.address",address));
