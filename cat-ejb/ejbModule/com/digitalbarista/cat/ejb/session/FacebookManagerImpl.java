@@ -505,7 +505,7 @@ public class FacebookManagerImpl implements FacebookManager {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void userDeauthorizeApp(String facebookAppId, HttpServletRequest request) {
-		for(Map.Entry<String, String> entry : (Set<Map.Entry<String, String>>)request.getParameterMap().entrySet())
+		for(Map.Entry entry : (Set<Map.Entry>)request.getParameterMap().entrySet())
 		{
 			LogManager.getLogger(FacebookManagerImpl.class).error("Facebook deauth data is '"+entry.getKey()+"':'"+entry.getValue()+"'");
 		}
