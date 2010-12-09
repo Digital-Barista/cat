@@ -15,6 +15,7 @@
 			{
 				_clients = value;
 				updateButtonLabel();
+				visible = _clients && _clients.length > 1;
 			}
 			
 			private var _filterClients:ArrayCollection;
