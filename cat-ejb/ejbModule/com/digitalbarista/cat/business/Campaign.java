@@ -76,10 +76,10 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		}
 		
 		// Add subscriber count
-		if (dataObject.getSubscribers() != null)
-		{
-			subscriberCount = dataObject.getSubscribers().size();
-		}
+//		if (dataObject.getSubscribers() != null)
+//		{
+//			subscriberCount = dataObject.getSubscribers().size();
+//		}
 	}
 	
 	@Override

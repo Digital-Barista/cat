@@ -148,10 +148,16 @@ public class CampaignManagerImpl implements CampaignManager {
 			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.add(Restrictions.in("client.id", allowedClientIDs));
 			
+			String countQuery = "select count(csl) from CampaignSubscriberLinkDO csl " +
+			"where csl.campaign.id=:campaignID " +
+			"and csl.active = true";
+	
 			for(CampaignDO cmp : (List<CampaignDO>)crit.list())
 			{
 				c = new Campaign();
 				c.copyFrom(cmp);
+				Integer count = (Integer)session.createQuery(countQuery).setParameter("campaignID", cmp.getPrimaryKey()).uniqueResult();
+				c.setSubscriberCount(count);
 				ret.add(c);
 			}
 		}

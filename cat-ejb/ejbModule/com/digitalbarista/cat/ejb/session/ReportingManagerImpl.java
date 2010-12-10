@@ -197,6 +197,7 @@ public class ReportingManagerImpl implements ReportingManager
 				
 				// Get subscriber count
 				crit = session.createCriteria(CampaignSubscriberLinkDO.class);
+				crit.add(Restrictions.eq("active", true));
 				crit.createAlias("campaign", "campaign");
 				crit.add(Restrictions.in("campaign.client.primaryKey", allowedClientIDs));
 				crit.setProjection(Projections.rowCount());
