@@ -156,8 +156,8 @@ public class CampaignManagerImpl implements CampaignManager {
 			{
 				c = new Campaign();
 				c.copyFrom(cmp);
-				Integer count = (Integer)session.createQuery(countQuery).setParameter("campaignID", cmp.getPrimaryKey()).uniqueResult();
-				c.setSubscriberCount(count);
+				Long count = (Long)session.createQuery(countQuery).setParameter("campaignID", cmp.getPrimaryKey()).uniqueResult();
+				c.setSubscriberCount(count.intValue());
 				ret.add(c);
 			}
 		}
