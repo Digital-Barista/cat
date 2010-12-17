@@ -38,6 +38,7 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
+import com.digitalbarista.cat.business.KeyValuePair;
 import com.digitalbarista.cat.business.reporting.AnalyticsData;
 import com.digitalbarista.cat.business.reporting.AnalyticsResponse;
 import com.digitalbarista.cat.business.reporting.DashboardCount;
@@ -46,6 +47,7 @@ import com.digitalbarista.cat.business.reporting.DateData;
 import com.digitalbarista.cat.business.reporting.MessageCreditInfo;
 import com.digitalbarista.cat.business.reporting.OutgoingMessageSummary;
 import com.digitalbarista.cat.business.reporting.TagSummary;
+import com.digitalbarista.cat.data.BlacklistDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignStatus;
@@ -54,6 +56,7 @@ import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ClientInfoDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
+import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.exception.ReportingManagerException;
@@ -760,4 +763,37 @@ public class ReportingManagerImpl implements ReportingManager
 		}
 		return creditInfos;
 	}
+
+	@Override
+	public List<KeyValuePair> getEndpointSubscriberCount(List<Long> clientIDs) {
+		List<KeyValuePair> ret = new ArrayList<KeyValuePair>();
+		ret.add(new KeyValuePair("app_1","150"));
+		ret.add(new KeyValuePair("app_2","225"));
+		ret.add(new KeyValuePair("app_3","600"));
+		return ret;
+		
+//		clientIDs.retainAll(SecurityUtil.extractClientIds(ctx, session));
+//		if(clientIDs==null || clientIDs.size()==0)
+//			return new ArrayList<KeyValuePair>();
+//		Query q = em.createQuery("select e from EntryPointDO e where e.client.id in (:clientIDs)");
+//		q.setParameter("clientIDs", clientIDs);
+//		List<EntryPointDO> availableEntryPoints = (List<EntryPointDO>)q.getResultList();
+//		
+//		Map<EntryPointType,List<String>> entryPoints = new HashMap<EntryPointType,List<String>>();
+//		for(EntryPointDO ep : availableEntryPoints)
+//		{
+//			if(!entryPoints.containsKey(ep.getType()))
+//				entryPoints.put(ep.getType(), new ArrayList<String>());
+//			entryPoints.get(ep.getType()).add(ep.getValue());
+//		}
+//		
+//		Map<EntryPointType,List<String>> applicableBlacklist = new HashMap<EntryPointType,List<String>>();
+//		for(EntryPointType type : entryPoints.keySet())
+//		{
+//			Criteria crit = session.createCriteria(BlacklistDO.class);
+//			crit.add(Restrictions.)
+//		}
+//		return null;
+	}
+	
 }
