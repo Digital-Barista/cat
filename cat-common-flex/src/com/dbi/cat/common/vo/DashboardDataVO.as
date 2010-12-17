@@ -22,5 +22,6 @@ package com.dbi.cat.common.vo
 		public var contactCounts:ArrayCollection;
 		public var messagesSent:ArrayCollection;
 		public var messagesReceived:ArrayCollection;
+		public var endPointSubscriberCounts:ArrayCollection;
 	}
 }

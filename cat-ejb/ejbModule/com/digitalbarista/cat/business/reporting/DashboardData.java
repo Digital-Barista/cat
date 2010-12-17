@@ -3,6 +3,7 @@ package com.digitalbarista.cat.business.reporting;
 import java.util.List;
 import java.util.Map;
 
+import com.digitalbarista.cat.business.KeyValuePair;
 import com.digitalbarista.cat.data.EntryPointType;
 
 public class DashboardData 
@@ -16,6 +17,7 @@ public class DashboardData
 	private List<DashboardCount> contactCounts;
 	private List<DashboardCount> messagesSent;
 	private List<DashboardCount> messagesReceived;
+	private List<KeyValuePair> endPointSubscriberCounts;
 	
 	
 	
@@ -74,6 +76,15 @@ public class DashboardData
 	}
 	public void setCouponsRedeemed(Integer couponsRedeemed) {
 		this.couponsRedeemed = couponsRedeemed;
+	}
+	public List<KeyValuePair> getEndPointSubscriberCounts()
+	{
+		return endPointSubscriberCounts;
+	}
+	public void setEndPointSubscriberCounts(
+			List<KeyValuePair> endPointSubscriberCounts)
+	{
+		this.endPointSubscriberCounts = endPointSubscriberCounts;
 	}
 	
 	

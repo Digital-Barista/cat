@@ -205,6 +205,9 @@ public class ReportingManagerImpl implements ReportingManager
 				crit.add(Restrictions.in("campaign.client.primaryKey", allowedClientIDs));
 				crit.setProjection(Projections.rowCount());
 				ret.setSubscriberCount(crit.uniqueResult().toString());
+				
+				// Get subscribers per end point
+				ret.setEndPointSubscriberCounts(getEndpointSubscriberCount(allowedClientIDs));
 			}
 			
 		}

@@ -23,7 +23,7 @@ PrintUtil.showCoupon = function(messageId)
 	
 	// Write content
 	w.document.write('<div class="coupon" style="background:url(\'' + app + '/images/coupon_background.jpg\') no-repeat;">' + 
-			'<h2>' + title[0].innerHTML + "</h2>" + 
+			'<h2 class="title">' + title[0].innerHTML + "</h2>" + 
 			message[0].innerHTML + '</div>');
 	
 	// Close stream

@@ -150,6 +150,10 @@
 			{
 				dispatchEvent(new ClientEvent(ClientEvent.OPEN_ADD_CREDITS));
 			}
+			private function endpointLabel(item:Object):String
+			{
+				return item.key + " " + item.value;
+			}
 		]]>
 	</mx:Script>
 	<mx:Canvas
@@ -215,6 +219,20 @@
 					<mx:Label text="Subscribers" styleName="dashboardSubLabel1" width="120" />
 					<mx:Label text="{dashboardData.subscriberCount}" styleName="dashboardDataLabel" minWidth="50" />
 				</mx:HBox>
+				<mx:Label text="Endpoint Info" styleName="dashboardLabel" />
+				<mx:DataGrid dataProvider="{dashboardData.endPointSubscriberCounts}"
+							 showHeaders="false"
+							 resizableColumns="false"
+							 borderStyle="none"
+							 backgroundAlpha="0"
+							 selectable="false" 
+							 styleName="dashboardSubLabel1"
+							 verticalGridLines="false">
+					<mx:columns>
+						<mx:DataGridColumn dataField="key"  width="120"  />
+						<mx:DataGridColumn dataField="value"  minWidth="50" />
+					</mx:columns>
+				</mx:DataGrid>
 			</mx:VBox>
 		</mx:TitleWindow>
 		<mx:HBox right="5" top="7" verticalAlign="middle">
