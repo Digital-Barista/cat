@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,7 @@ import com.digitalbarista.cat.data.CampaignStatus;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ClientInfoDO;
+import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointDO;
@@ -769,34 +771,70 @@ public class ReportingManagerImpl implements ReportingManager
 
 	@Override
 	public List<KeyValuePair> getEndpointSubscriberCount(List<Long> clientIDs) {
-		List<KeyValuePair> ret = new ArrayList<KeyValuePair>();
-		ret.add(new KeyValuePair("app_1","150"));
-		ret.add(new KeyValuePair("app_2","225"));
-		ret.add(new KeyValuePair("app_3","600"));
-		return ret;
+		Criteria crit = session.createCriteria(ContactDO.class);
+		crit.add(Restrictions.in("client.id", clientIDs));
+		List<ContactDO> baseList = crit.list();
 		
-//		clientIDs.retainAll(SecurityUtil.extractClientIds(ctx, session));
-//		if(clientIDs==null || clientIDs.size()==0)
-//			return new ArrayList<KeyValuePair>();
-//		Query q = em.createQuery("select e from EntryPointDO e where e.client.id in (:clientIDs)");
-//		q.setParameter("clientIDs", clientIDs);
-//		List<EntryPointDO> availableEntryPoints = (List<EntryPointDO>)q.getResultList();
-//		
-//		Map<EntryPointType,List<String>> entryPoints = new HashMap<EntryPointType,List<String>>();
-//		for(EntryPointDO ep : availableEntryPoints)
-//		{
-//			if(!entryPoints.containsKey(ep.getType()))
-//				entryPoints.put(ep.getType(), new ArrayList<String>());
-//			entryPoints.get(ep.getType()).add(ep.getValue());
-//		}
-//		
-//		Map<EntryPointType,List<String>> applicableBlacklist = new HashMap<EntryPointType,List<String>>();
-//		for(EntryPointType type : entryPoints.keySet())
-//		{
-//			Criteria crit = session.createCriteria(BlacklistDO.class);
-//			crit.add(Restrictions.)
-//		}
-//		return null;
+		crit = session.createCriteria(BlacklistDO.class);
+		crit.add(Restrictions.in("client.id", clientIDs));
+		nextBlackList:
+		for(BlacklistDO bl : (List<BlacklistDO>)crit.list())
+		{
+			ContactDO c;
+			Iterator<ContactDO> i = baseList.iterator();
+			nextContact:
+			while(i.hasNext())
+			{
+				c = i.next();
+				if(!bl.getEntryPointType().equals(c.getType()))
+					continue nextContact;
+				if(!bl.getAddress().equals(c.getAddress()))
+					continue nextContact;
+				if(!bl.getClient().getPrimaryKey().equals(c.getClient().getPrimaryKey()))
+					continue nextContact;
+				i.remove();
+				continue nextBlackList;
+			}
+		}
+		
+		clientIDs.retainAll(SecurityUtil.extractClientIds(ctx, session));
+		if(clientIDs==null || clientIDs.size()==0)
+			return new ArrayList<KeyValuePair>();
+		crit = session.createCriteria(EntryPointDO.class);
+		crit.add(Restrictions.in("client.id",clientIDs));
+		List<EntryPointDO> availableEntryPoints = (List<EntryPointDO>)crit.list();
+		
+		List<KeyValuePair> ret = new ArrayList<KeyValuePair>();
+		
+		for(EntryPointDO entryPoint : availableEntryPoints)
+		{
+			crit = session.createCriteria(BlacklistDO.class);
+			crit.add(Restrictions.eq("entryPointType", entryPoint.getType()));
+			crit.add(Restrictions.eq("incomingAddress", entryPoint.getValue()));
+			List<ContactDO> secondContactList = new ArrayList<ContactDO>(baseList);
+			
+			nextBlackListRecheck:
+			for(BlacklistDO bl : (List<BlacklistDO>)crit.list())
+			{
+				ContactDO c;
+				Iterator<ContactDO> i = secondContactList.iterator();
+				nextContactRecheck:
+				while(i.hasNext())
+				{
+					c = i.next();
+					if(!bl.getEntryPointType().equals(c.getType()))
+						continue nextContactRecheck;
+					if(!bl.getAddress().equals(c.getAddress()))
+						continue nextContactRecheck;
+					i.remove();
+					continue nextBlackListRecheck;
+				}
+			}
+			
+			ret.add(new KeyValuePair(entryPoint.getValue(),""+secondContactList.size()));
+		}
+		
+		return ret;
 	}
 	
 }
