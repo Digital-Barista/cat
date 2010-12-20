@@ -36,6 +36,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
@@ -801,7 +802,9 @@ public class ReportingManagerImpl implements ReportingManager
 		if(clientIDs==null || clientIDs.size()==0)
 			return new ArrayList<KeyValuePair>();
 		crit = session.createCriteria(EntryPointDO.class);
-		crit.add(Restrictions.in("client.id",clientIDs));
+		crit.createAlias("clients", "cs");
+		crit.add(Restrictions.in("cs.id", clientIDs));
+		crit.setResultTransformer(new DistinctRootEntityResultTransformer());
 		List<EntryPointDO> availableEntryPoints = (List<EntryPointDO>)crit.list();
 		
 		List<KeyValuePair> ret = new ArrayList<KeyValuePair>();
