@@ -834,6 +834,13 @@ public class ReportingManagerImpl implements ReportingManager
 				}
 			}
 			
+			Iterator<ContactDO> i = secondContactList.iterator();
+			while(i.hasNext())
+			{
+				if(!i.next().getType().equals(entryPoint.getType()))
+					i.remove();
+			}
+			
 			ret.add(new KeyValuePair(entryPoint.getValue(),""+secondContactList.size()));
 		}
 		
