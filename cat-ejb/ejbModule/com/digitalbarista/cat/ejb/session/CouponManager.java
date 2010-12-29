@@ -13,7 +13,7 @@ import javax.ws.rs.QueryParam;
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Coupon;
-import com.digitalbarista.cat.util.CodedMessage;
+import com.digitalbarista.cat.util.CouponRedemptionMessage;
 
 @Local
 @Path("/coupons")
@@ -22,10 +22,10 @@ import com.digitalbarista.cat.util.CodedMessage;
 public interface CouponManager {
     @Path("/{code}")
     @POST
-	public CodedMessage redeemCoupon(@PathParam("code") String couponCode);
+	public CouponRedemptionMessage redeemCoupon(@PathParam("code") String couponCode);
     @Path("/{code}")
     @GET
-	public CodedMessage queryCoupon(@PathParam("code") String couponCode);
+	public CouponRedemptionMessage queryCoupon(@PathParam("code") String couponCode);
     @GET
     @Wrapped(element="Coupons")
 	public List<Coupon> couponSummaryByClient(@QueryParam("clientid") Long clientID);

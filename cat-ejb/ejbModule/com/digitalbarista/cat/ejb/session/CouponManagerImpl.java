@@ -26,11 +26,15 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.audit.AuditInterceptor;
+import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.Coupon;
+import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
-import com.digitalbarista.cat.util.CodedMessage;
+import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.util.CouponRedemptionMessage;
+import com.digitalbarista.cat.util.PagedList;
 import com.digitalbarista.cat.util.SecurityUtil;
 
 /**
@@ -65,10 +69,13 @@ public class CouponManagerImpl implements CouponManager {
 
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
+	
+	@EJB(name="ejb/cat/ContactManager")
+	ContactManager contactManager;
 
     @SuppressWarnings("unchecked")
     @RolesAllowed({"client","admin"})
-	public CodedMessage redeemCoupon(String couponCode) {
+	public CouponRedemptionMessage redeemCoupon(String couponCode) {
 		if(couponCode!=null)
 			couponCode=couponCode.trim();
 		
@@ -79,7 +86,7 @@ public class CouponManagerImpl implements CouponManager {
 		
 		if(cRespList==null || cRespList.size() ==0)
 		{
-			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
+			return new CouponRedemptionMessage(NOT_FOUND_CODE, "This coupon could not be found");
 		}
 
 		CouponResponseDO cResp = null;
@@ -94,14 +101,14 @@ public class CouponManagerImpl implements CouponManager {
 			else
 			{
 				LogManager.getLogger(getClass()).error("Coupon code :"+couponCode+" has been DUPLICATED!!");
-				return new CodedMessage(UNKNOWN_ERROR, "An unknown internal error occurred.  Please contact the administrator if this continues.");
+				return new CouponRedemptionMessage(UNKNOWN_ERROR, "An unknown internal error occurred.  Please contact the administrator if this continues.");
 			}
 		}
 
 		// If the coupon doesn't match return an appropriate error
 		if (cResp == null)
 		{
-			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
+			return new CouponRedemptionMessage(NOT_FOUND_CODE, "This coupon could not be found");
 		}
 		
 		//Also . . . should we check to see if the campagin is active?
@@ -109,9 +116,16 @@ public class CouponManagerImpl implements CouponManager {
 		if(cResp.getCouponOffer().getMaxRedemptions()>0)
 		{
 			if(cResp.getRedemptionCount()>=cResp.getCouponOffer().getMaxRedemptions())
-			return new CodedMessage(OVER_MAX_CODE,"This coupon has already been redeemed "+cResp.getRedemptionCount()+" times.");
+			return new CouponRedemptionMessage(OVER_MAX_CODE,"This coupon has already been redeemed "+cResp.getRedemptionCount()+" times.");
 		}
 
+		Contact c = contactManager.getContactForSubscription(cResp.getSubscriber(),cResp.getCouponOffer().getCampaign());
+		if(c==null)
+		{
+			LogManager.getLogger(getClass()).error("Coupon code :"+couponCode+" belongs to more than 1 contact!!");
+			return new CouponRedemptionMessage(UNKNOWN_ERROR, "An unknown internal error occurred.  Please contact the administrator if this continues.");
+		}
+		
 		cResp.setRedemptionCount(cResp.getRedemptionCount()+1);
 		
 		CouponRedemptionDO cRed = new CouponRedemptionDO();
@@ -121,7 +135,7 @@ public class CouponManagerImpl implements CouponManager {
 		
 		em.persist(cRed);
 	
-		return new CodedMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode());
+		return new CouponRedemptionMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode(),c.getUID());
 	}
 
 	@Override
@@ -161,7 +175,7 @@ public class CouponManagerImpl implements CouponManager {
 	}
 	
 	@Override
-	public CodedMessage queryCoupon(String couponCode) {
+	public CouponRedemptionMessage queryCoupon(String couponCode) {
 		if(couponCode!=null)
 			couponCode=couponCode.trim();
 
@@ -172,7 +186,7 @@ public class CouponManagerImpl implements CouponManager {
 		
 		if(cRespList==null || cRespList.size() ==0)
 		{
-			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
+			return new CouponRedemptionMessage(NOT_FOUND_CODE, "This coupon could not be found");
 		}
 
 		CouponResponseDO cResp = null;
@@ -187,14 +201,14 @@ public class CouponManagerImpl implements CouponManager {
 			else
 			{
 				LogManager.getLogger(getClass()).error("Coupon code :"+couponCode+" has been DUPLICATED!!");
-				return new CodedMessage(UNKNOWN_ERROR, "An unknown internal error occurred.  Please contact the administrator if this continues.");
+				return new CouponRedemptionMessage(UNKNOWN_ERROR, "An unknown internal error occurred.  Please contact the administrator if this continues.");
 			}
 		}
 
 		// If the coupon doesn't match return an appropriate error
 		if (cResp == null)
 		{
-			return new CodedMessage(NOT_FOUND_CODE, "This coupon could not be found");
+			return new CouponRedemptionMessage(NOT_FOUND_CODE, "This coupon could not be found");
 		}
 		
 		//Also . . . should we check to see if the campagin is active?
@@ -202,9 +216,9 @@ public class CouponManagerImpl implements CouponManager {
 		if(cResp.getCouponOffer().getMaxRedemptions()>0)
 		{
 			if(cResp.getRedemptionCount()>=cResp.getCouponOffer().getMaxRedemptions())
-			return new CodedMessage(OVER_MAX_CODE,"This coupon has already been redeemed "+cResp.getRedemptionCount()+" times.");
+			return new CouponRedemptionMessage(OVER_MAX_CODE,"This coupon has already been redeemed "+cResp.getRedemptionCount()+" times.");
 		}
-		return new CodedMessage(SUCCESS,"Coupon is valid.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode());
+		return new CouponRedemptionMessage(SUCCESS,"Coupon is valid.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode(),null);
 	}
 
 }

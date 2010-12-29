@@ -3,6 +3,7 @@ package com.digitalbarista.cat.data;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -31,6 +32,7 @@ public class ContactDO implements DataObject,Serializable {
 
 	
 	private Long contactId;
+	private String UID;
 	private String address;
 	private Calendar createDate;
 	private ClientDO client;
@@ -136,7 +138,14 @@ public class ContactDO implements DataObject,Serializable {
 		this.blacklist = blacklist;
 	}
 
-	
-	
-	
+	@Column(name="contact_uid")
+	public String getUID() {
+		if(UID==null)
+			UID = UUID.randomUUID().toString();
+		return UID;
+	}
+
+	public void setUID(String uID) {
+		UID = uID;
+	}
 }

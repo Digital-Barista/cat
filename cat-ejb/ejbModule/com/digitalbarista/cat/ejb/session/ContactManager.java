@@ -17,8 +17,10 @@ import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.business.PagingInfo;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
+import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.util.PagedList;
 
 @Local
@@ -49,6 +51,6 @@ public interface ContactManager {
 	public void addTagsToContacts(List<Contact> contacts, List<ContactTag> tags);
 	public void removeTagsFromContacts(List<Contact> contacts, List<ContactTag> tags);
 	public List<Contact> importContacts(List<Contact> contacts);
-	
+	public Contact getContactForSubscription(SubscriberDO sub, CampaignDO camp);	
 	public void tagContactNodeReached(String contact, String nodeUID, EntryPointType entryType);
 }

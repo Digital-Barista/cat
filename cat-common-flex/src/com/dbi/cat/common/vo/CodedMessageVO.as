@@ -1,7 +1,7 @@
 package com.dbi.cat.common.vo
 {
 	[Bindable]
-	[RemoteClass(alias="com.digitalbarista.cat.util.CodedMessage")]
+	[RemoteClass(alias="com.digitalbarista.cat.util.CouponRedemptionMessage")]
 	public class CodedMessageVO
 	{
 		

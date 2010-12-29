@@ -31,6 +31,7 @@ import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.business.PagingInfo;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
+import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
@@ -38,6 +39,7 @@ import com.digitalbarista.cat.data.ContactTagLinkDO;
 import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
+import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.util.PagedList;
 import com.digitalbarista.cat.util.PagingUtil;
 import com.digitalbarista.cat.util.SecurityUtil;
@@ -170,6 +172,36 @@ public class ContactManagerImpl implements ContactManager {
 			ret.add(t);
 		}
 		return ret;
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.MANDATORY)
+	public Contact getContactForSubscription(SubscriberDO sub, CampaignDO camp)
+	{
+		ContactSearchCriteria searchCrit = new ContactSearchCriteria();
+		searchCrit.setClientId(camp.getClient().getPrimaryKey());
+		if(sub.getFacebookID()!=null)
+		{
+			searchCrit.setEntryType(EntryPointType.Facebook);
+			searchCrit.setAddress(sub.getFacebookID());
+		}else if(sub.getTwitterID()!=null)
+		{
+			searchCrit.setEntryType(EntryPointType.Twitter);
+			searchCrit.setAddress(sub.getTwitterID());
+		}else if(sub.getPhoneNumber()!=null)
+		{
+			searchCrit.setEntryType(EntryPointType.SMS);
+			searchCrit.setAddress(sub.getPhoneNumber());
+		}else
+		{
+			searchCrit.setEntryType(EntryPointType.Email);
+			searchCrit.setAddress(sub.getEmail());
+		}
+		PagedList<Contact> matchingContacts = getContacts(searchCrit, null);
+		if(matchingContacts.getTotalResultCount()!=1)
+		{
+			return null;
+		}
+		return matchingContacts.getResults().get(0);
 	}
 	
 	@Override
