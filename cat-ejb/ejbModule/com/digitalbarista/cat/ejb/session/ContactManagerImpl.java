@@ -178,24 +178,11 @@ public class ContactManagerImpl implements ContactManager {
 	public Contact getContactForSubscription(SubscriberDO sub, CampaignDO camp)
 	{
 		ContactSearchCriteria searchCrit = new ContactSearchCriteria();
-		searchCrit.setClientId(camp.getClient().getPrimaryKey());
-		if(sub.getFacebookID()!=null)
-		{
-			searchCrit.setEntryType(EntryPointType.Facebook);
-			searchCrit.setAddress(sub.getFacebookID());
-		}else if(sub.getTwitterID()!=null)
-		{
-			searchCrit.setEntryType(EntryPointType.Twitter);
-			searchCrit.setAddress(sub.getTwitterID());
-		}else if(sub.getPhoneNumber()!=null)
-		{
-			searchCrit.setEntryType(EntryPointType.SMS);
-			searchCrit.setAddress(sub.getPhoneNumber());
-		}else
-		{
-			searchCrit.setEntryType(EntryPointType.Email);
-			searchCrit.setAddress(sub.getEmail());
-		}
+		List<Long> clientIds = new ArrayList<Long>();
+		clientIds.add(camp.getClient().getPrimaryKey());
+		searchCrit.setClientIds(clientIds);
+		searchCrit.setEntryType(sub.getType());
+		searchCrit.setAddress(sub.getAddress());
 		PagedList<Contact> matchingContacts = getContacts(searchCrit, null);
 		if(matchingContacts.getTotalResultCount()!=1)
 		{
