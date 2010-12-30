@@ -6,7 +6,7 @@ package com.dbi.cat.common.vo.criteria
 	[RemoteClass(alias="com.digitalbarista.cat.business.criteria.ContactSearchCriteria")]
 	public class ContactSearchCriteriaVO
 	{
-		public var clientId:String;
+		public var clientIds:ArrayCollection;
 		public var entryType:String;
 		public var contactTags:ArrayCollection;
 	

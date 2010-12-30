@@ -5,6 +5,8 @@ package com.dbi.cat.event
 	import com.dbi.cat.common.vo.KeywordVO;
 	
 	import flash.events.Event;
+	
+	import mx.collections.ArrayCollection;
 
 	public class ClientEvent extends Event
 	{
@@ -14,6 +16,7 @@ package com.dbi.cat.event
 		public static const EDIT_CLIENT:String = "editClientEvent";
 		public static const CANCEL_EDIT:String = "cancelEditClientEvent";
 		public static const SAVE_CLIENT:String = "saveClientEvent";
+		public static const CHANGE_FILTER_CLIENTS:String = "changeFilterClientsEvent";
 		
 		// Keyword events
 		public static const SAVE_KEYWORD:String = "saveKeywordEvent";
@@ -37,6 +40,8 @@ package com.dbi.cat.event
 		
 		
 		public var client:ClientVO;
+		public var clients:ArrayCollection;
+		public var clientIds:ArrayCollection;
 		public var keyword:KeywordVO;
 		public var entryPointDefinition:EntryPointDefinitionVO;
 		

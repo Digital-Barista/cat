@@ -139,6 +139,7 @@
 			generator="{AppManager}"
 			method="addGeneralStatusMessage"
 			arguments="{ServiceStatusMessage.LOADING_MESSAGE_SEND_DATES}" />
+			
 		<RemoteObjectInvoker destination="reportingManager"
 							 method="getMessageSendDates"
 							 arguments="{[event.clientIDs, event.startDate, event.endDate]}"
@@ -157,6 +158,37 @@
 					generator="{AppManager}"
 					method="removeGeneralStatusMessage"
 					arguments="{ServiceStatusMessage.LOADING_MESSAGE_SEND_DATES}" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ReportingEvent.LOAD_FACEBOOK_APP_VISITS}">
+		<MethodInvoker
+			generator="{AppManager}"
+			method="addGeneralStatusMessage"
+			arguments="{ServiceStatusMessage.LOADING_FACEBOOK_APP_VISITS}" />
+		
+		<RemoteObjectInvoker destination="reportingManager"
+							 method="getAnalyticsData"
+							 arguments="{[event.clientIDs, event.startDate, event.endDate]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_FACEBOOK_APP_VISITS}" />
+				<MethodInvoker generator="{ReportingManager}"
+							   method="loadFacebookAppVisits"
+							   arguments="{[resultObject, event.startDate, event.endDate]}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_FACEBOOK_APP_VISITS}" />
 				<MethodInvoker generator="{AppManager}"
 							   method="showFault"
 							   arguments="{event.fault}" />

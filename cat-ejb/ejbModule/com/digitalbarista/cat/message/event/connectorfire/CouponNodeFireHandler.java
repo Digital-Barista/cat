@@ -66,7 +66,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		String fromAddress = csl.getLastHitEntryPoint();
 		EntryPointType fromType = csl.getLastHitEntryType();
 
-		if(sMan.isSubscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
+		if(sMan.isSubscriberBlacklisted(s.getAddress(), fromType, fromAddress, csl.getCampaign().getClient().getPrimaryKey()))
 			return;
 		
 		if((cNode.getUnavailableDate()==null || now.before(cNode.getUnavailableDate())) && (offer.getMaxCoupons()<0 || offer.getIssuedCouponCount()<offer.getMaxCoupons()))
@@ -137,28 +137,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 
 		for(String splitMessage : messagePart.getMessages())
 		{
-			switch(fromType)
-			{
-				
-				case Email:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), splitMessage, cNode.getName(),cNode.getUid(),version);
-					break;
-				
-				case SMS:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), splitMessage, cNode.getName(),cNode.getUid(),version);
-					break;
-					
-				case Twitter:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), splitMessage, cNode.getName(),cNode.getUid(),version);
-					break;
-					
-				case Facebook:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getFacebookID(), splitMessage, cNode.getName(),cNode.getUid(),version);
-					break;
-					
-				default:
-					throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
-			}
+			sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getAddress(), splitMessage, cNode.getName(),cNode.getUid(),version);
 			eMan.queueEvent(sendMessageEvent);
 		}
 			

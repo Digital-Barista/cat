@@ -16,31 +16,8 @@ public class Subscriber implements BusinessObject<SubscriberDO>{
 	public void copyFrom(SubscriberDO dataObject) {
 		subscriberId = dataObject.getPrimaryKey();
 		
-		if (dataObject.getEmail() != null)
-		{
-			entryPointType = EntryPointType.Email;
-			address = dataObject.getEmail();
-		}
-		else if (dataObject.getPhoneNumber() != null)
-		{
-			entryPointType = EntryPointType.SMS;
-			address = dataObject.getPhoneNumber();
-		}
-		else if (dataObject.getTwitterUsername() != null)
-		{
-			entryPointType = EntryPointType.Twitter;
-			address = dataObject.getTwitterUsername();
-		}
-		else if (dataObject.getTwitterID() != null)
-		{
-			entryPointType = EntryPointType.Twitter;
-			address = dataObject.getTwitterID();
-		}
-		else if (dataObject.getFacebookID() != null)
-		{
-			entryPointType = EntryPointType.Facebook;
-			address = dataObject.getFacebookID();
-		}
+		entryPointType = dataObject.getType();
+		address = dataObject.getAddress();
 	}
 	@Override
 	public void copyTo(SubscriberDO dataObject) {

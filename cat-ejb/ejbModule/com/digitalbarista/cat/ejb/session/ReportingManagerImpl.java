@@ -1,14 +1,21 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -29,26 +36,40 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
 
+import com.digitalbarista.cat.business.KeyValuePair;
+import com.digitalbarista.cat.business.reporting.AnalyticsData;
+import com.digitalbarista.cat.business.reporting.AnalyticsResponse;
 import com.digitalbarista.cat.business.reporting.DashboardCount;
 import com.digitalbarista.cat.business.reporting.DashboardData;
 import com.digitalbarista.cat.business.reporting.DateData;
 import com.digitalbarista.cat.business.reporting.MessageCreditInfo;
 import com.digitalbarista.cat.business.reporting.OutgoingMessageSummary;
 import com.digitalbarista.cat.business.reporting.TagSummary;
+import com.digitalbarista.cat.data.BlacklistDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignStatus;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ClientInfoDO;
+import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
+import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.exception.ReportingManagerException;
 import com.digitalbarista.cat.util.SecurityUtil;
+import com.google.gdata.client.analytics.AnalyticsService;
+import com.google.gdata.client.analytics.DataQuery;
+import com.google.gdata.data.analytics.DataEntry;
+import com.google.gdata.data.analytics.DataFeed;
+import com.google.gdata.util.AuthenticationException;
+import com.google.gdata.util.ServiceException;
 
 
 /**
@@ -59,8 +80,23 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @RunAsPrincipal("admin")
 @RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class ReportingManagerImpl implements ReportingManager {
+public class ReportingManagerImpl implements ReportingManager 
+{
+	public static final String ACCOUNTS_URL = "https://www.google.com/analytics/feeds/accounts/default";
+	private static final String ANALYTICS_DATA_URL = "https://www.google.com/analytics/feeds/data";
+	
 
+	private static final String DBI_ANALYTICS_USERNAME = "dbigaviewonly@gmail.com";
+	private static final String DBI_ANALYTICS_PASSWORD = "Yamahar6";
+	private static final String DBI_ANALYTICS_TABLE_ID = "ga:38779239";
+	
+	private static final String GA_VISITS = "ga:visits";
+	private static final String GA_NEW_VISITS = "ga:newVisits";
+	private static final String GA_TIME_ON_SITE = "ga:timeOnSite";
+	private static final String GA_DATE = "ga:date";
+	private static final String GA_PAGE_PATH = "ga:pagePath";
+	
+	
 	@Resource
 	private SessionContext ctx; //Used to flag rollbacks.
 
@@ -74,6 +110,8 @@ public class ReportingManagerImpl implements ReportingManager {
 	UserManager userManager;
 	
 	Logger logger = LogManager.getLogger(ReportingManagerImpl.class);
+	SimpleDateFormat outgoingDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+	SimpleDateFormat incomingDateFormatter = new SimpleDateFormat("yyyyMMdd");
 	
 	@PermitAll
 	public List<OutgoingMessageSummary> getOutgoingMessageSummaries() throws ReportingManagerException 
@@ -82,7 +120,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		
 		try
 		{
-			List<Long> clientIDs = getAllowedClientIDs(null);
+			List<Long> clientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, null);
 			
 			if (clientIDs.size() > 0)
 			{
@@ -130,34 +168,50 @@ public class ReportingManagerImpl implements ReportingManager {
 		try
 		{
 			// Get client count
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIds);
-			ret.setClientCount(Integer.toString(allowedClientIDs.size()));
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 			
-			// Get campaign count
-			Criteria crit = session.createCriteria(CampaignDO.class);
-			crit.add(Restrictions.in("client.primaryKey", allowedClientIDs));
-			crit.add(Restrictions.eq("status", CampaignStatus.Active));
-			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
-			crit.setProjection(Projections.rowCount());
-			ret.setCampaignCount(crit.uniqueResult().toString());
+			if (allowedClientIDs.size() <= 0)
+			{
+				ret.setClientCount("0");
+				ret.setCampaignCount("0");
+				ret.setSubscriberCount("0");
+				ret.setCouponsRedeemed(0);
+				ret.setCouponsSent(0l);
+			}
+			else
+			{
+				ret.setClientCount(Integer.toString(allowedClientIDs.size()));
 			
-
-			// Get per EntryPointType counts
-			ret.setContactCounts(getContactCounts(allowedClientIDs));
-			ret.setCouponsRedeemed(getCouponsRedeemed(allowedClientIDs));
-			ret.setCouponsSent(getCouponsSent(allowedClientIDs));
-			ret.setMessagesReceived(getMessageReceivedCounts(allowedClientIDs));
-			ret.setMessagesSent(getMessageSentCounts(allowedClientIDs));
-
-			// Get message credit infos
-			ret.setMessageCreditInfos(getMessageCreditInfos(allowedClientIDs));
-			
-			// Get subscriber count
-			crit = session.createCriteria(CampaignSubscriberLinkDO.class);
-			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.primaryKey", allowedClientIDs));
-			crit.setProjection(Projections.rowCount());
-			ret.setSubscriberCount(crit.uniqueResult().toString());
+				// Get campaign count
+				Criteria crit = session.createCriteria(CampaignDO.class);
+				crit.add(Restrictions.in("client.id", allowedClientIDs));
+				crit.add(Restrictions.eq("status", CampaignStatus.Active));
+				crit.add(Restrictions.eq("mode", CampaignMode.Normal));
+				crit.setProjection(Projections.rowCount());
+				ret.setCampaignCount(crit.uniqueResult().toString());
+				
+	
+				// Get per EntryPointType counts
+				ret.setContactCounts(getContactCounts(allowedClientIDs));
+				ret.setCouponsRedeemed(getCouponsRedeemed(allowedClientIDs));
+				ret.setCouponsSent(getCouponsSent(allowedClientIDs));
+				ret.setMessagesReceived(getMessageReceivedCounts(allowedClientIDs));
+				ret.setMessagesSent(getMessageSentCounts(allowedClientIDs));
+	
+				// Get message credit infos
+				ret.setMessageCreditInfos(getMessageCreditInfos(allowedClientIDs));
+				
+				// Get subscriber count
+				crit = session.createCriteria(CampaignSubscriberLinkDO.class);
+				crit.add(Restrictions.eq("active", true));
+				crit.createAlias("campaign", "campaign");
+				crit.add(Restrictions.in("campaign.client.primaryKey", allowedClientIDs));
+				crit.setProjection(Projections.rowCount());
+				ret.setSubscriberCount(crit.uniqueResult().toString());
+				
+				// Get subscribers per end point
+				ret.setEndPointSubscriberCounts(getEndpointSubscriberCount(allowedClientIDs));
+			}
 			
 		}
 		catch(Exception e)
@@ -177,7 +231,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIds);
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 			
 			if (allowedClientIDs.size() > 0)
 			{
@@ -228,7 +282,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 			
 			// Default end date to now
 			Calendar endDate = end;
@@ -288,7 +342,7 @@ public class ReportingManagerImpl implements ReportingManager {
 		try
 		{
 			// Get allowed client IDs
-			List<Long> allowedClientIDs = getAllowedClientIDs(clientIDs);
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 			
 			// Default end date to now
 			Calendar endDate = end;
@@ -343,43 +397,138 @@ public class ReportingManagerImpl implements ReportingManager {
 		return ret;
 	}
 	
-	private List<Long> getAllowedClientIDs(List<Long> clientIDs)
+	public AnalyticsResponse getAnalyticsData(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
 	{
-		// Get client count
-		Set<Long> allowedClientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+		Map<Calendar, AnalyticsData> dataMap = new HashMap<Calendar, AnalyticsData>();
+
+		// Find the max count for scaling the chart
+		Long maxCount = 0l;
 		
-		// Restrict to given client IDs if given
-		List<Long> filterClientIDs = new ArrayList<Long>();
-		if (clientIDs == null)
+		try
 		{
-			filterClientIDs.addAll(allowedClientIDs);
-		}
-		else
-		{
-			for (Long allowedClientId : allowedClientIDs)
+			// Get allowed client IDs
+			List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
+			
+			// Default end date to now
+			Calendar endDate = end;
+			if (endDate == null)
+				endDate = Calendar.getInstance();
+			
+			
+			// Get the facebook URL filter.  If there are no apps to filter
+			// by, don't bother doing the query
+			String filter = getAnalyticsFacebookFilter(allowedClientIDs);
+			
+			if (allowedClientIDs.size() > 0 &&
+				filter.length() > 0)
 			{
-				for (int i = 0; i < clientIDs.size(); i++)
+				// Authenticate
+				AnalyticsService analytics = new AnalyticsService("digitalbarista");
+				analytics.setUserCredentials(DBI_ANALYTICS_USERNAME, DBI_ANALYTICS_PASSWORD);
+				
+				// Do data query
+				DataQuery query = new DataQuery(new URL(ANALYTICS_DATA_URL));
+				query.setIds(DBI_ANALYTICS_TABLE_ID);
+				query.setStartDate(outgoingDateFormatter.format(start.getTime()));
+				query.setEndDate(outgoingDateFormatter.format(end.getTime()));
+				query.setMetrics(GA_NEW_VISITS + "," + GA_TIME_ON_SITE + "," + GA_VISITS);
+				query.setDimensions(GA_DATE + "," + GA_PAGE_PATH);
+				query.setMaxResults(10000);
+				query.setSort(GA_DATE + "," + GA_PAGE_PATH);
+				query.setFilters(filter);
+				DataFeed dataFeed = analytics.getFeed(query, DataFeed.class);
+				
+				for (DataEntry entry : dataFeed.getEntries())
 				{
-					// Stupid check because Blaze thinks ArrayCollection<Integer> fits 
-					// the List<Long> interface
-					Object number = clientIDs.get(i);
-					Long value;
-					if (number instanceof Integer)
-						value = ((Integer)number).longValue();
-					else
-						value = ((Long)number).longValue();
+					Long visits = entry.longValueOf(GA_VISITS);
+					Long newVisits = entry.longValueOf(GA_NEW_VISITS);
+					Long timeOnSite = entry.longValueOf(GA_TIME_ON_SITE);
+					String date = entry.stringValueOf(GA_DATE);
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(incomingDateFormatter.parse(date));
 					
-					// Add allowed client IDs
-					if (allowedClientId.equals(value) )
+					AnalyticsData data = null;
+					if (!dataMap.containsKey(cal))
 					{
-						filterClientIDs.add(allowedClientId);
-						break;
+						data = new AnalyticsData();
+						dataMap.put(cal, data);
 					}
+					else
+					{
+						data = dataMap.get(cal);
+					}
+					
+					data.setDate(cal);
+					
+					// Set analytics data
+					data.setVisits(data.getVisits() + visits);
+					data.setNewVisits(data.getNewVisits() + newVisits);
+					data.setTimeOnSite(data.getTimeOnSite() + timeOnSite);
+					
+					if (data.getVisits() > maxCount) maxCount = data.getVisits();
+					if (data.getNewVisits() > maxCount) maxCount = data.getNewVisits();
+				}
+				
+				// Need to loop through again to average time on site values
+				for (AnalyticsData a : dataMap.values())
+				{
+					a.setTimeOnSite(a.getTimeOnSite() / a.getVisits());
 				}
 			}
 		}
-		return filterClientIDs;
+		catch (AuthenticationException e)
+		{
+			throw new ReportingManagerException("Could not login to google analytics", e);
+		} 
+		catch (MalformedURLException e)
+		{
+			throw new ReportingManagerException("Invalid analytics data url: " + ANALYTICS_DATA_URL, e);
+		} 
+		catch (IOException e)
+		{
+			throw new ReportingManagerException("Could not retrieve accounts feed", e);
+		} 
+		catch (ServiceException e)
+		{
+			throw new ReportingManagerException("An error occurred calling the accounts feed", e);
+		} 
+		catch (ParseException e)
+		{
+			throw new ReportingManagerException("Could not parse feed date", e);
+		}
+		
+		AnalyticsResponse ret = new AnalyticsResponse();
+		ret.setDataList(new ArrayList<AnalyticsData>(dataMap.values()));
+		ret.setStartDate(start);
+		ret.setEndDate(end);
+		ret.setMaxCount(maxCount);
+		return ret;
 	}
+	
+	/**
+	 * Get all the facebook apps for the associated client IDs
+	 * and build a filter for the analytics query that will only
+	 * count URLs from those apps
+	 * 
+	 * @param clientIDs
+	 * @return
+	 */
+	private String getAnalyticsFacebookFilter(List<Long> clientIDs)
+	{
+		String filter = "";
+		Criteria crit = session.createCriteria(FacebookAppDO.class);
+		crit.add(Restrictions.in("client.primaryKey", clientIDs));
+		for (FacebookAppDO app : (List<FacebookAppDO>)crit.list())
+		{
+			if (filter.length() > 0)
+			{
+				filter += ",";
+			}
+			filter += "ga:pagePath=@" + app.getFacebookAppId() + "/";
+		}
+		return filter;
+	}
+	
 	
 	private Long getCouponsSent(List<Long> clientIds)
 	{
@@ -620,4 +769,82 @@ public class ReportingManagerImpl implements ReportingManager {
 		}
 		return creditInfos;
 	}
+
+	@Override
+	public List<KeyValuePair> getEndpointSubscriberCount(List<Long> clientIDs) {
+		Criteria crit = session.createCriteria(ContactDO.class);
+		crit.add(Restrictions.in("client.id", clientIDs));
+		List<ContactDO> baseList = crit.list();
+		
+		crit = session.createCriteria(BlacklistDO.class);
+		crit.add(Restrictions.in("client.id", clientIDs));
+		nextBlackList:
+		for(BlacklistDO bl : (List<BlacklistDO>)crit.list())
+		{
+			ContactDO c;
+			Iterator<ContactDO> i = baseList.iterator();
+			nextContact:
+			while(i.hasNext())
+			{
+				c = i.next();
+				if(!bl.getEntryPointType().equals(c.getType()))
+					continue nextContact;
+				if(!bl.getAddress().equals(c.getAddress()))
+					continue nextContact;
+				if(!bl.getClient().getPrimaryKey().equals(c.getClient().getPrimaryKey()))
+					continue nextContact;
+				i.remove();
+				continue nextBlackList;
+			}
+		}
+		
+		clientIDs.retainAll(SecurityUtil.extractClientIds(ctx, session));
+		if(clientIDs==null || clientIDs.size()==0)
+			return new ArrayList<KeyValuePair>();
+		crit = session.createCriteria(EntryPointDO.class);
+		crit.createAlias("clients", "cs");
+		crit.add(Restrictions.in("cs.id", clientIDs));
+		crit.setResultTransformer(new DistinctRootEntityResultTransformer());
+		List<EntryPointDO> availableEntryPoints = (List<EntryPointDO>)crit.list();
+		
+		List<KeyValuePair> ret = new ArrayList<KeyValuePair>();
+		
+		for(EntryPointDO entryPoint : availableEntryPoints)
+		{
+			crit = session.createCriteria(BlacklistDO.class);
+			crit.add(Restrictions.eq("entryPointType", entryPoint.getType()));
+			crit.add(Restrictions.eq("incomingAddress", entryPoint.getValue()));
+			List<ContactDO> secondContactList = new ArrayList<ContactDO>(baseList);
+			
+			nextBlackListRecheck:
+			for(BlacklistDO bl : (List<BlacklistDO>)crit.list())
+			{
+				ContactDO c;
+				Iterator<ContactDO> i = secondContactList.iterator();
+				nextContactRecheck:
+				while(i.hasNext())
+				{
+					c = i.next();
+					if(!bl.getEntryPointType().equals(c.getType()))
+						continue nextContactRecheck;
+					if(!bl.getAddress().equals(c.getAddress()))
+						continue nextContactRecheck;
+					i.remove();
+					continue nextBlackListRecheck;
+				}
+			}
+			
+			Iterator<ContactDO> i = secondContactList.iterator();
+			while(i.hasNext())
+			{
+				if(!i.next().getType().equals(entryPoint.getType()))
+					i.remove();
+			}
+			
+			ret.add(new KeyValuePair(entryPoint.getValue(),""+secondContactList.size()));
+		}
+		
+		return ret;
+	}
+	
 }

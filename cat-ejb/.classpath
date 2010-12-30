@@ -15,5 +15,13 @@
 	<classpathentry kind="lib" path="/campaign-administration-tool/lib/cglib-2.2.jar"/>
 	<classpathentry kind="lib" path="/campaign-administration-tool/lib/objenesis-1.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.generic.runtimeTarget/JBoss v4.2"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/gdata-analytics-2.1.jar"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/gdata-analytics-meta-2.1.jar"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/gdata-base-1.0.jar"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/gdata-client-1.0.jar"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/gdata-client-meta-1.0.jar"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/gdata-core-1.0.jar"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/google-collect-1.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/jsr305.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

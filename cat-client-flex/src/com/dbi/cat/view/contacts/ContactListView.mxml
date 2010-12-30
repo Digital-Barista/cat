@@ -5,20 +5,22 @@
 	creationComplete="init()" xmlns:controls="com.dbi.controls.*">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.view.components.LoadingMessageView;
-			import com.dbi.cat.common.vo.PagingInfoVO;
-			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
-			import com.dbi.cat.common.vo.PagedListVO;
-			import com.dbi.cat.event.ContactEvent;
-			import mx.binding.utils.ChangeWatcher;
 			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.vo.ClientVO;
-			import com.dbi.controls.AdvancedComboBox;
-			import mx.collections.ArrayCollection;
 			import com.dbi.cat.common.vo.ContactTagVO;
-			import com.dbi.util.DateUtil;
-			import mx.controls.dataGridClasses.DataGridColumn;
 			import com.dbi.cat.common.vo.ContactVO;
+			import com.dbi.cat.common.vo.PagedListVO;
+			import com.dbi.cat.common.vo.PagingInfoVO;
+			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.view.components.LoadingMessageView;
+			import com.dbi.controls.AdvancedComboBox;
+			import com.dbi.util.DateUtil;
+			import com.dbi.util.ListUtil;
+			
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.dataGridClasses.DataGridColumn;
 			
 			[Bindable]
 			public var clients:ArrayCollection;
@@ -34,6 +36,13 @@
 			[Bindable]
 			public var isSearchingContacts:Boolean = false;
 			
+			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				doFilter();
+			}
 			
 			private var _contactSearchCriteria:ContactSearchCriteriaVO;
 			[Bindable]
@@ -53,9 +62,6 @@
 			private function init():void
 			{
 				ChangeWatcher.watch(Contacts, "selectedItems", selectedContactsChanged);
-				
-				// Do initial search
-				doFilter();
 			}
 			
 			private function selectedContactsChanged(e:Event):void
@@ -99,7 +105,7 @@
 				if (contactSearchCriteria == null)
 					contactSearchCriteria = new ContactSearchCriteriaVO();
 					
-				contactSearchCriteria.clientId = Client.selectedItem.clientId;
+				contactSearchCriteria.clientIds = ListUtil.getIdList(_filterClients, "clientId");
 				
 				if (ContactType.selectedItem != null)
 					contactSearchCriteria.entryType = ContactType.selectedItem.name;
@@ -132,21 +138,21 @@
 				var ret:Array = [{name:""}];
 				return ret.concat(EntryPointType.allTypes.toArray());
 			}
+			
+			private function clientNameLabel(contact:ContactVO, column:DataGridColumn):String
+			{
+				for each (var client:ClientVO in clients)
+				{
+					if (client.clientId.toString() == contact.clientId)
+						return client.name;
+				}
+				return "";
+			}
 		]]>
 	</mx:Script>
 	<mx:Canvas width="100%" height="100%">
 		<mx:HBox width="100%" verticalAlign="middle"
 			top="5">
-			<mx:Label text="Client:"/>
-			<components:FormattedComboBox
-				id="Client"
-				top="4" left="55"
-				bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
-				selectedBindingProperty="clientId"
-				selectedBindingValue="{contactSearchCriteria.clientId}"
-				labelField="name"
-				dataProvider="{clients}"
-				change="doFilter()" />
 			<mx:Label text="Type:" />
 			<controls:AdvancedComboBox id="ContactType"
 				selectedBindingProperty="name"
@@ -163,6 +169,7 @@
 			dataProvider="{contacts.results}"
 			allowMultipleSelection="true">
 			<mx:columns>
+				<mx:DataGridColumn headerText="Client" labelFunction="clientNameLabel" width="100" />
 				<mx:DataGridColumn headerText="Type" dataField="type" width="60" />
 				<mx:DataGridColumn headerText="Contact" dataField="UID" width="150" />
 				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" width="80" />

@@ -3,14 +3,23 @@
 		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.event.CampaignTestEvent;
-			import com.dbi.cat.event.CampaignTemplateEvent;
 			import com.dbi.cat.common.vo.CampaignVO;
 			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.event.CampaignTemplateEvent;
+			import com.dbi.cat.event.CampaignTestEvent;
+			import com.dbi.util.ListUtil;
+			
 			import mx.collections.ArrayCollection;
 			
 			[Bindable]
 			public var campaignTemplateList:ArrayCollection;
+			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
 			
 			private function init():void
 			{
@@ -37,7 +46,9 @@
 			
 			private function refresh():void
 			{
-				dispatchEvent(new CampaignTemplateEvent(CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES));
+				var event:CampaignTemplateEvent = new CampaignTemplateEvent(CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES);
+				event.clientIds = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>

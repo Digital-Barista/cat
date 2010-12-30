@@ -355,6 +355,8 @@ public class FacebookManagerImpl implements FacebookManager {
 							HashSet<String> addresses = new HashSet<String>();
 							addresses.add(uid);
 							subscriptionManager.subscribeToEntryPoint(addresses,cInfo.getValue(),EntryPointType.Facebook);
+						} else {
+							subscriptionManager.unBlacklistAddressForEntryPoint(uid, EntryPointType.Facebook, app.getFacebookAppId());
 						}
 						
 						// Lookup tags from query string

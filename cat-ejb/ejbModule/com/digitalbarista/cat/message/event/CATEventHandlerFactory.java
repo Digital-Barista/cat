@@ -46,13 +46,13 @@ public class CATEventHandlerFactory implements CATEventHandlerFactoryInterface{
 		switch(t)
 		{
 			case IncomingMessage:
-				return new IncomingMessageEventHandler(em,ctx,emi,cm,conMan,timer);
+				return new IncomingMessageEventHandler(em,ctx);
 			case NodeOperationCompleted:
-				return new NodeOperationCompletedEventHandler(em,ctx,emi,cm,conMan,timer);
+				return new NodeOperationCompletedEventHandler(em,ctx);
 			case ConnectorFired:
-				return new ConnectorFiredEventHandler(em,ctx,emi,cm,conMan,timer);
+				return new ConnectorFiredEventHandler(em,ctx);
 			case MessageSendRequested:
-				return new MessageSendRequestEventHandler(em,ctx,emi,cm,conMan,timer);
+				return new MessageSendRequestEventHandler(em,ctx);
 			default:
 				throw new IllegalArgumentException("Unknown event type:  No configured factory: "+t.toString());
 		}

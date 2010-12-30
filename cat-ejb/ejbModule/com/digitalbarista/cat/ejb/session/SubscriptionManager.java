@@ -41,7 +41,7 @@ public interface SubscriptionManager {
 	
 	public void unsubscribeSubscribers(List<Long> subscriberIds, Long campaignId);
 	
-	public boolean isSubscriberBlacklisted(Long SubscriberId, String entryPoint, EntryPointType type);
+	public boolean isSubscriberBlacklisted(String address, EntryPointType type, String incomingAddress, Long clientID);
 
 	public void registerTwitterFollower(String twitterID, String accountName);
 	
@@ -51,8 +51,12 @@ public interface SubscriptionManager {
 	
 	public void removeFacebookFollower(String facebookID, String accountName);
 	
-	public void blacklistAddresses(List<Contact> contacts);
+	public void blacklistAddressForEntryPoint(String address, EntryPointType type, String incomingAddress);
+
+	public void blacklistContacts(List<Contact> contacts);
 	
-	public void unBlacklistAddresses(List<Contact> contacts);
+	public void unBlacklistAddressForEntryPoint(String address, EntryPointType type, String incomingAddress);
+
+	public void unBlacklistContacts(List<Contact> contacts);
 	
 }

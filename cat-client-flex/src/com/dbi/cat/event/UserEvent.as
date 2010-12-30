@@ -4,6 +4,8 @@ package com.dbi.cat.event
 	import com.dbi.cat.common.vo.UserVO;
 	
 	import flash.events.Event;
+	
+	import mx.collections.ArrayCollection;
 
 	public class UserEvent extends Event
 	{
@@ -21,6 +23,7 @@ package com.dbi.cat.event
 		public var user:UserVO;
 		public var role:RoleVO;
 		public var filterText:String;
+		public var clientIds:ArrayCollection;
 		
 		public function UserEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

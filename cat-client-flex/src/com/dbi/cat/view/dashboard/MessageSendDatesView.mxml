@@ -6,11 +6,10 @@
 			<![CDATA[
 				import com.dbi.cat.common.vo.DateData;
 				import com.dbi.cat.event.ReportingEvent;
-				import com.dbi.util.DateUtil;
+				import com.dbi.util.ListUtil;
 				
 				import mx.charts.chartClasses.Series;
 				import mx.collections.ArrayCollection;
-				import mx.utils.ObjectUtil;
 				
 				private var totalCount:Number = NaN;
 				
@@ -20,20 +19,27 @@
 				[Bindable]
 				public var clients:ArrayCollection;
 				
+				private var _filterClients:ArrayCollection;
+				public function set filterClients(value:ArrayCollection):void
+				{
+					_filterClients = value;
+					refresh();
+				}
+				
 				private function get selectedClientIds():ArrayCollection
 				{
-					return Client.selectedItem.clientId != null ? new ArrayCollection([Client.selectedItem.clientId]) : null;
+					return ListUtil.getIdList(_filterClients, "clientId");
 				}
 				
 				private function init():void
 				{
-					refresh();
 				}
 				
 				private function refresh():void
 				{
 					totalCount = NaN;
 					
+					// Load message sends
 					var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_MESSAGE_SEND_DATES);
 					event.clientIDs = selectedClientIds;
 					event.startDate = DateRange.startDate;
@@ -72,11 +78,11 @@
 			<mx:Label text="Messages Per Day" styleName="chartLabel" />
 			<mx:LineChart id="NewMessages" height="100%" width="100%"
 						  paddingLeft="5" paddingRight="5" 
-						  showDataTips="true" 
-						  dataProvider="{messageSendDates}">
+						  showDataTips="true" >
 				
 				<mx:horizontalAxis>
-					<mx:DateTimeAxis dataUnits="days"
+					<mx:DateTimeAxis id="dateAxis" 
+									 dataUnits="days"
 									 minimum="{DateRange.startDate}"
 									 maximum="{DateRange.endDate}"/>
 				</mx:horizontalAxis>
@@ -85,12 +91,16 @@
 					<mx:LineSeries yField="count" 
 								   xField="date" 
 								   form="segment" 
-								   displayName="New Message Count">
+								   displayName="New Message Count"
+								   dataProvider="{messageSendDates}" >
 						<mx:lineStroke>
 							<mx:Stroke 
 								color="0xB2DC32" 
 								weight="0.2" />
 						</mx:lineStroke> 
+						<mx:verticalAxis>
+							<mx:LinearAxis id="messageAxis" />           
+						</mx:verticalAxis>
 					</mx:LineSeries>
 				</mx:series>
 			</mx:LineChart>
@@ -124,14 +134,6 @@
 		</mx:VBox>
 	</mx:Panel>
 	<mx:HBox right="5" top="7" verticalAlign="middle">
-		<mx:Label text="Client" />
-		<controls:AdvancedComboBox
-			id="Client"
-			dataProvider="{clients}"
-			bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
-			labelField="name" 
-			width="100%"
-			change="refresh()"  />
 		<mx:Image source="@Embed(source='/assets/img/refresh.png')"
 				  top="3" right="200"
 				  width="25" height="25"

@@ -28,12 +28,8 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 	private Logger log = LogManager.getLogger(ConnectorFiredEventHandler.class);
 	
 	public ConnectorFiredEventHandler(EntityManager newEM,
-			SessionContext newSC, 
-			EventManager newEventManager,
-			CampaignManager newCampaignManager,
-			ContactManager newContactManager,
-			EventTimerManager timer) {
-		super(newEM, newSC, newEventManager, newCampaignManager, newContactManager, timer);
+			SessionContext newSC) {
+		super(newEM, newSC);
 	}
 
 	@Override

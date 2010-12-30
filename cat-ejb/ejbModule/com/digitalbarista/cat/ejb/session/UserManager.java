@@ -1,4 +1,5 @@
 package com.digitalbarista.cat.ejb.session;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 import com.digitalbarista.cat.business.Role;
 import com.digitalbarista.cat.business.User;
 import com.digitalbarista.cat.data.UserDO;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 @Local
 @Path("/users")
@@ -63,4 +65,6 @@ public interface UserManager {
 	@DELETE
 	public void delete(User user);
 	public boolean isUserAllowedForClientId(String username, Long clientId);
+	
+	public List<User> getVisibleUsers(List<Long> clientIds);
 }

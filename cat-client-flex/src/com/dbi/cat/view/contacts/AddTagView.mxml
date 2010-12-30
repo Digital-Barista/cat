@@ -35,8 +35,9 @@
 			{
 				if (NewTag.text.length > 0)
 				{
-					// All contacts must be from the same client so get the
-					// clientId from the first one
+					// Use the client from the first contact.  The contacts could
+					// be for a differnt client than the tag...not sure if that
+					// is going to matter or not.
 					var clientId:String = selectedContacts.getItemAt(0).clientId;
 					
 					var tag:ContactTagVO = new ContactTagVO();

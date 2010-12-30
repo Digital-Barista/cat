@@ -5,6 +5,8 @@ package com.dbi.cat.event
 	import com.dbi.cat.common.vo.NodeVO;
 	
 	import flash.events.Event;
+	
+	import mx.collections.ArrayCollection;
 
 	public class CampaignEvent extends Event
 	{
@@ -35,6 +37,7 @@ package com.dbi.cat.event
 		public var node:NodeVO;
 		public var connector:ConnectorVO;
 		public var filterText:String;
+		public var clientIds:ArrayCollection;
 			
 		public function CampaignEvent(type:String)
 		{

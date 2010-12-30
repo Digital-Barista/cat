@@ -4,18 +4,26 @@
 	creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.event.CouponEvent;
-			import mx.formatters.DateFormatter;
-			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import com.dbi.cat.common.vo.CouponVO;
+			import com.dbi.cat.event.CouponEvent;
+			import com.dbi.util.ListUtil;
+			
 			import mx.collections.ArrayCollection;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.formatters.DateFormatter;
 			
 			[Bindable]
 			public var coupons:ArrayCollection;
 			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
+			
 			private function init():void
 			{
-				refresh();
 			}
 			
 			private function formatDate(dataField:String):Function
@@ -93,7 +101,9 @@
 			
 			private function refresh():void
 			{
-				dispatchEvent(new CouponEvent(CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT));
+				var event:CouponEvent = new CouponEvent(CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT);
+				event.clientIds = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>

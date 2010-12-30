@@ -84,8 +84,8 @@ public class ClientManagerImpl implements ClientManager {
     	Criteria crit = session.createCriteria(ClientDO.class);
     	if(!ctx.isCallerInRole("admin"))
     	{
-    		crit.add(Restrictions.in("id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
+    		crit.add(Restrictions.in("id", SecurityUtil.extractClientIds(ctx, session)));
+			if(SecurityUtil.extractClientIds(ctx, session).size() == 0)
 				return ret;
     	}
     	
@@ -100,35 +100,40 @@ public class ClientManagerImpl implements ClientManager {
     	return ret;
     }
     
+
     @SuppressWarnings("unchecked")
 	@RolesAllowed({"admin", "client"})
-	public List<EntryPointDefinition> getEntryPointDefinitions() {
+	public List<EntryPointDefinition> getEntryPointDefinitions()
+	{
+    	return getEntryPointDefinitions(null);
+	}
+    
+    @SuppressWarnings("unchecked")
+	@RolesAllowed({"admin", "client"})
+	public List<EntryPointDefinition> getEntryPointDefinitions(List<Long> clientIds) 
+	{
     	List<EntryPointDefinition> ret = new ArrayList<EntryPointDefinition>();
-    	
-    	Criteria crit = session.createCriteria(EntryPointDO.class);
+
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 		
-		// Limit query by allowed clients if necessary
-    	if(!ctx.isCallerInRole("admin"))
-    	{
-    		crit.createAlias("clients", "clients");
-    		crit.add(Restrictions.in("clients.primaryKey", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-
-    		if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
-    			return ret;
-    	}
-    	
-    	for(EntryPointDO entry : (List<EntryPointDO>)crit.list())
-    	{
-        	EntryPointDefinition epd = new EntryPointDefinition();
-    		epd.copyFrom(entry);
-        	if(ctx.isCallerInRole("admin"))
-        		epd.setCredentials(entry.getCredentials());
-    		ret.add(epd);
-    	}
-
-    	for(EntryPointDefinition epd : ret)
-    		fillInEntryPointKeywordData(epd);
-    	
+		if (allowedClientIds.size() > 0)
+		{
+	    	Criteria crit = session.createCriteria(EntryPointDO.class);
+	    	crit.createAlias("clients", "clients");
+    		crit.add(Restrictions.in("clients.primaryKey", allowedClientIds));
+	    	
+	    	for(EntryPointDO entry : (List<EntryPointDO>)crit.list())
+	    	{
+	        	EntryPointDefinition epd = new EntryPointDefinition();
+	    		epd.copyFrom(entry);
+	        	if(ctx.isCallerInRole("admin"))
+	        		epd.setCredentials(entry.getCredentials());
+	    		ret.add(epd);
+	    	}
+	
+	    	for(EntryPointDefinition epd : ret)
+	    		fillInEntryPointKeywordData(epd);
+		}
     	return ret;
     }
     
@@ -379,29 +384,34 @@ public class ClientManagerImpl implements ClientManager {
 
 	@Override
 	@RolesAllowed({"admin", "client"})
-	public List<Keyword> getAllKeywords() {
-		Query q = em.createQuery("select k from KeywordDO k");
+	public List<Keyword> getAllKeywords() 
+	{
+		return getKeywords(null);
+	}
+	
+	@Override
+	@RolesAllowed({"admin", "client"})
+	public List<Keyword> getKeywords(List<Long> clientIds)
+	{
 		List<Keyword> ret = new ArrayList<Keyword>();
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
 		
-		Criteria crit = session.createCriteria(KeywordDO.class);
-		
-		// Limit query by allowed clients if necessary
-    	if(!ctx.isCallerInRole("admin"))
-    	{
-    		crit.add(Restrictions.in("client.primaryKey", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
-				return ret;
-    	}
-    	
-		Keyword temp;
-		for(KeywordDO keyword : (List<KeywordDO>)crit.list())
+		if (allowedClientIds.size() > 0)
 		{
-			temp=new Keyword();
-			temp.copyFrom(keyword);
-			ret.add(temp);
+			Criteria crit = session.createCriteria(KeywordDO.class);
+			crit.add(Restrictions.in("client.primaryKey", allowedClientIds));
+	    	
+			Keyword temp;
+			for(KeywordDO keyword : (List<KeywordDO>)crit.list())
+			{
+				temp=new Keyword();
+				temp.copyFrom(keyword);
+				ret.add(temp);
+			}
 		}
 		return ret;
 	}
+	
 
 	@Override
 	public List<Keyword> getAllKeywordsForClient(Long clientID) {

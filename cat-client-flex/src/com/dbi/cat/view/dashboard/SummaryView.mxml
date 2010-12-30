@@ -6,12 +6,14 @@
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.DashboardCountVO;
 			import com.dbi.cat.common.vo.DashboardDataVO;
 			import com.dbi.cat.common.vo.MessageCreditInfoVO;
 			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.cat.event.ReportingEvent;
 			import com.dbi.controls.AdvancedComboBox;
+			import com.dbi.util.ListUtil;
 			
 			import mx.collections.ArrayCollection;
 			
@@ -30,6 +32,12 @@
 			[Bindable]
 			public var clients:ArrayCollection;
 			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
 			
 			[Bindable(event="dashboardDataUpdate")]
 			private function get contactTotal():Number
@@ -90,11 +98,14 @@
 				
 				try
 				{
-					if (dashboardData != null)
+					if (dashboardData != null &&
+						_filterClients != null &&
+						_filterClients.length == 1)
 					{
+						var onlyClient:ClientVO = _filterClients.getItemAt(0) as ClientVO;
 						for each (var info:MessageCreditInfoVO in dashboardData.messageCreditInfos)
 						{
-							if (info.clientName == Client.selectedItem.name)
+							if (info.clientName == onlyClient.name)
 							{
 								if (keys[info.network] == null)
 									keys[info.network] = new Object();
@@ -127,24 +138,21 @@
 			
 			private function init():void
 			{
-				refresh();
 			}
 			
-			private function changeClient():void
-			{
-				var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_DASHBOARD);
-				if (Client.selectedItem.clientId != null)
-					event.clientIDs = new ArrayCollection([Client.selectedItem.clientId]);
-				
-				dispatchEvent(event);
-			}
 			private function refresh():void
 			{
-				changeClient();
+				var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_DASHBOARD);
+				event.clientIDs = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(event);
 			}
 			private function addCredits():void
 			{
 				dispatchEvent(new ClientEvent(ClientEvent.OPEN_ADD_CREDITS));
+			}
+			private function endpointLabel(item:Object):String
+			{
+				return item.key + " " + item.value;
 			}
 		]]>
 	</mx:Script>
@@ -211,17 +219,23 @@
 					<mx:Label text="Subscribers" styleName="dashboardSubLabel1" width="120" />
 					<mx:Label text="{dashboardData.subscriberCount}" styleName="dashboardDataLabel" minWidth="50" />
 				</mx:HBox>
+				<mx:Label text="Endpoint Info" styleName="dashboardLabel" />
+				<mx:DataGrid dataProvider="{dashboardData.endPointSubscriberCounts}"
+							 showHeaders="false"
+							 resizableColumns="false"
+							 borderStyle="none"
+							 backgroundAlpha="0"
+							 selectable="false" 
+							 styleName="dashboardSubLabel1"
+							 verticalGridLines="false">
+					<mx:columns>
+						<mx:DataGridColumn dataField="key"  width="120"  />
+						<mx:DataGridColumn dataField="value"  minWidth="50" />
+					</mx:columns>
+				</mx:DataGrid>
 			</mx:VBox>
 		</mx:TitleWindow>
 		<mx:HBox right="5" top="7" verticalAlign="middle">
-		  <mx:Label text="Client" />
-		  <controls:AdvancedComboBox
-			  id="Client"
-			  dataProvider="{clients}"
-			  bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
-			  labelField="name" 
-			  width="100%"
-			  change="changeClient()"  />
 			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
 				top="3" right="200"
 				width="25" height="25"

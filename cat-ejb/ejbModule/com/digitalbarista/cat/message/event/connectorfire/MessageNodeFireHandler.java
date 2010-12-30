@@ -45,34 +45,13 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 		String fromAddress = csl.getLastHitEntryPoint();
 		EntryPointType fromType = csl.getLastHitEntryType();
 
-		if(sMan.isSubscriberBlacklisted(s.getPrimaryKey(), fromAddress, fromType))
+		if(sMan.isSubscriberBlacklisted(s.getAddress(), fromType, fromAddress, csl.getCampaign().getClient().getPrimaryKey()))
 			return;
 
 		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getDetailedCampaign(mNode.getCampaignUID()), fromType, mNode.getMessageForType(fromType));
 		for(String actualMessage : messagePart.getMessages())
 		{
-			switch(fromType)
-			{
-				
-				case Email:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getEmail(), actualMessage, mNode.getName(),mNode.getUid(),version);
-					break;
-				
-				case SMS:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getPhoneNumber(), actualMessage, mNode.getName(),mNode.getUid(),version);
-					break;
-					
-				case Twitter:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getTwitterID(), actualMessage, mNode.getName(),mNode.getUid(),version);
-					break;
-					
-				case Facebook:
-					sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getFacebookID(), actualMessage, mNode.getName(),mNode.getUid(),version);
-					break;
-					
-				default:
-					throw new IllegalStateException("NodeDO must be either Email or SMS . . . mixed or other types are not supported.");
-			}
+			sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getAddress(), actualMessage, mNode.getName(),mNode.getUid(),version);
 			eMan.queueEvent(sendMessageEvent);
 		}
 			

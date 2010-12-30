@@ -30,7 +30,6 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.business.Role;
 import com.digitalbarista.cat.business.User;
-import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.RoleDO;
 import com.digitalbarista.cat.data.UserDO;
 import com.digitalbarista.cat.util.SecurityUtil;
@@ -151,7 +150,7 @@ public class UserManagerImpl implements UserManager {
 			if(ctx.getCallerPrincipal().getName().equals(ret.getUsername()))
 				return ret;
 			
-			Set<Long> clientIds = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+			Set<Long> clientIds = SecurityUtil.extractClientIds(ctx, session);
 			
 			for(RoleDO role : ret.getRoles())
 			{
@@ -182,7 +181,7 @@ public class UserManagerImpl implements UserManager {
 		if(ctx.getCallerPrincipal().getName().equals(ret.getUsername()))
 			return ret;
 
-		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx, session);
 		
 		for(RoleDO role : ret.getRoles())
 		{
@@ -265,9 +264,9 @@ public class UserManagerImpl implements UserManager {
 				}
 				
 				//And ALL of their allowed IDs
-				Set<Long> allowedIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
+				Set<Long> allowedIDs = SecurityUtil.extractClientIds(ctx, session);
 				//Have to match the client user's IDs
-				Set<Long> neededIDs = SecurityUtil.extractClientIds(ctx,userManager,session,user.getUsername());
+				Set<Long> neededIDs = SecurityUtil.extractClientIds(ctx, session, user.getUsername());
 				//Otherwise, they're booted!
 				if(!allowedIDs.containsAll(neededIDs))
 				{
@@ -359,31 +358,35 @@ public class UserManagerImpl implements UserManager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllVisibleUsers() {
+	public List<User> getAllVisibleUsers() 
+	{
+		return getVisibleUsers(null);
+	}
+	
+	public List<User> getVisibleUsers(List<Long> clientIds)
+	{
 		Criteria crit = null;
 		List<User> ret = new ArrayList<User>();
-		if(ctx.isCallerInRole("admin"))
+		
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
+		
+		if (allowedClientIds.size() > 0)
 		{
-			crit = session.createCriteria(UserDO.class);
-			crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-		} else {
-			Set<Long> clientIDs = SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName());
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
-				return ret;
 			crit = session.createCriteria(RoleDO.class);
 			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
-			crit.add(Restrictions.in("refId", clientIDs));
+			crit.add(Restrictions.in("refId", allowedClientIds));
 			crit.createAlias("user", "user");
 			crit.setProjection(Projections.distinct(Projections.groupProperty("user")));
-		}
-
-		User u;
-		List<UserDO> list = (List<UserDO>)crit.list();
-		for(UserDO user : list)
-		{
-			u = new User();
-			u.copyFrom(user);
-			ret.add(u);
+			crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+			
+			User u;
+			List<UserDO> list = (List<UserDO>)crit.list();
+			for(UserDO user : list)
+			{
+				u = new User();
+				u.copyFrom(user);
+				ret.add(u);
+			}
 		}
 		return ret;
 	}
@@ -411,6 +414,8 @@ public class UserManagerImpl implements UserManager {
 		return false;
 	}
 
+	
+	
 	private boolean isAdmin(String username)
 	{
 		for(RoleDO role : getSimpleUserByUsername(username).getRoles())

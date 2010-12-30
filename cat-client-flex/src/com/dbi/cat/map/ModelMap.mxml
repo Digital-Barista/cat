@@ -44,9 +44,12 @@
 			import com.dbi.cat.view.contacts.TagChooser;
 			import com.dbi.cat.view.dashboard.ContactCreatesView;
 			import com.dbi.cat.view.dashboard.DashboardView;
+			import com.dbi.cat.view.dashboard.FacebookAnalyticsView;
 			import com.dbi.cat.view.dashboard.MessageSendDatesView;
 			import com.dbi.cat.view.dashboard.SummaryView;
 			import com.dbi.cat.view.dashboard.TagSummaryView;
+			import com.dbi.cat.view.navigation.MultiCampaignSelect;
+			import com.dbi.cat.view.navigation.MultiCampaignSelectMenu;
 			import com.dbi.cat.view.profile.AddCreditsView;
 			import com.dbi.cat.view.profile.ClientInfoEditor;
 			import com.dbi.cat.view.profile.ClientInformationView;
@@ -97,12 +100,6 @@
 			sourceKey="generalStatusMessage"
 			targetKey="statusMessage" />
 	</Injectors>
-	<Injectors target="{NavigationView}">
-		<PropertyInjector 
-			source="{NavigationManager}"
-			sourceKey="mainCurrentView"
-			targetKey="selectedView" />
-	</Injectors>
 	<Injectors target="{RecoverPasswordView}">
 		<PropertyInjector
 			source="{NavigationManager}"
@@ -114,6 +111,10 @@
 			source="{UserManager}"
 			sourceKey="userList"
 			targetKey="userList" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{LoginView}">
 		<PropertyInjector
@@ -144,12 +145,20 @@
 			source="{CampaignManager}"
 			sourceKey="modifiedCampaignList"
 			targetKey="campaignList" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{TemplateCampaignsView}">
 		<PropertyInjector
 			source="{CampaignTemplateManager}"
 			sourceKey="campaignTemplateList"
 			targetKey="campaignTemplateList" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{EditCampaignView}">
 		<PropertyInjector
@@ -263,6 +272,10 @@
 			source="{ClientManager}"
 			sourceKey="keywords"
 			targetKey="keywords" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{EditKeywordView}">
 		<PropertyInjector
@@ -297,6 +310,10 @@
 			source="{ClientManager}"
 			sourceKey="entryPointDefinitions"
 			targetKey="entryPointDefinitions" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	
 	<!-- 
@@ -323,6 +340,10 @@
 			source="{CouponManager}"
 			sourceKey="coupons"
 			targetKey="coupons" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{CouponRedemptionView}">
 		<PropertyInjector
@@ -387,6 +408,10 @@
 			source="{ContactManager}"
 			sourceKey="isSearchingContacts"
 			targetKey="isSearchingContacts" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{ContactImportView}">
 		<PropertyInjector
@@ -491,6 +516,10 @@
 			source="{ClientManager}"
 			sourceKey="allClients"
 			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{AddCreditsView}">
 		<PropertyInjector
@@ -507,6 +536,10 @@
 			source="{ReportingManager}"
 			sourceKey="tagSummaries"
 			targetKey="tagSummaries" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{ContactCreatesView}">
 		<PropertyInjector
@@ -517,6 +550,10 @@
 			source="{ReportingManager}"
 			sourceKey="contactCreateDates"
 			targetKey="contactCreateDates" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{MessageSendDatesView}">
 		<PropertyInjector
@@ -527,5 +564,47 @@
 			source="{ReportingManager}"
 			sourceKey="messageSendDates"
 			targetKey="messageSendDates" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
+	</Injectors>
+	<Injectors target="{FacebookAnalyticsView}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="allClients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="contactCreateDates"
+			targetKey="contactCreateDates" />
+		<PropertyInjector
+			source="{ReportingManager}"
+			sourceKey="facebookAppVisits"
+			targetKey="facebookAppVisits" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
+	</Injectors>
+	<Injectors target="{MultiCampaignSelectMenu}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
+	</Injectors>
+	<Injectors target="{MultiCampaignSelect}">
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="clients"
+			targetKey="clients" />
+		<PropertyInjector
+			source="{ClientManager}"
+			sourceKey="filterClients"
+			targetKey="filterClients" />
 	</Injectors>
 </EventMap>

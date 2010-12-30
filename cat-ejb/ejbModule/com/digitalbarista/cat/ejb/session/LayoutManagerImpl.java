@@ -83,8 +83,8 @@ public class LayoutManagerImpl implements LayoutManager {
 		if(!ctx.isCallerInRole("admin"))
 		{
 			crit.createAlias("campaign", "campaign");
-			crit.add(Restrictions.in("campaign.client.id", SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName())));
-			if(SecurityUtil.extractClientIds(ctx,userManager,session,ctx.getCallerPrincipal().getName()).size()==0)
+			crit.add(Restrictions.in("campaign.client.id", SecurityUtil.extractClientIds(ctx, session)));
+			if(SecurityUtil.extractClientIds(ctx, session).size()==0)
 				return ret;
 		}
 

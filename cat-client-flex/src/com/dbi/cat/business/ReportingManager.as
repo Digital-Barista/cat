@@ -1,5 +1,7 @@
 package com.dbi.cat.business
 {
+	import com.dbi.cat.common.vo.AnalyticsData;
+	import com.dbi.cat.common.vo.AnalyticsResponse;
 	import com.dbi.cat.common.vo.DashboardDataVO;
 	import com.dbi.cat.common.vo.DateData;
 	import com.dbi.cat.event.ReportingEvent;
@@ -25,6 +27,7 @@ package com.dbi.cat.business
 		public var tagSummaries:ArrayCollection;
 		public var contactCreateDates:ArrayCollection;
 		public var messageSendDates:ArrayCollection;
+		public var facebookAppVisits:AnalyticsResponse;
 		
 		public function ReportingManager(dispatcher:IEventDispatcher)
 		{
@@ -50,12 +53,18 @@ package com.dbi.cat.business
 		
 		public function loadContactCreateDates(creates:ArrayCollection, start:Date, end:Date):void
 		{
-			this.contactCreateDates = fillEmptyDays(creates, start, end);
+			this.contactCreateDates = fillEmptyDays(creates, start, end, DateData);
 		}
 		
 		public function loadMessageSendDates(messageDates:ArrayCollection, start:Date, end:Date):void
 		{
-			this.messageSendDates = fillEmptyDays(messageDates, start, end);
+			this.messageSendDates = fillEmptyDays(messageDates, start, end, DateData);
+		}
+		
+		public function loadFacebookAppVisits(analytics:AnalyticsResponse, start:Date, end:Date):void
+		{
+			analytics.dataList = fillEmptyDays(analytics.dataList, start, end, AnalyticsData);
+			this.facebookAppVisits = analytics;
 		}
 		
 		/**
@@ -68,22 +77,25 @@ package com.dbi.cat.business
 		 * @param end End date of the range to fill
 		 * @return A new ArrayCollection with DateData for each day in range
 		 */
-		private function fillEmptyDays(dateData:ArrayCollection, start:Date, end:Date):ArrayCollection
+		private function fillEmptyDays(dateData:ArrayCollection, start:Date, end:Date, type:Class):ArrayCollection
 		{
 			// Fill in missing dates with zero counts
 			var ret:ArrayCollection = new ArrayCollection();
 			
 			// Map the current data by date
 			var dateMap:Object = new Object();
-			for each (var data:DateData in dateData)
+			for each (var data:Object in dateData)
 				dateMap[data.date.fullYear + "-" + data.date.month + "-" + data.date.date] = data;
 			
 			// Go through every day in range
 			var time:Number = start.time;
+			var previous:Object = null;
+			var previousDate:Date = null;
 			while (time < end.time)
 			{
 				var d:Date = new Date(time);
-				var existing:DateData = dateMap[d.fullYear + "-" + d.month + "-" + d.date];
+				var existing:Object = dateMap[d.fullYear + "-" + d.month + "-" + d.date];
+				
 				
 				if (existing != null)
 				{
@@ -91,14 +103,16 @@ package com.dbi.cat.business
 				}
 				else
 				{
-					var empty:DateData = new DateData();
-					empty.date = d;
+					var empty:Object = new type();
+					empty.date = existing == null ? d : previousDate;
 					empty.count = 0;
 					if (dateData.length > 0)
 						empty.total = dateData.getItemAt(0).total;
 					ret.addItem(empty);
 				}
 				
+				previous = ret.getItemAt(ret.length - 1);
+				previousDate = d;
 				time += 24*60*60*1000;
 			}
 			

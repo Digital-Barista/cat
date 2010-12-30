@@ -7,16 +7,16 @@ import com.digitalbarista.cat.data.EntryPointType;
 
 public class ContactSearchCriteria {
 
-	private Long clientId;
+	private List<Long> clientIds;
 	private EntryPointType entryType;
 	private List<ContactTag> contactTags;
 	private String address;
 	
-	public Long getClientId() {
-		return clientId;
+	public List<Long> getClientIds() {
+		return clientIds;
 	}
-	public void setClientId(Long clientId) {
-		this.clientId = clientId;
+	public void setClientIds(List<Long> clientIds) {
+		this.clientIds = clientIds;
 	}
 	public EntryPointType getEntryType() {
 		return entryType;

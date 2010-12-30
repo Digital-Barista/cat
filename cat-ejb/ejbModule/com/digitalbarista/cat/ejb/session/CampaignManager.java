@@ -55,6 +55,10 @@ public interface CampaignManager {
 	@Wrapped(element="Templates")
 	public List<Campaign> getAllTemplates();
 	
+	public List<Campaign> getCampaigns(List<Long> clientIDs);
+	public List<Campaign> getCampaignTemplates(List<Long> clientIDs);
+	
+	
 	@GET
 	@Path("/nodes/{uid}")
 	public Node getNode(@PathParam("uid") String nodeUUID);

@@ -23,7 +23,8 @@
 			arguments="{ServiceStatusMessage.LOADING_CAMPAIGNS}" />
 		<RemoteObjectInvoker 
 			destination="campaignManager"
-			method="getAllCampaigns"
+			method="getCampaigns"
+			arguments="{event.clientIds}"
 			showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{CampaignManager}"

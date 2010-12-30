@@ -29,4 +29,6 @@ public interface CouponManager {
     @GET
     @Wrapped(element="Coupons")
 	public List<Coupon> couponSummaryByClient(@QueryParam("clientid") Long clientID);
+
+	public List<Coupon> getCouponSummaries(List<Long> clientIDs);
 }

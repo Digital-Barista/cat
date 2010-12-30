@@ -5,7 +5,9 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -42,9 +44,10 @@ public interface FacebookManager
 	@Path("/messages/authorize/{facebookAppId}/{uid}")
 	void userAuthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
 	
-	@DELETE
-	@Path("/messages/authorize/{facebookAppId}/{uid}")
-	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
+	@POST
+	@Consumes("application/x-www-form-urlencoded")
+	@Path("/deauthorize/{facebookAppId}")
+	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @FormParam("fb_sig_user") String uid);
 
 	void updateMessageCounter(String appId, String uid);
 	void updateMessageCounter(String appId, String uid, Integer count);

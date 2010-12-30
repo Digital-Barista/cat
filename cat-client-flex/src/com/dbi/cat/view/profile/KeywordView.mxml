@@ -3,16 +3,24 @@
 		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.util.ListUtil;
+			
 			import mx.collections.ArrayCollection;
 			
 			[Bindable]
 			public var keywords:ArrayCollection;
 			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
+			
 			private function init():void
 			{
-				refresh();
 			}
 			
 			private function addKeyword():void
@@ -23,7 +31,9 @@
 			}
 			private function refresh():void
 			{
-				dispatchEvent(new ClientEvent(ClientEvent.LIST_KEYWORDS));
+				var event:ClientEvent = new ClientEvent(ClientEvent.LIST_KEYWORDS);
+				event.clientIds = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(event);
 			}
 		]]>
 	</mx:Script>

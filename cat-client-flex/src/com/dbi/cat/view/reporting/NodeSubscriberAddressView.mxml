@@ -85,6 +85,7 @@
 						var contact:ContactVO = new ContactVO();
 						contact.address = sub.address;
 						contact.type = sub.entryPointType;
+						contact.clientId = campaign.clientPK.toString();
 						contacts.addItem(contact);
 					}
 					
