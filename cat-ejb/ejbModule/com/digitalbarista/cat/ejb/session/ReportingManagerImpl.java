@@ -88,7 +88,7 @@ public class ReportingManagerImpl implements ReportingManager
 
 	private static final String DBI_ANALYTICS_USERNAME = "dbigaviewonly@gmail.com";
 	private static final String DBI_ANALYTICS_PASSWORD = "Yamahar6";
-	private static final String DBI_ANALYTICS_TABLE_ID = "ga:40667938"; // Table ID associated with an Analytics Profile (*.digitalbarista.com)
+	private static final String DBI_ANALYTICS_TABLE_ID = "ga:40674401"; // Table ID associated with an Analytics Profile (*.digitalbarista.com)
 	
 	private static final String GA_VISITS = "ga:visits";
 	private static final String GA_NEW_VISITS = "ga:newVisits";
