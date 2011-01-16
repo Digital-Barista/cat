@@ -112,9 +112,17 @@ public class ContactManagerImpl implements ContactManager {
 			// Apply search criteria
 	    	if (searchCriteria != null)
 	    	{
-	    		// Filter by entry point type
-	    		if (searchCriteria.getEntryType() != null)
-	    			crit.add(Restrictions.eq("type", searchCriteria.getEntryType()));
+	    		// Filter by entry point types
+	    		if (searchCriteria.getEntryTypes() != null)
+	    		{
+	    			List<EntryPointType> types = new ArrayList<EntryPointType>();
+	    			for (Object item : searchCriteria.getEntryTypes())
+	    			{
+	    				EntryPointType type = item instanceof EntryPointType ? (EntryPointType)item : EntryPointType.valueOf(item.toString());
+	    				types.add(type);
+	    			}
+	    			crit.add(Restrictions.in("type", types));
+	    		}
 	    		
 	    		// Filter by list of contacts associated with the contact
 	    		if (searchCriteria.getContactTags() != null &&

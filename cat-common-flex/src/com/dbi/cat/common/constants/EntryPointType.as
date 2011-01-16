@@ -34,6 +34,15 @@ package com.dbi.cat.common.constants
 		public static const TWITTER:EntryPointType = new EntryPointType("Twitter", 140);
 		public static const FACEBOOK:EntryPointType = new EntryPointType("Facebook", 0, NaN, true);
 		
+		public static function getByName(name:String):EntryPointType
+		{
+			for each (var type:EntryPointType in allTypes)
+			{
+				if (type.name == name)
+					return type;
+			}
+			return null;
+		}
 		
 		public static function allowAutoStart(entryType:String):Boolean
 		{

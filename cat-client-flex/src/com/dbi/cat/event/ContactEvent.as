@@ -12,6 +12,7 @@ package com.dbi.cat.event
 	public class ContactEvent extends Event
 	{
 		public static const LIST_CONTACTS:String = "listContactsEvent";
+		public static const CHANGE_SEARCH_CRITERIA:String = "changeSearchCriteriaEvent";
 		public static const LIST_CONTACT_TAGS:String = "listContactTagsEvent";
 		public static const SAVE_CONTACT_TAG:String = "saveContactTagEvent";
 		public static const DELETE_CONTACT_TAG:String = "deleteContactTagEvent";

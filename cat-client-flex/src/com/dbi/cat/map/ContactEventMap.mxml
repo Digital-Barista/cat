@@ -47,6 +47,11 @@
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CHANGE_SEARCH_CRITERIA}">
+				<MethodInvoker generator="{ContactManager}"
+							   method="changeSearchCriteria"
+							   arguments="{[event.searchCriteria, event.pagingInfo]}" />
+	</EventHandlers>
 	<EventHandlers type="{ContactEvent.LIST_CONTACT_TAGS}">
 		<RemoteObjectInvoker destination="contactManager"
 			method="getContactTags">

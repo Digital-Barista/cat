@@ -7,7 +7,7 @@ package com.dbi.cat.common.vo.criteria
 	public class ContactSearchCriteriaVO
 	{
 		public var clientIds:ArrayCollection;
-		public var entryType:String;
+		public var entryTypes:ArrayCollection;
 		public var contactTags:ArrayCollection;
 	
 		public function ContactSearchCriteriaVO()

@@ -103,12 +103,18 @@
 				
 				// Setup search criteria
 				if (contactSearchCriteria == null)
+				{
 					contactSearchCriteria = new ContactSearchCriteriaVO();
-					
+				}
+				
+				// Add client IDs
 				contactSearchCriteria.clientIds = ListUtil.getIdList(_filterClients, "clientId");
 				
-				if (ContactType.selectedItem != null)
-					contactSearchCriteria.entryType = ContactType.selectedItem.name;
+				// Add EntryTypes
+				if (EntryType.selectedDataItems != null)
+				{
+					contactSearchCriteria.entryTypes = ListUtil.getIdList(EntryType.selectedDataItems, "name");
+				}
 					
 				event.searchCriteria = contactSearchCriteria;
 				event.pagingInfo = contactPagingInfo;
@@ -154,12 +160,11 @@
 		<mx:HBox width="100%" verticalAlign="middle"
 			top="5">
 			<mx:Label text="Type:" />
-			<controls:AdvancedComboBox id="ContactType"
-				selectedBindingProperty="name"
-				selectedBindingValue="{contactSearchCriteria.entryType}"
-				dataProvider="{contactTypes}"
-				labelField="name"
-				change="doFilter()" />
+			<components:MultiSelectDropDown
+				id="EntryType"
+				dataProvider="{EntryPointType.allTypes}"
+				dataField="name"
+				selectedItemsChanged="doFilter()" />
 			<mx:Label text="Tags" />
 			<mx:Button label="{tagLabel}"
 				click="openTagFilter()" />
