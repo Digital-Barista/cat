@@ -121,8 +121,14 @@ public class ContactManagerImpl implements ContactManager {
 	    			List<EntryPointType> types = new ArrayList<EntryPointType>();
 	    			for (Object item : searchCriteria.getEntryTypes())
 	    			{
-	    				EntryPointType type = item instanceof EntryPointType ? (EntryPointType)item : EntryPointType.valueOf(item.toString());
-	    				types.add(type);
+	    				if (item instanceof String)
+	    				{
+	    					types.add(EntryPointType.valueOf(item.toString()));
+	    				}
+	    				else if (item instanceof EntryPointType)
+	    				{
+	    					types.add((EntryPointType)item);
+	    				}
 	    			}
 	    			crit.add(Restrictions.in("type", types));
 	    		}
