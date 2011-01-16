@@ -55,12 +55,9 @@ package com.dbi.cat.business
 				{
 					for each (var ed:EntryDataVO in n.entryData)
 					{
-						if (ed.valid)
+						if (!types.contains(ed.entryType))
 						{
-							if (!types.contains(ed.entryType))
-							{
-								types.addItem(ed.entryType);
-							}
+							types.addItem(ed.entryType);
 						}
 					}
 				}
