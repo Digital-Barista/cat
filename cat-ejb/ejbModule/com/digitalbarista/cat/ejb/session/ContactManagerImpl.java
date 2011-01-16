@@ -44,6 +44,8 @@ import com.digitalbarista.cat.util.PagedList;
 import com.digitalbarista.cat.util.PagingUtil;
 import com.digitalbarista.cat.util.SecurityUtil;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+
 /**
  * Session Bean implementation class ContactManagerImpl
  */
@@ -104,8 +106,9 @@ public class ContactManagerImpl implements ContactManager {
 		}
 		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, requestedClientIds);
 		
-		
-		if (allowedClientIds.size() > 0)
+		// Don't do a query if the filter will filter everything out
+		if (allowedClientIds.size() > 0 &&
+			isValidSearch(searchCriteria))
 		{
 			crit.add(Restrictions.in("client.primaryKey", allowedClientIds));
     	
@@ -156,6 +159,27 @@ public class ContactManagerImpl implements ContactManager {
 		}
 		return ret;
 	}
+	private Boolean isValidSearch(ContactSearchCriteria criteria)
+	{
+		Boolean ret = true;
+		
+		if (criteria != null)
+		{
+			if (criteria.getContactTags() != null &&
+				criteria.getContactTags().size() == 0)
+			{
+				ret = false;
+			}
+			
+			if (criteria.getEntryTypes() != null &&
+				criteria.getEntryTypes().size() == 0)
+			{
+				ret = false;
+			}
+		}
+		
+		return ret;
+	}
 	
 	@SuppressWarnings("unchecked")
 	@PermitAll
@@ -189,7 +213,7 @@ public class ContactManagerImpl implements ContactManager {
 		List<Long> clientIds = new ArrayList<Long>();
 		clientIds.add(camp.getClient().getPrimaryKey());
 		searchCrit.setClientIds(clientIds);
-		searchCrit.setEntryType(sub.getType());
+		searchCrit.setEntryTypes(Arrays.asList(new EntryPointType[]{sub.getType()}));
 		searchCrit.setAddress(sub.getAddress());
 		PagedList<Contact> matchingContacts = getContacts(searchCrit, null);
 		if(matchingContacts.getTotalResultCount()!=1)

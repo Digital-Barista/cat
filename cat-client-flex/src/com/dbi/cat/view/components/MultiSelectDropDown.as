@@ -1,5 +1,6 @@
 package com.dbi.cat.view.components
 {
+	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
@@ -13,12 +14,13 @@ package com.dbi.cat.view.components
 	import mx.controls.RadioButton;
 	import mx.controls.RadioButtonGroup;
 	import mx.core.Application;
+	import mx.managers.PopUpManager;
 	
 	[Event(name="selectedItemsChanged", type="flash.events.Event")]
 	public class MultiSelectDropDown extends Button
 	{
 		
-		private var _popup:VBox;
+		private var box:VBox;
 		private var all:RadioButton;
 		private var select:RadioButton;
 		private var radioGroup:RadioButtonGroup;
@@ -32,6 +34,9 @@ package com.dbi.cat.view.components
 		public function set selectedDataItems(value:ArrayCollection):void
 		{
 			_selectedDataItems = value;
+			closeMenu();
+			buildPopup();
+			updateButtonLabel();
 		}
 		
 		private var _dataProvider:ArrayCollection;
@@ -72,45 +77,49 @@ package com.dbi.cat.view.components
 			}
 		}
 		
-		public function toggleMenu():void
-		{
-			if (_popup != null &&
-				Application.application.contains(_popup))
-			{
-				closeMenu();
-			}
-			else
-			{
-				openMenu();
-			}
-		}
-		
 		protected function onClick(e:MouseEvent):void
 		{
-			toggleMenu();
+			openMenu();
 		}
 		
 		public function openMenu():void
 		{
-			if (_popup == null)
+			if (box == null)
 			{
-				_popup = buildPopup();
+				buildPopup();
 			}
 			
 			var global:Point = localToGlobal(new Point(0, height));
-			_popup.x = global.x;
-			_popup.y = global.y;
+			box.x = global.x;
+			box.y = global.y;
 			
-			Application.application.addChild(_popup);
+			PopUpManager.addPopUp(box, parent);
+			var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+			sbRoot.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownOutsideHandler);
+			
 		}
 		public function closeMenu():void
 		{
-			Application.application.removeChild(_popup);
+			PopUpManager.removePopUp(box);
+			var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+			sbRoot.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDownOutsideHandler);
+		}
+		
+		private function mouseDownOutsideHandler(e:MouseEvent):void
+		{
+			var target:DisplayObject = DisplayObject(e.target);
+			while (target)
+			{
+				if (target == box)
+					return;
+				target = target.parent;
+			}
+			closeMenu();
 		}
 		
 		private function buildPopup():VBox
 		{
-			var box:VBox = new VBox();
+			box = new VBox();
 			box.setStyle("backgroundColor", 0xFFFFFF);
 			box.setStyle("borderStyle", "solid");
 			box.setStyle("paddingTop", 10);
@@ -125,11 +134,12 @@ package com.dbi.cat.view.components
 			all = new RadioButton();
 			all.label = "All";
 			all.group = radioGroup;
-			all.selected = true;
+			all.selected = _selectedDataItems == null;
 			box.addChild(all);
 			
 			select = new RadioButton();
 			select.label = "Select";
+			select.selected = !all.selected;
 			select.group = radioGroup;
 			box.addChild(select);
 			

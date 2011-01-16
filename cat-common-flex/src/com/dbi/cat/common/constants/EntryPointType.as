@@ -1,5 +1,7 @@
 package com.dbi.cat.common.constants
 {
+	import com.dbi.util.ListUtil;
+	
 	import mx.collections.ArrayCollection;
 	
 	[Bindable]
@@ -66,6 +68,11 @@ package com.dbi.cat.common.constants
 				EntryPointType.FACEBOOK]);
 			}
 			return _allTypes;
+		}
+		
+		public static function get allTypeNames():ArrayCollection
+		{
+			return ListUtil.getIdList(allTypes, "name");
 		}
 	}
 }
