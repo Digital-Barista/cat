@@ -8,7 +8,7 @@ import com.digitalbarista.cat.data.EntryPointType;
 public class ContactSearchCriteria {
 
 	private List<Long> clientIds;
-	private EntryPointType entryType;
+	private List<EntryPointType> entryTypes; 
 	private List<ContactTag> contactTags;
 	private String address;
 	
@@ -18,11 +18,14 @@ public class ContactSearchCriteria {
 	public void setClientIds(List<Long> clientIds) {
 		this.clientIds = clientIds;
 	}
-	public EntryPointType getEntryType() {
-		return entryType;
+	
+	public List<EntryPointType> getEntryTypes()
+	{
+		return entryTypes;
 	}
-	public void setEntryType(EntryPointType entryType) {
-		this.entryType = entryType;
+	public void setEntryTypes(List<EntryPointType> entryTypes)
+	{
+		this.entryTypes = entryTypes;
 	}
 	public List<ContactTag> getContactTags() {
 		return contactTags;

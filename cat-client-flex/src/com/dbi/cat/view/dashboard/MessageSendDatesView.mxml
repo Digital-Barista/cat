@@ -78,7 +78,8 @@
 			<mx:Label text="Messages Per Day" styleName="chartLabel" />
 			<mx:LineChart id="NewMessages" height="100%" width="100%"
 						  paddingLeft="5" paddingRight="5" 
-						  showDataTips="true" >
+						  showDataTips="true"
+						  dataProvider="{messageSendDates}">
 				
 				<mx:horizontalAxis>
 					<mx:DateTimeAxis id="dateAxis" 
@@ -91,16 +92,12 @@
 					<mx:LineSeries yField="count" 
 								   xField="date" 
 								   form="segment" 
-								   displayName="New Message Count"
-								   dataProvider="{messageSendDates}" >
+								   displayName="New Message Count" >
 						<mx:lineStroke>
 							<mx:Stroke 
 								color="0xB2DC32" 
 								weight="0.2" />
 						</mx:lineStroke> 
-						<mx:verticalAxis>
-							<mx:LinearAxis id="messageAxis" />           
-						</mx:verticalAxis>
 					</mx:LineSeries>
 				</mx:series>
 			</mx:LineChart>

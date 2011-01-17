@@ -46,6 +46,7 @@ import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.util.PagedList;
+import com.digitalbarista.cat.util.SecurityUtil;
 
 import flex.messaging.io.ArrayCollection;
 
@@ -269,6 +270,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	public void subscribeContactFilterToEntryPoint(ContactSearchCriteria searchCriteria, String entryPointUID)
 	{
 		PagedList<Contact> contacts = contactManager.getContacts(searchCriteria, null);
+		searchCriteria.setClientIds(SecurityUtil.getAllowedClientIDs(ctx, session, searchCriteria.getClientIds()));
 		subscribeContactsToEntryPoint(contacts.getResults(), entryPointUID);
 	}
 	

@@ -76,17 +76,22 @@ package com.dbi.cat.business
 		{
 			this.contacts = contacts;
 			
-			if (pagingInfo != null )
-				contactPagingInfo = pagingInfo;
-			
-			if (searchCriteria != null)
-				contactSearchCriteria = searchCriteria;
+			// Update search criteria
+			changeSearchCriteria(searchCriteria, pagingInfo);
 			
 			contactMap = new Object();
 			for each (var c:ContactVO in this.contacts.results)
 				contactMap[c.contactId] = c;
 				
 			isSearchingContacts = false;
+		}
+		public function changeSearchCriteria(searchCriteria:ContactSearchCriteriaVO, pagingInfo:PagingInfoVO):void
+		{
+			if (pagingInfo != null )
+				contactPagingInfo = pagingInfo;
+			
+			if (searchCriteria != null)
+				contactSearchCriteria = searchCriteria;
 		}
 		public function editContact(contact:ContactVO):void
 		{

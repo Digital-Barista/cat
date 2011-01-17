@@ -54,6 +54,13 @@
 			{
 				_contactSearchCriteria = value;
 				
+				// Update entry type filter
+				if (_contactSearchCriteria != null)
+				{
+					EntryType.selectedDataItems = _contactSearchCriteria.entryTypes;
+					doFilter();
+				}
+				
 				// Clear selected items
 				Contacts.selectedIndex = -1;
 				dispatchEvent(new Event("filterUpdate"));
@@ -103,12 +110,15 @@
 				
 				// Setup search criteria
 				if (contactSearchCriteria == null)
+				{
 					contactSearchCriteria = new ContactSearchCriteriaVO();
-					
+				}
+				
+				// Add client IDs
 				contactSearchCriteria.clientIds = ListUtil.getIdList(_filterClients, "clientId");
 				
-				if (ContactType.selectedItem != null)
-					contactSearchCriteria.entryType = ContactType.selectedItem.name;
+				// Add EntryTypes
+				contactSearchCriteria.entryTypes = EntryType.selectedDataItems;
 					
 				event.searchCriteria = contactSearchCriteria;
 				event.pagingInfo = contactPagingInfo;
@@ -154,12 +164,11 @@
 		<mx:HBox width="100%" verticalAlign="middle"
 			top="5">
 			<mx:Label text="Type:" />
-			<controls:AdvancedComboBox id="ContactType"
-				selectedBindingProperty="name"
-				selectedBindingValue="{contactSearchCriteria.entryType}"
-				dataProvider="{contactTypes}"
-				labelField="name"
-				change="doFilter()" />
+			<components:MultiSelectDropDown
+				id="EntryType"
+				dataProvider="{EntryPointType.allTypeNames}"
+				dataField="name"
+				selectedItemsChanged="doFilter()" />
 			<mx:Label text="Tags" />
 			<mx:Button label="{tagLabel}"
 				click="openTagFilter()" />

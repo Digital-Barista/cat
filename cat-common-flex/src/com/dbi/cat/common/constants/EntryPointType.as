@@ -1,5 +1,7 @@
 package com.dbi.cat.common.constants
 {
+	import com.dbi.util.ListUtil;
+	
 	import mx.collections.ArrayCollection;
 	
 	[Bindable]
@@ -34,6 +36,15 @@ package com.dbi.cat.common.constants
 		public static const TWITTER:EntryPointType = new EntryPointType("Twitter", 140);
 		public static const FACEBOOK:EntryPointType = new EntryPointType("Facebook", 0, NaN, true);
 		
+		public static function getByName(name:String):EntryPointType
+		{
+			for each (var type:EntryPointType in allTypes)
+			{
+				if (type.name == name)
+					return type;
+			}
+			return null;
+		}
 		
 		public static function allowAutoStart(entryType:String):Boolean
 		{
@@ -57,6 +68,11 @@ package com.dbi.cat.common.constants
 				EntryPointType.FACEBOOK]);
 			}
 			return _allTypes;
+		}
+		
+		public static function get allTypeNames():ArrayCollection
+		{
+			return ListUtil.getIdList(allTypes, "name");
 		}
 	}
 }

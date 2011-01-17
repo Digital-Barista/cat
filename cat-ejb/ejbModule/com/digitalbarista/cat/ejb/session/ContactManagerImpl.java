@@ -44,6 +44,8 @@ import com.digitalbarista.cat.util.PagedList;
 import com.digitalbarista.cat.util.PagingUtil;
 import com.digitalbarista.cat.util.SecurityUtil;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+
 /**
  * Session Bean implementation class ContactManagerImpl
  */
@@ -104,17 +106,27 @@ public class ContactManagerImpl implements ContactManager {
 		}
 		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, requestedClientIds);
 		
-		
-		if (allowedClientIds.size() > 0)
+		// Don't do a query if the filter will filter everything out
+		if (allowedClientIds.size() > 0 &&
+			isValidSearch(searchCriteria))
 		{
 			crit.add(Restrictions.in("client.primaryKey", allowedClientIds));
     	
 			// Apply search criteria
 	    	if (searchCriteria != null)
 	    	{
-	    		// Filter by entry point type
-	    		if (searchCriteria.getEntryType() != null)
-	    			crit.add(Restrictions.eq("type", searchCriteria.getEntryType()));
+	    		// Filter by entry point types
+	    		if (searchCriteria.getEntryTypes() != null)
+	    		{
+	    			List<EntryPointType> types = new ArrayList<EntryPointType>();
+	    			for (int i = 0; i < searchCriteria.getEntryTypes().size(); i++)
+	    			{
+	    				Object item = searchCriteria.getEntryTypes().get(i);
+	    				EntryPointType type = item instanceof EntryPointType ? (EntryPointType)item : EntryPointType.valueOf(item.toString());
+	    				types.add(type);
+	    			}
+	    			crit.add(Restrictions.in("type", types));
+	    		}
 	    		
 	    		// Filter by list of contacts associated with the contact
 	    		if (searchCriteria.getContactTags() != null &&
@@ -146,6 +158,27 @@ public class ContactManagerImpl implements ContactManager {
 				ret.getResults().add(c);
 			}
 		}
+		return ret;
+	}
+	private Boolean isValidSearch(ContactSearchCriteria criteria)
+	{
+		Boolean ret = true;
+		
+		if (criteria != null)
+		{
+			if (criteria.getContactTags() != null &&
+				criteria.getContactTags().size() == 0)
+			{
+				ret = false;
+			}
+			
+			if (criteria.getEntryTypes() != null &&
+				criteria.getEntryTypes().size() == 0)
+			{
+				ret = false;
+			}
+		}
+		
 		return ret;
 	}
 	
@@ -181,7 +214,7 @@ public class ContactManagerImpl implements ContactManager {
 		List<Long> clientIds = new ArrayList<Long>();
 		clientIds.add(camp.getClient().getPrimaryKey());
 		searchCrit.setClientIds(clientIds);
-		searchCrit.setEntryType(sub.getType());
+		searchCrit.setEntryTypes(Arrays.asList(new EntryPointType[]{sub.getType()}));
 		searchCrit.setAddress(sub.getAddress());
 		PagedList<Contact> matchingContacts = getContacts(searchCrit, null);
 		if(matchingContacts.getTotalResultCount()!=1)

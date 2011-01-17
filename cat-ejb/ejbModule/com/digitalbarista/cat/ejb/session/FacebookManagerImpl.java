@@ -56,6 +56,7 @@ import org.xml.sax.SAXException;
 
 import com.digitalbarista.cat.business.FacebookMessage;
 import com.digitalbarista.cat.data.CampaignInfoDO;
+import com.digitalbarista.cat.data.CampaignStatus;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
@@ -347,6 +348,8 @@ public class FacebookManagerImpl implements FacebookManager {
 							crit.add(Restrictions.eq("entryType", EntryPointType.Facebook));
 							crit.add(Restrictions.eq("entryAddress", app.getFacebookAppId()));
 							crit.add(Restrictions.eq("name", CampaignInfoDO.KEY_AUTO_START_NODE_UID));
+							crit.createAlias("campaign", "c");
+							crit.add(Restrictions.eq("c.status", CampaignStatus.Active));
 							CampaignInfoDO cInfo = (CampaignInfoDO)crit.uniqueResult();
 							
 							if(cInfo==null)
