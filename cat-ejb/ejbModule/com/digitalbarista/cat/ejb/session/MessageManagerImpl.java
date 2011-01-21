@@ -171,7 +171,8 @@ public class MessageManagerImpl implements MessageManager {
 		
 		// Split long messages into parts
 		if (maxCharacters > 0 &&
-			message.length() > maxCharacters)
+			(message.length() > maxCharacters ||
+			message.indexOf(MESSAGE_SPLIT_INDICATOR) > -1) )
 		{
 
 			String continuedIndicator = "";
@@ -188,7 +189,8 @@ public class MessageManagerImpl implements MessageManager {
 				Integer messageCount = 1;
 				continuedIndicator = "\n(" + messageCount + "/" + messageCountPlaceHolder + ")";
 				
-				while (temp.length() + continuedIndicator.length() > maxCharacters)
+				while (temp.length() + continuedIndicator.length() > maxCharacters ||
+					temp.indexOf(MESSAGE_SPLIT_INDICATOR) > -1)
 				{
 					// Look for a split message indicator within range first
 					Integer endIndex = temp.indexOf(MESSAGE_SPLIT_INDICATOR);
