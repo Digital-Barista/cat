@@ -25,11 +25,12 @@
 	
 	String noMessagesInclude = getInclude(config.getServletContext(), appId, "no_messages.jsp");
 	String analyticsInclude = getInclude(config.getServletContext(), appId, "analytics.jsp");
+	String facebookStyleInclude = getInclude(config.getServletContext(), appId, "css/fb.css");
 %>
 
 <html>
 	<head>
-		<link href="css/fb.css" type="text/css" rel="stylesheet" />
+		<link href="<%=facebookStyleInclude%>" type="text/css" rel="stylesheet" />
 		
 		<script type="text/javascript">
 		  var _gaq = _gaq || [];
