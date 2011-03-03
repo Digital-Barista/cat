@@ -34,7 +34,7 @@
 				dataProvider="{facebookApps}">
 				<mx:columns>
 					<mx:DataGridColumn dataField="clientName" headerText="Client" />
-					<mx:DataGridColumn dataField="facebookAppId" headerText="Entry Point ID" />
+					<mx:DataGridColumn dataField="appName" headerText="Entry Point ID" />
 					<mx:DataGridColumn dataField="id" headerText="Application ID" />
 					<mx:DataGridColumn dataField="apiKey" headerText="API Key" />
 					<mx:DataGridColumn dataField="secret" headerText="Secret" />

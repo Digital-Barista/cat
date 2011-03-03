@@ -5,7 +5,7 @@ package com.dbi.cat.common.vo
 	[RemoteClass(alias="com.digitalbarista.cat.business.FacebookApp")]
 	public class FacebookAppVO
 	{
-		public var facebookAppId:String;
+		public var appName:String;
 		public var apiKey:String;
 		public var secret:String;
 		public var id:String;

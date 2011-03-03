@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="496" height="250" layout="absolute"
-	title="{isNewApp ? 'Create Facebook App' : 'Edit ' + currentFacebookApp.facebookAppId}"
+	title="{isNewApp ? 'Create Facebook App' : 'Edit ' + currentFacebookApp.appName}"
 	showCloseButton="true"
 	close="onClose()">
 	<mx:Script>
@@ -28,7 +28,7 @@
 			{
 				_currentFacebookApp = value;
 				if (value != null)
-					isNewApp = value.facebookAppId == null;
+					isNewApp = value.appName == null;
 				
 			}
 			
@@ -62,12 +62,12 @@
 				labelField="name" />
 		</mx:FormItem>
 		<mx:FormItem label="Entry Point ID">
-			<mx:TextInput id="FacebookAppId" width="320"
-				text="{currentFacebookApp.facebookAppId}"
-				change="{currentFacebookApp.facebookAppId = FacebookAppId.text}"  
+			<mx:TextInput id="AppName" width="320"
+				text="{currentFacebookApp.appName}"
+				change="{currentFacebookApp.appName = AppName.text}"  
 				visible="{isNewApp}"
 				includeInLayout="{isNewApp}" />
-			<mx:Label text="{currentFacebookApp.facebookAppId}"
+			<mx:Label text="{currentFacebookApp.appName}"
 					visible="{!isNewApp}"
 					includeInLayout="{!isNewApp}" />
 		</mx:FormItem>

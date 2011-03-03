@@ -8,6 +8,8 @@ function MessageAPI()
 	var CHECKBOX_PREFIX = "message_select_";
 	var MESSAGE_LINE_PREFIX = "message_";
 
+	var signedRequest = document.getElementById('signedRequest').value;
+	
 	// Add click events
 	setupControls();
 	
@@ -28,63 +30,69 @@ function MessageAPI()
 		});
 		
 		// Get app ID from querystring
-		var app = $.query.get("app_id");
+		var appName = $.query.get("app_id");
 		
 		// Make the message request
-		var url = MESSAGE_URL + "/list/" + app  + "/" + window.location.search + "&uid=" + currentUID;
-		$.getJSON(url, function(data){
-
-			// Clear message area
-			var area = $("#MessageListDiv");
-			area.html("");
-			
-			// Hide loading message
-			loading.css("display", "none");
-			
-			
-			// No messages
-			if (data == null ||
-				data.length == 0)
-			{
-				area.html(noMessage.html());
-			}
-			else
-			{
-				// Show message area
-				area.css("display", "block");
+		var url = MESSAGE_URL + "/list/" + appName  + "/" + window.location.search
+		$.ajax({
+			url:url,
+			data:{'uid':currentUID, 'signedRequest':signedRequest},
+			dataType:'json',
+			type:'POST',
+			success: function(data){
+				// Clear message area
+				var area = $("#MessageListDiv");
+				area.html("");
 				
-				// Add container
-				var container = $("<div />");
-				container.attr("class", "messageContainer");
-				area.append(container);
+				// Hide loading message
+				loading.css("display", "none");
 				
-				// Create row for each message
-				for (var i = 0; i < data.length; i++)
+				
+				// No messages
+				if (data == null ||
+					data.length == 0)
 				{
-					var o = data[i];
-				   var row = createRow(o.message);
-				   container.append(row);
+					area.html(noMessage.html());
 				}
-			}
-
-			// Resize frame after messages have loaded
-			FB.Canvas.setSize({ width: 750 });
-		 });
-	}
+				else
+				{
+					// Show message area
+					area.css("display", "block");
+					
+					// Add container
+					var container = $("<div />");
+					container.attr("class", "messageContainer");
+					area.append(container);
+					
+					// Create row for each message
+					for (var i = 0; i < data.length; i++)
+					{
+						var o = data[i];
+					   var row = createRow(o.message);
+					   container.append(row);
+					}
+				}
+	
+				// Resize frame after messages have loaded
+				FB.Canvas.setSize({ width: 750 });
+			 }
+			});
+	};
 	
 	function respond(messageId, response)
 	{
 		// Show loading
-		showResponseLoading(messageId)
+		showResponseLoading(messageId);
 		
 		// Build URL
-		var url = MESSAGE_URL + "/" + messageId + "/" + response + "/" + window.location.search + "&uid=" + currentUID;
+		var url = MESSAGE_URL + "/" + messageId + "/" + response + "/" + window.location.search;
 		
 		// Make request
 		$.ajax({
 			  url: url,
 			  type: 'PUT',
 			  dataType: 'json',
+			  data:{'uid': currentUID, 'signedRequest':signedRequest},
 			  success: function(data) {
 			    updateMessage(data.message);
 			  }
@@ -122,12 +130,14 @@ function MessageAPI()
 		showDeleteLoading(messageId);
 		
 		// Build URL
-		var url = MESSAGE_URL + "/" + messageId + "/" + window.location.search + "&uid=" + currentUID;
+		var url = MESSAGE_URL + "/" + messageId + "/" + window.location.search;
 		
 		// Make request
 		$.ajax({
 			  url: url,
-			  type: 'DELETE',
+			  type: 'POST',
+			  dataType: 'json',
+			  data:{'uid': currentUID, 'signedRequest':signedRequest},
 			  success: function(data) {
 			    removeMessage(messageId);
 			  }

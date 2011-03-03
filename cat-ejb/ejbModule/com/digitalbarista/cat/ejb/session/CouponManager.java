@@ -19,7 +19,8 @@ import com.digitalbarista.cat.util.CouponRedemptionMessage;
 @Path("/coupons")
 @Produces({"application/xml","application/json"})
 @Consumes({"application/xml","application/json"})
-public interface CouponManager {
+public interface CouponManager 
+{
     @Path("/{code}")
     @POST
 	public CouponRedemptionMessage redeemCoupon(@PathParam("code") String couponCode);
@@ -31,4 +32,5 @@ public interface CouponManager {
 	public List<Coupon> couponSummaryByClient(@QueryParam("clientid") Long clientID);
 
 	public List<Coupon> getCouponSummaries(List<Long> clientIDs);
+	
 }

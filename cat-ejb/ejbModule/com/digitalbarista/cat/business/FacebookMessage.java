@@ -14,7 +14,7 @@ public class FacebookMessage implements
 		BusinessObject<FacebookMessageDO> {
 
 	private Integer facebookMessageId;
-	private String facebookAppId;
+	private String facebookAppName;
 	private String title;
 	private String body;
 	private Calendar createDate;
@@ -25,7 +25,7 @@ public class FacebookMessage implements
 	@Override
 	public void copyFrom(FacebookMessageDO dataObject) {
 		facebookMessageId = dataObject.getFacebookMessageId();
-		facebookAppId = dataObject.getFacebookAppId();
+		facebookAppName = dataObject.getFacebookAppName();
 		title = dataObject.getTitle();
 		body = dataObject.getBody();
 		createDate = dataObject.getCreateDate();
@@ -88,11 +88,11 @@ public class FacebookMessage implements
 	}
 
 	@XmlElement
-	public String getFacebookAppId() {
-		return facebookAppId;
+	public String getFacebookAppName() {
+		return facebookAppName;
 	}
-	public void setFacebookAppId(String facebookAppId) {
-		this.facebookAppId = facebookAppId;
+	public void setFacebookAppName(String facebookAppName) {
+		this.facebookAppName = facebookAppName;
 	}
 	
 	@XmlElement

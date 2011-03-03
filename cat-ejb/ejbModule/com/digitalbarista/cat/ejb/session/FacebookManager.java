@@ -15,8 +15,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import org.codehaus.jettison.json.JSONObject;
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
+import com.digitalbarista.cat.business.Contact;
+import com.digitalbarista.cat.business.ContactInfo;
+import com.digitalbarista.cat.business.FacebookApp;
 import com.digitalbarista.cat.business.FacebookMessage;
 import com.digitalbarista.cat.exception.FacebookManagerException;
 
@@ -27,30 +31,43 @@ import com.digitalbarista.cat.exception.FacebookManagerException;
 @Consumes({"application/xml","application/json"})
 public interface FacebookManager 
 {
+	@POST
+	@Consumes("application/x-www-form-urlencoded")
 	@GET
-	@Path("/messages/list/{facebookAppId}")
+	@Path("/messages/list/{appName}")
 	@Wrapped(element="messages")
-	List<FacebookMessage> getMessages(@PathParam("facebookAppId") String facebookAppId, @Context UriInfo ui) throws FacebookManagerException;
+	List<FacebookMessage> getMessages(@PathParam("appName") String appName, 
+			@FormParam("uid")String uid, @FormParam("signedRequest") String signedRequest, 
+			@Context UriInfo ui) throws FacebookManagerException;
 
 	@PUT
+	@Consumes("application/x-www-form-urlencoded")
 	@Path("/messages/{facebookMessageId}/{response}")
-	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, @PathParam("response") String response, @Context UriInfo ui) throws FacebookManagerException;
-	
-	@DELETE
-	@Path("/messages/{facebookMessageId}")
-	void delete(@PathParam("facebookMessageId") Integer facebookMessageId, @Context UriInfo ui) throws FacebookManagerException;
-	
-	@PUT
-	@Path("/messages/authorize/{facebookAppId}/{uid}")
-	void userAuthorizeApp(@PathParam("facebookAppId") String facebookAppId, @PathParam("uid") String uid);
+	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, 
+			@PathParam("response") String response, 
+			@FormParam("uid") String uid,
+			@FormParam("signedRequest") String signedRequest) throws FacebookManagerException;
 	
 	@POST
 	@Consumes("application/x-www-form-urlencoded")
-	@Path("/deauthorize/{facebookAppId}")
-	void userDeauthorizeApp(@PathParam("facebookAppId") String facebookAppId, @FormParam("fb_sig_user") String uid);
-
-	void updateMessageCounter(String appId, String uid);
-	void updateMessageCounter(String appId, String uid, Integer count);
+	@Path("/messages/{facebookMessageId}")
+	void delete(@PathParam("facebookMessageId") Integer facebookMessageId,
+			@FormParam("signedRequest") String signedRequest) throws FacebookManagerException;
 	
-	Boolean isUserAllowingApp(String facebookUID, String facebookAppId) throws FacebookManagerException;
+	@PUT
+	@Path("/messages/authorize/{appName}/{uid}")
+	void userAuthorizeApp(@PathParam("appName") String appName, @PathParam("uid") String uid);
+	
+	@POST
+	@Consumes("application/x-www-form-urlencoded")
+	@Path("/deauthorize/{appName}")
+	void userDeauthorizeApp(@PathParam("appName") String appName, @FormParam("fb_sig_user") String uid);
+
+	void updateMessageCounter(String appName, String uid);
+	void updateMessageCounter(String appName, String uid, Integer count);
+	FacebookApp findFacebookAppByName(String applicationName);
+	
+	Boolean isUserAllowingApp(String facebookUID, String appName) throws FacebookManagerException;
+	
+	List<ContactInfo> updateProfileInformation(Contact contact);
 }

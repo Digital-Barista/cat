@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<%@page import="com.digitalbarista.cat.business.FacebookApp"%>
+<%@page import="org.codehaus.jettison.json.JSONObject"%>
+<%@page import="com.digitalbarista.cat.ejb.session.FacebookManager"%>
+<%@page import="javax.naming.InitialContext"%>
 <%@page import="java.net.URL"%>
 <%!
 
@@ -6,10 +10,13 @@
 	{
 		try
 		{
-			String path = "/facebook/" + appId + "/" + fileName;
-			URL exists = context.getResource(path);
+			String relativePath = appId + "/" + fileName;
+			String contextPath = "/facebook/" + relativePath;
+			URL exists = context.getResource(contextPath);
 			if (exists != null)
-				return path;
+			{
+				return relativePath;
+			}
 		}
 		catch(Exception e)
 		{
@@ -19,13 +26,25 @@
 %>
 
 <%
-	String appId = request.getParameter("app_id");
-	String appUrl = "http://apps.facebook.com/" + appId + "/";
+	String appName = request.getParameter("app_id");
+	String signedRequest = request.getParameter("signed_request");
+	String appUrl = "http://apps.facebook.com/" + appName + "/";
 	String inviteActionUrl = request.getRequestURL().toString() + "?" + request.getQueryString();
+	String appId = null;
 	
-	String noMessagesInclude = getInclude(config.getServletContext(), appId, "no_messages.jsp");
-	String analyticsInclude = getInclude(config.getServletContext(), appId, "analytics.jsp");
-	String facebookStyleInclude = getInclude(config.getServletContext(), appId, "css/fb.css");
+	String noMessagesInclude = getInclude(config.getServletContext(), appName, "no_messages.jsp");
+	String analyticsInclude = getInclude(config.getServletContext(), appName, "analytics.jsp");
+	String facebookStyleInclude = getInclude(config.getServletContext(), appName, "css/fb.css");
+	
+
+	// Lookup app by name to get facebook app ID needed for javascript SDK
+	InitialContext context = new InitialContext();
+	FacebookManager facebookManager = (FacebookManager)context.lookup("ejb/cat/FacebookManager");
+	FacebookApp app = facebookManager.findFacebookAppByName(appName);
+	if (app != null)
+	{
+		appId = app.getId();
+	}
 %>
 
 <html>
@@ -52,6 +71,8 @@
 		<script src="js/fb.js" type="text/javascript"></script>
 		<script src="js/util.js" type="text/javascript"></script>
 		
+		<input id="signedRequest" type="hidden" value="<%=signedRequest%>" />
+		<input id="appId" type="hidden" value="<%=appId%>" />
 		
 		<div id="fb-root"></div>
 		

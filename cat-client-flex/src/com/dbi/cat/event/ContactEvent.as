@@ -27,6 +27,10 @@ package com.dbi.cat.event
 		public static const OPEN_CONTACT_TAG_FILTER:String = "openContactTagFiltertEvent";
 		public static const CLOSE_CONTACT_TAG_FILTER:String = "closeContactTagFiltertEvent";
 		
+		public static const OPEN_CONTACT_DETAIL:String = "openContactDetailEvent";
+		public static const CLOSE_CONTACT_DETAIL:String = "closeContactDetailEvent";
+		public static const LOAD_CONTACT_DETAIL:String = "loadContactDetailEvent";
+		
 		public static const EDIT_CONTACT:String = "editContactEvent";
 		public static const CLOSE_CONTACT:String = "closeContactEvent";
 		public static const SAVE_CONTACT:String = "saveContactEvent";

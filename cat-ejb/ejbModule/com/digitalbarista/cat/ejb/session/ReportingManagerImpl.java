@@ -524,7 +524,7 @@ public class ReportingManagerImpl implements ReportingManager
 			{
 				filter += ",";
 			}
-			filter += "ga:pagePath=@" + app.getFacebookAppId();
+			filter += "ga:pagePath=@" + app.getAppName();
 		}
 		return filter;
 	}

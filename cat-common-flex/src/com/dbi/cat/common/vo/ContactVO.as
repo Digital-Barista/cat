@@ -14,6 +14,8 @@ package com.dbi.cat.common.vo
 		public var contactTags:ArrayCollection;
 		public var blacklisted:Boolean;
 		public var UID:String;
+		public var contactInfos:ArrayCollection;
+		public var couponRedemptions:ArrayCollection;
 		
 		private var _tagListLabel:String;
 		public function get tagListLabel():String
