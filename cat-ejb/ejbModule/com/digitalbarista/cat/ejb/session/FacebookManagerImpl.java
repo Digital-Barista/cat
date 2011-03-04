@@ -136,22 +136,17 @@ public class FacebookManagerImpl implements FacebookManager {
 	public List<FacebookMessage> getMessages(String appName, String uid, String signedRequest,
 			UriInfo ui) throws FacebookManagerException 
 	{
-		String facebookUID = uid;
 		
 		// Try old way of validating first
-		if (checkAuthorizationByQuerystring(ui))
-		{
-			facebookUID = ui.getQueryParameters().getFirst(FACEBOOK_PARAM_USER_ID);
-		}
-		else
+		if (!checkAuthorizationByQuerystring(ui))
 		{
 			// Check oauth
 			checkAuthorization(appName, signedRequest);
 		}
 		
 		// Require facebook user ID
-		if (facebookUID == null ||
-				facebookUID.length() == 0)
+		if (uid == null ||
+			uid.length() == 0)
 		{
 			throw new FacebookManagerException("Could not find facebook user ID");
 		}
@@ -160,12 +155,12 @@ public class FacebookManagerImpl implements FacebookManager {
 		FacebookApp app = findFacebookAppByName(appName);
 		
 		// Make sure this user is a contact and has appropriate tags
-		updateContactInfo(appName, facebookUID, ui);
+		updateContactInfo(appName, uid, ui);
 		
 		List<FacebookMessage> ret = new ArrayList<FacebookMessage>();
 		
 		Criteria crit = session.createCriteria(FacebookMessageDO.class);
-		crit.add(Restrictions.eq("facebookUID", facebookUID));
+		crit.add(Restrictions.eq("facebookUID", uid));
 		crit.add(Restrictions.eq("facebookAppName", appName));
 		crit.addOrder(Order.desc("createDate"));
 		
@@ -177,7 +172,7 @@ public class FacebookManagerImpl implements FacebookManager {
 		}
 		
 		// Update count
-		updateMessageCounter(appName, facebookUID, ret.size());
+		updateMessageCounter(appName, uid, ret.size());
 		
 		return ret;
 	}
