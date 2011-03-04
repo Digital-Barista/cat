@@ -136,12 +136,22 @@ public class FacebookManagerImpl implements FacebookManager {
 	public List<FacebookMessage> getMessages(String appName, String uid, String signedRequest,
 			UriInfo ui) throws FacebookManagerException 
 	{
-		// Require valid session
-		checkAuthorization(appName, signedRequest);
+		String facebookUID = uid;
+		
+		// Try old way of validating first
+		if (checkAuthorizationByQuerystring(ui))
+		{
+			facebookUID = ui.getQueryParameters().getFirst(FACEBOOK_PARAM_USER_ID);
+		}
+		else
+		{
+			// Check oauth
+			checkAuthorization(appName, signedRequest);
+		}
 		
 		// Require facebook user ID
-		if (uid == null ||
-			uid.length() == 0)
+		if (facebookUID == null ||
+				facebookUID.length() == 0)
 		{
 			throw new FacebookManagerException("Could not find facebook user ID");
 		}
@@ -150,12 +160,12 @@ public class FacebookManagerImpl implements FacebookManager {
 		FacebookApp app = findFacebookAppByName(appName);
 		
 		// Make sure this user is a contact and has appropriate tags
-		updateContactInfo(appName, uid, ui);
+		updateContactInfo(appName, facebookUID, ui);
 		
 		List<FacebookMessage> ret = new ArrayList<FacebookMessage>();
 		
 		Criteria crit = session.createCriteria(FacebookMessageDO.class);
-		crit.add(Restrictions.eq("facebookUID", uid));
+		crit.add(Restrictions.eq("facebookUID", facebookUID));
 		crit.add(Restrictions.eq("facebookAppName", appName));
 		crit.addOrder(Order.desc("createDate"));
 		
@@ -167,7 +177,7 @@ public class FacebookManagerImpl implements FacebookManager {
 		}
 		
 		// Update count
-		updateMessageCounter(appName, uid, ret.size());
+		updateMessageCounter(appName, facebookUID, ret.size());
 		
 		return ret;
 	}
@@ -176,13 +186,19 @@ public class FacebookManagerImpl implements FacebookManager {
 	@Override
 	@PermitAll
 	public void delete(Integer facebookMessageId,
-			String signedRequest) throws FacebookManagerException 
+			String signedRequest, UriInfo ui) throws FacebookManagerException 
 	{
+
 		
 		FacebookMessageDO message = em.find(FacebookMessageDO.class, facebookMessageId);
 		if (message != null)
 		{
-			checkAuthorization(message.getFacebookAppName(), signedRequest);
+			// Try old way of validating first
+			if (!checkAuthorizationByQuerystring(ui))
+			{
+				// Check oauth
+				checkAuthorization(message.getFacebookAppName(), signedRequest);
+			}
 			
 			em.remove(message);
 
@@ -195,7 +211,7 @@ public class FacebookManagerImpl implements FacebookManager {
 
 	@Override
 	public FacebookMessage respond(Integer facebookMessageId, String response,
-			String uid, String signedRequest) throws FacebookManagerException 
+			String uid, String signedRequest,UriInfo ui) throws FacebookManagerException 
 	{
 		
 		FacebookMessage ret = null;
@@ -203,7 +219,12 @@ public class FacebookManagerImpl implements FacebookManager {
 		FacebookMessageDO message = em.find(FacebookMessageDO.class, facebookMessageId);
 		if (message != null)
 		{
-			checkAuthorization(message.getFacebookAppName(), signedRequest);
+			// Try old way of validating first
+			if (!checkAuthorizationByQuerystring(ui))
+			{
+				// Check oauth
+				checkAuthorization(message.getFacebookAppName(), signedRequest);
+			}
 			
 			// If the response is valid update the message
 			if (message.getMetadata().indexOf(response) > -1)
@@ -306,6 +327,12 @@ public class FacebookManagerImpl implements FacebookManager {
 			}
 		}
 		return ret;
+	}
+	
+	boolean checkAuthorizationByQuerystring(UriInfo ui)
+	{
+		MultivaluedMap<String, String> params = ui.getQueryParameters();
+		return validateSignature(params);
 	}
 	
 	private boolean checkAuthorization(String appName, String signedRequest) throws FacebookManagerException

@@ -46,13 +46,15 @@ public interface FacebookManager
 	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, 
 			@PathParam("response") String response, 
 			@FormParam("uid") String uid,
-			@FormParam("signedRequest") String signedRequest) throws FacebookManagerException;
+			@FormParam("signedRequest") String signedRequest, 
+			@Context UriInfo ui) throws FacebookManagerException;
 	
 	@POST
 	@Consumes("application/x-www-form-urlencoded")
 	@Path("/messages/{facebookMessageId}")
 	void delete(@PathParam("facebookMessageId") Integer facebookMessageId,
-			@FormParam("signedRequest") String signedRequest) throws FacebookManagerException;
+			@FormParam("signedRequest") String signedRequest, 
+			@Context UriInfo ui) throws FacebookManagerException;
 	
 	@PUT
 	@Path("/messages/authorize/{appName}/{uid}")
