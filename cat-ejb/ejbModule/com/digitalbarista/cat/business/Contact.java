@@ -22,6 +22,8 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	private EntryPointType type;
 	private boolean blacklisted;
 	private String UID;
+	private Set<ContactInfo> contactInfos = new HashSet<ContactInfo>();
+	private Set<CouponRedemption> couponRedemptions = new HashSet<CouponRedemption>();
 	
 	
 	public Long getClientId() {
@@ -73,6 +75,24 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	}
 	public void setBlacklisted(boolean blacklisted) {
 		this.blacklisted = blacklisted;
+	}
+	
+	public Set<ContactInfo> getContactInfos()
+	{
+		return contactInfos;
+	}
+	public void setContactInfos(Set<ContactInfo> contactInfos)
+	{
+		this.contactInfos = contactInfos;
+	}
+	
+	public Set<CouponRedemption> getCouponRedemptions()
+	{
+		return couponRedemptions;
+	}
+	public void setCouponRedemptions(Set<CouponRedemption> couponRedemptions)
+	{
+		this.couponRedemptions = couponRedemptions;
 	}
 	
 	@Override

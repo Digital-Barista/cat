@@ -28,15 +28,19 @@ import org.jboss.annotation.security.RunAsPrincipal;
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.Contact;
+import com.digitalbarista.cat.business.ContactInfo;
 import com.digitalbarista.cat.business.ContactTag;
+import com.digitalbarista.cat.business.CouponRedemption;
 import com.digitalbarista.cat.business.PagingInfo;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.ContactDO;
+import com.digitalbarista.cat.data.ContactInfoDO;
 import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.ContactTagLinkDO;
 import com.digitalbarista.cat.data.ContactTagType;
+import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
@@ -70,6 +74,8 @@ public class ContactManagerImpl implements ContactManager {
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
 
+	FacebookManager facebookManager;
+	
 	@PermitAll
 	public boolean contactExists(String address, EntryPointType type, Long clientId)
 	{
@@ -166,12 +172,6 @@ public class ContactManagerImpl implements ContactManager {
 		
 		if (criteria != null)
 		{
-			if (criteria.getContactTags() != null &&
-				criteria.getContactTags().size() == 0)
-			{
-				ret = false;
-			}
-			
 			if (criteria.getEntryTypes() != null &&
 				criteria.getEntryTypes().size() == 0)
 			{
@@ -476,5 +476,58 @@ public class ContactManagerImpl implements ContactManager {
 			log.error("Could not find node with UID: " + nodeUID + " to add node reached tag");
 		}
 		
+	}
+
+	@Override
+	public Contact getDetailedContact(Long clientID)
+	{
+		Contact ret = null;
+		ContactDO contactDO = em.find(ContactDO.class, clientID);
+		if (contactDO != null)
+		{
+			ret = new Contact();
+			ret.copyFrom(contactDO);
+			
+			// Get facebook profile info
+			if (contactDO.getType() == EntryPointType.Facebook)
+			{
+				facebookManager = (FacebookManager)ctx.lookup("ejb/cat/FacebookManager");
+				Contact c = new Contact();
+				c.copyFrom(contactDO);
+				List<ContactInfo> values = facebookManager.updateProfileInformation(c);
+				ret.setContactInfos(new HashSet<ContactInfo>(values));
+			}
+			else
+			{
+				// Add contact info
+				for (ContactInfoDO ciDO : contactDO.getContactInfos())
+				{
+					ContactInfo ci = new ContactInfo();
+					ci.copyFrom(ciDO);
+					ret.getContactInfos().add(ci);
+				}
+			}
+			
+			// Query for coupon redemptions
+			Criteria crit = session.createCriteria(CouponRedemptionDO.class);
+			crit.add(Restrictions.eq("redeemedByUsername", contactDO.getAddress()));
+			List<CouponRedemptionDO> redemptions = (List<CouponRedemptionDO>)crit.list();
+			for (CouponRedemptionDO rDO : redemptions)
+			{
+				CouponRedemption r = new CouponRedemption();
+				r.setActualMessage(rDO.getCouponResponse().getActualMessage());
+				r.setCouponExpirationDate(rDO.getCouponResponse().getCouponOffer().getCouponExpirationDate());
+				r.setCouponExpirationDays(rDO.getCouponResponse().getCouponOffer().getCouponExpirationDays());
+				r.setCouponName(rDO.getCouponResponse().getCouponOffer().getCouponName());
+				r.setOfferCode(rDO.getCouponResponse().getCouponOffer().getOfferCode());
+				r.setOfferUnavailableDate(rDO.getCouponResponse().getCouponOffer().getOfferUnavailableDate());
+				r.setResponseDate(rDO.getCouponResponse().getResponseDate());
+				r.setResponseDetail(rDO.getCouponResponse().getResponseDetail());
+				r.setResponseType(rDO.getCouponResponse().getResponseType());
+				ret.getCouponRedemptions().add(r);
+			}
+		}
+		
+		return ret;
 	}
 }

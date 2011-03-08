@@ -3,7 +3,7 @@ var currentUID;
 
 function fbInit()
 {
-	var appId = fetchQueryParameter("fb_sig_app_id");
+	var appId = document.getElementById('appId').value;
 	
 	// Initialize facebook API
 	FB.init({appId: appId, status: true, cookie: true, xfbml: true});

@@ -35,6 +35,7 @@
 			import com.dbi.cat.view.campaign.WorkingCampaignsView;
 			import com.dbi.cat.view.components.PanZoomCanvas;
 			import com.dbi.cat.view.contacts.AddTagView;
+			import com.dbi.cat.view.contacts.ContactDetailView;
 			import com.dbi.cat.view.contacts.ContactImportView;
 			import com.dbi.cat.view.contacts.ContactListView;
 			import com.dbi.cat.view.contacts.ContactView;
@@ -606,5 +607,11 @@
 			source="{ClientManager}"
 			sourceKey="filterClients"
 			targetKey="filterClients" />
+	</Injectors>
+	<Injectors target="{ContactDetailView}">
+		<PropertyInjector
+			source="{ContactManager}"
+			sourceKey="currentContact"
+			targetKey="currentContact" />
 	</Injectors>
 </EventMap>

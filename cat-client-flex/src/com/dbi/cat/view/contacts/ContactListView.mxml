@@ -158,6 +158,21 @@
 				}
 				return "";
 			}
+			
+			private function openContactDetail():void
+			{
+				var contact:ContactVO = Contacts.selectedItem as ContactVO;
+				if (contact != null)
+				{
+					// Load contact
+					var event:ContactEvent = new ContactEvent(ContactEvent.LOAD_CONTACT_DETAIL);
+					event.contact = contact;
+					dispatchEvent(event);
+					
+					// Open contact window
+					dispatchEvent(new ContactEvent(ContactEvent.OPEN_CONTACT_DETAIL));
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:Canvas width="100%" height="100%">
@@ -176,7 +191,9 @@
 		<mx:DataGrid id="Contacts"
 			width="100%" height="100%" top="30"
 			dataProvider="{contacts.results}"
-			allowMultipleSelection="true">
+			allowMultipleSelection="true"
+			doubleClickEnabled="true"
+			doubleClick="openContactDetail()">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Client" labelFunction="clientNameLabel" width="100" />
 				<mx:DataGridColumn headerText="Type" dataField="type" width="60" />

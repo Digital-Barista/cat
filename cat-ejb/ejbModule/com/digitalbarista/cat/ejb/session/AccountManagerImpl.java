@@ -89,8 +89,8 @@ public class AccountManagerImpl implements AccountManager {
 			throw new IllegalArgumentException("Cannot save a null facebook app.");
 
 		FacebookAppDO appDO = null;
-		if(app.getFacebookAppId()!=null)
-			appDO = em.find(FacebookAppDO.class, app.getFacebookAppId());
+		if(app.getAppName()!=null)
+			appDO = em.find(FacebookAppDO.class, app.getAppName());
 		
 		if(appDO == null)
 			appDO = new FacebookAppDO();
@@ -112,11 +112,11 @@ public class AccountManagerImpl implements AccountManager {
 			throw new IllegalArgumentException("Cannot delete a null facebook app.");
 
 		FacebookAppDO appDO = null;
-		if(app.getFacebookAppId()!=null)
-			appDO = em.find(FacebookAppDO.class, app.getFacebookAppId());
+		if(app.getAppName()!=null)
+			appDO = em.find(FacebookAppDO.class, app.getAppName());
 
 		if (appDO == null)
-			throw new IllegalArgumentException("Cannot find tag to delete with contactTagId: " + app.getFacebookAppId());
+			throw new IllegalArgumentException("Cannot find tag to delete with contactTagId: " + app.getAppName());
 		
 		em.remove(appDO);
 	}

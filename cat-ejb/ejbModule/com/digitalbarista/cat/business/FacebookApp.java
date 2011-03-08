@@ -11,7 +11,7 @@ public class FacebookApp implements
 		BusinessObject<FacebookAppDO>,Auditable {
 
 	@PrimaryDescriminator
-	private String facebookAppId;
+	private String appName;
 	private String apiKey;
 	private String secret;
 	private String id;
@@ -20,7 +20,7 @@ public class FacebookApp implements
 	
 	@Override
 	public void copyFrom(FacebookAppDO dataObject) {
-		facebookAppId = dataObject.getFacebookAppId();
+		appName = dataObject.getAppName();
 		apiKey = dataObject.getApiKey();
 		secret = dataObject.getSecret();
 		id = dataObject.getId();
@@ -34,7 +34,7 @@ public class FacebookApp implements
 
 	@Override
 	public void copyTo(FacebookAppDO dataObject) {
-		dataObject.setFacebookAppId(facebookAppId);
+		dataObject.setAppName(appName);
 		dataObject.setApiKey(apiKey);
 		dataObject.setSecret(secret);
 		dataObject.setId(id);
@@ -43,19 +43,19 @@ public class FacebookApp implements
 	@Override
 	public String auditString() {
 		StringBuffer ret = new StringBuffer();
-		ret.append("facebookAppId:" + getFacebookAppId());
+		ret.append("appName:" + getAppName());
 		ret.append(";apiKey:"+getApiKey());
 		ret.append(";id:" + getId());
 		ret.append(";clientId:" + getClientId());
 		return ret.toString();
 	}
 
-	public String getFacebookAppId() {
-		return facebookAppId;
+	public String getAppName() {
+		return appName;
 	}
 
-	public void setFacebookAppId(String facebookAppId) {
-		this.facebookAppId = facebookAppId;
+	public void setAppName(String appName) {
+		this.appName = appName;
 	}
 
 	public String getApiKey() {

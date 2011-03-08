@@ -27,7 +27,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="contact")
-
 public class ContactDO implements DataObject,Serializable {
 
 	
@@ -39,7 +38,9 @@ public class ContactDO implements DataObject,Serializable {
 	private EntryPointType type;
 	private String alternateId;
 	private Set<ContactTagLinkDO> contactTags;
+	private Set<ContactInfoDO> contactInfos;
 	private BlacklistDO blacklist;
+	private static final long serialVersionUID = 1L;
 	
 	public ContactDO() {
 		super();
@@ -66,7 +67,7 @@ public class ContactDO implements DataObject,Serializable {
 	public void setContactTags(Set<ContactTagLinkDO> contactTags) {
 		this.contactTags = contactTags;
 	}
-
+	
 	public ContactTagLinkDO findLink(ContactTagDO tag)
 	{
 		for(ContactTagLinkDO link : getContactTags())
@@ -76,6 +77,17 @@ public class ContactDO implements DataObject,Serializable {
 		}
 		return null;
 	}
+
+	@OneToMany(fetch=FetchType.LAZY, targetEntity=ContactInfoDO.class, mappedBy="contact")
+	@JoinColumn(name="contact_id")
+	public Set<ContactInfoDO> getContactInfos() {
+		return contactInfos;
+	}
+
+	public void setContactInfos(Set<ContactInfoDO> contactInfos) {
+		this.contactInfos = contactInfos;
+	}
+	
 	
 	@Column(name="address")
 	public String getAddress() {

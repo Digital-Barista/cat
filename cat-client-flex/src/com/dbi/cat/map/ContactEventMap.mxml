@@ -275,6 +275,37 @@
 			method="closeContactTagFilter" />
 	</EventHandlers>
 	
+	<!--
+		Contact detail events
+	-->
+	
+	<EventHandlers type="{ContactEvent.LOAD_CONTACT_DETAIL}">
+		<MethodInvoker generator="{ContactManager}"
+					   method="loadCurrentContact"
+					   arguments="{null}" />
+		<RemoteObjectInvoker destination="contactManager"
+							 method="getDetailedContact"
+							 arguments="{event.contact.contactId}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+							   method="loadCurrentContact"
+							   arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.OPEN_CONTACT_DETAIL}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="openContactDetail"
+			arguments="{event.contact}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT_DETAIL}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactDetail" />
+	</EventHandlers>
 	
 	<!--
 		Contact Import Events

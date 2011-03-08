@@ -21,7 +21,7 @@ public class FacebookAppDO implements Serializable,DataObject {
 
 	@Id
 	@Column(name="facebook_app_id")
-	private String facebookAppId;
+	private String appName;
 
 	@Column(name="api_key")
 	private String apiKey;
@@ -42,12 +42,12 @@ public class FacebookAppDO implements Serializable,DataObject {
 		super();
 	}
 
-	public String getFacebookAppId() {
-		return facebookAppId;
+	public String getAppName() {
+		return appName;
 	}
 
-	public void setFacebookAppId(String facebookAppId) {
-		this.facebookAppId = facebookAppId;
+	public void setAppName(String appName) {
+		this.appName = appName;
 	}
 
 	public String getApiKey() {

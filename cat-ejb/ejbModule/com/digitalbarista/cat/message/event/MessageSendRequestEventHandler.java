@@ -150,7 +150,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				fbMessage.setBody(e.getArgs().get("message"));
 				fbMessage.setCreateDate(new GregorianCalendar());
 				fbMessage.setFacebookUID(e.getTarget());
-				fbMessage.setFacebookAppId(e.getSource());
+				fbMessage.setFacebookAppName(e.getSource());
 				fbMessage.setTitle(e.getArgs().get("subject"));
 				
 				String nodeUID = e.getArgs().get("nodeUID");
@@ -165,7 +165,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 						for(EntryData entry : ((ResponseConnector)dConn).getEntryData())
 						{
 							if(entry.getEntryType()!=EntryPointType.Facebook) continue;
-							if(!entry.getEntryPoint().equals(fbMessage.getFacebookAppId())) continue;
+							if(!entry.getEntryPoint().equals(fbMessage.getFacebookAppName())) continue;
 							keywordSet.add(entry.getKeyword());
 						}
 					}
@@ -178,7 +178,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				getEntityManager().flush();
 				FacebookAppDO applicationInfo = getEntityManager().find(FacebookAppDO.class, e.getSource());
 				FacebookManager fbMan = (FacebookManager)getSessionContext().lookup("ejb/cat/FacebookManager");
-				fbMan.updateMessageCounter(applicationInfo.getId(), e.getTarget());
+				fbMan.updateMessageCounter(applicationInfo.getAppName(), e.getTarget());
 			}catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);

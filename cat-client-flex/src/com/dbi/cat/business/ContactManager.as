@@ -8,6 +8,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
 	import com.dbi.cat.event.ContactEvent;
 	import com.dbi.cat.view.contacts.AddTagView;
+	import com.dbi.cat.view.contacts.ContactDetailView;
 	import com.dbi.cat.view.contacts.ContactImportView;
 	import com.dbi.cat.view.contacts.EditContactView;
 	import com.dbi.cat.view.contacts.FilterTagView;
@@ -48,6 +49,7 @@ package com.dbi.cat.business
 		private var editContactTagUnassignmentPopup:IFlexDisplayObject;
 		private var contactTagFilterPopup:IFlexDisplayObject;
 		private var contactImportPopup:IFlexDisplayObject;
+		private var contactDetailPopup:IFlexDisplayObject;
 		
 		// Import file reference
 		private var fileRef:FileReference;
@@ -372,6 +374,26 @@ package com.dbi.cat.business
 			{
 				CustomMessage.show("No contacts were imported");
 			}
+		}
+	
+		//
+		// Contact detail methods
+		//
+		public function loadCurrentContact(contact:ContactVO):void
+		{
+			currentContact = contact;
+		}
+		public function openContactDetail(contact:ContactVO):void
+		{
+			if (contactDetailPopup == null)
+				contactDetailPopup = new ContactDetailView();
+			
+			PopUpManager.addPopUp(contactDetailPopup, DisplayObject(Application.application), true);
+			PopUpManager.centerPopUp(contactDetailPopup);
+		}
+		public function closeContactDetail():void
+		{
+			PopUpManager.removePopUp(contactDetailPopup);
 		}
 	}
 }

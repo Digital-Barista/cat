@@ -53,4 +53,5 @@ public interface ContactManager {
 	public List<Contact> importContacts(List<Contact> contacts);
 	public Contact getContactForSubscription(SubscriberDO sub, CampaignDO camp);	
 	public void tagContactNodeReached(String contact, String nodeUID, EntryPointType entryType);
+	public Contact getDetailedContact(Long clientID);
 }
