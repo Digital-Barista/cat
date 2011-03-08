@@ -40,7 +40,7 @@
 			}
 			private function confirmDelete():void
 			{
-				CustomMessage.show("Are you sure you want to delete facebook account: " + data.facebookAppId + "?",
+				CustomMessage.show("Are you sure you want to delete facebook account: " + data.appName + "?",
 					["Yes", "No"],
 					deleteItem);
 			}

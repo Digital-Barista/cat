@@ -50,7 +50,7 @@ package com.dbi.cat.admin.business
 			var cur:IViewCursor = facebookApps.createCursor();
 			while (cur.current != null)
 			{
-				if (cur.current.facebookAppId == facebookApp.facebookAppId)
+				if (cur.current.appName == facebookApp.appName)
 					cur.remove();
 				else
 					cur.moveNext();
@@ -61,7 +61,7 @@ package com.dbi.cat.admin.business
 			var found:Boolean = false;
 			for each (var f:FacebookAppVO in facebookApps)
 			{
-				if (f.facebookAppId == facebookApp.facebookAppId)
+				if (f.appName == facebookApp.appName)
 				{
 					f.apiKey = facebookApp.apiKey;
 					f.clientId = facebookApp.clientId;
