@@ -16,6 +16,7 @@ package com.dbi.cat.common.vo
 		public var UID:String;
 		public var contactInfos:ArrayCollection;
 		public var couponRedemptions:ArrayCollection;
+		public var subscribedCampaigns:ArrayCollection;
 		
 		private var _tagListLabel:String;
 		public function get tagListLabel():String

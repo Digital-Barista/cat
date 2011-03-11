@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -27,6 +28,7 @@ import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditType;
+import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactInfo;
 import com.digitalbarista.cat.business.ContactTag;
@@ -514,8 +516,26 @@ public class ContactManagerImpl implements ContactManager {
 				}
 			}
 			
+			// Query for campaigns this contact address is currently in
+			Criteria crit = session.createCriteria(CampaignDO.class);
+			crit.createAlias("subscribers", "subscribers");
+			crit.createAlias("subscribers.subscriber", "subscriber");
+			crit.add(Restrictions.eq("subscribers.active", true));
+			crit.add(Restrictions.eq("subscriber.address", contactDO.getAddress()));
+			crit.add(Restrictions.eq("subscriber.type", contactDO.getType()));
+	    	crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+	    	
+			Set<Campaign> subscribedCampaigns = new HashSet<Campaign>();
+			for (CampaignDO campaignDO : (List<CampaignDO>)crit.list())
+			{
+				Campaign campaign = new Campaign();
+				campaign.copyFrom(campaignDO);
+				subscribedCampaigns.add(campaign);
+			}
+			ret.setSubscribedCampaigns(subscribedCampaigns);
+			
 			// Query for coupon redemptions
-			Criteria crit = session.createCriteria(CouponRedemptionDO.class);
+			crit = session.createCriteria(CouponRedemptionDO.class);
 			crit.add(Restrictions.eq("redeemedByUsername", contactDO.getAddress()));
 			List<CouponRedemptionDO> redemptions = (List<CouponRedemptionDO>)crit.list();
 			for (CouponRedemptionDO rDO : redemptions)

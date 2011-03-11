@@ -41,6 +41,15 @@
 			<mx:TabNavigator top="130" left="0" right="0" bottom="0"
 							 paddingTop="0"
 							 tabOffset="10">
+				<mx:Canvas label="Campaigns" left="0" right="0" top="0" bottom="0">
+					<mx:DataGrid dataProvider="{currentContact.subscribedCampaigns}"
+								 width="100%" height="100%">
+						<mx:columns>
+							<mx:DataGridColumn dataField="name" headerText="Name" />
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:Canvas>
+				
 				<mx:Canvas label="Tags" left="0" right="0" top="0" bottom="0">
 					<mx:DataGrid dataProvider="{currentContact.contactTags}"
 								 width="100%" height="100%">

@@ -24,6 +24,7 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	private String UID;
 	private Set<ContactInfo> contactInfos = new HashSet<ContactInfo>();
 	private Set<CouponRedemption> couponRedemptions = new HashSet<CouponRedemption>();
+	private Set<Campaign> subscribedCampaigns = new HashSet<Campaign>();
 	
 	
 	public Long getClientId() {
@@ -95,6 +96,14 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 		this.couponRedemptions = couponRedemptions;
 	}
 	
+	public Set<Campaign> getSubscribedCampaigns()
+	{
+		return subscribedCampaigns;
+	}
+	public void setSubscribedCampaigns(Set<Campaign> subscribedCampaigns)
+	{
+		this.subscribedCampaigns = subscribedCampaigns;
+	}
 	@Override
 	public void copyFrom(ContactDO dataObject) {
 		contactId = dataObject.getContactId();
