@@ -115,12 +115,22 @@ public class ClientManagerImpl implements ClientManager {
     	List<EntryPointDefinition> ret = new ArrayList<EntryPointDefinition>();
 
 		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, clientIds);
-		
-		if (allowedClientIds.size() > 0)
+		boolean isAdmin = ctx.isCallerInRole("admin");
+			
+		if (isAdmin ||
+			allowedClientIds.size() > 0)
 		{
 	    	Criteria crit = session.createCriteria(EntryPointDO.class);
-	    	crit.createAlias("clients", "clients");
-    		crit.add(Restrictions.in("clients.primaryKey", allowedClientIds));
+	    	
+	    	// Don't limit by client relationships if this is an admin
+	    	if (!isAdmin)
+	    	{
+		    	crit.createAlias("clients", "clients");
+	    		crit.add(Restrictions.in("clients.primaryKey", allowedClientIds));
+	    	}
+
+	    	// Get only distinct entry points
+	    	crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 	    	
 	    	for(EntryPointDO entry : (List<EntryPointDO>)crit.list())
 	    	{
