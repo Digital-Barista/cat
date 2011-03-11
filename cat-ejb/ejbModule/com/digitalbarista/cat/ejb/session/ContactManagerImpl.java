@@ -121,6 +121,12 @@ public class ContactManagerImpl implements ContactManager {
 			// Apply search criteria
 	    	if (searchCriteria != null)
 	    	{
+	    		// Filter by address
+	    		if (searchCriteria.getAddress() != null)
+	    		{
+	    			crit.add(Restrictions.eq("address", searchCriteria.getAddress()));
+	    		}
+	    		
 	    		// Filter by entry point types
 	    		if (searchCriteria.getEntryTypes() != null)
 	    		{

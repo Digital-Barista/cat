@@ -106,7 +106,7 @@
 			dataProvider="{nodeSubscribers}"
 			allowMultipleSelection="true">
 			<mx:columns>
-				<mx:DataGridColumn headerText="UID" dataField="address"  />
+				<mx:DataGridColumn headerText="Address" dataField="address"  />
 				<mx:DataGridColumn headerText="Type" dataField="entryPointType" width="80"  />
 			</mx:columns>
 		</mx:DataGrid>
