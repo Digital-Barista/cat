@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<%@page import="com.digitalbarista.cat.business.FacebookApp"%>
 <%@page import="org.codehaus.jettison.json.JSONObject"%>
 <%@page import="com.digitalbarista.cat.ejb.session.FacebookManager"%>
 <%@page import="javax.naming.InitialContext"%>
 <%@page import="java.net.URL"%>
+<%@page import="com.digitalbarista.cat.business.FacebookTrackingInfo"%>
+<%@page import="com.digitalbarista.cat.business.FacebookApp"%>
 <%!
 
 	public String getInclude(ServletContext context, String appId, String fileName)
@@ -45,7 +46,12 @@
 	{
 		appId = app.getId();
 	}
+
+	// Get tracking info
+	FacebookTrackingInfo trackingInfo = facebookManager.getFacebookTrackingInfo(request);
+
 %>
+
 
 <html>
 	<head>
@@ -53,6 +59,8 @@
 		
 		<script type="text/javascript">
 		  var _gaq = _gaq || [];
+		  _gaq.push(['_setCustomVar', 1, 'appName', '<%=trackingInfo.getAppName()%>']);
+		  _gaq.push(['_setCustomVar', 2, 'fbid', '<%=trackingInfo.getFacebookUserId()%>']);
 		</script>
 		<jsp:include page="<%=analyticsInclude%>"></jsp:include>
 		<script type="text/javascript">

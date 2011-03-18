@@ -3,6 +3,7 @@ package com.digitalbarista.cat.ejb.session;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -15,6 +16,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import oauth.signpost.http.HttpRequest;
+
 import org.codehaus.jettison.json.JSONObject;
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
@@ -22,6 +25,7 @@ import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactInfo;
 import com.digitalbarista.cat.business.FacebookApp;
 import com.digitalbarista.cat.business.FacebookMessage;
+import com.digitalbarista.cat.business.FacebookTrackingInfo;
 import com.digitalbarista.cat.exception.FacebookManagerException;
 
 
@@ -72,4 +76,6 @@ public interface FacebookManager
 	Boolean isUserAllowingApp(String facebookUID, String appName) throws FacebookManagerException;
 	
 	List<ContactInfo> updateProfileInformation(Contact contact);
+	
+	FacebookTrackingInfo getFacebookTrackingInfo(HttpServletRequest request);
 }

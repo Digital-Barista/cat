@@ -29,6 +29,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
@@ -36,6 +37,8 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import oauth.signpost.http.HttpRequest;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -68,6 +71,7 @@ import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactInfo;
 import com.digitalbarista.cat.business.FacebookApp;
 import com.digitalbarista.cat.business.FacebookMessage;
+import com.digitalbarista.cat.business.FacebookTrackingInfo;
 import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignStatus;
 import com.digitalbarista.cat.data.ClientDO;
@@ -274,6 +278,7 @@ public class FacebookManagerImpl implements FacebookManager {
 		
 		updateMessageCounter(appName, uid, count);
 	}
+	
 	
 	/**
 	 * Parse the signed request from facebook.  If the signature is invalid
@@ -867,6 +872,36 @@ public class FacebookManagerImpl implements FacebookManager {
 			{
 				logger.error("Failed parsing graph API JSON response", e);
 			}
+		}
+		
+		return ret;
+	}
+
+
+	@Override
+	public FacebookTrackingInfo getFacebookTrackingInfo(HttpServletRequest request)
+	{
+		FacebookTrackingInfo ret = new FacebookTrackingInfo();
+
+		if (request != null)
+		{
+			ret.setAppName(request.getParameter("app_id"));
+			String signedRequest = request.getParameter("signed_request");
+			
+			if (signedRequest != null)
+			{
+				JSONObject decoded;
+				try
+				{
+					decoded = decodeSignedRequest(ret.getAppName(), signedRequest);
+					ret.setFacebookUserId(decoded.optString("user_id"));
+				} 
+				catch (FacebookManagerException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			
 		}
 		
 		return ret;
