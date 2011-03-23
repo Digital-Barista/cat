@@ -843,9 +843,8 @@ public class ReportingManagerImpl implements ReportingManager
 			while(i.hasNext())
 			{
 				ContactDO nextContact = i.next();
-				if(!nextContact.getType().equals(entryPoint.getType()))
-					i.remove();
-				if(!entryPoint.getClients().contains(nextContact.getClient()))
+				if(!nextContact.getType().equals(entryPoint.getType()) || 
+						!entryPoint.getClients().contains(nextContact.getClient()))
 					i.remove();
 			}
 			
