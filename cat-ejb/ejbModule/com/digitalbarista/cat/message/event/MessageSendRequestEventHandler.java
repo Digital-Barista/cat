@@ -101,14 +101,11 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				method.getParams().setParameter("username", "dbi");
 				method.getParams().setParameter("password", "Hondaf4");
 				method.getParams().setParameter("to", e.getTarget());
-				log.info("Param:to - "+e.getTarget());
 				method.getParams().setParameter("from",e.getSource());
-				log.info("Param:from - "+e.getSource());
 				method.getParams().setParameter("text", e.getArgs().get("message"));
-				log.info("Param:text - "+e.getArgs().get("message"));
 				method.getParams().setParameter("smsc", e.getSource());
-				log.info("Param:smsc - "+e.getSource());
 
+				log.info("Method call is - "+method.toString());
 				
 				HttpResponse result = client.execute(method);
 				if(result==null || result.getStatusLine().getStatusCode()!=202)
