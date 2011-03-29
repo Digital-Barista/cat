@@ -18,11 +18,11 @@ import javax.mail.internet.MimeMessage;
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.digitalbarista.cat.audit.OutgoingMessageEntryDO;
 import com.digitalbarista.cat.business.Connector;
@@ -40,6 +40,8 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 	
 	private String cfName = "java:/JmsXA";
 	private String twitterSendDestName = "cat/messaging/TwitterOutgoing";
+	
+	private Logger log = LogManager.getLogger(MessageSendRequestEventHandler.class);
 	
 	protected MessageSendRequestEventHandler(EntityManager newEM,
 			SessionContext newSC) {
@@ -99,14 +101,14 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				method.getParams().setParameter("username", "dbi");
 				method.getParams().setParameter("password", "Hondaf4");
 				method.getParams().setParameter("to", e.getTarget());
+				log.info("Param:to - "+e.getTarget());
 				method.getParams().setParameter("from",e.getSource());
+				log.info("Param:from - "+e.getSource());
 				method.getParams().setParameter("text", e.getArgs().get("message"));
+				log.info("Param:text - "+e.getArgs().get("message"));
 				method.getParams().setParameter("smsc", e.getSource());
+				log.info("Param:smsc - "+e.getSource());
 
-				for(Header header : method.getAllHeaders())
-				{
-					LogManager.getLogger(MessageSendRequestEventHandler.class).info("Headers:"+header.getName()+","+header.getValue());
-				}
 				
 				HttpResponse result = client.execute(method);
 				if(result==null || result.getStatusLine().getStatusCode()!=202)
