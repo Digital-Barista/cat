@@ -22,6 +22,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.log4j.LogManager;
 
 import com.digitalbarista.cat.audit.OutgoingMessageEntryDO;
 import com.digitalbarista.cat.business.Connector;
@@ -104,7 +105,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 
 				for(Header header : method.getAllHeaders())
 				{
-					System.out.println("Headers:"+header.getName()+","+header.getValue());
+					LogManager.getLogger(MessageSendRequestEventHandler.class).info("Headers:"+header.getName()+","+header.getValue());
 				}
 				
 				HttpResponse result = client.execute(method);
