@@ -18,6 +18,7 @@ import javax.mail.internet.MimeMessage;
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -32,9 +33,6 @@ import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
-import com.digitalbarista.cat.ejb.session.ContactManager;
-import com.digitalbarista.cat.ejb.session.EventManager;
-import com.digitalbarista.cat.ejb.session.EventTimerManager;
 import com.digitalbarista.cat.ejb.session.FacebookManager;
 
 public class MessageSendRequestEventHandler extends CATEventHandler {
@@ -103,6 +101,12 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				method.getParams().setParameter("from",e.getSource());
 				method.getParams().setParameter("text", e.getArgs().get("message"));
 				method.getParams().setParameter("smsc", e.getSource());
+
+				for(Header header : method.getAllHeaders())
+				{
+					System.out.println("Headers:"+header.getName()+","+header.getValue());
+				}
+				
 				HttpResponse result = client.execute(method);
 				if(result==null || result.getStatusLine().getStatusCode()!=202)
 				{
