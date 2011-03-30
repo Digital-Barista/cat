@@ -19,9 +19,8 @@ import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpParams;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -96,7 +95,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 			outAudit.setMessageType(EntryPointType.SMS);
 			outAudit.setSubjectOrMessage(e.getArgs().get("message"));
 			DefaultHttpClient client=new DefaultHttpClient();
-			HttpGet method = new HttpGet("http://206.72.101.130:13013/cgi-bin/sendsms");
+			HttpPost method = new HttpPost("http://206.72.101.130:13013/cgi-bin/sendsms");
 			try
 			{
 				method.getParams().setParameter("username", "dbi");
@@ -105,7 +104,6 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				method.getParams().setParameter("from",e.getSource());
 				method.getParams().setParameter("text", e.getArgs().get("message"));
 				method.getParams().setParameter("smsc", e.getSource());
-				method.setParams(method.getParams());
 
 				log.info("Method call is - "+method.toString());
 				
