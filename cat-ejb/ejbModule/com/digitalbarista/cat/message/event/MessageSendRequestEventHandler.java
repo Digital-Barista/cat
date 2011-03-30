@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.message.event;
 
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -19,8 +20,9 @@ import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -95,17 +97,21 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 			outAudit.setMessageType(EntryPointType.SMS);
 			outAudit.setSubjectOrMessage(e.getArgs().get("message"));
 			DefaultHttpClient client=new DefaultHttpClient();
-			HttpPost method = new HttpPost("http://206.72.101.130:13013/cgi-bin/sendsms");
+			StringBuffer queryString = new StringBuffer();
+			queryString.append("username=dbi&password=Hondaf4");
+			queryString.append("&to=").append(URLEncoder.encode(e.getTarget()));
+			queryString.append("&from=").append(URLEncoder.encode(e.getSource()));
+			queryString.append("&text=").append(URLEncoder.encode(e.getArgs().get("message")));
+			queryString.append("&smsc=").append(URLEncoder.encode(e.getSource()));
+			HttpGet method = new HttpGet("http://206.72.101.130:13013/cgi-bin/sendsms?"+queryString);
 			try
 			{
-				method.getParams().setParameter("username", "dbi");
-				method.getParams().setParameter("password", "Hondaf4");
-				method.getParams().setParameter("to", e.getTarget());
-				method.getParams().setParameter("from",e.getSource());
-				method.getParams().setParameter("text", e.getArgs().get("message"));
-				method.getParams().setParameter("smsc", e.getSource());
-
-				log.info("Method call is - "+method.toString());
+//				method.getParams().setParameter("username", "dbi");
+//				method.getParams().setParameter("password", "Hondaf4");
+//				method.getParams().setParameter("to", e.getTarget());
+//				method.getParams().setParameter("from",e.getSource());
+//				method.getParams().setParameter("text", e.getArgs().get("message"));
+//				method.getParams().setParameter("smsc", e.getSource());
 				
 				HttpResponse result = client.execute(method);
 				if(result==null || result.getStatusLine().getStatusCode()!=202)
