@@ -21,6 +21,7 @@ import javax.persistence.EntityManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -104,6 +105,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				method.getParams().setParameter("from",e.getSource());
 				method.getParams().setParameter("text", e.getArgs().get("message"));
 				method.getParams().setParameter("smsc", e.getSource());
+				method.setParams(method.getParams());
 
 				log.info("Method call is - "+method.toString());
 				
