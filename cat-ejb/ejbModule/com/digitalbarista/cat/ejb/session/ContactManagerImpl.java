@@ -536,7 +536,9 @@ public class ContactManagerImpl implements ContactManager {
 			
 			// Query for coupon redemptions
 			crit = session.createCriteria(CouponRedemptionDO.class);
-			crit.add(Restrictions.eq("redeemedByUsername", contactDO.getAddress()));
+			crit.createAlias("couponResponse", "couponResponse");
+			crit.createAlias("couponResponse.subscriber", "subscriber");
+			crit.add(Restrictions.eq("subscriber.address", contactDO.getAddress()));
 			List<CouponRedemptionDO> redemptions = (List<CouponRedemptionDO>)crit.list();
 			for (CouponRedemptionDO rDO : redemptions)
 			{
