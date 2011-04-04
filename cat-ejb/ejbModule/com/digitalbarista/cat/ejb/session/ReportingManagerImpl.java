@@ -772,12 +772,16 @@ public class ReportingManagerImpl implements ReportingManager
 
 	@Override
 	public List<KeyValuePair> getEndpointSubscriberCount(List<Long> clientIDs) {
+		//Pull that list of contacts for all client IDs.
 		Criteria crit = session.createCriteria(ContactDO.class);
 		crit.add(Restrictions.in("client.id", clientIDs));
 		List<ContactDO> baseList = crit.list();
 		
+		//Pull all blacklist entries for all client IDs.
 		crit = session.createCriteria(BlacklistDO.class);
 		crit.add(Restrictions.in("client.id", clientIDs));
+		
+		//Iterate through and remove blacklisted contacts.
 		nextBlackList:
 		for(BlacklistDO bl : (List<BlacklistDO>)crit.list())
 		{
@@ -798,6 +802,7 @@ public class ReportingManagerImpl implements ReportingManager
 			}
 		}
 		
+		//Now pull all the entry points for the selected client IDs.
 		clientIDs.retainAll(SecurityUtil.extractClientIds(ctx, session));
 		if(clientIDs==null || clientIDs.size()==0)
 			return new ArrayList<KeyValuePair>();
@@ -837,7 +842,9 @@ public class ReportingManagerImpl implements ReportingManager
 			Iterator<ContactDO> i = secondContactList.iterator();
 			while(i.hasNext())
 			{
-				if(!i.next().getType().equals(entryPoint.getType()))
+				ContactDO nextContact = i.next();
+				if(!nextContact.getType().equals(entryPoint.getType()) || 
+						!entryPoint.getClients().contains(nextContact.getClient()))
 					i.remove();
 			}
 			
