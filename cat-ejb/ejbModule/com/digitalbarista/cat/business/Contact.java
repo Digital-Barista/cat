@@ -1,7 +1,9 @@
 package com.digitalbarista.cat.business;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -25,6 +27,7 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	private Set<ContactInfo> contactInfos = new HashSet<ContactInfo>();
 	private Set<CouponRedemption> couponRedemptions = new HashSet<CouponRedemption>();
 	private Set<Campaign> subscribedCampaigns = new HashSet<Campaign>();
+	private Map<String, String> appVisits = new HashMap<String, String>();
 	
 	
 	public Long getClientId() {
@@ -96,6 +99,14 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 		this.couponRedemptions = couponRedemptions;
 	}
 	
+	public Map<String, String> getAppVisits()
+	{
+		return appVisits;
+	}
+	public void setAppVisits(Map<String, String> appVisits)
+	{
+		this.appVisits = appVisits;
+	}
 	public Set<Campaign> getSubscribedCampaigns()
 	{
 		return subscribedCampaigns;

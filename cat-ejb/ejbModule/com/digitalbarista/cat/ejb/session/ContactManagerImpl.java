@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -46,6 +47,7 @@ import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
+import com.digitalbarista.cat.exception.ReportingManagerException;
 import com.digitalbarista.cat.util.PagedList;
 import com.digitalbarista.cat.util.PagingUtil;
 import com.digitalbarista.cat.util.SecurityUtil;
@@ -76,6 +78,9 @@ public class ContactManagerImpl implements ContactManager {
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
 
+	@EJB(name="ejb/cat/ReportingManager")
+	ReportingManager reportingManager;
+	
 	FacebookManager facebookManager;
 	
 	@PermitAll
@@ -504,6 +509,18 @@ public class ContactManagerImpl implements ContactManager {
 				c.copyFrom(contactDO);
 				List<ContactInfo> values = facebookManager.updateProfileInformation(c);
 				ret.setContactInfos(new HashSet<ContactInfo>(values));
+				
+
+				// Call analytics for app visits
+				try
+				{
+					Map<String, String> appVisits = reportingManager.getUserAnalyticsHistory(contactDO.getAddress());
+					ret.setAppVisits(appVisits);
+				} 
+				catch (ReportingManagerException e)
+				{
+					log.error("Failed trying to get Facebook App analytics", e);
+				}
 			}
 			else
 			{
@@ -554,6 +571,7 @@ public class ContactManagerImpl implements ContactManager {
 				r.setResponseType(rDO.getCouponResponse().getResponseType());
 				ret.getCouponRedemptions().add(r);
 			}
+			
 		}
 		
 		return ret;
