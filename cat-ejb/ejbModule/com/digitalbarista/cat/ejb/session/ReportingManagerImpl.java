@@ -95,6 +95,8 @@ public class ReportingManagerImpl implements ReportingManager
 	private static final String GA_TIME_ON_SITE = "ga:timeOnSite";
 	private static final String GA_DATE = "ga:date";
 	private static final String GA_PAGE_PATH = "ga:pagePath";
+	private static final String GA_FACEBOOK_APP = "ga:customVarValue1";
+	private static final String GA_FACEBOOK_UID = "ga:customVarValue2";
 	
 	
 	@Resource
@@ -397,6 +399,59 @@ public class ReportingManagerImpl implements ReportingManager
 		return ret;
 	}
 	
+	public Map<String, String> getUserAnalyticsHistory(String facebookUID) throws ReportingManagerException
+	{
+		
+		Map<String, String> ret = new HashMap<String, String>();
+
+		try
+		{
+			// Authenticate
+			AnalyticsService analytics = new AnalyticsService("digitalbarista");
+			analytics.setUserCredentials(DBI_ANALYTICS_USERNAME, DBI_ANALYTICS_PASSWORD);
+			
+			// Get the analytics for 1 year in the past
+			Date end = new Date();
+			Date start = new Date(end.getTime() - 1000*60*60*24*365);
+			
+			// Do data query
+			DataQuery query = new DataQuery(new URL(ANALYTICS_DATA_URL));
+			query.setIds(DBI_ANALYTICS_TABLE_ID);
+			query.setStartDate(outgoingDateFormatter.format(start.getTime()));
+			query.setEndDate(outgoingDateFormatter.format(end.getTime()));
+			query.setMetrics(GA_VISITS);
+			query.setDimensions(GA_FACEBOOK_APP + "," + GA_FACEBOOK_UID);
+			query.setMaxResults(10000);
+			query.setSort(GA_FACEBOOK_APP);
+			query.setFilters(GA_FACEBOOK_UID + "==" + facebookUID);
+			DataFeed dataFeed = analytics.getFeed(query, DataFeed.class);
+			
+			for (DataEntry entry : dataFeed.getEntries())
+			{
+				Long visits = entry.longValueOf(GA_VISITS);
+				String app = entry.stringValueOf(GA_FACEBOOK_APP);
+				ret.put(app, visits.toString());
+			}
+		}
+		catch (AuthenticationException e)
+		{
+			throw new ReportingManagerException("Could not login to google analytics", e);
+		}
+		catch (MalformedURLException e)
+		{
+			throw new ReportingManagerException("Invalid analytics data url: " + ANALYTICS_DATA_URL, e);
+		} 
+		catch (IOException e)
+		{
+			throw new ReportingManagerException("Could not retrieve accounts feed", e);
+		} 
+		catch (ServiceException e)
+		{
+			throw new ReportingManagerException("An error occurred calling the accounts feed", e);
+		} 
+		return ret;
+	}
+
 	public AnalyticsResponse getAnalyticsData(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException
 	{
 		Map<Calendar, AnalyticsData> dataMap = new HashMap<Calendar, AnalyticsData>();

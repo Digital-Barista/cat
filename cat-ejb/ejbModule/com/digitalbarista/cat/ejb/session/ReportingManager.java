@@ -2,6 +2,7 @@ package com.digitalbarista.cat.ejb.session;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Local;
 
@@ -24,4 +25,5 @@ public interface ReportingManager
 	List<DateData> getMessageSendDates(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException;
 	AnalyticsResponse getAnalyticsData(List<Long> clientIDs, Calendar start, Calendar end) throws ReportingManagerException;
 	List<KeyValuePair> getEndpointSubscriberCount(List<Long> clientIDs);
+	Map<String, String> getUserAnalyticsHistory(String facebookUID) throws ReportingManagerException;
 }

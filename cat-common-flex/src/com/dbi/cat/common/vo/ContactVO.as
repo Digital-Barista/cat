@@ -17,6 +17,7 @@ package com.dbi.cat.common.vo
 		public var contactInfos:ArrayCollection;
 		public var couponRedemptions:ArrayCollection;
 		public var subscribedCampaigns:ArrayCollection;
+		public var appVisits:Object;
 		
 		private var _tagListLabel:String;
 		public function get tagListLabel():String
@@ -36,6 +37,16 @@ package com.dbi.cat.common.vo
 		public function set tagListLabel(value:String):void
 		{
 			_tagListLabel = value;
+		}
+		
+		public function get appVisitList():ArrayCollection
+		{
+			var ret:ArrayCollection = new ArrayCollection();
+			for (var property:String in appVisits)
+			{
+				ret.addItem({app:property, visits:appVisits[property]});
+			}
+			return ret;
 		}
 		
 		public function ContactVO()
