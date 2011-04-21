@@ -82,7 +82,7 @@ function MessageAPI()
 	};
 	
 	function setupLinkTracking(){
-		$('.messageContainer a:not(.button)').each(function(){
+		$('.messageContainer a:not(.button)').click(function(){
 			_gaq.push(['_trackEvent', 'Message', 'Link', 'fbid=' + currentUID + ',link=' + $(this).attr('href')]);
 		});
 	}
