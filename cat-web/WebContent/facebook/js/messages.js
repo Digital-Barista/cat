@@ -47,7 +47,6 @@ function MessageAPI()
 				// Hide loading message
 				loading.css("display", "none");
 				
-				
 				// No messages
 				if (data == null ||
 					data.length == 0)
@@ -71,6 +70,9 @@ function MessageAPI()
 					   var row = createRow(o.message);
 					   container.append(row);
 					}
+					
+					// Add tracking events
+					setupLinkTracking();
 				}
 	
 				// Resize frame after messages have loaded
@@ -78,6 +80,12 @@ function MessageAPI()
 			 }
 			});
 	};
+	
+	function setupLinkTracking(){
+		$('.messageContainer a:not(.button)').each(function(){
+			_gaq.push(['_trackEvent', 'Message', 'Link', 'fbid=' + currentUID + ',link=' + $(this).attr('href')]);
+		});
+	}
 	
 	function respond(messageId, response)
 	{
@@ -283,6 +291,8 @@ function MessageAPI()
 					var action = $("<a href='#'>" + keywords[i] + "</a>");
 					action.attr("class", "button");
 					action.bind('click', {messageId: message.facebookMessageId, response: keywords[i]}, function(event) {
+						_gaq.push(['_trackEvent', 'Message', 'Respond', 'fbid=' + currentUID + 
+						           ',messageId=' + event.data.messageId + ',response=' + event.data.response]);
 						respond(event.data.messageId, event.data.response);
 					});
 					keywordDiv.append(action);
@@ -302,6 +312,8 @@ function MessageAPI()
 		
 		// Add print call
 		printLink.bind('click', {messageId: message.facebookMessageId}, function(event) {
+			_gaq.push(['_trackEvent', 'Message', 'Print', 
+			           'fbid=' + currentUID + ',messageId=' + event.data.messageId]);
 			PrintUtil.showCoupon(event.data.messageId);
 		});
 		
@@ -319,6 +331,8 @@ function MessageAPI()
 		
 		// Add delete call
 		deleteLink.bind('click', {messageId: message.facebookMessageId}, function(event) {
+			_gaq.push(['_trackEvent', 'Message', 'Delete', 
+			           'fbid=' + currentUID + ',messageId=' + event.data.messageId]);
 			deleteMessage(event.data.messageId);
 		});
 		
