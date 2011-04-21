@@ -19,6 +19,15 @@ import com.digitalbarista.cat.ejb.session.UserManager;
 
 public class SecurityUtil {
 
+	public static boolean isAdmin(SessionContext ctx)
+	{
+		if(ctx.isCallerInRole("admin"))
+		{
+			return true;
+		}
+		return false;
+	}
+	
 	public static Set<Long> extractClientIds(SessionContext ctx, Session session)
 	{
 		return extractClientIds(ctx, session, null);
