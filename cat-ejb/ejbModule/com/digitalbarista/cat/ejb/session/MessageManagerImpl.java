@@ -113,41 +113,48 @@ public class MessageManagerImpl implements MessageManager {
 	public CampaignMessagePart getMessagePart(Campaign campaign, EntryPointType entryType, String message) 
 	{
 
-		// Check permissions to this campaign
-		if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), campaign.getClientPK()))
-			throw new SecurityException("Current user is not allowed access to this campaign.");	
-		
-		CampaignDO campaignDO = em.find(CampaignDO.class, campaign.getPrimaryKey());
-		if (campaignDO == null)
-			throw new IllegalArgumentException("The specified campaign does not exist");
-		
-		// Find campaign add in
-		String campaignAddIn = "";
-		if (campaignDO.getAddInMessages() != null)
-		{
-			for (AddInMessageDO addDO : campaignDO.getAddInMessages())
-			{
-				if (addDO.getEntryType() == entryType)
-				{
-					if (addDO.getType() == AddInMessageType.CLIENT)
-						campaignAddIn = addDO.getMessage();
-				}
-			}
-		}
-
-		// Find client add ins
 		String clientClientAddIn = "";
 		String adminClientAddIn = "";
-		if (campaignDO.getClient().getAddInMessages() != null)
+		String campaignAddIn = "";
+		
+		// Ignore campaign addin stuff if no campaign or a new campaign
+		if (campaign != null &&
+			campaign.getClientPK() != 0)
 		{
-			for (AddInMessageDO addDO : campaignDO.getClient().getAddInMessages())
+			// Check permissions to this campaign
+			if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), campaign.getClientPK()))
+				throw new SecurityException("Current user is not allowed access to this campaign.");	
+	
+			
+			CampaignDO campaignDO = em.find(CampaignDO.class, campaign.getPrimaryKey());
+			if (campaignDO == null)
+				throw new IllegalArgumentException("The specified campaign does not exist");
+			
+			// Find campaign add in
+			if (campaignDO.getAddInMessages() != null)
 			{
-				if (addDO.getEntryType() == entryType)
+				for (AddInMessageDO addDO : campaignDO.getAddInMessages())
 				{
-					if (addDO.getType() == AddInMessageType.ADMIN)
-						adminClientAddIn = addDO.getMessage();
-					else if (addDO.getType() == AddInMessageType.CLIENT)
-						clientClientAddIn = addDO.getMessage();
+					if (addDO.getEntryType() == entryType)
+					{
+						if (addDO.getType() == AddInMessageType.CLIENT)
+							campaignAddIn = addDO.getMessage();
+					}
+				}
+			}
+
+			// Find client add ins
+			if (campaignDO.getClient().getAddInMessages() != null)
+			{
+				for (AddInMessageDO addDO : campaignDO.getClient().getAddInMessages())
+				{
+					if (addDO.getEntryType() == entryType)
+					{
+						if (addDO.getType() == AddInMessageType.ADMIN)
+							adminClientAddIn = addDO.getMessage();
+						else if (addDO.getType() == AddInMessageType.CLIENT)
+							clientClientAddIn = addDO.getMessage();
+					}
 				}
 			}
 		}

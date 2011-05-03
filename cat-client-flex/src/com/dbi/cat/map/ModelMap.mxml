@@ -68,6 +68,7 @@
 			import com.dbi.cat.view.user.UsersView;
 			import com.dbi.cat.view.workspace.CouponItem;
 			import com.dbi.cat.view.workspace.MessageItem;
+			import com.dbi.cat.view.workspace.MessageItemEditor;
 			import com.dbi.cat.view.workspace.MessagePreviewView;
 			import com.dbi.cat.view.workspace.TaggingItem;
 			import com.dbi.cat.view.workspace.WorkspaceView;
@@ -320,12 +321,6 @@
 	<!-- 
 	Workspace Items 
 	-->
-	<Injectors target="{MessageItem}">
-		<PropertyInjector
-			source="{CampaignManager}"
-			sourceKey="campaignAddInMessage"
-			targetKey="addInMessage" />
-	</Injectors>
 	<Injectors target="{CouponItem}">
 		<PropertyInjector
 			source="{CampaignManager}"

@@ -6,7 +6,7 @@
 	xmlns:campaign="com.dbi.cat.view.campaign.*" 
 	xmlns:profile="com.dbi.cat.view.profile.*" 
 	xmlns:contacts="com.dbi.cat.view.contacts.*" 
-	xmlns:user="com.dbi.cat.view.user.*" xmlns:dashboard="com.dbi.cat.view.dashboard.*">
+	xmlns:user="com.dbi.cat.view.user.*" xmlns:dashboard="com.dbi.cat.view.dashboard.*" xmlns:broadcast="com.dbi.cat.view.broadcast.*">
 	<mx:Script>
 		<![CDATA[
 			import mx.core.Container;
@@ -78,6 +78,7 @@
 		horizontalAlign="right" paddingTop="0"
 		change="tabClick(event)">
 		<dashboard:DashboardView id="Dashboard" label="Dashboard" />
+		<broadcast:BroadcastView id="Broadcast" label="Broadcast" />
 		<campaign:CampaignsView id="Campaigs" label="Campaigns" />
 		<contacts:ContactView id="Contacts" label="Contacts" />
 		<reporting:ReportingView id="Reporting" label="Coupons" />
