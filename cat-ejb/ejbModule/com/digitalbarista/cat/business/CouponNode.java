@@ -194,6 +194,10 @@ public class CouponNode extends Node implements Auditable {
 			else
 				buildAndAddNodeInfo(dataObject, INFO_PROPERTY_COUPON_CODE, couponCode, version);
 		}
+		else if (nodes.containsKey(INFO_PROPERTY_COUPON_CODE))
+		{
+			dataObject.getNodeInfo().remove(nodes.remove(INFO_PROPERTY_COUPON_CODE));
+		}
 
 		if(expireDate != null)
 		{

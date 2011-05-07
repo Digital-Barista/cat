@@ -120,7 +120,8 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:HBox width="100%">
+	
+	<mx:HBox width="100%" top="10" left="10" right="10">
 		<mx:Label text="Title" />
 		<mx:TextInput id="Title" width="100%"
 					  text="{messageVO.name}"

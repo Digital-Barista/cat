@@ -84,19 +84,22 @@
 			
 			private function updateCharacterCount():void
 			{
-				CharacterCount.text = "char: ";
-				if (messageText &&
-					messageText.length > 0)
+				if (CharacterCount)
 				{
-					CharacterCount.text += messageText.length;
-				}
-				else if (defaultMessageText)
-				{
-					CharacterCount.text += defaultMessageText.length;
-				}
-				else
-				{
-					CharacterCount.text += "0";
+					CharacterCount.text = "char: ";
+					if (messageText &&
+						messageText.length > 0)
+					{
+						CharacterCount.text += messageText.length;
+					}
+					else if (defaultMessageText)
+					{
+						CharacterCount.text += defaultMessageText.length;
+					}
+					else
+					{
+						CharacterCount.text += "0";
+					}
 				}
 			}
 		]]>

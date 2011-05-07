@@ -318,15 +318,6 @@
 			targetKey="filterClients" />
 	</Injectors>
 	
-	<!-- 
-	Workspace Items 
-	-->
-	<Injectors target="{CouponItem}">
-		<PropertyInjector
-			source="{CampaignManager}"
-			sourceKey="campaignAddInMessage"
-			targetKey="addInMessage" />
-	</Injectors>
 	
 	<!--
 		Coupon Views

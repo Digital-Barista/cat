@@ -7,6 +7,8 @@
 		<![CDATA[
 			import com.dbi.cat.common.constants.EntryPointType;
 			import com.dbi.cat.common.vo.CampaignVO;
+			import com.dbi.cat.common.vo.CouponNodeVO;
+			import com.dbi.cat.common.vo.CouponVO;
 			import com.dbi.cat.common.vo.MessageVO;
 			
 			[Bindable]
@@ -14,6 +16,9 @@
 			
 			[Bindable]
 			private var message:MessageVO;
+			
+			[Bindable]
+			private var coupon:CouponNodeVO;
 			
 			private function init():void
 			{
@@ -24,10 +29,34 @@
 			{
 				campaign = new CampaignVO();
 				message = new MessageVO();
+				coupon = new CouponNodeVO();
 			}
 		]]>
 	</mx:Script>
 	
-	<workspace:MessageItemEditor campaign="{campaign}"
-								 messageVO="{message}"/>
+	<mx:TabNavigator
+		horizontalCenter="0"
+		width="90%"
+		maxWidth="1000"
+		top="10" bottom="10"
+		tabOffset="-10"
+		horizontalAlign="right"
+		borderStyle="none"
+		paddingTop="0">
+		
+		<mx:TitleWindow  label="Message"
+			width="100%" height="100%"
+			layout="absolute">
+			<workspace:MessageItemEditor
+					campaign="{campaign}"
+					messageVO="{message}"/>
+		</mx:TitleWindow>
+		<mx:TitleWindow label="Coupon Message" 
+			width="100%" height="100%"
+			layout="absolute">
+			<workspace:CouponItemEditor 
+					campaign="{campaign}"
+					couponVO="{coupon}"/>
+		</mx:TitleWindow>
+	</mx:TabNavigator>
 </mx:Canvas>
