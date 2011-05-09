@@ -373,7 +373,7 @@ public class UserManagerImpl implements UserManager {
 		if (allowedClientIds.size() > 0)
 		{
 			crit = session.createCriteria(RoleDO.class);
-			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
+//			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
 			crit.add(Restrictions.in("refId", allowedClientIds));
 			crit.createAlias("user", "user");
 			crit.setProjection(Projections.distinct(Projections.groupProperty("user")));
