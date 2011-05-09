@@ -9,14 +9,17 @@
 	xmlns:user="com.dbi.cat.view.user.*" xmlns:dashboard="com.dbi.cat.view.dashboard.*" xmlns:broadcast="com.dbi.cat.view.broadcast.*">
 	<mx:Script>
 		<![CDATA[
-			import mx.core.Container;
-			import flash.net.navigateToURL;
-			import mx.controls.Button;
 			import com.dbi.cat.common.constants.Roles;
+			import com.dbi.cat.common.util.SecurityUtil;
 			import com.dbi.cat.common.vo.UserVO;
 			import com.dbi.cat.event.NavigationEvent;
-			import mx.events.IndexChangedEvent;
+			
+			import flash.net.navigateToURL;
+			
 			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.core.Container;
+			import mx.events.IndexChangedEvent;
 			
 			private var _currentUser:UserVO;
 			public function get currentUser():UserVO
@@ -44,10 +47,14 @@
 			
 			private function applyPermissions():void
 			{
+				var isManager:Boolean = false;
 				if (currentUser != null)
 				{
-					var isManager:Boolean = currentUser.hasRole(Roles.ACCOUNT_MANAGER);
+					isManager = currentUser.isManager;
 				}
+				
+				// Hide top level tabs that only managers can see
+				SecurityUtil.showTabs(Tabs, ["Campaigns", "Contacts", "Users", "Profile"], isManager);
 			}
 			
 			private function tabClick(e:IndexChangedEvent):void

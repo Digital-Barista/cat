@@ -12,6 +12,7 @@
 			import com.dbi.cat.common.vo.ClientVO;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.common.vo.UserVO;
 			import com.dbi.cat.event.CampaignEvent;
 			import com.dbi.cat.event.CampaignMessageEvent;
 			
@@ -19,6 +20,9 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
 			import mx.events.ChildExistenceChangedEvent;
+			
+			[Bindable]
+			public var currentUser:UserVO;
 			
 			private var _messageVO:MessageVO;
 			[Bindable(event="updateMessage")]
@@ -36,6 +40,7 @@
 			[Bindable]
 			public var campaign:CampaignVO;
 			
+			private var tabsCreated:Boolean = false;
 			
 			private function init():void
 			{
@@ -66,7 +71,7 @@
 			
 			private function createTabs():void
 			{
-				var types:ArrayCollection = EntryPointType.allTypes;
+				var types:ArrayCollection = currentUser.entryPointTypes;
 				for each(var type:EntryPointType in types)
 				{
 					var editor:MessageEditor = new MessageEditor();

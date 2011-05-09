@@ -11,10 +11,14 @@
 			import com.dbi.cat.common.vo.CampaignVO;
 			import com.dbi.cat.common.vo.CouponNodeVO;
 			import com.dbi.cat.common.vo.CouponVO;
+			import com.dbi.cat.common.vo.UserVO;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
+			
+			[Bindable]
+			public var currentUser:UserVO;
 			
 			[Bindable]
 			public var campaign:CampaignVO;
@@ -60,7 +64,7 @@
 			
 			private function createTabs():void
 			{
-				var types:ArrayCollection = EntryPointType.allTypes;
+				var types:ArrayCollection = currentUser.entryPointTypes;
 				for each(var type:EntryPointType in types)
 				{
 					var editor:MessageEditor = new MessageEditor();

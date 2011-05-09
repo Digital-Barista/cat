@@ -12,7 +12,11 @@
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.common.vo.UserVO;
 			
+			
+			[Bindable]
+			public var currentUser:UserVO;
 			
 			[Bindable(event="nodeUpdate")]
 			public function get messageVO():MessageVO
@@ -32,6 +36,7 @@
 	</mx:Script>
 	<editContent>
 		<MessageItemEditor messageVO="{messageVO}"
-						   campaign="{workspace.campaign}" />
+						   campaign="{workspace.campaign}"
+						   currentUser="{currentUser}"/>
 	</editContent>
 </Node>

@@ -10,12 +10,25 @@
 			import com.dbi.cat.common.vo.DashboardCountVO;
 			import com.dbi.cat.common.vo.DashboardDataVO;
 			import com.dbi.cat.common.vo.MessageCreditInfoVO;
+			import com.dbi.cat.common.vo.UserVO;
 			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.cat.event.ReportingEvent;
 			import com.dbi.controls.AdvancedComboBox;
 			import com.dbi.util.ListUtil;
 			
 			import mx.collections.ArrayCollection;
+			
+			private var _currentUser:UserVO;
+			public function get currentUser():UserVO
+			{
+				return _currentUser;
+			}
+			public function set currentUser(value:UserVO):void
+			{
+				_currentUser = value;
+				applyPermissions();
+			}
+			
 			
 			private var _dashboardData:DashboardDataVO;
 			[Bindable]
@@ -70,7 +83,7 @@
 						keys[received.entryPointType].received = received.count;
 					}
 					
-					for each (var epType:EntryPointType in EntryPointType.allTypes)
+					for each (var epType:EntryPointType in currentUser.entryPointTypes)
 					{
 						var object:Object = keys[epType.name];
 						
@@ -114,7 +127,7 @@
 						}
 					}
 						
-					for each (var epType:EntryPointType in EntryPointType.allTypes)
+					for each (var epType:EntryPointType in currentUser.entryPointTypes)
 					{
 						var object:Object = keys[epType.name];
 						
@@ -140,6 +153,17 @@
 			{
 			}
 			
+			private function applyPermissions():void
+			{
+				var isManager:Boolean = false;
+				if (currentUser != null)
+				{
+					isManager = currentUser.isManager;
+				}
+				MessageCredits.visible = MessageCredits.includeInLayout = isManager;
+				SubscriberInfo.visible = SubscriberInfo.includeInLayout = isManager;
+			}
+			
 			private function refresh():void
 			{
 				var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_DASHBOARD);
@@ -161,31 +185,36 @@
 			width="100%" height="100%" >
 		<mx:TitleWindow width="100%" height="100%" layout="horizontal" horizontalAlign="center">
 			<mx:VBox minHeight="250" height="100%" verticalGap="0" horizontalAlign="center">
-				<mx:Label text="Message Credits" styleName="dashboardLabel" />
-				<mx:Label text="(Select a campaign to see credit info)"
-						  visible="{clientCredits.length == 0}"
-						  includeInLayout="{clientCredits.length == 0}" />
-				<mx:Repeater id="CreditRepeater" dataProvider="{clientCredits}">
-					<mx:HBox width="100%"> 
-						<mx:Label text="{CreditRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel1" width="120" />
-						<mx:Label text="{CreditRepeater.currentItem.credits}" styleName="dashboardDataLabel" />
+				<mx:VBox id="MessageCredits">
+					<mx:Label text="Message Credits" styleName="dashboardLabel" />
+					<mx:Label text="(Select a campaign to see credit info)"
+							  visible="{clientCredits.length == 0}"
+							  includeInLayout="{clientCredits.length == 0}" />
+					<mx:Repeater id="CreditRepeater" dataProvider="{clientCredits}">
+						<mx:HBox width="100%"> 
+							<mx:Label text="{CreditRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel1" width="120" />
+							<mx:Label text="{CreditRepeater.currentItem.credits}" styleName="dashboardDataLabel" />
+						</mx:HBox>
+					</mx:Repeater>
+					<mx:HBox width="100%" paddingTop="10" horizontalAlign="center">
+						<mx:Button label="Add Credits"
+								   click="addCredits()"/>
 					</mx:HBox>
-				</mx:Repeater>
-				<mx:HBox width="100%" paddingTop="10" horizontalAlign="center">
-					<mx:Button label="Add Credits"
-							   click="addCredits()"/>
-				</mx:HBox>
-				<mx:Label text="Coupon Info" styleName="dashboardLabel" />
-				<mx:HBox> 
-					<mx:Label text="Coupons Sent" styleName="dashboardSubLabel1" width="170" />
-					<mx:Label text="{dashboardData.couponsSent}" styleName="dashboardDataLabel" minWidth="50" />
-				</mx:HBox>
-				<mx:HBox> 
-					<mx:Label text="Coupons Redeemed" styleName="dashboardSubLabel1" width="170" />
-					<mx:Label text="{dashboardData.couponsRedeemed}" styleName="dashboardDataLabel" minWidth="50" />
-				</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox id="CouponInfo">
+					<mx:Label text="Coupon Info" styleName="dashboardLabel" />
+					<mx:HBox> 
+						<mx:Label text="Coupons Sent" styleName="dashboardSubLabel1" width="170" />
+						<mx:Label text="{dashboardData.couponsSent}" styleName="dashboardDataLabel" minWidth="50" />
+					</mx:HBox>
+					<mx:HBox> 
+						<mx:Label text="Coupons Redeemed" styleName="dashboardSubLabel1" width="170" />
+						<mx:Label text="{dashboardData.couponsRedeemed}" styleName="dashboardDataLabel" minWidth="50" />
+					</mx:HBox>
+				</mx:VBox>
 			</mx:VBox>
-			<mx:VBox minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
+			<mx:VBox id="MessageStatistics" minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
 				<mx:Label text="Message Statistics" styleName="dashboardLabel" />
 				<mx:Repeater id="MessageCountRepeater"
 							 dataProvider="{messageStatistics}">
@@ -203,36 +232,41 @@
 					</mx:HBox>
 				</mx:Repeater>
 			</mx:VBox>
-			<mx:VBox minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
-				<mx:Label text="Subscriber Info" styleName="dashboardLabel" />
-				<mx:HBox> 
-					<mx:Label text="Contacts" styleName="dashboardSubLabel1" width="120" />
-					<mx:Label text="{contactTotal}" styleName="dashboardDataLabel" minWidth="50" />
-				</mx:HBox>
-				<mx:Repeater id="SubscriberRepeater" dataProvider="{dashboardData.contactCounts}">
+			<mx:VBox  minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
+				<mx:VBox id="SubscriberInfo">
+					<mx:Label text="Subscriber Info" styleName="dashboardLabel" />
 					<mx:HBox> 
-						<mx:Label text="{SubscriberRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel2" width="120" />
-						<mx:Label text="{SubscriberRepeater.currentItem.count}" styleName="dashboardDataLabel" minWidth="50" />
+						<mx:Label text="Contacts" styleName="dashboardSubLabel1" width="120" />
+						<mx:Label text="{contactTotal}" styleName="dashboardDataLabel" minWidth="50" />
 					</mx:HBox>
-				</mx:Repeater>
-				<mx:HBox> 
-					<mx:Label text="Subscribers" styleName="dashboardSubLabel1" width="120" />
-					<mx:Label text="{dashboardData.subscriberCount}" styleName="dashboardDataLabel" minWidth="50" />
-				</mx:HBox>
-				<mx:Label text="Endpoint Info" styleName="dashboardLabel" />
-				<mx:DataGrid dataProvider="{dashboardData.endPointSubscriberCounts}"
-							 showHeaders="false"
-							 resizableColumns="false"
-							 borderStyle="none"
-							 backgroundAlpha="0"
-							 selectable="false" 
-							 styleName="dashboardSubLabel1"
-							 verticalGridLines="false">
-					<mx:columns>
-						<mx:DataGridColumn dataField="key"  width="120"  />
-						<mx:DataGridColumn dataField="value"  minWidth="50" />
-					</mx:columns>
-				</mx:DataGrid>
+					<mx:Repeater id="SubscriberRepeater" dataProvider="{dashboardData.contactCounts}">
+						<mx:HBox> 
+							<mx:Label text="{SubscriberRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel2" width="120" />
+							<mx:Label text="{SubscriberRepeater.currentItem.count}" styleName="dashboardDataLabel" minWidth="50" />
+						</mx:HBox>
+					</mx:Repeater>
+					<mx:HBox> 
+						<mx:Label text="Subscribers" styleName="dashboardSubLabel1" width="120" />
+						<mx:Label text="{dashboardData.subscriberCount}" styleName="dashboardDataLabel" minWidth="50" />
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox id="EndpointInfo">
+					<mx:Label text="Endpoint Info" styleName="dashboardLabel" />
+					<mx:DataGrid dataProvider="{dashboardData.endPointSubscriberCounts}"
+								 showHeaders="false"
+								 resizableColumns="false"
+								 borderStyle="none"
+								 backgroundAlpha="0"
+								 selectable="false" 
+								 styleName="dashboardSubLabel1"
+								 verticalGridLines="false">
+						<mx:columns>
+							<mx:DataGridColumn dataField="key"  width="120"  />
+							<mx:DataGridColumn dataField="value"  minWidth="50" />
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
 			</mx:VBox>
 		</mx:TitleWindow>
 		<mx:HBox right="5" top="7" verticalAlign="middle">

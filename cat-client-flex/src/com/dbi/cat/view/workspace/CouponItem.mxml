@@ -12,6 +12,10 @@
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.vo.CouponNodeVO;
+			import com.dbi.cat.common.vo.UserVO;
+			
+			[Bindable]
+			public var currentUser:UserVO;
 			
 			[Bindable(event="nodeUpdate")]
 			public function get couponVO():CouponNodeVO
@@ -32,6 +36,7 @@
 	</mx:Script>
 	<editContent>
 		<CouponItemEditor couponVO="{couponVO}"
-						  campaign="{workspace.campaign}" />
+						  campaign="{workspace.campaign}"
+						  currentUser="{currentUser}" />
 	</editContent>
 </Node>

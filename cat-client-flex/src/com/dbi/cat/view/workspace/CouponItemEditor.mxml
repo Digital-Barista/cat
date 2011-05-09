@@ -13,6 +13,7 @@
 			import com.dbi.cat.common.vo.CouponVO;
 			import com.dbi.cat.common.vo.LayoutInfoVO;
 			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.common.vo.UserVO;
 			import com.dbi.cat.event.CampaignMessageEvent;
 			
 			import mx.events.ChildExistenceChangedEvent;
@@ -21,6 +22,9 @@
 			public static const EXPIRATION_TOKEN:String = "[EXPIRE_DATE]";
 			
 			private var radioInitialized:Boolean = false;
+			
+			[Bindable]
+			public var currentUser:UserVO;
 			
 			[Bindable]
 			public var campaign:CampaignVO;
@@ -289,5 +293,6 @@
 							 couponVO="{couponVO}"
 							 couponToken="{couponCodeToken}"
 							 campaign="{campaign}"
+							 currentUser="{currentUser}"
 							 change="replaceTokens()"  top="140"/>
 </mx:Canvas>

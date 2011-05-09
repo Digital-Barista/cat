@@ -64,9 +64,11 @@
 			import com.dbi.cat.view.reporting.CouponReportingView;
 			import com.dbi.cat.view.reporting.NodeSubscriberAddressView;
 			import com.dbi.cat.view.reporting.OutgoingMessageView;
+			import com.dbi.cat.view.reporting.ReportingView;
 			import com.dbi.cat.view.user.EditUserView;
 			import com.dbi.cat.view.user.UsersView;
 			import com.dbi.cat.view.workspace.CouponItem;
+			import com.dbi.cat.view.workspace.CouponMessageEditor;
 			import com.dbi.cat.view.workspace.MessageItem;
 			import com.dbi.cat.view.workspace.MessageItemEditor;
 			import com.dbi.cat.view.workspace.MessagePreviewView;
@@ -600,4 +602,54 @@
 			sourceKey="currentContact"
 			targetKey="currentContact" />
 	</Injectors>
+	
+	<Injectors target="{DashboardView}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+	</Injectors>
+	
+	<Injectors target="{ReportingView}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+	</Injectors>
+	
+	<Injectors target="{SummaryView}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+	</Injectors>
+	
+	<Injectors target="{MessageItemEditor}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+	</Injectors>
+	
+	<Injectors target="{CouponMessageEditor}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+	</Injectors>
+	
+	<Injectors target="{MessageItem}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+	</Injectors>
+	
+	<Injectors target="{CouponItem}">
+		<PropertyInjector
+			source="{LoginManager}"
+			sourceKey="currentUser"
+			targetKey="currentUser" />
+	</Injectors>
+	
 </EventMap>

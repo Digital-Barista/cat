@@ -37,7 +37,7 @@
 			
 			[Bindable]
 			private var availableRoles:ArrayCollection = 
-				new ArrayCollection([Roles.ADMIN, Roles.CLIENT, Roles.ACCOUNT_MANAGER]);
+				new ArrayCollection([Roles.ADMIN, Roles.CLIENT, Roles.ACCOUNT_MANAGER, Roles.BROADCASTER]);
 			
 			private function save():void
 			{

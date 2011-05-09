@@ -3,6 +3,7 @@
 	<name>cat-common-flex</name>
 	<comment></comment>
 	<projects>
+		<project>flex_common_lib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
