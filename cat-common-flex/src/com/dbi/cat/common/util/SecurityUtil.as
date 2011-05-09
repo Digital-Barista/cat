@@ -13,7 +13,7 @@ package com.dbi.cat.common.util
 		
 		public static function showTabs(navigator:TabNavigator, labels:Array, show:Boolean):void
 		{
-			var selectedIndex:int = 0;
+			var selectedIndex:int = -1;
 			for each (var child:Object in navigator.getChildren())
 			{
 				var index:int = navigator.getChildIndex(child as DisplayObject);
@@ -23,13 +23,13 @@ package com.dbi.cat.common.util
 					var tab:Button = navigator.getTabAt(index);
 					tab.visible = tab.includeInLayout = show;
 					
-					if (selectedIndex == 0 &&
+					if (selectedIndex == -1 &&
 						show)
 					{
 						selectedIndex = index;
 					}
 				}
-				else if (selectedIndex == 0)
+				else if (selectedIndex == -1)
 				{
 					selectedIndex = index;
 				}
