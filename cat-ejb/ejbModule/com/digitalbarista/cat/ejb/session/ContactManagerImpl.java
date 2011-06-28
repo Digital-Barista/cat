@@ -166,7 +166,8 @@ public class ContactManagerImpl implements ContactManager {
 	    	ret.setTotalResultCount(PagingUtil.getTotalResultCount(crit));
 	    	
 	    	// Apply paging info
-	    	PagingUtil.applyPagingInfo(crit, paging);
+	    	if(paging!=null)
+	    		PagingUtil.applyPagingInfo(crit, paging);
 	    	
 	    	// Get only distinct contacts
 	    	crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);

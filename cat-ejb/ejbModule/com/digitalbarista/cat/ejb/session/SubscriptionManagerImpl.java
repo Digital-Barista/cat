@@ -231,7 +231,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	@Override
 	public void subscribeContactsToEntryPoint(List<Contact> contacts, String entryPointUID) 
 	{
-
 		// Sort contacts by type
 		Collections.sort(contacts);
 

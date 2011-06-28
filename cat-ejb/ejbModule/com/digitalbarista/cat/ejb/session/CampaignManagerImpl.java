@@ -42,6 +42,7 @@ import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.CampaignInfo;
 import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
@@ -53,6 +54,7 @@ import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.OutgoingEntryNode;
 import com.digitalbarista.cat.business.ResponseConnector;
 import com.digitalbarista.cat.business.TaggingNode;
+import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignConnectorLinkDO;
@@ -117,6 +119,12 @@ public class CampaignManagerImpl implements CampaignManager {
 	
 	@EJB(name="ejb/cat/LayoutManager")
 	LayoutManager layoutManager;
+	
+	@EJB(name="ejb/cat/ContactManager")
+	ContactManager contactManager;
+	
+	@EJB(name="ejb/cat/SubscriptionManager")
+	SubscriptionManager subscriptionManager;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -377,6 +385,8 @@ public class CampaignManagerImpl implements CampaignManager {
 				throw new IllegalArgumentException("Campaign '"+campaignUUID+"' could not be found.");
 			if(camp.getMode().equals(CampaignMode.Template))
 				throw new IllegalArgumentException("Cannot publish a campaign template!");
+			if(camp.getMode().equals(CampaignMode.Broadcast) && camp.getCurrentVersion()>1)
+				throw new IllegalArgumentException("Cannot publish a broadcast campaign more than once!");
 			
 			Integer version = camp.getCurrentVersion();
 			
@@ -1482,5 +1492,91 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	public void deleteNode(String uid) {
 		delete(getNode(uid));
+	}
+
+	@Override
+	@RolesAllowed({"client","admin","account.manager"})
+	public void broadcastMessage(Long clientPK, EntryPointType type, String entryPoint, MessageNode message, List<Contact> contacts) {
+		if(message==null || message.getCampaignUID()==null)
+			throw new IllegalArgumentException("Cannot publish a broadcast message without a valid message, and campaign UID");
+		CampaignDO campaignCheck = getSimpleCampaign(message.getCampaignUID(),false);
+		if(campaignCheck!=null)
+			throw new IllegalArgumentException("Cannot broadcast a message using a campaign ID that already exists.");
+		
+		Campaign campaign = new Campaign();
+		campaign.setUid(message.getCampaignUID());
+		campaign.setMode(CampaignMode.Broadcast);
+		campaign.setClientPK(clientPK);
+		save(campaign);
+		
+		save(message);
+		
+		OutgoingEntryNode entry = new OutgoingEntryNode();
+		entry.setCampaignUID(campaign.getUid());
+		entry.setEntryPoint(entryPoint);
+		entry.setEntryType(type);
+		
+		save(entry);
+		
+		ImmediateConnector connector = new ImmediateConnector();
+		connector.setCampaignUID(campaign.getUid());
+		connector.setSourceNodeUID(entry.getUid());
+		connector.setDestinationUID(message.getUid());
+		
+		save(connector);
+
+		publish(campaign.getUid());
+		
+		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
+	}
+
+	@Override
+	@RolesAllowed({"client","admin","account.manager"})
+	public void broadcastMessage(Long clientPK, EntryPointType type, String entryPoint, MessageNode message, ContactSearchCriteria search) {
+		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
+		broadcastMessage(clientPK, type, entryPoint, message, contacts);
+	}
+
+	@Override
+	@RolesAllowed({"client","admin","account.manager"})
+	public void broadcastCoupon(Long clientPK, EntryPointType type, String entryPoint, CouponNode coupon, List<Contact> contacts) {
+		if(coupon==null || coupon.getCampaignUID()==null)
+			throw new IllegalArgumentException("Cannot publish a broadcast coupon without a valid message, and campaign UID");
+		CampaignDO campaignCheck = getSimpleCampaign(coupon.getCampaignUID(),false);
+		if(campaignCheck!=null)
+			throw new IllegalArgumentException("Cannot broadcast a coupon using a campaign ID that already exists.");
+		
+		Campaign campaign = new Campaign();
+		campaign.setUid(coupon.getCampaignUID());
+		campaign.setMode(CampaignMode.Broadcast);
+		campaign.setClientPK(clientPK);
+		save(campaign);
+		
+		save(coupon);
+		
+		OutgoingEntryNode entry = new OutgoingEntryNode();
+		entry.setCampaignUID(campaign.getUid());
+		entry.setEntryPoint(entryPoint);
+		entry.setEntryType(type);
+		
+		save(entry);
+		
+		ImmediateConnector connector = new ImmediateConnector();
+		connector.setCampaignUID(campaign.getUid());
+		connector.setSourceNodeUID(entry.getUid());
+		connector.setDestinationUID(coupon.getUid());
+		
+		save(connector);
+
+		publish(campaign.getUid());
+		
+		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
+	}
+
+	@Override
+	@RolesAllowed({"client","admin","account.manager"})
+	public void broadcastCoupon(Long clientPK, EntryPointType type, String entryPoint, CouponNode coupon, ContactSearchCriteria search) {
+		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
+		broadcastCoupon(clientPK, type, entryPoint, coupon, contacts);
 	}
 }
