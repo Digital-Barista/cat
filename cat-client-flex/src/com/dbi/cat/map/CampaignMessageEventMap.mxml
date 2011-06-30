@@ -76,4 +76,10 @@
 		<MethodInvoker generator="{CampaignMessageManager}"
 			method="closeMessagePreview" />
 	</EventHandlers>
+    
+    <EventHandlers type="{CampaignMessageEvent.OPEN_HTML_EDITOR}">
+        <MethodInvoker generator="{CampaignMessageManager}"
+                       method="openHTMLEditor"
+                       arguments="{event.message}" />
+    </EventHandlers>
 </EventMap>

@@ -93,5 +93,14 @@ package com.dbi.cat.business
 		{
 			PopUpManager.removePopUp(messagePreviewWindow);
 		}
+    
+    public function openHTMLEditor(message:String):void
+    {
+        var escapedBody:String = escape(message);
+        var script:String = "function(){var win = window.open('http://localhost/workspace/cat/cat-web/WebContent/html-editor/editor.html');" + 
+            "win.message = unescape('" + escapedBody + "');" +
+            "}";
+        ExternalInterface.call(script);
+    }
 	}
 }

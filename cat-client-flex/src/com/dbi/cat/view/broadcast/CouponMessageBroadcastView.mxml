@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+           xmlns:workspace="com.dbi.cat.view.workspace.*"
+           creationComplete="init()">
+    <mx:Script>
+        <![CDATA[
+            import com.dbi.cat.common.vo.CampaignVO;
+            import com.dbi.cat.common.vo.CouponNodeVO;
+            import com.dbi.controls.CustomMessage;
+            import com.dbi.event.CustomMessageEvent;
+            
+            [Bindable]
+            private var campaign:CampaignVO;
+            
+            [Bindable]
+            private var coupon:CouponNodeVO;
+            
+            private function init():void
+            {
+                newBroadcast();
+            }
+            
+            private function newBroadcast():void
+            {
+                campaign = new CampaignVO();
+                coupon = new CouponNodeVO();
+            }
+            private function confirmNewMessage():void
+            {
+                CustomMessage.show("Are you sure you want to discard the current coupon message?",
+                    ["Yes", "No"],
+                    onConfirmNewMessage);
+            }
+            private function onConfirmNewMessage(e:CustomMessageEvent):void
+            {
+                if (e.ButtonText == "Yes")
+                {
+                    newBroadcast();
+                }
+            }
+        ]]>
+    </mx:Script>
+    <mx:TitleWindow 
+        width="100%" height="100%"
+        layout="absolute">
+        <workspace:CouponItemEditor 
+            campaign="{campaign}"
+            couponVO="{coupon}"/>
+    </mx:TitleWindow>
+    <mx:HBox right="5" top="7" verticalAlign="middle">
+        <mx:Button label="New Coupon Message"
+                   click="confirmNewMessage()" />
+        <mx:Button label="Send Coupon Message" />
+    </mx:HBox>
+</mx:Canvas>

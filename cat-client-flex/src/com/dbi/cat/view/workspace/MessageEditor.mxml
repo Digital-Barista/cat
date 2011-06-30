@@ -102,6 +102,13 @@
 					}
 				}
 			}
+        
+        private function openHTMLEditor():void
+        {
+            var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.OPEN_HTML_EDITOR);
+            event.message = messageText && messageText.length > 0 ? messageText : defaultMessageText;
+            dispatchEvent(event);
+        }
 		]]>
 	</mx:Script>
 	<mx:TextArea id="Message"  
@@ -122,8 +129,14 @@
 	</mx:Canvas>
 	<mx:Label id="CharacterCount"
 			  bottom="5" left="5" />
-	<mx:Button label="Preview Message"
-			   bottom="5" right="5"
-			   visible="{campaign != null &amp;&amp; entryType != null}"
-			   click="previewMessage()" />
+ <mx:HBox right="5" bottom="5">
+    <mx:Button label="HTML Editor"
+               visible="{entryType.allowHTML}"
+               includeInLayout="{entryType.allowHTML}"
+               click="openHTMLEditor()" />
+    	<mx:Button label="Preview Message"
+    			   visible="{campaign != null &amp;&amp; entryType != null}"
+             includeInLayout="{campaign != null &amp;&amp; entryType != null}"
+    			   click="previewMessage()" />
+ </mx:HBox>
 </mx:Canvas>
