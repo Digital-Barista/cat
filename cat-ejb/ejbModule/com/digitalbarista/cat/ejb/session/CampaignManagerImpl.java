@@ -172,6 +172,37 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		return ret;
 	}
+
+	public List<Campaign> getBroadcastCampaigns(List<Long> clientIDs)
+	{
+		List<Campaign> ret = new ArrayList<Campaign>();
+		Campaign c;
+		
+		List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
+		
+		if (allowedClientIDs.size() > 0)
+		{
+			Criteria crit = session.createCriteria(CampaignDO.class);
+			crit.add(Restrictions.eq("status", CampaignStatus.Active));
+			crit.add(Restrictions.eq("mode", CampaignMode.Broadcast));
+			crit.add(Restrictions.in("client.id", allowedClientIDs));
+			
+			String countQuery = "select count(csl) from CampaignSubscriberLinkDO csl " +
+			"where csl.campaign.id=:campaignID " +
+			"and csl.active = true";
+	
+			for(CampaignDO cmp : (List<CampaignDO>)crit.list())
+			{
+				c = new Campaign();
+				c.copyFrom(cmp);
+				Long count = (Long)session.createQuery(countQuery).setParameter("campaignID", cmp.getPrimaryKey()).uniqueResult();
+				c.setSubscriberCount(count.intValue());
+				ret.add(c);
+			}
+		}
+		
+		return ret;
+	}
 	
 	public List<Campaign> getCampaignTemplates(List<Long> clientIDs)
 	{

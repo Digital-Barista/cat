@@ -60,6 +60,7 @@ public interface CampaignManager {
 	public List<Campaign> getAllTemplates();
 	
 	public List<Campaign> getCampaigns(List<Long> clientIDs);
+	public List<Campaign> getBroadcastCampaigns(List<Long> clientIDs);
 	public List<Campaign> getCampaignTemplates(List<Long> clientIDs);
 	
 	
