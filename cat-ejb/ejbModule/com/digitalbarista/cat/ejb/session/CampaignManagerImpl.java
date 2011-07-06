@@ -123,9 +123,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	@EJB(name="ejb/cat/ContactManager")
 	ContactManager contactManager;
 	
-	@EJB(name="ejb/cat/SubscriptionManager")
-	SubscriptionManager subscriptionManager;
-	
 	@Override
 	@SuppressWarnings("unchecked")
 	@PermitAll
@@ -1558,6 +1555,7 @@ public class CampaignManagerImpl implements CampaignManager {
 
 		publish(campaign.getUid());
 		
+		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
 
@@ -1601,6 +1599,7 @@ public class CampaignManagerImpl implements CampaignManager {
 
 		publish(campaign.getUid());
 		
+		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
 

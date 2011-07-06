@@ -27,3 +27,6 @@ insert into campaign_admin.entry_points(entry_point_id, description,entry_point,
 insert into campaign_admin.client_entry_point_link(client_id,entry_point_id) values (1,1);
 insert into campaign_admin.client_entry_point_link(client_id,entry_point_id) values (1,2);
 insert into campaign_admin.client_entry_point_link(client_id,entry_point_id) values (1,3);
+
+insert into jbm_user(user_id,passwd) values ('admin','admin');
+insert into jbm_role(role_id,user_id) values ('admin','admin');
