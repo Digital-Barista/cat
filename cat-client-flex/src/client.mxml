@@ -33,6 +33,7 @@
 	<map:ReportingEventMap />
 	<map:CampaignMessageEventMap />
 	<map:SubscriptionEventMap />
+  <map:BroadcastMessageEventMap />
 	
 	<!-- Main app components -->
 	<mx:ViewStack width="100%" height="100%"

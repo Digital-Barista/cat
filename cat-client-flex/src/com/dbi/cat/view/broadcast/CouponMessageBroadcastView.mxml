@@ -6,6 +6,7 @@
         <![CDATA[
             import com.dbi.cat.common.vo.CampaignVO;
             import com.dbi.cat.common.vo.CouponNodeVO;
+            import com.dbi.cat.event.BroadcastMessageEvent;
             import com.dbi.controls.CustomMessage;
             import com.dbi.event.CustomMessageEvent;
             
@@ -38,6 +39,13 @@
                     newBroadcast();
                 }
             }
+            
+            private function confirmSendCouponMessage():void
+            {
+                var e:BroadcastMessageEvent = new BroadcastMessageEvent(BroadcastMessageEvent.OPEN_CONFIRM_BROADCAST_MESSAGE);
+                e.coupon = coupon;
+                dispatchEvent(e);
+            }
         ]]>
     </mx:Script>
     <mx:TitleWindow 
@@ -50,6 +58,7 @@
     <mx:HBox right="5" top="7" verticalAlign="middle">
         <mx:Button label="New Coupon Message"
                    click="confirmNewMessage()" />
-        <mx:Button label="Send Coupon Message" />
+        <mx:Button label="Send Coupon Message"
+                   click="confirmSendCouponMessage()"/>
     </mx:HBox>
 </mx:Canvas>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+                width="400" height="300"
+                showCloseButton="true"
+                close="onClose()" 
+                creationComplete="init()"
+                xmlns:components="com.dbi.cat.view.components.*"
+                title="Select Networks">
+    <mx:Script>
+        <![CDATA[
+            import com.dbi.cat.common.constants.EntryPointType;
+            import com.dbi.cat.common.vo.CouponNodeVO;
+            import com.dbi.cat.common.vo.CouponVO;
+            import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+            import com.dbi.cat.common.vo.MessageVO;
+            import com.dbi.cat.common.vo.UserVO;
+            import com.dbi.cat.event.BroadcastMessageEvent;
+            import com.dbi.controls.AdvancedComboBox;
+            import com.dbi.controls.CustomMessage;
+            import com.dbi.event.CustomMessageEvent;
+            
+            import mx.collections.ArrayCollection;
+            import mx.containers.HBox;
+            import mx.controls.CheckBox;
+            import mx.controls.ComboBox;
+            import mx.validators.Validator;
+            
+            private const TYPE_MESSAGE:String = "Message";
+            private const TYPE_COUPON:String = "Coupon";
+            
+            [Bindable]
+            public var clients:ArrayCollection;
+            public var clientMap:Object;
+            
+            
+            public var currentUser:UserVO;
+            
+            [Bindable]
+            private var _message:MessageVO;
+            public function set message(value:MessageVO):void
+            {
+                _message = value;
+                dispatchEvent(new Event("messageUpdate"));
+            }
+            
+            [Bindable]
+            private var _coupon:CouponNodeVO;
+            public function set coupon(value:CouponNodeVO):void
+            {
+                _coupon = value;
+                dispatchEvent(new Event("messageUpdate"));
+            }
+            
+            [Bindable(event="messageUpdate")]
+            private function get messageType():String
+            {
+                if (_coupon != null)
+                {
+                    return TYPE_COUPON;
+                }
+                else if (_message != null)
+                {
+                    return TYPE_MESSAGE;
+                }
+                return "";
+            }
+            
+            // Keep track of selected entry points for validation and send
+            private var selectedEntryPointControls:ArrayCollection = new ArrayCollection();
+            
+            private function init():void
+            {
+                populateEntryTypes();
+                validateSend();
+            }
+            private function onClose():void
+            {
+                dispatchEvent(new BroadcastMessageEvent(BroadcastMessageEvent.CLOSE_CONFIRM_BROADCAST_MESSAGE));
+            }
+            
+            public function getClientEntryPoints(entryPointType:String):ArrayCollection
+            {
+                var ret:ArrayCollection = new ArrayCollection();
+                if (Client.selectedItem != null)
+                {
+                    var clientPK:Number = Client.selectedItem.clientId;
+                    if (clientMap != null &&
+                        clientMap[clientPK] != null)
+                    {
+                        for each (var e:EntryPointDefinitionVO in clientMap[clientPK].entryPoints)
+                        {
+                            if (e.type == entryPointType)
+                            {
+                                ret.addItem(e);
+                            }
+                        }
+                    }
+                }
+                return ret;
+            }
+            
+            private function populateEntryTypes():void
+            {
+                selectedEntryPointControls.removeAll();
+                EntryPointSelection.removeAllChildren();
+                for each (var type:EntryPointType in currentUser.entryPointTypes)
+                {
+                    var check:CheckBox = new CheckBox();
+                    check.addEventListener(Event.CHANGE, validateSend);
+                    
+                    var combo:FormattedComboBox = new FormattedComboBox();
+                    combo.dataProvider = getClientEntryPoints(type.name);
+                    combo.labelField = "name";
+                    combo.addEventListener(Event.CHANGE, validateSend);
+                    
+                    var box:FormItem = new FormItem();
+                    box.direction = "horizontal";
+                    box.label = type.name;
+                    box.addChild(check);
+                    box.addChild(combo);
+                    selectedEntryPointControls.addItem(box);
+                    
+                    EntryPointSelection.addChild(box);
+                }
+            }
+            
+            private function confirmSend():void
+            {
+                CustomMessage.show("Send this " + messageType + " to all of your contacts?",
+                  ["Yes", "No"],
+                  send);
+            }
+            
+            private function send(e:CustomMessageEvent):void
+            {
+                if (e.ButtonText == "Yes")
+                {
+                    var event:BroadcastMessageEvent;
+                    if (messageType == TYPE_COUPON)
+                    {
+                        event = new BroadcastMessageEvent(BroadcastMessageEvent.SEND_BROADCAST_COUPON_MESSAGE);
+                        event.coupon = _coupon;
+                    }
+                    else if (messageType == TYPE_MESSAGE)
+                    {
+                        event = new BroadcastMessageEvent(BroadcastMessageEvent.SEND_BROADCAST_MESSAGE);
+                        event.message = _message;
+                    }
+                    
+                    if (event != null)
+                    {
+                        dispatchEvent(event);
+                        onClose();
+                    }
+                }
+            }
+            
+            private function validateSend(e:Event=null):void
+            {
+                var valid:Boolean = true;
+                if (Client.selectedIndex < 0)
+                {
+                    valid = false;
+                }
+                
+                var selected:Boolean = false;
+                for each (var item:FormItem in selectedEntryPointControls)
+                {
+                    if (CheckBox(item.getChildAt(0)).selected &&
+                        FormattedComboBox(item.getChildAt(1)).selectedIndex > -1)
+                    {
+                        selected = true;
+                        break;
+                    }
+                }
+                valid = valid && selected;
+                Send.enabled = valid;
+            }
+            
+            private function changeClient():void
+            {
+                populateEntryTypes();
+                validateSend();
+            }
+        ]]>
+    </mx:Script>
+    
+    <mx:Form id="SendInfo">
+        <mx:FormItem id="ClientField" label="Client">
+            <components:FormattedComboBox
+                id="Client"
+                dataProvider="{clients}"
+                selectedBindingProperty="clientId"
+                labelField="name" 
+                bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
+                y="249" horizontalCenter="250"
+                change="changeClient()" />
+        </mx:FormItem>
+        
+    </mx:Form>
+    <mx:TextArea text="Select the networks this message should be sent out to"
+                 fontSize="16" width="359" textAlign="center" borderStyle="none" backgroundAlpha="0.0" editable="false" x="16.5" y="47"/>
+    <mx:Form id="EntryPointSelection" x="10" y="90" width="372" height="139">
+    </mx:Form>
+    <mx:Button id="Send" label="Send {messageType}"
+               left="5" right="5" bottom="5"
+               click="confirmSend()" />
+</mx:TitleWindow>

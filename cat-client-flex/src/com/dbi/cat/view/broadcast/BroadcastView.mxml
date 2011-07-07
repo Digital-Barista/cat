@@ -20,6 +20,9 @@
 			[Bindable]
 			private var coupon:CouponNodeVO;
 			
+    [Bindable]
+    public var isSendingBroadcast:Boolean = false;
+        
 			private function init():void
 			{
 				newBroadcast();
@@ -43,9 +46,9 @@
 		horizontalAlign="right"
 		borderStyle="none"
 		paddingTop="0">
+  <broadcast:CouponMessageBroadcastView
+      label="Coupon Message"  />
 		<broadcast:MessageBroadcastView
         label="Message" />
-    <broadcast:CouponMessageBroadcastView
-        label="Coupon Message"  />
 	</mx:TabNavigator>
 </mx:Canvas>

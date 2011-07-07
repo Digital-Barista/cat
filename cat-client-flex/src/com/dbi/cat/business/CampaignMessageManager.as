@@ -97,9 +97,10 @@ package com.dbi.cat.business
     public function openHTMLEditor(message:String):void
     {
         var escapedBody:String = escape(message);
-        var script:String = "function(){var win = window.open('http://localhost/workspace/cat/cat-web/WebContent/html-editor/editor.html');" + 
-            "win.message = unescape('" + escapedBody + "');" +
-            "}";
+        var script:String = "function(){$.colorbox({href:'assets/html-editor/editor.html'}); }";
+//        var script:String = "function(){var win = window.open('http://localhost/workspace/cat/cat-client-flex/src/assets/html-editor/editor.html');" + 
+//            "win.message = unescape('" + escapedBody + "');" +
+//            "}";
         ExternalInterface.call(script);
     }
 	}
