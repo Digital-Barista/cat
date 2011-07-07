@@ -19,6 +19,7 @@ import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.CouponNode;
+import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
@@ -104,8 +105,8 @@ public interface CampaignManager {
 	@WrappedMap(map="nodeSubscriberCount",key="nodeUID",entry="count")
 	public Map<String,Long> getNodeSubscriberCount(@PathParam("uid") String campaignUUID);
 	
-	public void broadcastMessage(Long clientPK, EntryPointType type, String entryPoint, MessageNode message, List<Contact> contacts);
-	public void broadcastMessage(Long clientPK, EntryPointType type, String entryPoint, MessageNode message, ContactSearchCriteria search);
-	public void broadcastCoupon(Long clientPK, EntryPointType type, String entryPoint, CouponNode coupon, List<Contact> contacts);
-	public void broadcastCoupon(Long clientPK, EntryPointType type, String entryPoint, CouponNode coupon, ContactSearchCriteria search);
+	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, List<Contact> contacts);
+	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search);
+	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts);
+	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search);
 }

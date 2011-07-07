@@ -1524,7 +1524,7 @@ public class CampaignManagerImpl implements CampaignManager {
 
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
-	public void broadcastMessage(Long clientPK, EntryPointType type, String entryPoint, MessageNode message, List<Contact> contacts) {
+	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, List<Contact> contacts) {
 		if(message==null || message.getCampaignUID()==null)
 			throw new IllegalArgumentException("Cannot publish a broadcast message without a valid message, and campaign UID");
 		CampaignDO campaignCheck = getSimpleCampaign(message.getCampaignUID(),false);
@@ -1541,8 +1541,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		OutgoingEntryNode entry = new OutgoingEntryNode();
 		entry.setCampaignUID(campaign.getUid());
-		entry.setEntryPoint(entryPoint);
-		entry.setEntryType(type);
+		entry.setEntryData(entryPoints);
 		
 		save(entry);
 		
@@ -1561,14 +1560,14 @@ public class CampaignManagerImpl implements CampaignManager {
 
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
-	public void broadcastMessage(Long clientPK, EntryPointType type, String entryPoint, MessageNode message, ContactSearchCriteria search) {
+	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search) {
 		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
-		broadcastMessage(clientPK, type, entryPoint, message, contacts);
+		broadcastMessage(clientPK, entryPoints, message, contacts);
 	}
 
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
-	public void broadcastCoupon(Long clientPK, EntryPointType type, String entryPoint, CouponNode coupon, List<Contact> contacts) {
+	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts) {
 		if(coupon==null || coupon.getCampaignUID()==null)
 			throw new IllegalArgumentException("Cannot publish a broadcast coupon without a valid message, and campaign UID");
 		CampaignDO campaignCheck = getSimpleCampaign(coupon.getCampaignUID(),false);
@@ -1585,8 +1584,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		OutgoingEntryNode entry = new OutgoingEntryNode();
 		entry.setCampaignUID(campaign.getUid());
-		entry.setEntryPoint(entryPoint);
-		entry.setEntryType(type);
+		entry.setEntryData(entryPoints);
 		
 		save(entry);
 		
@@ -1605,8 +1603,8 @@ public class CampaignManagerImpl implements CampaignManager {
 
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
-	public void broadcastCoupon(Long clientPK, EntryPointType type, String entryPoint, CouponNode coupon, ContactSearchCriteria search) {
+	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search) {
 		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
-		broadcastCoupon(clientPK, type, entryPoint, coupon, contacts);
+		broadcastCoupon(clientPK, entryPoints, coupon, contacts);
 	}
 }

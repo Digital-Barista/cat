@@ -1,18 +1,18 @@
 <testng-results>
   <reporter-output>
   </reporter-output>
-  <suite name="Command line suite" duration-ms="579" started-at="2011-06-27T20:21:13Z" finished-at="2011-06-27T20:21:13Z">
+  <suite name="Command line suite" duration-ms="427" started-at="2011-07-05T23:05:26Z" finished-at="2011-07-05T23:05:26Z">
     <groups>
     </groups>
-    <test name="Command line test" duration-ms="579" started-at="2011-06-27T20:21:13Z" finished-at="2011-06-27T20:21:13Z">
+    <test name="Command line test" duration-ms="427" started-at="2011-07-05T23:05:26Z" finished-at="2011-07-05T23:05:26Z">
       <class name="com.digitalbarista.cat.twitter.binding.TestTwitterJAXB">
-        <test-method status="PASS" signature="testDirectMessageClass()" name="testDirectMessageClass" duration-ms="402" started-at="2011-06-27T20:21:13Z" finished-at="2011-06-27T20:21:13Z">
+        <test-method status="PASS" signature="testDirectMessageClass()" name="testDirectMessageClass" duration-ms="347" started-at="2011-07-05T23:05:26Z" finished-at="2011-07-05T23:05:26Z">
         </test-method>
-        <test-method status="PASS" signature="testDirectMessagesClass()" name="testDirectMessagesClass" duration-ms="132" started-at="2011-06-27T20:21:13Z" finished-at="2011-06-27T20:21:13Z">
+        <test-method status="PASS" signature="testDirectMessagesClass()" name="testDirectMessagesClass" duration-ms="42" started-at="2011-07-05T23:05:26Z" finished-at="2011-07-05T23:05:26Z">
         </test-method>
-        <test-method status="PASS" signature="testIDListClass()" name="testIDListClass" duration-ms="13" started-at="2011-06-27T20:21:13Z" finished-at="2011-06-27T20:21:13Z">
+        <test-method status="PASS" signature="testIDListClass()" name="testIDListClass" duration-ms="13" started-at="2011-07-05T23:05:26Z" finished-at="2011-07-05T23:05:26Z">
         </test-method>
-        <test-method status="PASS" signature="testTweeterClass()" name="testTweeterClass" duration-ms="25" started-at="2011-06-27T20:21:13Z" finished-at="2011-06-27T20:21:13Z">
+        <test-method status="PASS" signature="testTweeterClass()" name="testTweeterClass" duration-ms="17" started-at="2011-07-05T23:05:26Z" finished-at="2011-07-05T23:05:26Z">
         </test-method>
       </class>
     </test>
