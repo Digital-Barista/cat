@@ -30,6 +30,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
@@ -64,6 +66,7 @@ import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignNodeLinkDO;
 import com.digitalbarista.cat.data.CampaignStatus;
+import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.CampaignVersionDO;
 import com.digitalbarista.cat.data.CampaignVersionStatus;
 import com.digitalbarista.cat.data.ClientDO;
@@ -153,16 +156,34 @@ public class CampaignManagerImpl implements CampaignManager {
 			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.add(Restrictions.in("client.id", allowedClientIDs));
 			
-			String countQuery = "select count(csl) from CampaignSubscriberLinkDO csl " +
-			"where csl.campaign.id=:campaignID " +
-			"and csl.active = true";
 	
-			for(CampaignDO cmp : (List<CampaignDO>)crit.list())
+			List<CampaignDO> campList = (List<CampaignDO>)crit.list();
+			Map<Long,Integer> campCounts = new HashMap<Long,Integer>();
+			if(campList!=null && campList.size()>1)
+			{
+				List<Long> campIDList = new ArrayList<Long>();
+				for(CampaignDO camp : campList)
+					campIDList.add(camp.getPrimaryKey());
+				Criteria countCrit = session.createCriteria(CampaignSubscriberLinkDO.class, "csl");
+				countCrit.add(Restrictions.in("campaign.id", campIDList));
+				countCrit.add(Restrictions.eq("active",true));
+				ProjectionList pList = Projections.projectionList();
+				pList.add(Projections.count("id"));
+				pList.add(Projections.property("campaign.id"));
+				pList.add(Projections.groupProperty("campaign.id"));
+				countCrit.setProjection(pList);
+				List<Object[]> result = (List<Object[]>)countCrit.list();
+				for(Object[] row : result)
+					campCounts.put((Long)row[1], (Integer)row[0]);
+			}
+			
+				
+			for(CampaignDO cmp : campList)
 			{
 				c = new Campaign();
 				c.copyFrom(cmp);
-				Long count = (Long)session.createQuery(countQuery).setParameter("campaignID", cmp.getPrimaryKey()).uniqueResult();
-				c.setSubscriberCount(count.intValue());
+				if(campCounts.containsKey(cmp.getPrimaryKey()))
+					c.setSubscriberCount(campCounts.get(cmp.getPrimaryKey()));
 				ret.add(c);
 			}
 		}
