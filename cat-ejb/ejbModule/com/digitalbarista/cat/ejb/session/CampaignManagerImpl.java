@@ -40,6 +40,7 @@ import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
 import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.AddInMessage;
+import com.digitalbarista.cat.business.BroadcastInfo;
 import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.CampaignInfo;
@@ -75,6 +76,7 @@ import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.CouponOfferDO;
+import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.LayoutInfoDO;
 import com.digitalbarista.cat.data.NodeConnectorLinkDO;
@@ -191,10 +193,10 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 
-	public List<Campaign> getBroadcastCampaigns(List<Long> clientIDs)
+	public List<BroadcastInfo> getBroadcastCampaigns(List<Long> clientIDs)
 	{
-		List<Campaign> ret = new ArrayList<Campaign>();
-		Campaign c;
+		List<BroadcastInfo> ret = new ArrayList<BroadcastInfo>();
+		BroadcastInfo c;
 		
 		List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
 		
@@ -202,19 +204,43 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			Criteria crit = session.createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
-			crit.add(Restrictions.eq("mode", CampaignMode.Broadcast));
+			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.add(Restrictions.in("client.id", allowedClientIDs));
 			
-			String countQuery = "select count(csl) from CampaignSubscriberLinkDO csl " +
-			"where csl.campaign.id=:campaignID " +
-			"and csl.active = true";
-	
-			for(CampaignDO cmp : (List<CampaignDO>)crit.list())
+			List<CampaignDO> campList = (List<CampaignDO>)crit.list();
+			Map<Long,Integer> campCounts = new HashMap<Long,Integer>();
+			if(campList!=null && campList.size()>1)
 			{
-				c = new Campaign();
+				List<Long> campIDList = new ArrayList<Long>();
+				for(CampaignDO camp : campList)
+					campIDList.add(camp.getPrimaryKey());
+				Criteria countCrit = session.createCriteria(CampaignSubscriberLinkDO.class, "csl");
+				countCrit.add(Restrictions.in("campaign.id", campIDList));
+				countCrit.add(Restrictions.eq("active",true));
+				ProjectionList pList = Projections.projectionList();
+				pList.add(Projections.count("id"));
+				pList.add(Projections.property("campaign.id"));
+				pList.add(Projections.groupProperty("campaign.id"));
+				countCrit.setProjection(pList);
+				List<Object[]> result = (List<Object[]>)countCrit.list();
+				for(Object[] row : result)
+					campCounts.put((Long)row[1], (Integer)row[0]);
+			}
+				
+			for(CampaignDO cmp : campList)
+			{
+				c = new BroadcastInfo();
 				c.copyFrom(cmp);
-				Long count = (Long)session.createQuery(countQuery).setParameter("campaignID", cmp.getPrimaryKey()).uniqueResult();
-				c.setSubscriberCount(count.intValue());
+				if(campCounts.containsKey(cmp.getPrimaryKey()))
+					c.setSubscriberCount(campCounts.get(cmp.getPrimaryKey()));
+				if(c.isCoupon())
+				{
+					Criteria couponCount = session.createCriteria(CouponRedemptionDO.class, "cr");
+					couponCount.createAlias("couponResponse", "resp");
+					couponCount.add(Restrictions.eq("resp.couponOffer.id", c.getCouponId()));
+					couponCount.setProjection(Projections.rowCount());
+					c.setCouponRedemptionCount((Integer)couponCount.uniqueResult());
+				}
 				ret.add(c);
 			}
 		}

@@ -15,6 +15,7 @@ import javax.ws.rs.Produces;
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 import org.jboss.resteasy.annotations.providers.jaxb.WrappedMap;
 
+import com.digitalbarista.cat.business.BroadcastInfo;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Contact;
@@ -25,7 +26,6 @@ import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.ConnectorDO;
-import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.NodeDO;
 
 @Local
@@ -61,7 +61,7 @@ public interface CampaignManager {
 	public List<Campaign> getAllTemplates();
 	
 	public List<Campaign> getCampaigns(List<Long> clientIDs);
-	public List<Campaign> getBroadcastCampaigns(List<Long> clientIDs);
+	public List<BroadcastInfo> getBroadcastCampaigns(List<Long> clientIDs);
 	public List<Campaign> getCampaignTemplates(List<Long> clientIDs);
 	
 	
