@@ -25,6 +25,7 @@
             {
                 campaign = new CampaignVO();
                 message = new MessageVO();
+                message.campaignUID = campaign.uid;
             }
             
             private function confirmNewMessage():void

@@ -11,9 +11,11 @@
             import com.dbi.cat.common.constants.EntryPointType;
             import com.dbi.cat.common.vo.CouponNodeVO;
             import com.dbi.cat.common.vo.CouponVO;
+            import com.dbi.cat.common.vo.EntryDataVO;
             import com.dbi.cat.common.vo.EntryPointDefinitionVO;
             import com.dbi.cat.common.vo.MessageVO;
             import com.dbi.cat.common.vo.UserVO;
+            import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
             import com.dbi.cat.event.BroadcastMessageEvent;
             import com.dbi.controls.AdvancedComboBox;
             import com.dbi.controls.CustomMessage;
@@ -114,6 +116,7 @@
                     combo.addEventListener(Event.CHANGE, validateSend);
                     
                     var box:FormItem = new FormItem();
+                    box.data = type;
                     box.direction = "horizontal";
                     box.label = type.name;
                     box.addChild(check);
@@ -136,25 +139,46 @@
                 if (e.ButtonText == "Yes")
                 {
                     var event:BroadcastMessageEvent;
+                    
                     if (messageType == TYPE_COUPON)
                     {
                         event = new BroadcastMessageEvent(BroadcastMessageEvent.SEND_BROADCAST_COUPON_MESSAGE);
                         event.coupon = _coupon;
                     }
-                    else if (messageType == TYPE_MESSAGE)
+                    else
                     {
                         event = new BroadcastMessageEvent(BroadcastMessageEvent.SEND_BROADCAST_MESSAGE);
                         event.message = _message;
                     }
+                    event.clientID = Client.selectedItem.clientId;
+                    event.entryDatas = selectedEntryData;
+                    event.search = new ContactSearchCriteriaVO();
                     
-                    if (event != null)
-                    {
-                        dispatchEvent(event);
-                        onClose();
-                    }
+                    dispatchEvent(event);
+                    onClose();
                 }
             }
             
+            private function get selectedEntryData():ArrayCollection
+            {
+                var ret:ArrayCollection = new ArrayCollection();
+                
+                for each (var item:FormItem in selectedEntryPointControls)
+                {
+                    var entryData:EntryDataVO = new EntryDataVO();
+                    entryData.entryType = EntryPointType(item.data).name;
+                    
+                    var check:CheckBox = CheckBox(item.getChildAt(0));
+                    var combo:FormattedComboBox = FormattedComboBox(item.getChildAt(1));
+                    if (check.selected &&
+                        combo.selectedIndex > -1)
+                    {
+                        entryData.entryPoint = combo.selectedLabel;
+                        ret.addItem(entryData);
+                    }
+                }
+                return ret;
+            }
             private function validateSend(e:Event=null):void
             {
                 var valid:Boolean = true;
@@ -163,17 +187,7 @@
                     valid = false;
                 }
                 
-                var selected:Boolean = false;
-                for each (var item:FormItem in selectedEntryPointControls)
-                {
-                    if (CheckBox(item.getChildAt(0)).selected &&
-                        FormattedComboBox(item.getChildAt(1)).selectedIndex > -1)
-                    {
-                        selected = true;
-                        break;
-                    }
-                }
-                valid = valid && selected;
+                valid = valid && selectedEntryData.length > 0;
                 Send.enabled = valid;
             }
             

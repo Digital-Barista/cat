@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -204,7 +205,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			Criteria crit = session.createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
-			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
+			crit.add(Restrictions.eq("mode", CampaignMode.Broadcast));
 			crit.add(Restrictions.in("client.id", allowedClientIDs));
 			
 			List<CampaignDO> campList = (List<CampaignDO>)crit.list();
@@ -1578,7 +1579,12 @@ public class CampaignManagerImpl implements CampaignManager {
 		if(campaignCheck!=null)
 			throw new IllegalArgumentException("Cannot broadcast a message using a campaign ID that already exists.");
 		
+		String name = "Broadcast ";
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		name += dateFormat.format(new Date());
+		
 		Campaign campaign = new Campaign();
+		campaign.setName(name);
 		campaign.setUid(message.getCampaignUID());
 		campaign.setMode(CampaignMode.Broadcast);
 		campaign.setClientPK(clientPK);

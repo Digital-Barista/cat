@@ -25,6 +25,7 @@
             {
                 campaign = new CampaignVO();
                 coupon = new CouponNodeVO();
+                coupon.campaignUID = campaign.uid;
             }
             private function confirmNewMessage():void
             {

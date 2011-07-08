@@ -7,6 +7,7 @@ package com.dbi.cat.business
     
     import flash.display.DisplayObject;
     
+    import mx.collections.ArrayCollection;
     import mx.core.Application;
     import mx.core.IFlexDisplayObject;
     import mx.managers.PopUpManager;
@@ -18,6 +19,8 @@ package com.dbi.cat.business
 		
 		private var confirmBroadcastPopup:ConfirmBroadcastView;
     
+    public var broadcastMessages:ArrayCollection;
+    
 		public function BroadcastMessageManager()
 		{
 		}
@@ -28,6 +31,11 @@ package com.dbi.cat.business
     
     public function broadcastCouponMessageResult(result:Object):void
     {
+    }
+    
+    public function loadBroadcastMessages(result:ArrayCollection):void
+    {
+        broadcastMessages = result;
     }
     
     public function openConfirmBroadcast(message:MessageVO, coupon:CouponNodeVO):void

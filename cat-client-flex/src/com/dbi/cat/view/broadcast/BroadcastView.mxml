@@ -11,28 +11,9 @@
 			import com.dbi.cat.common.vo.CouponVO;
 			import com.dbi.cat.common.vo.MessageVO;
 			
-			[Bindable]
-			private var campaign:CampaignVO;
-			
-			[Bindable]
-			private var message:MessageVO;
-			
-			[Bindable]
-			private var coupon:CouponNodeVO;
-			
-    [Bindable]
-    public var isSendingBroadcast:Boolean = false;
         
 			private function init():void
 			{
-				newBroadcast();
-			}
-			
-			private function newBroadcast():void
-			{
-				campaign = new CampaignVO();
-				message = new MessageVO();
-				coupon = new CouponNodeVO();
 			}
 		]]>
 	</mx:Script>
@@ -48,7 +29,9 @@
 		paddingTop="0">
   <broadcast:CouponMessageBroadcastView
       label="Coupon Message"  />
-		<broadcast:MessageBroadcastView
-        label="Message" />
+    <broadcast:MessageBroadcastView
+      label="Message" />
+  <broadcast:SentBroadcastsView
+    label="Sent Broadcasts" />
 	</mx:TabNavigator>
 </mx:Canvas>

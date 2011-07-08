@@ -7,6 +7,7 @@
 		<![CDATA[
         import com.dbi.cat.business.AppManager;
         import com.dbi.cat.business.BroadcastMessageManager;
+        import com.dbi.cat.constants.ServiceStatusMessage;
         import com.dbi.cat.event.BroadcastMessageEvent;
         import com.dbi.cat.view.components.LoadingMessageView;
 			
@@ -15,14 +16,44 @@
 	
 	<Debugger level="{Debugger.ALL}" />
 	
-	
+    
+    <EventHandlers type="{BroadcastMessageEvent.LIST_BROADCAST_MESSAGES}">
+        <MethodInvoker generator="{AppManager}" 
+                       method="addGeneralStatusMessage" 
+                       arguments="{ServiceStatusMessage.LOADING_BROADCAST_MESSAGES}" />
+        <RemoteObjectInvoker 
+            destination="campaignManager"
+            method="getBroadcastCampaigns"
+            arguments="{event.clientIDs}"
+            showBusyCursor="true">
+            <resultHandlers>
+                <MethodInvoker generator="{BroadcastMessageManager}"
+                               method="loadBroadcastMessages"
+                               arguments="{resultObject}" />
+                <MethodInvoker
+                    generator="{AppManager}"
+                    method="removeGeneralStatusMessage"
+                    arguments="{ServiceStatusMessage.LOADING_BROADCAST_MESSAGES}" />
+            </resultHandlers>
+            <faultHandlers>
+                <MethodInvoker
+                    generator="{AppManager}"
+                    method="removeGeneralStatusMessage"
+                    arguments="{ServiceStatusMessage.LOADING_BROADCAST_MESSAGES}" />
+                <MethodInvoker generator="{AppManager}"
+                               method="showFault"
+                               arguments="{fault}" />
+            </faultHandlers>
+        </RemoteObjectInvoker>
+    </EventHandlers>
+    
 	<EventHandlers type="{BroadcastMessageEvent.SEND_BROADCAST_MESSAGE}">
       <InlineInvoker
           method="LoadingMessageView.show"
           arguments="{['Sending...']}" />
 		<RemoteObjectInvoker destination="campaignManager"
 							 method="broadcastMessage"
-							 arguments="{[event.clientID, event.entryDatas, event.message]}"
+							 arguments="{[event.clientID, event.entryDatas, event.message, event.search]}"
 							 showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{BroadcastMessageManager}"
@@ -47,7 +78,7 @@
             arguments="{['Sending...']}" />
         <RemoteObjectInvoker destination="campaignManager"
                              method="broadcastMessage"
-                             arguments="{[event.clientID, event.entryDatas, event.coupon]}"
+                             arguments="{[event.clientID, event.entryDatas, event.coupon, event.search]}"
                              showBusyCursor="true">
             <resultHandlers>
                 <MethodInvoker generator="{BroadcastMessageManager}"
