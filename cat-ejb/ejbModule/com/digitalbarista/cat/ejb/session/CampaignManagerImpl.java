@@ -1626,8 +1626,13 @@ public class CampaignManagerImpl implements CampaignManager {
 		CampaignDO campaignCheck = getSimpleCampaign(coupon.getCampaignUID(),false);
 		if(campaignCheck!=null)
 			throw new IllegalArgumentException("Cannot broadcast a coupon using a campaign ID that already exists.");
+
+		String name = "Broadcast ";
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		name += dateFormat.format(new Date());
 		
 		Campaign campaign = new Campaign();
+		campaign.setName(name);
 		campaign.setUid(coupon.getCampaignUID());
 		campaign.setMode(CampaignMode.Broadcast);
 		campaign.setClientPK(clientPK);
