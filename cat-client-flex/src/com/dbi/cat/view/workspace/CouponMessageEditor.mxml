@@ -60,7 +60,13 @@
 			private function init():void
 			{
 				createTabs();
+        applyPermissions();
 			}
+        
+      private function applyPermissions():void
+      {
+          MessageAvailableOptions.visible = MessageAvailableOptions.includeInLayout = currentUser.isManager;
+      }
 			
 			private function createTabs():void
 			{
@@ -177,7 +183,7 @@
 	</mx:Script>
 	<mx:RadioButtonGroup id="AvailableGroup"
 						 change="{changeMessageShowing()}"/>
-	<mx:HBox left="10">
+	<mx:HBox left="10" id="MessageAvailableOptions">
 		<mx:RadioButton id="Available"
 						label="Available Message"
 						group="{AvailableGroup}"

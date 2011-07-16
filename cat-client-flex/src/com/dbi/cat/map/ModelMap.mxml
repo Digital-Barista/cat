@@ -71,6 +71,7 @@
         import com.dbi.cat.view.user.EditUserView;
         import com.dbi.cat.view.user.UsersView;
         import com.dbi.cat.view.workspace.CouponItem;
+        import com.dbi.cat.view.workspace.CouponItemEditor;
         import com.dbi.cat.view.workspace.CouponMessageEditor;
         import com.dbi.cat.view.workspace.MessageItem;
         import com.dbi.cat.view.workspace.MessageItemEditor;
@@ -654,6 +655,13 @@
 			sourceKey="currentUser"
 			targetKey="currentUser" />
 	</Injectors>
+    
+    <Injectors target="{CouponItemEditor}">
+        <PropertyInjector
+            source="{LoginManager}"
+            sourceKey="currentUser"
+            targetKey="currentUser" />
+    </Injectors>
     
     <Injectors target="{ConfirmBroadcastView}">
         <PropertyInjector
