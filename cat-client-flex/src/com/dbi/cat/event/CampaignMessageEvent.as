@@ -5,6 +5,8 @@ package com.dbi.cat.event
 	import com.dbi.cat.common.vo.NodeVO;
 	
 	import flash.events.Event;
+	
+	import mx.controls.TextArea;
 
 	public class CampaignMessageEvent extends Event
 	{
@@ -21,6 +23,7 @@ package com.dbi.cat.event
 		public var node:NodeVO;
 		public var entryType:EntryPointType;
 		public var title:String;
+    public var editTextArea:TextArea;
 			
 		public function CampaignMessageEvent(type:String)
 		{

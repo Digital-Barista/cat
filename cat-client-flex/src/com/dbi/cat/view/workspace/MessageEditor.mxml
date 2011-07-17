@@ -107,6 +107,7 @@
         {
             var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.OPEN_HTML_EDITOR);
             event.message = messageText && messageText.length > 0 ? messageText : defaultMessageText;
+            event.editTextArea = Message;
             dispatchEvent(event);
         }
 		]]>

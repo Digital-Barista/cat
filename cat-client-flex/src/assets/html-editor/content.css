@@ -94,3 +94,33 @@ img.right, table.right {
 	float: right;
 	text-align: inherit;
 }
+
+/**
+  My Style
+*/
+.save-content{
+    position:absolute;
+    z-index:200001;
+    top:5px;
+    right:5px;
+    color:#444;
+    font-weight:bold;
+}
+.save-content span{
+    line-height:22px;
+    height:25px;
+    display:block;
+    float:left;
+}
+.flex-button-left{
+    background:url('../img/flex_button_left.png') no-repeat;
+    width:4px;
+}
+.flex-button-middle{
+    background:url('../img/flex_button_middle.png') repeat-x;
+    padding:1px 3px;
+}
+.flex-button-right{
+  background:url('../img/flex_button_right.png') no-repeat;
+  width:5px;
+}

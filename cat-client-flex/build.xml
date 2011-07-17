@@ -8,7 +8,7 @@
 	<property name="APP_ROOT" value="src"/>
 	<property name="DEPLOY_DIR" value="${deploy.dir}"/>
 	
-	<taskdef resource="flexTasks.tasks"/>
+	<taskdef resource="flexTasks.tasks" />
 
 	<target name="set.flex.home" unless="flex.home">
 		<property name="flex.home" value="../flex-sdk"/>
@@ -117,5 +117,21 @@
             history="false"
             template="express-installation"
             output="${DEPLOY_DIR}"/>
+		
+		<!-- Insert script/style includes in generated HTML -->
+		<replace file="${DEPLOY_DIR}/index.html">
+		  <replacetoken><![CDATA[</body>]]></replacetoken>
+		  <replacevalue><![CDATA[<script type="text/javascript" src="assets/js/jquery-1.6.1.min.js"></script>
+		  	<script type="text/javascript" src="assets/js/jquery.colorbox-min.js"></script>
+		  	<script type="text/javascript" src="assets/js/util.js"></script>
+		  	<link href="assets/css/colorbox.css" rel="stylesheet">
+		  	</body>]]></replacevalue>
+		</replace>
+    
+    <!-- Make SWFs wmode = transparent -->
+    <replace file="${DEPLOY_DIR}/index.html">
+      <replacetoken><![CDATA["name", "client",]]></replacetoken>
+      <replacevalue><![CDATA["name", "client","wmode","transparent",]]></replacevalue>
+    </replace>
 	</target>	
 </project>
