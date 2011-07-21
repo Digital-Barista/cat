@@ -43,8 +43,8 @@
 			paddingTop="0"
 			horizontalAlign="right"
 			borderStyle="none">
+        <reporting:CouponRedemptionView label="Redeem Coupon" />
 			<reporting:CouponReportingView label="Coupons" />
-			<reporting:CouponRedemptionView label="Redeem Coupon" />
 		</mx:TabNavigator>
 	</mx:Canvas>
 </mx:Canvas>
