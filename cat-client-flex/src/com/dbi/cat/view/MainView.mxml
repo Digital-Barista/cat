@@ -6,7 +6,10 @@
 	xmlns:campaign="com.dbi.cat.view.campaign.*" 
 	xmlns:profile="com.dbi.cat.view.profile.*" 
 	xmlns:contacts="com.dbi.cat.view.contacts.*" 
-	xmlns:user="com.dbi.cat.view.user.*" xmlns:dashboard="com.dbi.cat.view.dashboard.*" xmlns:broadcast="com.dbi.cat.view.broadcast.*">
+	xmlns:user="com.dbi.cat.view.user.*" 
+  xmlns:dashboard="com.dbi.cat.view.dashboard.*" 
+  xmlns:broadcast="com.dbi.cat.view.broadcast.*"
+  creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.Roles;
@@ -29,7 +32,6 @@
 			public function set currentUser(value:UserVO):void
 			{
 				_currentUser = value;
-				applyPermissions();
 			}
 			
 			
@@ -45,6 +47,10 @@
 			[Bindable]
 			public var statusMessage:String;
 			
+        private function init():void
+        {
+            applyPermissions();
+        }
 			private function applyPermissions():void
 			{
 				var isManager:Boolean = false;
@@ -54,7 +60,7 @@
 				}
 				
 				// Hide top level tabs that only managers can see
-				SecurityUtil.showTabs(Tabs, ["Campaigns", "Contacts", "Users", "Profile"], isManager);
+				SecurityUtil.showTabs(Tabs, ["Campaigns", "Contacts", "Users"], isManager);
 			}
 			
 			private function tabClick(e:IndexChangedEvent):void

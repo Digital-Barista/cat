@@ -245,6 +245,10 @@
 			source="{ClientManager}"
 			sourceKey="clients"
 			targetKey="clients" />
+      <PropertyInjector
+          source="{LoginManager}"
+          sourceKey="currentUser"
+          targetKey="currentUser" />
 	</Injectors>
 	<Injectors target="{TestCampaignView}">
 		<PropertyInjector
@@ -687,5 +691,12 @@
             source="{BroadcastMessageManager}"
             sourceKey="broadcastMessages"
             targetKey="broadcastMessages" />
+    </Injectors>
+    
+    <Injectors target="{ProfileView}">
+        <PropertyInjector
+            source="{LoginManager}"
+            sourceKey="currentUser"
+            targetKey="currentUser" />
     </Injectors>
 </EventMap>

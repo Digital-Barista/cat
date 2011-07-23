@@ -19,6 +19,8 @@ package com.dbi.cat.event
 		public static const GET_CURRENT_USER:String = "getCurrentUser"
 		public static const CANCEL_EDIT:String = "cancelEditUserEvent"
 		public static const FILTER_USERS:String = "filterUsersEvent"
+    
+    public static const UPDATE_CURRENT_USER:String = "updateCurrentUserEvent";
 		
 		public var user:UserVO;
 		public var role:RoleVO;

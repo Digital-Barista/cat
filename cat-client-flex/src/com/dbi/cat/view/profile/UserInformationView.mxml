@@ -21,9 +21,6 @@
 	<mx:FormItem label="Username">
 		<mx:Label text="{user.username}" />
 	</mx:FormItem>
-	<mx:FormItem label="Active">
-		<mx:Label text="{user.isActive}" />
-	</mx:FormItem>
 	<mx:FormItem label="Password">
 		<mx:Label text="********" />
 	</mx:FormItem>

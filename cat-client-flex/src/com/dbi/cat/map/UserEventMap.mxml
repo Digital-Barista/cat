@@ -5,23 +5,25 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.constants.ServiceStatusMessage;
-			import com.dbi.cat.business.NavigationManager;
-			import com.dbi.cat.business.LayoutInfoManager;
-			import mx.managers.LayoutManager;
-			import com.dbi.cat.business.ClientManager;
-			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.business.AppManager;
 			import com.dbi.cat.business.CampaignManager;
-			import com.dbi.cat.event.LoadDataEvent;
+			import com.dbi.cat.business.ClientManager;
+			import com.dbi.cat.business.LayoutInfoManager;
+			import com.dbi.cat.business.LoginManager;
+			import com.dbi.cat.business.NavigationManager;
+			import com.dbi.cat.business.UserManager;
+			import com.dbi.cat.constants.ServiceStatusMessage;
 			import com.dbi.cat.event.CampaignEvent;
 			import com.dbi.cat.event.ChangePasswordEvent;
-			import com.dbi.cat.business.LoginManager;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.event.LoadDataEvent;
 			import com.dbi.cat.event.LoginEvent;
 			import com.dbi.cat.event.NavigationEvent;
-			import com.dbi.cat.business.UserManager;
 			import com.dbi.cat.event.UserEvent;
-			import com.dbi.cat.business.AppManager;
+        import com.dbi.cat.view.components.LoadingMessageView;
+			
 			import mx.events.FlexEvent;
+			import mx.managers.LayoutManager;
 		]]>
 	</mx:Script>
 	
@@ -87,14 +89,23 @@
 			arguments="{event.user}" />
 	</EventHandlers>
 	<EventHandlers type="{UserEvent.SAVE_USER}">
+      <InlineInvoker
+          method="LoadingMessageView.show"
+          arguments="{['Saving User Information...']}" />
 		<RemoteObjectInvoker destination="userManager"
 			method="save"
+      showBusyCursor="true"
 			arguments="{event.user}">
 			<resultHandlers>
+        <InlineInvoker method="LoadingMessageView.hide" />
 				<MethodInvoker generator="{UserManager}"
 					method="saveUser"
 					arguments="{resultObject}" />
 			</resultHandlers>
+        <faultHandlers>
+            <InlineInvoker method="LoadingMessageView.hide" />
+            <MethodInvoker generator="{AppManager}" method="showFault" arguments="{fault}" />
+        </faultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
 	<EventHandlers type="{UserEvent.DELETE_USER}">
@@ -142,4 +153,11 @@
 		<MethodInvoker generator="{UserManager}"
 			method="cancelEdit" />
 	</EventHandlers>
+    
+    <!-- Update current user -->
+    <EventHandlers type="{UserEvent.UPDATE_CURRENT_USER}">
+        <MethodInvoker generator="{LoginManager}"
+                       method="updateCurrentUser"
+                       arguments="{event.user}" />
+    </EventHandlers>
 </EventMap>

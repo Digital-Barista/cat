@@ -18,6 +18,7 @@ package com.dbi.cat.common.vo
 		public var name:String;
 		public var email:String;
 		public var password:String;
+    public var currentPassword:String;
 		public var isActive:Boolean;
 		public var roles:ArrayCollection = new ArrayCollection();
 		

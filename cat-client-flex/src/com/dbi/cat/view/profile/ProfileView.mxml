@@ -1,6 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:ns1="com.dbi.cat.view.profile.*">
-	<mx:TabNavigator
+	  <mx:Script>
+        <![CDATA[
+            import com.dbi.cat.common.util.SecurityUtil;
+            import com.dbi.cat.common.vo.UserVO;
+            
+            private var _currentUser:UserVO;
+            public function get currentUser():UserVO
+            {
+                return _currentUser;
+            }
+            public function set currentUser(value:UserVO):void
+            {
+                _currentUser = value;
+                applyPermissions();
+            }
+            
+            
+            private function applyPermissions():void
+            {
+                var isManager:Boolean = false;
+                if (currentUser != null)
+                {
+                    isManager = currentUser.isManager;
+                }
+                
+                // Hide top level tabs that only managers can see
+                SecurityUtil.showTabs(Tabs, ["Accounts", "Keywords"], isManager);
+            }
+        ]]>
+    </mx:Script>
+    <mx:TabNavigator
+        id="Tabs"
 		horizontalCenter="0"
 		width="90%"
 		maxWidth="1000"
@@ -10,8 +41,8 @@
 		borderStyle="none"
 		paddingTop="0">
 		<ns1:ProfileDetailsView label="Details" />
-		<ns1:EntryPointDefinitionView label="Accounts" />
-		<ns1:KeywordView  label="Keywords" />
+		<ns1:EntryPointDefinitionView id="Accounts" label="Accounts" />
+		<ns1:KeywordView id="Keywords" label="Keywords" />
 	</mx:TabNavigator>
 	
 </mx:Canvas>

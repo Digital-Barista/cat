@@ -280,7 +280,17 @@ public class UserManagerImpl implements UserManager {
 		if(current==null)
 		{
 			ret = createUser(user);
-		} else {
+		} 
+		else 
+		{
+			// If NOT an admin and updating a password we need to verify the
+			// current password is correct
+			if (user.getPassword() != null &&
+					!ctx.isCallerInRole("admin") &&
+					!current.isCorrectPassword(user.getCurrentPassword()) )
+			{
+				throw new SecurityException("Current password did not match.  Cannot update user.");
+			}
 			user.copyTo(current);
 			if(user.getRoles()!=null)
 				syncRoles(user.getPrimaryKey(),new HashSet<Role>(user.getRoles()));

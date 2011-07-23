@@ -17,6 +17,7 @@ public class User implements BusinessObject<UserDO>{
 
 	private String username; 
 	private String password;
+	private String currentPassword;
 	private String name;
 	private String email;
 	private Boolean active;
@@ -107,5 +108,13 @@ public class User implements BusinessObject<UserDO>{
 	public void setRoles(List<Role> roles) {
 		this.roles = roles;
 	}
+	public String getCurrentPassword()
+  {
+  	return currentPassword;
+  }
+	public void setCurrentPassword(String currentPassword)
+  {
+  	this.currentPassword = currentPassword;
+  }
 	
 }

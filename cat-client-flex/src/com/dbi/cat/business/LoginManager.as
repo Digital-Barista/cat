@@ -164,6 +164,16 @@ package com.dbi.cat.business
 			// Login to app
 			dispatcher.dispatchEvent(new NavigationEvent(NavigationEvent.DASHBOARD));
 		}
+    public function updateCurrentUser(user:UserVO):void
+    {
+        // If the passed user is the current one update it
+        if (user &&
+            user.primaryKey == currentUser.primaryKey)
+        {
+          currentUser = user;   
+        }
+    }
+    
 		private function loginSuccess(result:ResultEvent):void
 		{
 			// Start activity timer
