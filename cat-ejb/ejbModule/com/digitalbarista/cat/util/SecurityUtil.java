@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.security.PermitAll;
 import javax.ejb.SessionContext;
 
 import org.hibernate.Criteria;
@@ -15,6 +14,8 @@ import org.hibernate.criterion.Restrictions;
 
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.RoleDO;
+import com.digitalbarista.cat.ejb.session.CacheAccessManager;
+import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
 import com.digitalbarista.cat.ejb.session.UserManager;
 
 public class SecurityUtil {
@@ -42,7 +43,14 @@ public class SecurityUtil {
 			username = ctx.getCallerPrincipal().getName();
 		}
 		
-		Set<Long> clientIDs = new HashSet<Long>();
+		Set<Long> clientIDs;
+		
+		CacheAccessManager cache = (CacheAccessManager)ctx.lookup("ejb/cat/CacheAccessManager");
+		clientIDs = (Set<Long>)cache.getCachedObject(CacheName.PermissionCache, username);
+		if(clientIDs!=null)
+			return clientIDs;
+
+		clientIDs = new HashSet<Long>();
 		if("guest".equalsIgnoreCase(username))
 			return clientIDs;
 		
@@ -68,6 +76,8 @@ public class SecurityUtil {
 			crit.setProjection(Projections.id());
 			clientIDs = new HashSet<Long>(crit.list());
 		}
+		if(!cache.cacheContainsKey(CacheName.PermissionCache, username))
+			cache.cacheObject(CacheName.PermissionCache, username, clientIDs);
 		return clientIDs;
 	}
 	

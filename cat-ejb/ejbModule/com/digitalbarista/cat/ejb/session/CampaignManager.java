@@ -105,6 +105,11 @@ public interface CampaignManager {
 	@WrappedMap(map="nodeSubscriberCount",key="nodeUID",entry="count")
 	public Map<String,Long> getNodeSubscriberCount(@PathParam("uid") String campaignUUID);
 	
+	public CampaignDO getCampaignForNode(String uid);
+	public CampaignDO getCampaignForConnector(String uid);
+	public Integer getCurrentCampaignVersionForNode(String uid);
+	public Integer getCurrentCampaignVersionForConnector(String uid);
+	
 	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, List<Contact> contacts);
 	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search);
 	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts);

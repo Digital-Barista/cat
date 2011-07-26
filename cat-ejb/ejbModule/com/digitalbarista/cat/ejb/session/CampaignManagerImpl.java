@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
@@ -47,6 +49,7 @@ import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.CampaignInfo;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Contact;
+import com.digitalbarista.cat.business.ContactTag;
 import com.digitalbarista.cat.business.CouponNode;
 import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
@@ -76,6 +79,7 @@ import com.digitalbarista.cat.data.ConnectionPoint;
 import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
+import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.EntryPointType;
@@ -85,6 +89,7 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberDO;
+import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
 import com.digitalbarista.cat.ejb.session.interceptor.NodeFillInterceptor;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
@@ -99,7 +104,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 @LocalBinding(jndiBinding = "ejb/cat/CampaignManager")
 @RunAsPrincipal("admin")
 @RunAs("admin")
-@Interceptors({AuditInterceptor.class,NodeFillInterceptor.class})
+@Interceptors({AuditInterceptor.class})
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class CampaignManagerImpl implements CampaignManager {
 
@@ -128,6 +133,9 @@ public class CampaignManagerImpl implements CampaignManager {
 	
 	@EJB(name="ejb/cat/ContactManager")
 	ContactManager contactManager;
+	
+	@EJB(name="ejb/cat/CacheAccessManager")
+	CacheAccessManager cacheAccessManager;
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -304,9 +312,17 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@PermitAll
 	public Connector getSpecificConnectorVersion(String connectorUUID, Integer version) {
+		String key = connectorUUID+"/"+version;
+		Connector ret = (Connector)cacheAccessManager.getCachedObject(CacheName.ConnectorCache, key);
+		if(ret!=null)
+			return ret;
+		
 		ConnectorDO conn = getSimpleConnector(connectorUUID);
-		Connector ret = Connector.createConnectorBO(conn);
+		ret = Connector.createConnectorBO(conn);
 		ret.copyFrom(conn,version);
+		
+		if(version < conn.getCampaign().getCurrentVersion() && !cacheAccessManager.cacheContainsKey(CacheName.ConnectorCache, key))
+			cacheAccessManager.cacheObject(CacheName.ConnectorCache, key, ret);
 		return ret;
 	}
 	
@@ -359,9 +375,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			if(!nodeLink.getVersion().equals(campaign.getCurrentVersion()))
 				continue;
-			tempNode = Node.createNodeBO(nodeLink.getNode());
-			tempNode.copyFrom(nodeLink.getNode());
-			campaign.getNodes().add(tempNode);
+			campaign.getNodes().add(getSpecificNodeVersion(nodeLink.getNode().getUID(),nodeLink.getVersion()));
 		}
 		
 		Connector tempConn;
@@ -369,9 +383,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			if(!connLink.getVersion().equals(campaign.getCurrentVersion()))
 				continue;
-			tempConn = Connector.createConnectorBO(connLink.getConnector());
-			tempConn.copyFrom(connLink.getConnector());
-			campaign.getConnectors().add(tempConn);
+			campaign.getConnectors().add(getSpecificConnectorVersion(connLink.getConnector().getUID(),connLink.getVersion()));
 		}
 		
 		return campaign;
@@ -405,25 +417,59 @@ public class CampaignManagerImpl implements CampaignManager {
 	@PermitAll
 	public Node getNode(String nodeUUID) {
 		NodeDO node = getSimpleNode(nodeUUID);
-		Node ret = Node.createNodeBO(node);
-		ret.copyFrom(node);
-		return ret;
+		return getSpecificNodeVersion(nodeUUID,node.getCampaign().getCurrentVersion());
 	}
 
 	@Override
 	@PermitAll
 	public Node getSpecificNodeVersion(String nodeUUID, Integer versionNumber)
 	{
+		String key = nodeUUID+"/"+versionNumber;
+		Node ret = (Node)cacheAccessManager.getCachedObject(CacheName.NodeCache, key);
+		if(ret!=null)
+			return ret;
 		NodeDO node = getSimpleNode(nodeUUID);
-		Node ret = Node.createNodeBO(node);
+		ret = Node.createNodeBO(node);
 		ret.copyFrom(node,versionNumber);
+		if(ret.getType()==NodeType.Tagging) //We have to fill in contact tags separately.
+		{
+			TaggingNode tNode = (TaggingNode)ret;
+			if (tNode.getTags() == null)
+				tNode.setTags(new ArrayList<ContactTag>());
+			tNode.getTags().clear();
+			ContactTag ct;
+			for(NodeInfoDO ni : node.getNodeInfo())
+			{
+				if(!ni.getVersion().equals(versionNumber))
+					continue;
+							
+				if(ni.getName().startsWith(TaggingNode.INFO_PROPERTY_TAG+"["))
+				{
+					Matcher r = Pattern.compile(TaggingNode.INFO_PROPERTY_TAG+"\\[([\\d]+)\\]").matcher(ni.getName());
+					r.matches();
+					ct = new ContactTag();
+					ct.copyFrom(em.find(ContactTagDO.class, new Long(ni.getValue())));
+					int pos = new Integer(r.group(1));
+					while(tNode.getTags().size()<pos+1)
+						tNode.getTags().add(null);
+					tNode.getTags().set(pos, ct);
+				}
+			}
+		}
+		if(versionNumber<node.getCampaign().getCurrentVersion() && !cacheAccessManager.cacheContainsKey(CacheName.NodeCache,key))
+			cacheAccessManager.cacheObject(CacheName.NodeCache, key, ret);
 		return ret;
 	}
 	
 	@Override
 	@PermitAll
 	public Campaign getSpecificCampaignVersion(String campaignUUID, int version) {
-		Campaign campaign = new Campaign();
+		String key = campaignUUID+"/"+version;
+		Campaign campaign = (Campaign)cacheAccessManager.getCachedObject(CacheName.CampaignCache, key);
+		if(campaign!=null)
+			return campaign;
+
+		campaign = new Campaign();
 		CampaignDO dataCPN = getSimpleCampaign(campaignUUID);
 		campaign.copyFrom(dataCPN,version);
 		
@@ -432,9 +478,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			if(!nodeLink.getVersion().equals(version))
 				continue;
-			tempNode = Node.createNodeBO(nodeLink.getNode());
-			tempNode.copyFrom(nodeLink.getNode(),version);
-			campaign.getNodes().add(tempNode);
+			campaign.getNodes().add(getSpecificNodeVersion(nodeLink.getNode().getUID(),nodeLink.getVersion()));
 		}
 		
 		Connector tempConn;
@@ -442,10 +486,13 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			if(!connLink.getVersion().equals(version))
 				continue;
-			tempConn = Connector.createConnectorBO(connLink.getConnector());
-			tempConn.copyFrom(connLink.getConnector(),version);
-			campaign.getConnectors().add(tempConn);
+			campaign.getConnectors().add(getSpecificConnectorVersion(connLink.getConnector().getUID(),connLink.getVersion()));
 		}
+		
+		if(version < dataCPN.getCurrentVersion() && !cacheAccessManager.cacheContainsKey(CacheName.CampaignCache,key))
+			cacheAccessManager.cacheObject(CacheName.CampaignCache, key, campaign);
+		
+		campaign.setCurrentVersion(version);
 		
 		return campaign;
 	}
@@ -1568,6 +1615,30 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	public void deleteNode(String uid) {
 		delete(getNode(uid));
+	}
+	
+	@Override
+	public CampaignDO getCampaignForNode(String uid) {
+		String query = "select c from NodeDO n join n.campaign c where n.UID=:uid";
+		return (CampaignDO)em.createQuery(query).setParameter("uid", uid).getSingleResult();
+	}
+
+	@Override
+	public CampaignDO getCampaignForConnector(String uid) {
+		String query = "select c from ConnectorDO con join con.campaign c where con.UID=:uid";
+		return (CampaignDO)em.createQuery(query).setParameter("uid", uid).getSingleResult();
+	}
+
+	@Override
+	public Integer getCurrentCampaignVersionForNode(String uid) {
+		String query = "select c.currentVersion from NodeDO n join n.campaign c where n.UID=:uid";
+		return (Integer)em.createQuery(query).setParameter("uid", uid).getSingleResult();
+	}
+
+	@Override
+	public Integer getCurrentCampaignVersionForConnector(String uid) {
+		String query = "select c.currentVersion from ConnectorDO con join con.campaign c where con.UID=:uid";
+		return (Integer)em.createQuery(query).setParameter("uid", uid).getSingleResult();
 	}
 
 	@Override

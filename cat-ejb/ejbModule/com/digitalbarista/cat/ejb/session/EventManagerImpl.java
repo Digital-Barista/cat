@@ -12,6 +12,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -54,6 +55,13 @@ public class EventManagerImpl implements EventManager {
 			sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 			Message message = sess.createObjectMessage(e);
 			MessageProducer prod = sess.createProducer(eventQueue);
+			/*switch(e.getType())
+			{
+				case ConnectorFired:
+				case NodeOperationCompleted:
+					prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+				break;
+			}*/
 			prod.send(message);
     	} catch (Exception e1) {
 			ctx.setRollbackOnly();

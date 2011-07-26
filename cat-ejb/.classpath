@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/gdata-core-1.0.jar"/>
 	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/google-collect-1.0-rc1.jar"/>
 	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/jsr305.jar"/>
+	<classpathentry kind="lib" path="/campaign-administration-tool/EarContent/lib/ehcache-core-2.4.3.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

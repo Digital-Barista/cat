@@ -6,12 +6,9 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ejb.SessionContext;
-import javax.naming.NamingException;
 import javax.persistence.EntityManager;
-
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
 
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.ContactTag;
@@ -27,8 +24,6 @@ import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
-import com.digitalbarista.cat.ejb.session.MessageManager;
-import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 import com.digitalbarista.cat.message.event.CATEvent;
 
 public class TaggingNodeFireHandler extends ConnectorFireHandler {
@@ -45,7 +40,6 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 		for(ContactTag cTag : tNode.getTags())
 			tags.add(em.find(ContactTagDO.class, cTag.getContactTagId()));
 		ContactDO con;
-		Criteria crit = ((Session)em.getDelegate()).createCriteria(ContactDO.class);
 		CampaignSubscriberLinkDO csl=null;
 		for(CampaignDO subCamp : s.getSubscriptions().keySet())
 		{
@@ -56,10 +50,17 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 			}
 		}
 		EntryPointType ept = csl.getLastHitEntryType();
-		crit.add(Restrictions.eq("address",s.getAddress()));
-		crit.add(Restrictions.eq("type", ept));
-		crit.add(Restrictions.eq("client.id", simpleNode.getCampaign().getClient().getPrimaryKey()));
-		con = (ContactDO)crit.uniqueResult();
+		Query q = em.createNamedQuery("contact.by.address.and.client");
+		q.setParameter("address",s.getAddress());
+		q.setParameter("type", ept);
+		q.setParameter("clientId", simpleNode.getCampaign().getClient().getPrimaryKey());
+		try
+		{
+			con = (ContactDO)q.getSingleResult();
+		}catch(NoResultException nre)
+		{
+			con=null;
+		}
 		if(con==null)
 		{
 			con=new ContactDO();

@@ -56,6 +56,9 @@ public class UserManagerImpl implements UserManager {
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
 	
+	@EJB(name="ejb/cat/CacheAccessManager")
+	CacheAccessManager cache;
+	
     /**
      * Default constructor. 
      */
@@ -409,19 +412,7 @@ public class UserManagerImpl implements UserManager {
 
 	@Override
 	public boolean isUserAllowedForClientId(String username, Long clientId) {
-		UserDO user = getSimpleUserByUsername(username);
-		for(RoleDO role : user.getRoles())
-		{
-			if("admin".equals(role.getRoleName()))
-				return true;
-			if(clientId.equals(role.getRefId()))
-			{
-				if("client".equals(role.getRoleName()) ||
-				   "account.manager".equals(role.getRoleName()))
-					return true;
-			}
-		}
-		return false;
+		return SecurityUtil.extractClientIds(ctx, session, username).contains(clientId);
 	}
 
 	

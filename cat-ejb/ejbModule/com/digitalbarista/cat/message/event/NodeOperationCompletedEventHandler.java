@@ -28,7 +28,7 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 
 	@Override
 	public void processEvent(CATEvent e) {
-		Integer version = getCampaignManager().getSimpleNode(e.getSource()).getCampaign().getCurrentVersion()-1;
+		Integer version = getCampaignManager().getCurrentCampaignVersionForNode(e.getSource())-1;
 		Node publishedNode = getCampaignManager().getSpecificNodeVersion(e.getSource(), version);
 		Connector connector;
 		ImmediateConnector ic=null;

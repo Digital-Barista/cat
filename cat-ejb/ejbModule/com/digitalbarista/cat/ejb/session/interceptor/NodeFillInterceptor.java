@@ -20,8 +20,10 @@ import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
+import com.digitalbarista.cat.ejb.session.CacheAccessManager;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
+import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
 
 public class NodeFillInterceptor {
 
@@ -33,6 +35,9 @@ public class NodeFillInterceptor {
 		
 	@EJB(name="ejb/cat/ContactManager")
 	ContactManager contactManager;
+	
+	@EJB(name="ejb/cat/CacheAccessManager")
+	CacheAccessManager cache;
 	
 	@PersistenceContext(unitName="cat-data")
 	private EntityManager em;
@@ -62,27 +67,36 @@ public class NodeFillInterceptor {
 	{
 		if(nodeToFill instanceof TaggingNode)
 		{
-			TaggingNode ret = (TaggingNode)nodeToFill;
-			NodeDO simpleNode = campaignManager.getSimpleNode(nodeToFill.getUid());
-			if(version==null)
-				version=simpleNode.getCampaign().getCurrentVersion();
-			if (ret.getTags() == null)
-				ret.setTags(new ArrayList<ContactTag>());
-			ret.getTags().clear();
-			ContactTag ct;
-			for(NodeInfoDO ni : simpleNode.getNodeInfo())
+			String key = nodeToFill.getUid()+"/"+version;
+			TaggingNode ret = (TaggingNode) cache.getCachedObject(CacheName.NodeCache, key);
+			if(ret!=null && ret.getTags()!=null && ret.getTags().size()>0)
 			{
-				if(!ni.getVersion().equals(version))
-					continue;
-							
-				if(ni.getName().startsWith(TaggingNode.INFO_PROPERTY_TAG+"["))
+				((TaggingNode)nodeToFill).setTags(ret.getTags());
+			} else {
+				ret = (TaggingNode)nodeToFill;
+				NodeDO simpleNode = campaignManager.getSimpleNode(nodeToFill.getUid());
+				if(version==null)
+					version=simpleNode.getCampaign().getCurrentVersion();
+				if (ret.getTags() == null)
+					ret.setTags(new ArrayList<ContactTag>());
+				ret.getTags().clear();
+				ContactTag ct;
+				for(NodeInfoDO ni : simpleNode.getNodeInfo())
 				{
-					Matcher r = Pattern.compile(TaggingNode.INFO_PROPERTY_TAG+"\\[([\\d]+)\\]").matcher(ni.getName());
-					r.matches();
-					ct = new ContactTag();
-					ct.copyFrom(em.find(ContactTagDO.class, new Long(ni.getValue())));
-					fillListAndSet(ret.getTags(),new Integer(r.group(1)), ct);
+					if(!ni.getVersion().equals(version))
+						continue;
+								
+					if(ni.getName().startsWith(TaggingNode.INFO_PROPERTY_TAG+"["))
+					{
+						Matcher r = Pattern.compile(TaggingNode.INFO_PROPERTY_TAG+"\\[([\\d]+)\\]").matcher(ni.getName());
+						r.matches();
+						ct = new ContactTag();
+						ct.copyFrom(em.find(ContactTagDO.class, new Long(ni.getValue())));
+						fillListAndSet(ret.getTags(),new Integer(r.group(1)), ct);
+					}
 				}
+				if(version<simpleNode.getCampaign().getCurrentVersion())
+					cache.cacheObject(CacheName.NodeCache, key, nodeToFill);
 			}
 		}
 		return nodeToFill;
