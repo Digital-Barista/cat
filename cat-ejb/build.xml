@@ -50,6 +50,7 @@
 			<fileset dir="${src.home}">
 				<include name="META-INF/ejb-jar.xml"/>
 				<include name="META-INF/jboss.xml"/>
+				<include name="cat-ehcache.xml"/>
 			</fileset>
 		</jar>
 	</target>
