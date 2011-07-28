@@ -500,7 +500,6 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.PublishCampaign)
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void publish(String campaignUUID) {
 		try
 		{
@@ -1677,6 +1676,8 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		save(connector);
 
+		em.clear();
+
 		publish(campaign.getUid());
 		
 		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
@@ -1725,6 +1726,8 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		save(connector);
 
+		em.clear();
+		
 		publish(campaign.getUid());
 		
 		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");

@@ -120,7 +120,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			return;
 		
 		//Get the campaign and entry node
-		Node entryNode = campaignManager.getNode(entryPointUID);
+		Node entryNode = campaignManager.getSpecificNodeVersion(entryPointUID,campaignManager.getCurrentCampaignVersionForNode(entryPointUID)-1);
 		CampaignDO camp = campaignManager.getSimpleCampaign(entryNode.getCampaignUID());
 		
 		//Check permissions.
@@ -235,7 +235,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		Collections.sort(contacts);
 
 		// Get entry point types that are valid for this entry point
-		EntryNode entryNode = (EntryNode)campaignManager.getNode(entryPointUID);
+		
+		EntryNode entryNode = (EntryNode)campaignManager.getSpecificNodeVersion(entryPointUID,campaignManager.getCurrentCampaignVersionForNode(entryPointUID)-1);
 		List<EntryPointType> validEntryPointTypes = new ArrayList<EntryPointType>();
 		for(int loop = 0; loop < entryNode.getEntryData().size(); loop++)
 		{
