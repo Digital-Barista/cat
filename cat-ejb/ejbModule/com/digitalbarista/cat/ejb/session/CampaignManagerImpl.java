@@ -500,6 +500,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.PublishCampaign)
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void publish(String campaignUUID) {
 		try
 		{
