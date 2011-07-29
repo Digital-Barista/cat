@@ -20,16 +20,8 @@
         import mx.collections.ArrayCollection;
         import mx.validators.EmailValidator;
         
-        private var _currentUser:UserVO;
-        public function get currentUser():UserVO
-        {
-            return _currentUser;
-        }
-        public function set currentUser(value:UserVO):void
-        {
-            _currentUser = value;
-            applyPermissions();
-        }
+		[Bindable]
+        public var currentUser:UserVO;
         
 			private var _client:ClientVO;
 			[Bindable]
@@ -57,10 +49,6 @@
 				return "";
 			}
 			
-        private function applyPermissions():void
-        {
-            EntryTypeTabs.visible = EntryTypeTabs.includeInLayout = currentUser.isManager;
-        }
         
 			private function save():void
 			{

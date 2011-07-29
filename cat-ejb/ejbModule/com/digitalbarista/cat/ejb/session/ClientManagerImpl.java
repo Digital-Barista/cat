@@ -198,11 +198,21 @@ public class ClientManagerImpl implements ClientManager {
     }
     
 	@Override
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin","client"})
 	@AuditEvent(AuditType.SaveClient)
 	public Client save(Client client) {
 		if(client==null)
 			throw new IllegalArgumentException("Cannot save a null client.");
+		
+
+		// Make sure they have access to this client
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, null);
+		if (!allowedClientIds.contains(client.getClientId()))
+		{
+			throw new SecurityException("You do not have permission to edit this client");
+		}
+		
+		
 		ClientDO c = em.find(ClientDO.class, client.getClientId());
 		if(c == null)
 			c = new ClientDO();
@@ -277,8 +287,14 @@ public class ClientManagerImpl implements ClientManager {
 				if (add.getAddInMessageId() != null)
 					addDO = em.find(AddInMessageDO.class, add.getAddInMessageId());
 				if (addDO == null)
+				{
 					addDO = new AddInMessageDO();
 
+					// Add message to client list
+					if (c.getAddInMessages() == null)
+						c.setAddInMessages(new HashSet<AddInMessageDO>());
+					c.getAddInMessages().add(addDO);
+				}
 				// Make sure only admins are trying to modify ADMIN add in messages
 				if ( (addDO.getAddInMessageId() == null ||
 					!addDO.getMessage().equals(add.getMessage()) ) &&
@@ -291,10 +307,6 @@ public class ClientManagerImpl implements ClientManager {
 				add.copyTo(addDO);
 				em.persist(addDO);
 				
-				// Add message to client list
-				if (c.getAddInMessages() == null)
-					c.setAddInMessages(new HashSet<AddInMessageDO>());
-				c.getAddInMessages().add(addDO);
 			}
 		}
 		

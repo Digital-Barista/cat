@@ -36,5 +36,5 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Button id="Edit" label="Edit" click="{edit()}" toolTip="Edit" />
+	<mx:Button id="Delete" label="Delete" click="{confirmDelete()}"  />
 </mx:HBox>

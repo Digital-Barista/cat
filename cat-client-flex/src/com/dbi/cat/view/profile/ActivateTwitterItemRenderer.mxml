@@ -35,5 +35,5 @@
 		]]>
 	</mx:Script>
   <mx:Label id="Activated" text="Activated" />
-	<mx:Button id="Activate" label="Activate" click="{activate()}" toolTip="Edit" />
+	<mx:Button id="Activate" label="Activate" click="{activate()}"  />
 </mx:HBox>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.DashboardDataVO;
+			import com.dbi.cat.event.ReportingEvent;
+			import com.dbi.util.ListUtil;
+			
+			import mx.collections.ArrayCollection;
+			
+			private var _dashboardData:DashboardDataVO;
+			[Bindable]
+			public function get dashboardData():DashboardDataVO
+			{
+				return _dashboardData;
+			}
+			public function set dashboardData(value:DashboardDataVO):void
+			{
+				_dashboardData = value;
+				dispatchEvent(new Event("dashboardDataUpdate"));
+			}
+			
+			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
+			
+			private function refresh():void
+			{
+				var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_DASHBOARD);
+				event.clientIDs = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas
+		horizontalCenter="0"
+		width="100%" height="100%" >
+		<mx:TitleWindow width="100%" height="100%" layout="horizontal" horizontalAlign="center">
+			<mx:Form>
+			</mx:Form>
+		</mx:TitleWindow>
+		<mx:HBox right="5" top="7" verticalAlign="middle">
+			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+					  top="3" right="200"
+					  width="25" height="25"
+					  toolTip="Refresh"
+					  click="refresh()" />
+		</mx:HBox>
+	</mx:Canvas>
+</mx:Canvas>

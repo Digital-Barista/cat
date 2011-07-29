@@ -42,9 +42,6 @@
 				dispatchEvent(new Event("dashboardDataUpdate"));
 			}
 			
-			[Bindable]
-			public var clients:ArrayCollection;
-			
 			private var _filterClients:ArrayCollection;
 			public function set filterClients(value:ArrayCollection):void
 			{

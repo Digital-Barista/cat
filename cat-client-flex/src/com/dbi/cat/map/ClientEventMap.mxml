@@ -185,6 +185,7 @@
 	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="save"
+			showBusyCursor="true"
 			arguments="{event.entryPointDefinition}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
