@@ -185,7 +185,7 @@
 	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="save"
-			arguments="{event.entryPoint}">
+			arguments="{event.entryPointDefinition}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="saveEntryPoint"

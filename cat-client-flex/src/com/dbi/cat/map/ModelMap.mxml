@@ -20,6 +20,7 @@
         import com.dbi.cat.business.SubscriptionManager;
         import com.dbi.cat.business.UserManager;
         import com.dbi.cat.event.LayoutInfoEvent;
+        import com.dbi.cat.view.EditClientView;
         import com.dbi.cat.view.EditCommunicationsView;
         import com.dbi.cat.view.EditTemplateCommunicationsView;
         import com.dbi.cat.view.LoginView;
@@ -316,6 +317,10 @@
 			source="{ClientManager}"
 			sourceKey="currentEntryPointDefinition"
 			targetKey="currentEntryPointDefinition" />
+  <PropertyInjector
+      source="{LoginManager}"
+      sourceKey="currentUser"
+      targetKey="currentUser" />
 	</Injectors>
 	<Injectors target="{EntryPointDefinitionView}">
 		<PropertyInjector
@@ -694,6 +699,13 @@
     </Injectors>
     
     <Injectors target="{ProfileView}">
+        <PropertyInjector
+            source="{LoginManager}"
+            sourceKey="currentUser"
+            targetKey="currentUser" />
+    </Injectors>
+    
+    <Injectors target="{EditClientView}">
         <PropertyInjector
             source="{LoginManager}"
             sourceKey="currentUser"

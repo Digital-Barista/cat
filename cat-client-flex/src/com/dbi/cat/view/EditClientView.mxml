@@ -6,19 +6,31 @@
 	xmlns:vo="com.dbi.cat.vo.*" xmlns:profile="com.dbi.cat.view.profile.*">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.constants.EntryPointType;
-			import com.dbi.cat.common.vo.ClientInfoVO;
-			import com.dbi.cat.common.vo.ClientVO;
-			import com.dbi.cat.event.ClientEvent;
-			import com.dbi.cat.event.NavigationEvent;
-			import com.dbi.cat.event.UserEvent;
-			import com.dbi.cat.view.workspace.MessageItem;
-			
-			import flash.events.MouseEvent;
-			
-			import mx.collections.ArrayCollection;
-			import mx.validators.EmailValidator;
-			
+        import com.dbi.cat.common.constants.EntryPointType;
+        import com.dbi.cat.common.vo.ClientInfoVO;
+        import com.dbi.cat.common.vo.ClientVO;
+        import com.dbi.cat.common.vo.UserVO;
+        import com.dbi.cat.event.ClientEvent;
+        import com.dbi.cat.event.NavigationEvent;
+        import com.dbi.cat.event.UserEvent;
+        import com.dbi.cat.view.workspace.MessageItem;
+        
+        import flash.events.MouseEvent;
+        
+        import mx.collections.ArrayCollection;
+        import mx.validators.EmailValidator;
+        
+        private var _currentUser:UserVO;
+        public function get currentUser():UserVO
+        {
+            return _currentUser;
+        }
+        public function set currentUser(value:UserVO):void
+        {
+            _currentUser = value;
+            applyPermissions();
+        }
+        
 			private var _client:ClientVO;
 			[Bindable]
 			public function get client():ClientVO
@@ -45,6 +57,11 @@
 				return "";
 			}
 			
+        private function applyPermissions():void
+        {
+            EntryTypeTabs.visible = EntryTypeTabs.includeInLayout = currentUser.isManager;
+        }
+        
 			private function save():void
 			{
 				EntryTypeTabs.selectedIndex = 0;
@@ -116,7 +133,7 @@
 				width="100%" height="100%"
 				tabOffset="20">
 				<mx:Repeater id="EntryTypeRepeater" 
-					dataProvider="{EntryPointType.allTypes}">
+					dataProvider="{currentUser.entryPointTypes}">
 					<profile:ClientInfoEditor entryType="{EntryTypeRepeater.currentItem}"  />
 				</mx:Repeater>
 			</mx:TabNavigator>

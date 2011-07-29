@@ -26,7 +26,7 @@
                 }
                 
                 // Hide top level tabs that only managers can see
-                SecurityUtil.showTabs(Tabs, ["Accounts", "Keywords"], isManager);
+                SecurityUtil.showTabs(Tabs, ["Keywords"], isManager);
             }
         ]]>
     </mx:Script>

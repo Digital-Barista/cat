@@ -1686,7 +1686,7 @@ public class CampaignManagerImpl implements CampaignManager {
 
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
-	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search) {
+	public void broadcastMessageSearch(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search) {
 		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
 		broadcastMessage(clientPK, entryPoints, message, contacts);
 	}
@@ -1736,7 +1736,7 @@ public class CampaignManagerImpl implements CampaignManager {
 
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
-	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search) {
+	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search) {
 		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
 		broadcastCoupon(clientPK, entryPoints, coupon, contacts);
 	}

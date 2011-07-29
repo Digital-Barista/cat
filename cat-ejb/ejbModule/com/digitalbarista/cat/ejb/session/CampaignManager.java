@@ -111,7 +111,7 @@ public interface CampaignManager {
 	public Integer getCurrentCampaignVersionForConnector(String uid);
 	
 	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, List<Contact> contacts);
-	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search);
+	public void broadcastMessageSearch(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search);
 	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts);
-	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search);
+	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search);
 }

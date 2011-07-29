@@ -91,7 +91,7 @@
 		horizontalAlign="right" paddingTop="0"
 		change="tabClick(event)">
 		<dashboard:DashboardView id="Dashboard" label="Dashboard" />
-		<broadcast:BroadcastView id="Broadcast" label="Broadcast" />
+		<broadcast:BroadcastView id="Broadcast" label="Messages" />
 		<campaign:CampaignsView id="Campaigs" label="Campaigns" />
 		<contacts:ContactView id="Contacts" label="Contacts" />
 		<reporting:ReportingView id="Reporting" label="Coupons" />

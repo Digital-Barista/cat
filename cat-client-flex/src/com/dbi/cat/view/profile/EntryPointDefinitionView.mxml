@@ -60,8 +60,6 @@
 			width="25" height="25"
 			toolTip="Refresh"
 			click="refresh()" />
-			<!--
 			<mx:Button label="New Account"  width="120" click="addEntryPoint()" />
-			-->
 	</mx:HBox>
 </mx:Canvas>
