@@ -49,9 +49,8 @@
 				<mx:DataGridColumn dataField="value" headerText="Address" />
 				<mx:DataGridColumn dataField="type" headerText="Type" width="80"  />
 				<mx:DataGridColumn dataField="description" headerText="Description" />
-				<!--
-				<mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.EntryPointDefinitionActionsRenderer" editable="false" width="60" />
-				-->
+          <mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.ActivateTwitterItemRenderer" headerText="Activated" width="80" />
+				<mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.EntryPointDefinitionActionsRenderer" editable="false" width="70" />
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:TitleWindow>

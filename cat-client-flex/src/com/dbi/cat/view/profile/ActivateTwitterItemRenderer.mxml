@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	horizontalAlign="center">
+	<mx:Script>
+		<![CDATA[
+        import com.dbi.cat.common.constants.EntryPointType;
+        import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+        
+        override public function set data(value:Object):void
+        {
+            super.data = value;
+            if (data)
+            {
+                var epd:EntryPointDefinitionVO = data as EntryPointDefinitionVO;
+                var text:String = "N/A";
+                var activated:Boolean = false;
+                if (epd.type == EntryPointType.TWITTER.name)
+                {
+                    Activated.text = "";
+                    Activated.visible = Activated.includeInLayout = false;
+                    Activate.visible = Activate.includeInLayout = !activated;
+                }
+                else
+                {
+                    Activated.text = "N/A";
+                    Activated.visible = Activated.includeInLayout = true;
+                    Activate.visible = Activate.includeInLayout = false;
+                }
+            }
+        }
+        
+			private function activate():void
+      {
+      }
+		]]>
+	</mx:Script>
+  <mx:Label id="Activated" text="Activated" />
+	<mx:Button id="Activate" label="Activate" click="{activate()}" toolTip="Edit" />
+</mx:HBox>

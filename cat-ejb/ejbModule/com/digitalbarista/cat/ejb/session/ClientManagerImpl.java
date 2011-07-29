@@ -364,10 +364,21 @@ public class ClientManagerImpl implements ClientManager {
 	}
 	
 	@Override
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin","client"})
 	public EntryPointDefinition save(EntryPointDefinition epd) {
 		if(epd == null)
 			throw new IllegalArgumentException("Cannot save a null entry point definition.");
+		
+		// Make sure they have access to this client
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, null);
+		for (int clientId : epd.getClientIDs())
+		{
+			if (!allowedClientIds.contains(new Long(clientId)))
+			{
+				throw new SecurityException("You do not have permission to edit entry points for these clients");
+			}
+		}
+		
 		EntryPointDO ep=null;
 		if(epd.getPrimaryKey()!=null)
 			ep = em.find(EntryPointDO.class, epd.getPrimaryKey());

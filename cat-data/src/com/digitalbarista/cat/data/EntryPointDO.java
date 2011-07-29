@@ -1,6 +1,7 @@
 package com.digitalbarista.cat.data;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -34,7 +35,7 @@ public class EntryPointDO implements DataObject,Serializable {
 	private String value;
 	private EntryPointType type;
 	private EntryRestrictionType restriction;
-	private Set<ClientDO> clients;
+	private Set<ClientDO> clients = new HashSet<ClientDO>();
 	private Long restrictionID;
 	private static final long serialVersionUID = 1L;
 	private Set<KeywordDO> keywords;
