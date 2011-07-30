@@ -48,7 +48,7 @@
         <mx:HBox>
             <mx:Form>
                 <mx:Label text="Facebook Information" styleName="dashboardMessageHeading" />
-                <mx:FormItem label="App Users" labelStyleName="dashboardMessageItem">
+                <mx:FormItem label="Total App Users" labelStyleName="dashboardMessageItem">
                     <mx:Label text="{getContactCount(EntryPointType.FACEBOOK).count}" styleName="dashboardMessageValue" minWidth="50" />
                 </mx:FormItem>
                 <mx:FormItem label="Total Messages Sent" labelStyleName="dashboardMessageItem">
