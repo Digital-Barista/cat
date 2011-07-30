@@ -179,3 +179,33 @@ RichTextEditor
 	borderStyle:solid;
 	borderColor:#000000;
 }
+
+.dashboardMessageHeading
+{
+    fontSize:14;
+    fontWeight:bold;
+}
+.dashboardMessageItem
+{
+    textAlign:left;
+    fontSize:12;
+}
+.dashboardTotalItem
+{
+    textAlign:left;
+    fontSize:14;
+}
+.dashboardTotalValue
+{
+    textAlign:right;
+}
+.dashboardMessageValue
+{
+    textAlign:right;
+}
+.systemReport
+{
+    fontWeight:bold;
+    fontSize:18;
+    textAlign:center;
+}

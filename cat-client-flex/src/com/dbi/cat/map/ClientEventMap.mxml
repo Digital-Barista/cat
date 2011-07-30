@@ -51,7 +51,7 @@
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="saveClient"
-					arguments="{event.client}" />
+					arguments="{resultObject}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>

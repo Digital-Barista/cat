@@ -27,7 +27,10 @@
 				}
 				
 				// Hide top level tabs that only managers can see
-				SecurityUtil.showTabs(Tabs, ["Tags", "Contacts", "Sent Messages"], isManager);
+				SecurityUtil.showTabs(Tabs, ["Tags", "Contacts", "SentMessages", "Summary"], isManager);
+        
+        // Show ASI summary for non-managers
+        SecurityUtil.showTabs(Tabs, ["ASISummary"], !isManager);
 			}
 		]]>
 	</mx:Script>
@@ -40,10 +43,11 @@
 		horizontalAlign="right"
 		borderStyle="none"
 		paddingTop="0">
-		<dashboard:SummaryView label="Summary" />
-		<dashboard:TagSummaryView label="Tags" />
-		<dashboard:ContactCreatesView label="Contacts" />
-		<dashboard:MessageSendDatesView label="Sent Messages" />
-		<dashboard:FacebookAnalyticsView label="Facebook" />
+      <dashboard:ASISummaryView id="ASISummary" label="Summary" />
+		<dashboard:SummaryView id="Summary" label="Summary" />
+		<dashboard:TagSummaryView id="Tags" label="Tags" />
+		<dashboard:ContactCreatesView id="Contacts" label="Contacts" />
+		<dashboard:MessageSendDatesView id="SentMessages" label="Sent Messages" />
+		<dashboard:FacebookAnalyticsView id="Facebook" label="Facebook" />
 	</mx:TabNavigator>
 </mx:Canvas>

@@ -1,33 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<dashboard:BaseSummaryView xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+        xmlns:dashboard="com.dbi.cat.view.dashboard.*" 
+        creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.vo.DashboardDataVO;
-			import com.dbi.cat.event.ReportingEvent;
-			import com.dbi.util.ListUtil;
-			
-			import mx.collections.ArrayCollection;
-			
-			private var _dashboardData:DashboardDataVO;
-			[Bindable]
-			public function get dashboardData():DashboardDataVO
-			{
-				return _dashboardData;
-			}
-			public function set dashboardData(value:DashboardDataVO):void
-			{
-				_dashboardData = value;
-				dispatchEvent(new Event("dashboardDataUpdate"));
-			}
+        import com.dbi.cat.common.constants.EntryPointType;
+        import com.dbi.cat.event.ReportingEvent;
+        import com.dbi.util.ListUtil;
+        
+        import flash.sampler.getMemberNames;
 			
 			
-			private var _filterClients:ArrayCollection;
-			public function set filterClients(value:ArrayCollection):void
-			{
-				_filterClients = value;
-				refresh();
-			}
-			
+        private function init():void
+        {
+            refresh();
+        }
+        
 			private function refresh():void
 			{
 				var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_DASHBOARD);
@@ -40,9 +28,43 @@
 	<mx:Canvas
 		horizontalCenter="0"
 		width="100%" height="100%" >
-		<mx:TitleWindow width="100%" height="100%" layout="horizontal" horizontalAlign="center">
+		<mx:TitleWindow width="100%" height="100%" layout="vertical" horizontalAlign="center">
 			<mx:Form>
+          <mx:Label width="100%" text="System Report" styleName="systemReport"/>
+          <mx:FormItem label="Total System Users" labelStyleName="dashboardTotalItem">
+              <mx:Label text="{contactTotal}" styleName="dashboardTotalValue" minWidth="50" />
+          </mx:FormItem>
+          <mx:FormItem label="Total Messages Sent" labelStyleName="dashboardTotalItem">
+              <mx:Label text="{messageTotal}" styleName="dashboardTotalValue" minWidth="50" />
+          </mx:FormItem>
+          <mx:FormItem label="Total Coupons Sent" labelStyleName="dashboardTotalItem">
+              <mx:Label text="{dashboardData.couponsSent}" styleName="dashboardTotalValue" minWidth="50" />
+          </mx:FormItem>
+          <mx:FormItem label="Total Redemptions*" labelStyleName="dashboardTotalItem">
+              <mx:Label text="{dashboardData.couponsRedeemed}" styleName="dashboardTotalValue"  minWidth="50" />
+          </mx:FormItem>
+          <mx:Label text="*Requires use of Coupon Redemption system" />
 			</mx:Form>
+        <mx:HBox>
+            <mx:Form>
+                <mx:Label text="Facebook Information" styleName="dashboardMessageHeading" />
+                <mx:FormItem label="App Users" labelStyleName="dashboardMessageItem">
+                    <mx:Label text="{getContactCount(EntryPointType.FACEBOOK).count}" styleName="dashboardMessageValue" minWidth="50" />
+                </mx:FormItem>
+                <mx:FormItem label="Total Messages Sent" labelStyleName="dashboardMessageItem">
+                    <mx:Label text="{getMessageStatistics(EntryPointType.FACEBOOK).sent}"  styleName="dashboardMessageValue" minWidth="50" />
+                </mx:FormItem>
+            </mx:Form>
+            <mx:Form>
+                <mx:Label text="Twitter Information" styleName="dashboardMessageHeading" />
+                <mx:FormItem label="Total Feed Followers" labelStyleName="dashboardMessageItem">
+                    <mx:Label text="{getContactCount(EntryPointType.TWITTER).count}" styleName="dashboardMessageValue" minWidth="50" />
+                </mx:FormItem>
+                <mx:FormItem label="Total Messages Sent" labelStyleName="dashboardMessageItem">
+                    <mx:Label text="{getMessageStatistics(EntryPointType.TWITTER).sent}" styleName="dashboardMessageValue" minWidth="50" />
+                </mx:FormItem>
+            </mx:Form>
+        </mx:HBox>
 		</mx:TitleWindow>
 		<mx:HBox right="5" top="7" verticalAlign="middle">
 			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
@@ -52,4 +74,4 @@
 					  click="refresh()" />
 		</mx:HBox>
 	</mx:Canvas>
-</mx:Canvas>
+</dashboard:BaseSummaryView>

@@ -11,14 +11,14 @@ package com.dbi.cat.common.util
 		{
 		}
 		
-		public static function showTabs(navigator:TabNavigator, labels:Array, show:Boolean):void
+		public static function showTabs(navigator:TabNavigator, ids:Array, show:Boolean):void
 		{
 			var selectedIndex:int = -1;
 			for each (var child:Object in navigator.getChildren())
 			{
 				var index:int = navigator.getChildIndex(child as DisplayObject);
 				
-				if (labels.indexOf(child.label) > -1)
+				if (ids.indexOf(child.id) > -1)
 				{
 					var tab:Button = navigator.getTabAt(index);
 					tab.visible = tab.includeInLayout = show;

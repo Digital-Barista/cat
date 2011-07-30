@@ -311,6 +311,9 @@ public class ClientManagerImpl implements ClientManager {
 		}
 		
 		em.flush();
+
+		// Requery client to send back up to date object
+		c = em.find(ClientDO.class, client.getClientId());
 		Client ret = new Client();
 		ret.copyFrom(c);
 		return ret;

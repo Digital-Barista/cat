@@ -511,6 +511,10 @@
 			targetKey="messageParts" />
 	</Injectors>
 	<Injectors target="{SummaryView}">
+      <PropertyInjector
+          source="{LoginManager}"
+          sourceKey="currentUser"
+          targetKey="currentUser" />
 		<PropertyInjector
 			source="{ReportingManager}"
 			sourceKey="dashboardData"
@@ -521,6 +525,10 @@
 			targetKey="filterClients" />
 	</Injectors>
 	<Injectors target="{ASISummaryView}">
+      <PropertyInjector
+          source="{LoginManager}"
+          sourceKey="currentUser"
+          targetKey="currentUser" />
 		<PropertyInjector
 			source="{ReportingManager}"
 			sourceKey="dashboardData"

@@ -92,9 +92,9 @@
 		change="tabClick(event)">
 		<dashboard:DashboardView id="Dashboard" label="Dashboard" />
 		<broadcast:BroadcastView id="Broadcast" label="Messages" />
-		<campaign:CampaignsView id="Campaigs" label="Campaigns" />
+		<campaign:CampaignsView id="Campaigns" label="Campaigns" />
 		<contacts:ContactView id="Contacts" label="Contacts" />
-		<reporting:ReportingView id="Reporting" label="Coupons" />
+		<reporting:ReportingView id="Reporting" label="Redeem Coupons" />
 		<user:UsersView id="Users" label="Users"  />
 		<profile:ProfileView id="Profile" label="Profile" />
 	</mx:TabNavigator>
