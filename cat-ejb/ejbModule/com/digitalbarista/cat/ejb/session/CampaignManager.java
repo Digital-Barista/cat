@@ -114,4 +114,7 @@ public interface CampaignManager {
 	public void broadcastMessageSearch(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search);
 	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts);
 	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search);
+	
+	public Campaign loadEntryCampaign(Campaign campaign);
+	public Campaign saveEntryCampaign(Campaign campaign);
 }

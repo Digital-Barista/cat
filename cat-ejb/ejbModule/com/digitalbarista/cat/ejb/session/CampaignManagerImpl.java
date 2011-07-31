@@ -1740,4 +1740,18 @@ public class CampaignManagerImpl implements CampaignManager {
 		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
 		broadcastCoupon(clientPK, entryPoints, coupon, contacts);
 	}
+
+	@Override
+	@RolesAllowed({"client","admin","account.manager"})
+  public Campaign loadEntryCampaign(Campaign campaign)
+  {
+	  return null;
+  }
+
+	@Override
+	@RolesAllowed({"client","admin","account.manager"})
+  public Campaign saveEntryCampaign(Campaign campaign)
+  {
+	  return null;
+  }
 }
