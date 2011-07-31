@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+        xmlns:dashboard="com.dbi.cat.view.dashboard.*" 
+        creationComplete="init()" xmlns:broadcast="com.dbi.cat.view.broadcast.*" xmlns:workspace="com.dbi.cat.view.workspace.*">
+	<mx:Script>
+		<![CDATA[
+        import com.dbi.cat.common.constants.EntryPointType;
+        import com.dbi.cat.common.vo.CampaignVO;
+        import com.dbi.cat.common.vo.CouponNodeVO;
+        import com.dbi.cat.common.vo.MessageVO;
+        import com.dbi.cat.event.ReportingEvent;
+        import com.dbi.util.ListUtil;
+        
+        import flash.sampler.getMemberNames;
+			
+        [Bindable]
+        public var currentEntryCampaign:CampaignVO;
+        
+        [Bindable]
+        public var message:MessageVO;
+        
+        [Bindable]
+        public var coupon:CouponNodeVO;
+			
+        private function init():void
+        {
+            refresh();
+        }
+        
+			private function refresh():void
+			{
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas
+		horizontalCenter="0"
+		width="100%" height="100%" >
+		<mx:TitleWindow width="100%" height="100%" layout="vertical">
+        <mx:Form>
+            <mx:FormItem label="Send Welcome Message">
+                <mx:CheckBox id="SendWelcome" />
+            </mx:FormItem>
+            <mx:FormItem label="Message Type" direction="horizontal" enabled="{SendWelcome.selected}">
+                <mx:RadioButtonGroup id="MessageType" />
+                <mx:RadioButton id="TypeMessage" label="Message" group="{MessageType}" selected="true" />
+                <mx:RadioButton id="TypeCoupon" label="Coupon" group="{MessageType}" />
+            </mx:FormItem>
+        </mx:Form>
+        <workspace:CouponItemEditor 
+            enabled="{SendWelcome.selected}"
+            campaign="{currentEntryCampaign}"
+            couponVO="{coupon}"
+              visible="{TypeCoupon.selected}"
+              includeInLayout="{TypeCoupon.selected}"/>
+        
+        <workspace:MessageItemEditor
+            enabled="{SendWelcome.selected}"
+            campaign="{currentEntryCampaign}"
+            messageVO="{message}"
+            visible="{TypeMessage.selected}"
+            includeInLayout="{TypeMessage.selected}" />
+		</mx:TitleWindow>
+		<mx:HBox right="5" top="7" verticalAlign="middle">
+      <mx:Button enabled="{SendWelcome.selected}"
+                 label="Save" />
+			<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+					  top="3" right="200"
+					  width="25" height="25"
+					  toolTip="Refresh"
+					  click="refresh()" />
+		</mx:HBox>
+	</mx:Canvas>
+</mx:Canvas>

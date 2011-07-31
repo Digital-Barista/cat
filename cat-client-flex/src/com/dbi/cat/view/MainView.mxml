@@ -9,7 +9,7 @@
 	xmlns:user="com.dbi.cat.view.user.*" 
   xmlns:dashboard="com.dbi.cat.view.dashboard.*" 
   xmlns:broadcast="com.dbi.cat.view.broadcast.*"
-  creationComplete="init()">
+  creationComplete="init()" xmlns:entrymessage="com.dbi.cat.view.entrymessage.*">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.common.constants.Roles;
@@ -61,6 +61,9 @@
 				
 				// Hide top level tabs that only managers can see
 				SecurityUtil.showTabs(Tabs, ["Campaigns", "Contacts", "Users"], isManager);
+        
+        // Hide tabs account managers don't need
+        SecurityUtil.showTabs(Tabs, ["EntryMessage"], !isManager);
 			}
 			
 			private function tabClick(e:IndexChangedEvent):void
@@ -91,6 +94,7 @@
 		horizontalAlign="right" paddingTop="0"
 		change="tabClick(event)">
 		<dashboard:DashboardView id="Dashboard" label="Dashboard" />
+      <entrymessage:EntryMessageView id="EntryMessage" label="Welcome Message" />
 		<broadcast:BroadcastView id="Broadcast" label="Messages" />
 		<campaign:CampaignsView id="Campaigns" label="Campaigns" />
 		<contacts:ContactView id="Contacts" label="Contacts" />
