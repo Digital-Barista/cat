@@ -88,8 +88,10 @@ public interface ClientManager {
 	public void enableClient(Long clientID);
 	
 	@Path("/twitter/start-auth")
+	@GET
 	public String startTwitterAuth(@PathParam("callbackURL")String callbackURL);
 	
 	@Path("/twitter/auth")
+	@GET
 	public void authTwitterAccount(@PathParam("oauth_token")String oauthToken, @PathParam("oauth_verifier")String oauthVerifier);
 }
