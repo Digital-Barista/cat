@@ -50,6 +50,7 @@ import com.digitalbarista.cat.data.KeywordDO;
 import com.digitalbarista.cat.data.KeywordLimitDO;
 import com.digitalbarista.cat.data.ReservedKeywordDO;
 import com.digitalbarista.cat.exception.FlexException;
+import com.digitalbarista.cat.twitter.mbean.TwitterPollCoordinator;
 import com.digitalbarista.cat.util.SecurityUtil;
 
 /**
@@ -76,6 +77,9 @@ public class ClientManagerImpl implements ClientManager {
 
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
+	
+	@EJB
+	TwitterPollCoordinator twitterCoordinator;
 	
     @SuppressWarnings("unchecked")
     @PermitAll
@@ -621,4 +625,15 @@ public class ClientManagerImpl implements ClientManager {
 			return;
 		client.setActive(true);
 	}
+	
+	@Override
+	public String startTwitterAuth(String callbackURL) {
+		return twitterCoordinator.acquireRequestToken(callbackURL).getToken();
+	}
+
+
+	@Override
+	public void authTwitterAccount(String oauthToken, String oauthVerifier) {
+		twitterCoordinator.retrieveAccessToken(oauthToken, oauthVerifier);
+	}	
 }

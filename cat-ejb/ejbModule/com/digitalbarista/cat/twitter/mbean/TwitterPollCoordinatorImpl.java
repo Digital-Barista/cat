@@ -6,28 +6,44 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.http.HttpParameters;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.Management;
 import org.jboss.annotation.ejb.Service;
+
+import com.digitalbarista.cat.data.EntryPointDO;
+import com.digitalbarista.cat.data.EntryPointType;
 
 @Service(objectName="dbi.config:service=DBITwitterPollerService")
 @Management(TwitterPollCoordinator.class)
 public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 
+	private Map<String,String> requestTokens = new HashMap<String,String>();
+	
 	private Map<String,TwitterAccountPollManager> accountManagers = new HashMap<String,TwitterAccountPollManager>();
 	private String cfName = "java:/JmsXA";
 	private String destName = "cat/messaging/Events";
 	private String twitterSendDestName = "cat/messaging/TwitterOutgoing";
-		
+	
+	@PersistenceContext(unitName="cat-data")
+	private EntityManager em;
+	
+	@PersistenceContext(unitName="cat-data")
+	private Session session;
+	
 	private Logger log = LogManager.getLogger(TwitterPollCoordinatorImpl.class);
 	
 	@Override
@@ -152,7 +168,7 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 	}
 
 	@Override
-	public String acquireRequestToken() {
+	public TokenPair acquireRequestToken(String callbackURL) {
 		
 		OAuthConsumer consumer = new CommonsHttpOAuthConsumer(APP_TOKEN,APP_SECRET);
 		
@@ -165,30 +181,22 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 			
 			get = new HttpGet("http://twitter.com/oauth/request_token");
 
-//			Map<String,String> params = new HashMap<String,String>();
-//			params.put("oauth_consumer_key", appKey);
-//			params.put("oauth_signature_method","HMAC-SHA1");
-//			params.put("oauth_timestamp", ""+(System.currentTimeMillis()/1000));
-//			params.put("oauth_nonce", ""+System.nanoTime());			
-//			params.put("oauth_signature", OAuthHasher.hashMe("GET", "http://twitter.com/oauth/request_token", params, appSecret, null));			
-//			
-//			StringBuffer authHeader = new StringBuffer();
-//			authHeader.append("OAuth realm=\"http://twitter.com/\"");
-//			for(Map.Entry<String, String> entry : params.entrySet())
-//				authHeader.append(","+entry.getKey()+"=\""+OAuthHasher.percentEncode(entry.getValue())+"\"");
-//			
-//			get.addRequestHeader("Authorization", authHeader.toString());
+			if(callbackURL !=null)
+			{
+				HttpParameters params = new HttpParameters();
+				params.put("oauth_callback", callbackURL);
+				consumer.setAdditionalParameters(params);
+			}
 
 			consumer.sign(get);
 			
 			HttpResponse response = client.execute(get);
 			
-			StringBuffer ret = new StringBuffer();
-			ret.append("<h1>Status&nbsp;:&nbsp;"+response.getStatusLine().getStatusCode()+"<br/><br/>");
-			ret.append("<h1>Headers</h1><br/>");
-			for(Header header : response.getAllHeaders())
-				ret.append("<b>"+header.getName()+"</b>&nbsp;:&nbsp;"+header.getValue()+"<br/>");
-			ret.append("<br/><br/><h1>Body</h1><br/>");
+			StringBuffer resp = new StringBuffer();
+
+			if(response.getStatusLine().getStatusCode()!=200)
+				throw new IllegalStateException("Twitter returned non-okay status code.  code:"+response.getStatusLine().getStatusCode()+" content"+response.getEntity());
+
 			InputStream in = response.getEntity().getContent();
 			byte[] buf = new byte[1024];
 			int size=-1;
@@ -196,11 +204,24 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 			{
 				size = in.read(buf);
 				if(size==-1) continue;
-				ret.append(new String(buf,0,size));
+				resp.append(new String(buf,0,size));
 			}while(size>=0);
-			ret.append("<br/><br/>");
-			return ret.toString();
+
+			TokenPair ret = new TokenPair();
 			
+			for(String param : resp.toString().split("&"))
+			{
+				String[] kv = param.split("=");
+				if(kv[0].equals("oauth_token"))
+					ret.setToken(kv[1]);
+				else
+					ret.setSecret(kv[1]);
+			}
+			
+			requestTokens.put(ret.getToken(), ret.getSecret());
+			ret.setSecret(null);
+			
+			return ret;
 		}
 		catch(Exception e)
 		{
@@ -210,12 +231,13 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 	}
 
 	@Override
-	public String retrieveAccessToken(String requestToken, String requestSecret, String pin) {
-		
+	public boolean retrieveAccessToken(String requestToken, String verifier) {
+		if(!requestTokens.containsKey(requestToken))
+			return false;
 		OAuthConsumer consumer = new CommonsHttpOAuthConsumer(APP_TOKEN,APP_SECRET);
-		consumer.setTokenWithSecret(requestToken, requestSecret);
+		consumer.setTokenWithSecret(requestToken, requestTokens.get(requestToken));
 		HttpParameters params = new HttpParameters();
-		params.put("oauth_verifier", pin);
+		params.put("oauth_verifier", verifier);
 		consumer.setAdditionalParameters(params);
 		
 		DefaultHttpClient client = null;
@@ -227,31 +249,14 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 			
 			get = new HttpGet("http://twitter.com/oauth/access_token");
 			
-//			Map<String,String> params = new HashMap<String,String>();
-//			params.put("oauth_consumer_key", appKey);
-//			params.put("oauth_token",requestToken);
-//			params.put("oauth_signature_method","HMAC-SHA1");
-//			params.put("oauth_timestamp", ""+(System.currentTimeMillis()/1000));
-//			params.put("oauth_nonce", ""+System.nanoTime());
-//			params.put("oauth_verifier", pin);
-//			params.put("oauth_signature", OAuthHasher.hashMe("GET", "http://twitter.com/oauth/access_token", params, appSecret, null));			
-//			
-//			StringBuffer authHeader = new StringBuffer();
-//			authHeader.append("OAuth realm=\"http://twitter.com/\"");
-//			for(Map.Entry<String, String> entry : params.entrySet())
-//				authHeader.append(","+entry.getKey()+"=\""+OAuthHasher.percentEncode(entry.getValue())+"\"");
-//			
-//			get.addRequestHeader("Authorization", authHeader.toString());
-
 			consumer.sign(get);
 			HttpResponse response = client.execute(get);
 			
-			StringBuffer ret = new StringBuffer();
-			ret.append("<h1>Status&nbsp;:&nbsp;"+response+"<br/><br/>");
-			ret.append("<h1>Headers</h1><br/>");
-			for(Header header : response.getAllHeaders())
-				ret.append("<b>"+header.getName()+"</b>&nbsp;:&nbsp;"+header.getValue()+"<br/>");
-			ret.append("<br/><br/><h1>Body</h1><br/>");
+			StringBuffer resp = new StringBuffer();
+
+			if(response.getStatusLine().getStatusCode()!=200)
+				throw new IllegalStateException("Twitter returned non-okay status code.  code:"+response.getStatusLine().getStatusCode()+" content"+response.getEntity());
+
 			InputStream in = response.getEntity().getContent();
 			byte[] buf = new byte[1024];
 			int size=-1;
@@ -259,16 +264,39 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 			{
 				size = in.read(buf);
 				if(size==-1) continue;
-				ret.append(new String(buf,0,size));
+				resp.append(new String(buf,0,size));
 			}while(size>=0);
-			ret.append("<br/><br/>");
-			return ret.toString();
+			TokenPair ret = new TokenPair();
 			
+			String userId=null;
+			String screenName=null;
+			
+			for(String param : resp.toString().split("&"))
+			{
+				String[] kv = param.split("=");
+				if(kv[0].equals("oauth_token"))
+					ret.setToken(kv[1]);
+				else if(kv[0].equals("oauth_token_secret"))
+					ret.setSecret(kv[1]);
+				else if(kv[0].equals("user_id"))
+					userId=kv[1];
+				else if(kv[0].equals("screen_name"))
+					screenName=kv[1];
+			}
+			
+			Criteria crit = session.createCriteria(EntryPointDO.class);
+			crit.add(Restrictions.eq("type", EntryPointType.Twitter));
+			crit.add(Restrictions.eq("value", screenName));
+			EntryPointDO entry = (EntryPointDO)crit.uniqueResult();
+			
+			entry.setCredentials(ret.getToken()+"|"+ret.getSecret());
+			
+			return true;
 		}
 		catch(Exception e)
 		{
 			log.error("Trouble requesting a request token.",e);
-			return null;
+			return false;
 		}
 	}
 }

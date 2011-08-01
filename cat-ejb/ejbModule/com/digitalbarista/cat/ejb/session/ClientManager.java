@@ -86,4 +86,10 @@ public interface ClientManager {
 	public Boolean checkKeywordAvailability(Keyword keyword);
 	public void disableClient(Long clientID);
 	public void enableClient(Long clientID);
+	
+	@Path("/twitter/start-auth")
+	public String startTwitterAuth(@PathParam("callbackURL")String callbackURL);
+	
+	@Path("/twitter/auth")
+	public void authTwitterAccount(@PathParam("oauth_token")String oauthToken, @PathParam("oauth_verifier")String oauthVerifier);
 }
