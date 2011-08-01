@@ -89,9 +89,9 @@ public interface ClientManager {
 	
 	@Path("/twitter/start-auth")
 	@GET
-	public String startTwitterAuth(@PathParam("callbackURL")String callbackURL);
+	public String startTwitterAuth(@QueryParam("callbackURL")String callbackURL);
 	
 	@Path("/twitter/auth")
 	@GET
-	public void authTwitterAccount(@PathParam("oauth_token")String oauthToken, @PathParam("oauth_verifier")String oauthVerifier);
+	public void authTwitterAccount(@QueryParam("oauth_token")String oauthToken, @QueryParam("oauth_verifier")String oauthVerifier);
 }
