@@ -93,5 +93,5 @@ public interface ClientManager {
 	
 	@Path("/twitter/auth")
 	@GET
-	public void authTwitterAccount(@QueryParam("oauth_token")String oauthToken, @QueryParam("oauth_verifier")String oauthVerifier);
+	public String authTwitterAccount(@QueryParam("oauth_token")String oauthToken, @QueryParam("oauth_verifier")String oauthVerifier);
 }

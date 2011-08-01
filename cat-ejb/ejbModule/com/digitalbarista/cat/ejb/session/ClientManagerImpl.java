@@ -142,6 +142,8 @@ public class ClientManagerImpl implements ClientManager {
 	    		epd.copyFrom(entry);
 	        	if(ctx.isCallerInRole("admin"))
 	        		epd.setCredentials(entry.getCredentials());
+	        	else if(entry.getCredentials()!=null)
+	        		epd.setCredentials("authorized");
 	    		ret.add(epd);
 	    	}
 	
@@ -164,6 +166,8 @@ public class ClientManagerImpl implements ClientManager {
     	
     	if(ctx.isCallerInRole("admin"))
     		ret.setCredentials(result.getCredentials());
+    	else if(result.getCredentials()!=null)
+    		ret.setCredentials("authorized");
     	
 		fillInEntryPointKeywordData(ret);
 
@@ -628,12 +632,15 @@ public class ClientManagerImpl implements ClientManager {
 	
 	@Override
 	public String startTwitterAuth(String callbackURL) {
-		return twitterCoordinator.acquireRequestToken(callbackURL).getToken();
+		return "https://www.twitter.com/oauth/authorize?oauth_token="+twitterCoordinator.acquireRequestToken(callbackURL).getToken();
 	}
 
 
 	@Override
-	public void authTwitterAccount(String oauthToken, String oauthVerifier) {
-		twitterCoordinator.retrieveAccessToken(oauthToken, oauthVerifier);
+	public String authTwitterAccount(String oauthToken, String oauthVerifier) {
+		if(twitterCoordinator.retrieveAccessToken(oauthToken, oauthVerifier))
+			return "<html><body><h3>You have been successfully authorized!</h3></body></html>";
+		else
+			return "<html><body><h3>Your authorization failed.  Please contact the administrator for help.</h3></body></html>";
 	}	
 }

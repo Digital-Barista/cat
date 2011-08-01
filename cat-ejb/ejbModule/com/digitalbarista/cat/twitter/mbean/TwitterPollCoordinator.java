@@ -52,7 +52,7 @@ public interface TwitterPollCoordinator {
 	
 	public void stopSingleton();
 	
-	public TokenPair acquireRequestToken(@PathParam("callbackURL") String callbackURL);
+	public TokenPair acquireRequestToken(String callbackURL);
 	
-	public boolean retrieveAccessToken(@PathParam("token") String requestToken, @PathParam("verifier") String verifier);
+	public boolean retrieveAccessToken(String requestToken, String verifier);
 }

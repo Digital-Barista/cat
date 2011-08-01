@@ -9,9 +9,14 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import oauth.signpost.OAuth;
 import oauth.signpost.OAuthConsumer;
+import oauth.signpost.OAuthProvider;
+import oauth.signpost.basic.DefaultOAuthConsumer;
+import oauth.signpost.basic.DefaultOAuthProvider;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.http.HttpParameters;
+import oauth.signpost.signature.QueryStringSigningStrategy;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -26,6 +31,8 @@ import org.jboss.annotation.ejb.Service;
 
 import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.EntryPointType;
+
+import flex.messaging.util.URLEncoder;
 
 @Service(objectName="dbi.config:service=DBITwitterPollerService")
 @Management(TwitterPollCoordinator.class)
@@ -170,54 +177,63 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 	@Override
 	public TokenPair acquireRequestToken(String callbackURL) {
 		
-		OAuthConsumer consumer = new CommonsHttpOAuthConsumer(APP_TOKEN,APP_SECRET);
+		OAuthConsumer consumer = new DefaultOAuthConsumer(APP_TOKEN,APP_SECRET);
+		//OAuthConsumer consumer = new CommonsHttpOAuthConsumer(APP_TOKEN,APP_SECRET);
+		OAuthProvider provider =  new DefaultOAuthProvider(
+                "https://api.twitter.com/oauth/request_token",
+                "https://api.twitter.com/oauth/access_token",
+                "https://api.twitter.com/oauth/authorize");
 		
 		DefaultHttpClient client = null;
 		HttpGet get = null;
 		
 		try
 		{
-			client = new DefaultHttpClient();
-			
-			get = new HttpGet("http://twitter.com/oauth/request_token");
-
-			if(callbackURL !=null)
-			{
-				HttpParameters params = new HttpParameters();
-				params.put("oauth_callback", callbackURL);
-				consumer.setAdditionalParameters(params);
-			}
-
-			consumer.sign(get);
-			
-			HttpResponse response = client.execute(get);
-			
-			StringBuffer resp = new StringBuffer();
-
-			if(response.getStatusLine().getStatusCode()!=200)
-				throw new IllegalStateException("Twitter returned non-okay status code.  code:"+response.getStatusLine().getStatusCode()+" content"+response.getEntity());
-
-			InputStream in = response.getEntity().getContent();
-			byte[] buf = new byte[1024];
-			int size=-1;
-			do
-			{
-				size = in.read(buf);
-				if(size==-1) continue;
-				resp.append(new String(buf,0,size));
-			}while(size>=0);
-
+			provider.retrieveRequestToken(consumer, callbackURL);
 			TokenPair ret = new TokenPair();
-			
-			for(String param : resp.toString().split("&"))
-			{
-				String[] kv = param.split("=");
-				if(kv[0].equals("oauth_token"))
-					ret.setToken(kv[1]);
-				else
-					ret.setSecret(kv[1]);
-			}
-			
+			ret.setToken(consumer.getToken());
+			ret.setSecret(consumer.getTokenSecret());
+//			client = new DefaultHttpClient();
+//			
+//			get = new HttpGet("http://api.twitter.com/oauth/request_token");
+//
+//			if(callbackURL !=null)
+//			{
+//				HttpParameters params = new HttpParameters();
+//				params.put("oauth_callback", callbackURL);
+//				consumer.setAdditionalParameters(params);
+//			}
+//
+//			consumer.sign(get);
+//			
+//			HttpResponse response = client.execute(get);
+//			
+//			StringBuffer resp = new StringBuffer();
+//
+//			InputStream in = response.getEntity().getContent();
+//			byte[] buf = new byte[1024];
+//			int size=-1;
+//			do
+//			{
+//				size = in.read(buf);
+//				if(size==-1) continue;
+//				resp.append(new String(buf,0,size));
+//			}while(size>=0);
+//
+//			if(response.getStatusLine().getStatusCode()!=200)
+//				throw new IllegalStateException("Twitter returned non-okay status code.  code:"+response.getStatusLine().getStatusCode()+" content:"+resp);
+//
+//			TokenPair ret = new TokenPair();
+//			
+//			for(String param : resp.toString().split("&"))
+//			{
+//				String[] kv = param.split("=");
+//				if(kv[0].equals("oauth_token"))
+//					ret.setToken(kv[1]);
+//				else
+//					ret.setSecret(kv[1]);
+//			}
+//			
 			requestTokens.put(ret.getToken(), ret.getSecret());
 			ret.setSecret(null);
 			
@@ -247,15 +263,12 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 		{
 			client = new DefaultHttpClient();
 			
-			get = new HttpGet("http://twitter.com/oauth/access_token");
+			get = new HttpGet("http://api.twitter.com/oauth/access_token");
 			
 			consumer.sign(get);
 			HttpResponse response = client.execute(get);
 			
 			StringBuffer resp = new StringBuffer();
-
-			if(response.getStatusLine().getStatusCode()!=200)
-				throw new IllegalStateException("Twitter returned non-okay status code.  code:"+response.getStatusLine().getStatusCode()+" content"+response.getEntity());
 
 			InputStream in = response.getEntity().getContent();
 			byte[] buf = new byte[1024];
@@ -266,6 +279,10 @@ public class TwitterPollCoordinatorImpl implements TwitterPollCoordinator {
 				if(size==-1) continue;
 				resp.append(new String(buf,0,size));
 			}while(size>=0);
+
+			if(response.getStatusLine().getStatusCode()!=200)
+				throw new IllegalStateException("Twitter returned non-okay status code.  code:"+response.getStatusLine().getStatusCode()+" content:"+resp);
+
 			TokenPair ret = new TokenPair();
 			
 			String userId=null;
