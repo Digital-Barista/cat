@@ -9,14 +9,12 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import oauth.signpost.OAuth;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
 import oauth.signpost.basic.DefaultOAuthConsumer;
 import oauth.signpost.basic.DefaultOAuthProvider;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.http.HttpParameters;
-import oauth.signpost.signature.QueryStringSigningStrategy;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -31,8 +29,6 @@ import org.jboss.annotation.ejb.Service;
 
 import com.digitalbarista.cat.data.EntryPointDO;
 import com.digitalbarista.cat.data.EntryPointType;
-
-import flex.messaging.util.URLEncoder;
 
 @Service(objectName="dbi.config:service=DBITwitterPollerService")
 @Management(TwitterPollCoordinator.class)

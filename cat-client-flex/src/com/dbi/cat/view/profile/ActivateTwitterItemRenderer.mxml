@@ -40,7 +40,7 @@
 			private function activate():void
       {
           // Build callback url
-          var url:String = ExternalInterface.call("function(){return window.location.protocol + '//' + window.location.hostname}");
+          var url:String = ExternalInterface.call("function(){return window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/cat/unsecure/rest/clients/twitter/auth'}");
           var e:ClientEvent = new ClientEvent(ClientEvent.ACTIVATE_TWITTER_ACCOUNT);
           e.twitterActiviationCallBackUrl = url;
           dispatchEvent(e);
