@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+    <mx:Script>
+        <![CDATA[
+            import com.dbi.cat.common.vo.BroadcastInfoVO;
+            import com.dbi.cat.event.BroadcastMessageEvent;
+            import com.dbi.util.ListUtil;
+            
+            import mx.collections.ArrayCollection;
+            
+            [Bindable]
+            public var broadcastMessages:ArrayCollection;
+            
+            private var _filterClients:ArrayCollection;
+            public function set filterClients(value:ArrayCollection):void
+            {
+                _filterClients = value;
+                refresh();
+            }
+            
+            private function refresh():void
+            {
+                var event:BroadcastMessageEvent = new BroadcastMessageEvent(BroadcastMessageEvent.LIST_BROADCAST_MESSAGES);
+                event.clientIDs = ListUtil.getIdList(_filterClients, "clientId");
+                dispatchEvent(event);
+            }
+            
+            private function getMessageType(info:BroadcastInfoVO, column:DataGridColumn):String
+            {
+                if (info.isCoupon)
+                {
+                    return "Coupon";
+                }
+                return "Message";
+            }
+        ]]>
+    </mx:Script>
+    <mx:TitleWindow 
+        width="100%" height="100%"
+        layout="absolute">
+        <mx:DataGrid right="0" left="0" bottom="0" top="0"
+                     dataProvider="{broadcastMessages}">
+            <mx:columns>
+                <mx:DataGridColumn headerText="Type" labelFunction="getMessageType"/>
+                <mx:DataGridColumn headerText="Title" dataField="title" />
+                <mx:DataGridColumn headerText="Redemption" dataField="couponRedemptionCount" />
+                <mx:DataGridColumn headerText="Subscribers" dataField="subscriberCount" width="80" />
+                <mx:DataGridColumn headerText="Message" dataField="message" />
+            </mx:columns>
+        </mx:DataGrid>
+    </mx:TitleWindow>
+    <mx:HBox right="5" top="7" verticalAlign="middle">
+        <mx:Image source="@Embed(source='/assets/img/refresh.png')"
+                  top="3" right="200"
+                  width="25" height="25"
+                  toolTip="Refresh"
+                  click="refresh()" />
+    </mx:HBox>
+</mx:Canvas>

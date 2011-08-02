@@ -80,17 +80,19 @@ public class UserDO implements Serializable,DataObject {
 	
 	public boolean isCorrectPassword(String unencryptedPassword)
 	{
-		try
-		{
-			MessageDigest mdEnc = MessageDigest.getInstance("MD5");
-			mdEnc.update(unencryptedPassword.getBytes(), 0, unencryptedPassword.length());
-			String md5 = new String(mdEnc.digest());
-			return password.equals(md5);
-		}
-		catch(Exception e)
-		{
-			throw new RuntimeException("Problem Encrypting a password.");
-		}
+		return password.equals(unencryptedPassword);
+		
+//		try
+//		{
+//			MessageDigest mdEnc = MessageDigest.getInstance("MD5");
+//			mdEnc.update(unencryptedPassword.getBytes(), 0, unencryptedPassword.length());
+//			String md5 = new String(mdEnc.digest());
+//			return password.equals(md5);
+//		}
+//		catch(Exception e)
+//		{
+//			throw new RuntimeException("Problem Encrypting a password.");
+//		}
 	}
 	
 	@Id

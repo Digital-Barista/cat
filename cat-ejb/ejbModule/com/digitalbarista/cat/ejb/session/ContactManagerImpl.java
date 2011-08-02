@@ -83,6 +83,8 @@ public class ContactManagerImpl implements ContactManager {
 	
 	FacebookManager facebookManager;
 	
+	private static final String[] ADMIN_FACEBOOK_FIELDS = {"link", "name", "first_name", "last_name", "id"};
+	
 	@PermitAll
 	public boolean contactExists(String address, EntryPointType type, Long clientId)
 	{
@@ -164,7 +166,8 @@ public class ContactManagerImpl implements ContactManager {
 	    	ret.setTotalResultCount(PagingUtil.getTotalResultCount(crit));
 	    	
 	    	// Apply paging info
-	    	PagingUtil.applyPagingInfo(crit, paging);
+	    	if(paging!=null)
+	    		PagingUtil.applyPagingInfo(crit, paging);
 	    	
 	    	// Get only distinct contacts
 	    	crit.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -508,7 +511,23 @@ public class ContactManagerImpl implements ContactManager {
 				Contact c = new Contact();
 				c.copyFrom(contactDO);
 				List<ContactInfo> values = facebookManager.updateProfileInformation(c);
-				ret.setContactInfos(new HashSet<ContactInfo>(values));
+				
+				// Remove values only visible to admins
+				if (!SecurityUtil.isAdmin(ctx))
+				{
+					ret.setContactInfos(new HashSet<ContactInfo>());
+					for (ContactInfo ci : values)
+					{
+						if (!Arrays.asList(ADMIN_FACEBOOK_FIELDS).contains(ci.getName()))
+						{
+							ret.getContactInfos().add(ci);
+						}
+					}
+				}
+				else
+				{
+					ret.setContactInfos(new HashSet<ContactInfo>(values));
+				}
 				
 
 				// Call analytics for app visits

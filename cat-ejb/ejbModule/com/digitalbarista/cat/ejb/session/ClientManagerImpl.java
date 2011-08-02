@@ -50,6 +50,7 @@ import com.digitalbarista.cat.data.KeywordDO;
 import com.digitalbarista.cat.data.KeywordLimitDO;
 import com.digitalbarista.cat.data.ReservedKeywordDO;
 import com.digitalbarista.cat.exception.FlexException;
+import com.digitalbarista.cat.twitter.mbean.TwitterPollCoordinator;
 import com.digitalbarista.cat.util.SecurityUtil;
 
 /**
@@ -76,6 +77,9 @@ public class ClientManagerImpl implements ClientManager {
 
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
+	
+	@EJB
+	TwitterPollCoordinator twitterCoordinator;
 	
     @SuppressWarnings("unchecked")
     @PermitAll
@@ -138,6 +142,8 @@ public class ClientManagerImpl implements ClientManager {
 	    		epd.copyFrom(entry);
 	        	if(ctx.isCallerInRole("admin"))
 	        		epd.setCredentials(entry.getCredentials());
+	        	else if(entry.getCredentials()!=null)
+	        		epd.setCredentials("authorized");
 	    		ret.add(epd);
 	    	}
 	
@@ -160,6 +166,8 @@ public class ClientManagerImpl implements ClientManager {
     	
     	if(ctx.isCallerInRole("admin"))
     		ret.setCredentials(result.getCredentials());
+    	else if(result.getCredentials()!=null)
+    		ret.setCredentials("authorized");
     	
 		fillInEntryPointKeywordData(ret);
 
@@ -198,11 +206,21 @@ public class ClientManagerImpl implements ClientManager {
     }
     
 	@Override
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin","client"})
 	@AuditEvent(AuditType.SaveClient)
 	public Client save(Client client) {
 		if(client==null)
 			throw new IllegalArgumentException("Cannot save a null client.");
+		
+
+		// Make sure they have access to this client
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, null);
+		if (!allowedClientIds.contains(client.getClientId()))
+		{
+			throw new SecurityException("You do not have permission to edit this client");
+		}
+		
+		
 		ClientDO c = em.find(ClientDO.class, client.getClientId());
 		if(c == null)
 			c = new ClientDO();
@@ -277,8 +295,14 @@ public class ClientManagerImpl implements ClientManager {
 				if (add.getAddInMessageId() != null)
 					addDO = em.find(AddInMessageDO.class, add.getAddInMessageId());
 				if (addDO == null)
+				{
 					addDO = new AddInMessageDO();
 
+					// Add message to client list
+					if (c.getAddInMessages() == null)
+						c.setAddInMessages(new HashSet<AddInMessageDO>());
+					c.getAddInMessages().add(addDO);
+				}
 				// Make sure only admins are trying to modify ADMIN add in messages
 				if ( (addDO.getAddInMessageId() == null ||
 					!addDO.getMessage().equals(add.getMessage()) ) &&
@@ -291,14 +315,13 @@ public class ClientManagerImpl implements ClientManager {
 				add.copyTo(addDO);
 				em.persist(addDO);
 				
-				// Add message to client list
-				if (c.getAddInMessages() == null)
-					c.setAddInMessages(new HashSet<AddInMessageDO>());
-				c.getAddInMessages().add(addDO);
 			}
 		}
 		
 		em.flush();
+
+		// Requery client to send back up to date object
+		c = em.find(ClientDO.class, client.getClientId());
 		Client ret = new Client();
 		ret.copyFrom(c);
 		return ret;
@@ -364,10 +387,21 @@ public class ClientManagerImpl implements ClientManager {
 	}
 	
 	@Override
-	@RolesAllowed("admin")
+	@RolesAllowed({"admin","client"})
 	public EntryPointDefinition save(EntryPointDefinition epd) {
 		if(epd == null)
 			throw new IllegalArgumentException("Cannot save a null entry point definition.");
+		
+		// Make sure they have access to this client
+		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, null);
+		for (int clientId : epd.getClientIDs())
+		{
+			if (!allowedClientIds.contains(new Long(clientId)))
+			{
+				throw new SecurityException("You do not have permission to edit entry points for these clients");
+			}
+		}
+		
 		EntryPointDO ep=null;
 		if(epd.getPrimaryKey()!=null)
 			ep = em.find(EntryPointDO.class, epd.getPrimaryKey());
@@ -595,4 +629,18 @@ public class ClientManagerImpl implements ClientManager {
 			return;
 		client.setActive(true);
 	}
+	
+	@Override
+	public String startTwitterAuth(String callbackURL) {
+		return "https://www.twitter.com/oauth/authorize?oauth_token="+twitterCoordinator.acquireRequestToken(callbackURL).getToken();
+	}
+
+
+	@Override
+	public String authTwitterAccount(String oauthToken, String oauthVerifier) {
+		if(twitterCoordinator.retrieveAccessToken(oauthToken, oauthVerifier))
+			return "<html><body><h3>You have been successfully authorized!</h3></body></html>";
+		else
+			return "<html><body><h3>Your authorization failed.  Please contact the administrator for help.</h3></body></html>";
+	}	
 }

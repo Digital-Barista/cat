@@ -54,6 +54,7 @@
     <config-property name="JmsProviderAdapterJNDI" type="java.lang.String">java:/DefaultJMSProvider</config-property>
     <max-pool-size>20</max-pool-size>
     <security-domain-and-application>JmsXARealm</security-domain-and-application>
+    <track-connection-by-tx/>
   </tx-connection-factory>
 
 </connection-factories>

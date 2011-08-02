@@ -11,14 +11,19 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 import org.jboss.resteasy.annotations.providers.jaxb.WrappedMap;
 
+import com.digitalbarista.cat.business.BroadcastInfo;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Connector;
+import com.digitalbarista.cat.business.Contact;
+import com.digitalbarista.cat.business.CouponNode;
+import com.digitalbarista.cat.business.EntryData;
+import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.business.Node;
+import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.NodeDO;
@@ -56,6 +61,7 @@ public interface CampaignManager {
 	public List<Campaign> getAllTemplates();
 	
 	public List<Campaign> getCampaigns(List<Long> clientIDs);
+	public List<BroadcastInfo> getBroadcastCampaigns(List<Long> clientIDs);
 	public List<Campaign> getCampaignTemplates(List<Long> clientIDs);
 	
 	
@@ -98,4 +104,17 @@ public interface CampaignManager {
 	@Wrapped
 	@WrappedMap(map="nodeSubscriberCount",key="nodeUID",entry="count")
 	public Map<String,Long> getNodeSubscriberCount(@PathParam("uid") String campaignUUID);
+	
+	public CampaignDO getCampaignForNode(String uid);
+	public CampaignDO getCampaignForConnector(String uid);
+	public Integer getCurrentCampaignVersionForNode(String uid);
+	public Integer getCurrentCampaignVersionForConnector(String uid);
+	
+	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, List<Contact> contacts);
+	public void broadcastMessageSearch(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search);
+	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts);
+	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search);
+	
+	public Campaign loadEntryCampaign(Campaign campaign);
+	public Campaign saveEntryCampaign(Campaign campaign);
 }

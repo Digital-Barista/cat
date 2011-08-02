@@ -17,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -27,6 +28,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="contact")
+@NamedQuery(name="contact.by.address.and.client",query="from ContactDO c where c.address=:address and c.type=:type and c.client.id=:clientId")
 public class ContactDO implements DataObject,Serializable {
 
 	
@@ -58,7 +60,7 @@ public class ContactDO implements DataObject,Serializable {
 	}
 
 
-	@OneToMany(mappedBy="contact", targetEntity=ContactTagLinkDO.class, cascade={CascadeType.REMOVE})
+	@OneToMany(mappedBy="contact", targetEntity=ContactTagLinkDO.class, cascade={CascadeType.REMOVE}, fetch=FetchType.LAZY)
 	@JoinColumn(updatable=false,insertable=false,name="contact_id")
 	public Set<ContactTagLinkDO> getContactTags() {
 		return contactTags;
@@ -137,7 +139,7 @@ public class ContactDO implements DataObject,Serializable {
 	}
 
 
-	@ManyToOne(fetch=FetchType.EAGER)
+	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumns({
         @JoinColumn(name="address", referencedColumnName="address", insertable=false, updatable=false),
         @JoinColumn(name="type", referencedColumnName="entry_type", insertable=false, updatable=false)

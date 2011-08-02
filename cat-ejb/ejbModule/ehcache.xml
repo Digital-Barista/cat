@@ -1,0 +1,20 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+             maxBytesLocalHeap="512m" maxBytesLocalDisk="2g">
+	<cache overflowToDisk="true" 
+		   eternal="false" 
+		   name="NodeCache"
+		   timeToIdleSeconds="120"/>
+	<cache overflowToDisk="true" 
+		   eternal="false" 
+		   name="ConnectorCache"
+		   timeToIdleSeconds="120"/>
+	<cache overflowToDisk="true" 
+		   eternal="false" 
+		   name="CampaignCache"
+		   timeToIdleSeconds="120"/>
+	<cache overflowToDisk="true" 
+		   eternal="false" 
+		   name="PermissionCache"
+		   timeToLiveSeconds="30"/>
+</ehcache>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:workspace="com.dbi.cat.view.workspace.*"
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+		   xmlns:workspace="com.dbi.cat.view.workspace.*"
 		   creationComplete="init()">
 	<mx:Metadata>
 		[Event(type="flash.events.Event", name="change")]
@@ -10,9 +11,14 @@
 			import com.dbi.cat.common.vo.CampaignVO;
 			import com.dbi.cat.common.vo.CouponNodeVO;
 			import com.dbi.cat.common.vo.CouponVO;
+			import com.dbi.cat.common.vo.UserVO;
 			
+			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
+			
+			[Bindable]
+			public var currentUser:UserVO;
 			
 			[Bindable]
 			public var campaign:CampaignVO;
@@ -53,8 +59,42 @@
 			
 			private function init():void
 			{
-				updateRepeaterItems();
+				createTabs();
+        applyPermissions();
 			}
+        
+      private function applyPermissions():void
+      {
+          MessageAvailableOptions.visible = MessageAvailableOptions.includeInLayout = currentUser.isManager;
+      }
+			
+			private function createTabs():void
+			{
+				var types:ArrayCollection = currentUser.entryPointTypes;
+				for each(var type:EntryPointType in types)
+				{
+					var editor:MessageEditor = new MessageEditor();
+					editor.label = type.name;
+					editor.entryType = type;
+					editor.addEventListener(Event.CHANGE, updateAvailableMessageType);
+					BindingUtils.bindProperty(editor, "campaign", this, "campaign");
+					BindingUtils.bindProperty(editor, "messageTitle", this, ["couponVO", "name"]);
+					BindingUtils.bindProperty(editor, "defaultMessageText", this, ["couponVO", "availableMessage"]);
+					BindingUtils.bindProperty(editor, "messageText", this, ["couponVO", "availableMessages", type.name]);
+					AvailableEntryTypeTabs.addChild(editor);
+					
+					editor = new MessageEditor();
+					editor.label = type.name;
+					editor.entryType = type;
+					editor.addEventListener(Event.CHANGE, updateUnavailableMessageType);
+					BindingUtils.bindProperty(editor, "campaign", this, "campaign");
+					BindingUtils.bindProperty(editor, "messageTitle", this, ["couponVO", "name"]);
+					BindingUtils.bindProperty(editor, "defaultMessageText", this, ["couponVO", "unavailableMessage"]);
+					BindingUtils.bindProperty(editor, "messageText", this, ["couponVO", "unavailableMessages", type.name]);
+					UnavailableEntryTypeTabs.addChild(editor);
+				}
+			}
+			
 			
 			private function changeMessageShowing():void
 			{
@@ -64,19 +104,6 @@
 				tabChange();
 			}
 			
-			public function updateRepeaterItems():void
-			{
-				if (AvailableMessageType != null &&
-				    AvailableMessageType.length == EntryPointType.allTypes.length)
-				{
-					for (var i:int = 0; i < EntryPointType.allTypes.length; i++)
-					{
-						var type:EntryPointType = EntryPointType.allTypes[i];
-						var editor:MessageEditor = AvailableMessageType[i];
-						editor.messageText = couponVO.availableMessages[type.name];
-					}
-				}
-			}
 			
 			private function updateDefaultAvailable():void
 			{
@@ -90,15 +117,17 @@
 				dispatchEvent(new Event(Event.CHANGE));
 			}
 			
-			private function updateAvailableMessageType(text:String, entryType:EntryPointType):void
+			private function updateAvailableMessageType(e:Event):void
 			{
-				couponVO.availableMessages[entryType.name] = text;
+				var editor:MessageEditor = e.target as MessageEditor;
+				couponVO.availableMessages[editor.entryType.name] = editor.messageText;
 				dispatchEvent(new Event(Event.CHANGE));
 				
 			}
-			private function updateUnavailableMessageType(text:String, entryType:EntryPointType):void
+			private function updateUnavailableMessageType(e:Event):void
 			{
-				couponVO.unavailableMessages[entryType.name] = text;
+				var editor:MessageEditor = e.target as MessageEditor;
+				couponVO.unavailableMessages[editor.entryType.name] = editor.messageText;
 				dispatchEvent(new Event(Event.CHANGE));
 			}
 			
@@ -107,41 +136,44 @@
 			 */
 			private function tabChange():void
 			{
-				var types:ArrayCollection = EntryPointType.allTypes;
-				for (var i:Number =0; i < types.length; i++)
+				for each (var editor:MessageEditor in AvailableEntryTypeTabs.getChildren())
 				{
-					var type:EntryPointType = types[i];
-					
-					// Update available tabs
-					if (AvailableEntryTypeTabs)
+					var type:EntryPointType = editor.entryType;
+					if (type)
 					{
-						var availableTab:Button = AvailableEntryTypeTabs.getTabAt(i+1);
+						var index:int = AvailableEntryTypeTabs.getChildIndex(editor);
+						var tab:Button = AvailableEntryTypeTabs.getTabAt(index);
+						
 						if (couponVO.availableMessages != null &&
 							couponVO.availableMessages[type.name] != null &&
 							couponVO.availableMessages[type.name].length > 0)
 						{
-							availableTab.setStyle("color", 0xFF0000);
+							tab.setStyle("color", 0xFF0000);
 						}
 						else
 						{
-							availableTab.setStyle("color", null);
+							tab.setStyle("color", null);
 						}
 					}
-					
-					// Update unavailable tabs
-					if (UnavailableEntryTypeTabs &&
-						UnavailableEntryTypeTabs.numChildren == types.length + 1)
+				}
+				
+				for each (editor in UnavailableEntryTypeTabs.getChildren())
+				{
+					type = editor.entryType;
+					if (type)
 					{
-						var unavailableTab:Button = UnavailableEntryTypeTabs.getTabAt(i+1);
+						index = UnavailableEntryTypeTabs.getChildIndex(editor);
+						tab = UnavailableEntryTypeTabs.getTabAt(index);
+						
 						if (couponVO.unavailableMessages != null &&
 							couponVO.unavailableMessages[type.name] != null &&
 							couponVO.unavailableMessages[type.name].length > 0)
 						{
-							unavailableTab.setStyle("color", 0xFF0000);
+							tab.setStyle("color", 0xFF0000);
 						}
 						else
 						{
-							unavailableTab.setStyle("color", null);
+							tab.setStyle("color", null);
 						}
 					}
 				}
@@ -151,7 +183,7 @@
 	</mx:Script>
 	<mx:RadioButtonGroup id="AvailableGroup"
 						 change="{changeMessageShowing()}"/>
-	<mx:HBox>
+	<mx:HBox left="10" id="MessageAvailableOptions">
 		<mx:RadioButton id="Available"
 						label="Available Message"
 						group="{AvailableGroup}"
@@ -162,52 +194,29 @@
 						selected="{!showingAvailable}" />
 	</mx:HBox>
 	
-	<mx:ViewStack selectedIndex="{showingAvailable ? 0 : 1}" right="0" left="0" top="0" bottom="0">
+	<mx:ViewStack selectedIndex="{showingAvailable ? 0 : 1}" right="0" left="0" top="0" bottom="0"
+				  creationPolicy="all">
 		<mx:TabNavigator id="AvailableEntryTypeTabs"
 						 width="100%" height="100%"
 						 tabOffset="-10" paddingTop="0"
 						 horizontalAlign="right"
-						 creationPolicy="all"
-						 change="{tabChange()}"
-						 creationComplete="{tabChange()}">
+						 change="{tabChange()}">
 			<workspace:MessageEditor id="DefaultAvailable"
 									 label="Default Message"
 									 useModifyMessage="false"
 									 messageText="{couponVO.availableMessage}"
 									 change="updateDefaultAvailable()" />
-			<mx:Repeater id="AvailableEntryTypeRepeater" 
-						 dataProvider="{EntryPointType.allTypes}">
-				<workspace:MessageEditor id="AvailableMessageType"
-										 label="{AvailableEntryTypeRepeater.currentItem.name}"
-										 defaultMessageText="{couponVO.availableMessage}"
-										 campaign="{campaign}"
-										 entryType="{AvailableEntryTypeRepeater.currentItem}"
-										 messageText="{couponVO.availableMessages[AvailableEntryTypeRepeater.currentItem.name]}"
-										 change="{updateAvailableMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}" />
-			</mx:Repeater>
 		</mx:TabNavigator>
 		<mx:TabNavigator id="UnavailableEntryTypeTabs"
 						 width="100%" height="100%"
 						 tabOffset="-10" paddingTop="0"
 						 horizontalAlign="right"
-						 creationPolicy="all"
 						 change="{tabChange()}">
 			<workspace:MessageEditor id="DefaultUnavailable"
 									 label="Default Message"
 									 useModifyMessage="false"
 									 messageText="{couponVO.unavailableMessage}"
 									 change="updateDefaultUnavailable()" />
-			<mx:Repeater id="UnavailableEntryTypeRepeater" 
-						 dataProvider="{EntryPointType.allTypes}">
-					<workspace:MessageEditor id="UnavailableMessageType"
-											 label="{UnavailableEntryTypeRepeater.currentItem.name}"
-											 defaultMessageText="{couponVO.unavailableMessage}"
-											 campaign="{campaign}"
-											 entryType="{UnavailableEntryTypeRepeater.currentItem}"
-											 messageText="{couponVO.unavailableMessages[UnavailableEntryTypeRepeater.currentItem.name]}"
-											 change="{updateUnavailableMessageType(event.currentTarget.messageText, event.currentTarget.getRepeaterItem())}"
-											 creationComplete="{tabChange()}" />
-			</mx:Repeater>
 		</mx:TabNavigator>
 	</mx:ViewStack>
 	

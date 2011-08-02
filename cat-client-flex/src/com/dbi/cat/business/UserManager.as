@@ -4,6 +4,7 @@ package com.dbi.cat.business
 	import com.dbi.cat.common.vo.UserProfileVO;
 	import com.dbi.cat.common.vo.UserVO;
 	import com.dbi.cat.event.NavigationEvent;
+	import com.dbi.cat.event.UserEvent;
 	import com.dbi.cat.view.user.EditUserView;
 	
 	import flash.events.IEventDispatcher;
@@ -80,17 +81,27 @@ package com.dbi.cat.business
 		public function saveUser(user:UserVO):void
 		{
 			var found:Boolean = false;
-			for (var i:Number = 0; i < userList.length; i++)
-			{
-				if (userList[i].primaryKey == user.primaryKey)
-				{
-					userList[i] = user;
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				userList.addItem(user);
+      
+      if (userList != null)
+      {
+    			for (var i:Number = 0; i < userList.length; i++)
+    			{
+    				if (userList[i].primaryKey == user.primaryKey)
+    				{
+    					userList[i] = user;
+    					found = true;
+    					break;
+    				}
+    			}
+    			if (!found)
+    				userList.addItem(user);
+      }
+      
+      // Fire an event that will update the current user if it was
+      // updated by the service
+      var e:UserEvent = new UserEvent(UserEvent.UPDATE_CURRENT_USER);
+      e.user = user;
+      dispatcher.dispatchEvent(e);
 				
 			closeEditWindow();
 		}

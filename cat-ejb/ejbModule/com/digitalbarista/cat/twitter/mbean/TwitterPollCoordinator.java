@@ -5,8 +5,14 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.ejb.Remote;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 
 @Remote
+@Path("/twitter")
+@Produces("application/xml")
 public interface TwitterPollCoordinator {
 
 	public static final String APP_TOKEN="ypeczxLakmzTBNIDAjNXg";
@@ -46,7 +52,7 @@ public interface TwitterPollCoordinator {
 	
 	public void stopSingleton();
 	
-	public String acquireRequestToken();
+	public TokenPair acquireRequestToken(String callbackURL);
 	
-	public String retrieveAccessToken(String requestToken, String requestSecret, String pin);
+	public boolean retrieveAccessToken(String requestToken, String verifier);
 }

@@ -243,26 +243,34 @@ public class FacebookManagerImpl implements FacebookManager {
 		return ret;
 	}
 
-	public void updateMessageCounter(String appName, String uid, Integer count)
+	public void updateMessageCounter(final String appName, final String uid, final Integer count)
 	{
-		FacebookApp app = findFacebookAppByName(appName);
+		final FacebookApp app = findFacebookAppByName(appName);
 		
-		Map<String, String> params = new HashMap<String, String>();
+		final Map<String, String> params = new HashMap<String, String>();
 		params.put("method", "dashboard.setCount");
 		params.put("api_key", app.getApiKey());
 		params.put("v", "1.0");
 		params.put("call_id", Long.toString(Calendar.getInstance().getTime().getTime()));
 		params.put("count", count.toString());
 		params.put("uid", uid);
-		
-		try 
+
+		Thread updater = new Thread( new Runnable()
 		{
-			callFacebookMethod(app.getSecret(), params);
-		} 
-		catch (FacebookManagerException e) 
-		{
-			logger.error("Error updating counter for App: " + appName + ", UID: " + uid, e);
-		}
+			@Override
+			public void run()
+			{
+				try 
+				{
+					callFacebookMethod(app.getSecret(), params);
+				} 
+				catch (FacebookManagerException e) 
+				{
+					logger.error("Error updating counter for App: " + appName + ", UID: " + uid, e);
+				}
+			}
+		});
+		updater.start();
 	}
 	
 	public void updateMessageCounter(String appName, String uid)
@@ -358,7 +366,6 @@ public class FacebookManagerImpl implements FacebookManager {
 			!params.containsKey(FACEBOOK_PARAM_APP_ID) ||
 			!params.containsKey(FACEBOOK_PARAM_SIGNATURE) )
 		{
-			logger.error("Parameters missing for validateSignature");
 			return false;
 		}
 		

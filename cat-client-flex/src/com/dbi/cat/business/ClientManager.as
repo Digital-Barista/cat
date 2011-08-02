@@ -277,5 +277,14 @@ package com.dbi.cat.business
 		{
 			navigateToURL(new URLRequest(url));
 		}
-	}
+	
+  
+    //
+    // Account activation
+    //
+    public function activateTwitterAccount(activateUrl:String):void
+    {
+        navigateToURL(new URLRequest(activateUrl));
+    }
+  }
 }

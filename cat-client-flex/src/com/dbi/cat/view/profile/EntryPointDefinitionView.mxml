@@ -44,14 +44,15 @@
 		<mx:DataGrid id="EntryPointDefinitionGrid"
 			top="0" bottom="0" left="0" right="0"
 			dataProvider="{entryPointDefinitions}"
-			dragEnabled="true">
+			rowHeight="30">
 			<mx:columns>
 				<mx:DataGridColumn dataField="value" headerText="Address" />
 				<mx:DataGridColumn dataField="type" headerText="Type" width="80"  />
 				<mx:DataGridColumn dataField="description" headerText="Description" />
+          <mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.ActivateTwitterItemRenderer" headerText="Activated" width="80" />
 				<!--
-				<mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.EntryPointDefinitionActionsRenderer" editable="false" width="60" />
-				-->
+          <mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.EntryPointDefinitionActionsRenderer" editable="false" width="70" />
+          -->
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:TitleWindow>
@@ -60,8 +61,6 @@
 			width="25" height="25"
 			toolTip="Refresh"
 			click="refresh()" />
-			<!--
 			<mx:Button label="New Account"  width="120" click="addEntryPoint()" />
-			-->
 	</mx:HBox>
 </mx:Canvas>

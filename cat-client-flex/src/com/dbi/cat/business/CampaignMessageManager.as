@@ -6,10 +6,13 @@ package com.dbi.cat.business
 	import com.dbi.cat.view.workspace.MessagePreviewView;
 	
 	import flash.display.DisplayObject;
+	import flash.events.Event;
 	import flash.external.ExternalInterface;
 	import flash.net.FileReference;
 	
 	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
+	import mx.controls.TextArea;
 	import mx.core.Application;
 	import mx.core.IFlexDisplayObject;
 	import mx.formatters.DateFormatter;
@@ -21,6 +24,7 @@ package com.dbi.cat.business
 		public var messageParts:ArrayCollection;
 		
 		private var messagePreviewWindow:IFlexDisplayObject;
+    private var editTextArea:TextArea;
 		
 		public function CampaignMessageManager()
 		{
@@ -93,5 +97,27 @@ package com.dbi.cat.business
 		{
 			PopUpManager.removePopUp(messagePreviewWindow);
 		}
+    
+    public function openHTMLEditor(message:String, textArea:TextArea):void
+    {
+        editTextArea = textArea;
+        var escapedBody:String = escape(message);
+        var script:String = "function(){openHTMLEditor('" + escapedBody + "');}";
+        
+        if (ExternalInterface.available)
+        {
+          ExternalInterface.call(script);
+          ExternalInterface.addCallback("saveContent", saveHTMLContent);  
+        }
+    }
+    
+    private function saveHTMLContent(content:String):void
+    {
+        if (editTextArea != null)
+        {
+            editTextArea.text = content;
+            editTextArea.dispatchEvent(new Event(Event.CHANGE));
+        }
+    }
 	}
 }

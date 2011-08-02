@@ -63,6 +63,21 @@
 					else if (Password.text != ConfirmPassword.text)
 						errors.addItem("The password and confirm password do not match");
 				}
+        else
+        {
+            if (Password.text.length > 0 ||
+                ConfirmPassword.text.length > 0)
+            {
+                if (Password.text != ConfirmPassword.text)
+                {
+                    errors.addItem("The password and confirm password do not match");
+                }
+                if (CurrentPassword.text.length == 0)
+                {
+                    errors.addItem("You must enter your current password if you want to change it");
+                }
+            }
+        }
 					
 					
 				if (errors.length == 0)
@@ -85,7 +100,7 @@
 					}
 					editUser.email = EmailAddress.text;
 					editUser.name = Name.text;
-					editUser.isActive = IsActive.selected;
+          editUser.currentPassword = CurrentPassword.text;
 					
 					if(Password.text != "" && Password.text == ConfirmPassword.text)
 					{
@@ -197,10 +212,6 @@
 			<mx:TextInput id="EmailAddress" 
 				text="{editUser.email}" width="332"/>
 		</mx:FormItem>
-		<mx:FormItem label="Active">
-			<mx:CheckBox id="IsActive" 
-				selected="{editUser.isActive}" />
-		</mx:FormItem>
 		<mx:FormItem label="Roles" width="100%"
 			visible="false"
 			includeInLayout="false">
@@ -226,6 +237,10 @@
 				</mx:Canvas>
 			</mx:HBox>
 		</mx:FormItem>
+      <mx:FormItem label="Current Password" required="{isNewUser}">
+          <mx:TextInput id="CurrentPassword" displayAsPassword="true"  width="333" 
+                        text="{editUser.currentPassword}" />
+      </mx:FormItem>
 		<mx:FormItem label="Password" required="{isNewUser}">
 			<mx:TextInput id="Password" displayAsPassword="true"  width="333"
 				text="{editUser.password}" />

@@ -15,6 +15,8 @@ package com.dbi.cat.constants
 		public static const LOADING_CONTACT_CREATES:String = "Loading subscriber creates";
 		public static const LOADING_MESSAGE_SEND_DATES:String = "Loading message send dates";
 		public static const LOADING_FACEBOOK_APP_VISITS:String = "Loading facebook visits";
+    public static const LOADING_BROADCAST_MESSAGES:String = "Loading broadcasts";
+    public static const LOAD_ENTRY_CAMPAIGN_MESSAGE:String = "Loading welcome message";
 		
 		public function ServiceStatusMessage()
 		{

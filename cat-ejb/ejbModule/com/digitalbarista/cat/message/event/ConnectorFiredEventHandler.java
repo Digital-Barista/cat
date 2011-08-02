@@ -34,7 +34,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 
 	@Override
 	public void processEvent(CATEvent e) {
-		Integer version = getCampaignManager().getSimpleConnector(e.getSource()).getCampaign().getCurrentVersion()-1;
+		Integer version = getCampaignManager().getCurrentCampaignVersionForConnector(e.getSource())-1;
 		Connector conn = getCampaignManager().getSpecificConnectorVersion(e.getSource(), version);
 		if(conn==null)
 		{

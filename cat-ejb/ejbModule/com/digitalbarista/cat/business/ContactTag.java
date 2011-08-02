@@ -58,6 +58,8 @@ public class ContactTag  implements BusinessObject<ContactTagDO>
 	@Override
 	public void copyFrom(ContactTagDO dataObject) 
 	{
+		if(dataObject==null)
+			return;
 		contactTagId = dataObject.getContactTagId();
 		tag = dataObject.getTag();
 		type = dataObject.getType();

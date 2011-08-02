@@ -56,6 +56,9 @@ public class UserManagerImpl implements UserManager {
 	@EJB(name="ejb/cat/UserManager")
 	UserManager userManager;
 	
+	@EJB(name="ejb/cat/CacheAccessManager")
+	CacheAccessManager cache;
+	
     /**
      * Default constructor. 
      */
@@ -280,7 +283,17 @@ public class UserManagerImpl implements UserManager {
 		if(current==null)
 		{
 			ret = createUser(user);
-		} else {
+		} 
+		else 
+		{
+			// If NOT an admin and updating a password we need to verify the
+			// current password is correct
+			if (user.getPassword() != null &&
+					!ctx.isCallerInRole("admin") &&
+					!current.isCorrectPassword(user.getCurrentPassword()) )
+			{
+				throw new SecurityException("Current password did not match.  Cannot update user.");
+			}
 			user.copyTo(current);
 			if(user.getRoles()!=null)
 				syncRoles(user.getPrimaryKey(),new HashSet<Role>(user.getRoles()));
@@ -373,7 +386,7 @@ public class UserManagerImpl implements UserManager {
 		if (allowedClientIds.size() > 0)
 		{
 			crit = session.createCriteria(RoleDO.class);
-			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
+//			crit.add(Restrictions.in("roleName",new String[]{"account.admin","client"}));
 			crit.add(Restrictions.in("refId", allowedClientIds));
 			crit.createAlias("user", "user");
 			crit.setProjection(Projections.distinct(Projections.groupProperty("user")));
@@ -399,19 +412,7 @@ public class UserManagerImpl implements UserManager {
 
 	@Override
 	public boolean isUserAllowedForClientId(String username, Long clientId) {
-		UserDO user = getSimpleUserByUsername(username);
-		for(RoleDO role : user.getRoles())
-		{
-			if("admin".equals(role.getRoleName()))
-				return true;
-			if(clientId.equals(role.getRefId()))
-			{
-				if("client".equals(role.getRoleName()) ||
-				   "account.manager".equals(role.getRoleName()))
-					return true;
-			}
-		}
-		return false;
+		return SecurityUtil.extractClientIds(ctx, session, username).contains(clientId);
 	}
 
 	

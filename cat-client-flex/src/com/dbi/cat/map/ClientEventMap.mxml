@@ -51,7 +51,7 @@
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="saveClient"
-					arguments="{event.client}" />
+					arguments="{resultObject}" />
 			</resultHandlers>
 		</RemoteObjectInvoker>
 	</EventHandlers>
@@ -185,7 +185,8 @@
 	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">
 		<RemoteObjectInvoker destination="clientManager"
 			method="save"
-			arguments="{event.entryPoint}">
+			showBusyCursor="true"
+			arguments="{event.entryPointDefinition}">
 			<resultHandlers>
 				<MethodInvoker generator="{ClientManager}"
 					method="saveEntryPoint"
@@ -222,4 +223,19 @@
 					   method="openPaymentURL"
 					   arguments="{event.paymentURL}"/>
 	</EventHandlers>
+    
+  <!-- Account Activation -->
+    <EventHandlers type="{ClientEvent.ACTIVATE_TWITTER_ACCOUNT}">
+        <RemoteObjectInvoker destination="clientManager"
+                             method="startTwitterAuth"
+                             showBusyCursor="true"
+                             arguments="{event.twitterActiviationCallBackUrl}">
+            <resultHandlers>
+                <MethodInvoker generator="{ClientManager}"
+                               method="activateTwitterAccount"
+                               arguments="{resultObject}" />
+            </resultHandlers>
+        </RemoteObjectInvoker>
+    </EventHandlers>
+    
 </EventMap>

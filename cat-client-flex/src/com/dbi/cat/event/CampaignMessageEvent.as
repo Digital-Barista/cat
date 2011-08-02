@@ -5,6 +5,8 @@ package com.dbi.cat.event
 	import com.dbi.cat.common.vo.NodeVO;
 	
 	import flash.events.Event;
+	
+	import mx.controls.TextArea;
 
 	public class CampaignMessageEvent extends Event
 	{
@@ -14,12 +16,14 @@ package com.dbi.cat.event
 		public static const GET_MESSAGE_NODE_PARTS:String = "getMessageNodePartsEvent";
 		public static const GET_AVAILABLE_COUPON_NODE_PARTS:String = "getAvailableCouponNodePartsEvent";
 		public static const GET_UNAVAILABLE_COUPON_NODE_PARTS:String = "getUnavailableCouponNodePartsEvent";
+    public static const OPEN_HTML_EDITOR:String = "openHTMLEditor";
 		
 		public var campaign:CampaignVO;
 		public var message:String;
 		public var node:NodeVO;
 		public var entryType:EntryPointType;
 		public var title:String;
+    public var editTextArea:TextArea;
 			
 		public function CampaignMessageEvent(type:String)
 		{

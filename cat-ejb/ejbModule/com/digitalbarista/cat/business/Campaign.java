@@ -15,6 +15,7 @@ import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
+import com.digitalbarista.cat.data.CampaignStatus;
 
 @XmlRootElement(name="Campaign")
 public class Campaign implements BusinessObject<CampaignDO>,Auditable {
@@ -35,6 +36,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	@PrimaryDescriminator
 	private Long clientPK;
 	private CampaignMode mode;
+	private CampaignStatus status;
 	
 	public void copyFrom(CampaignDO dataObject, Integer version) {
 		primaryKey=dataObject.getPrimaryKey();
@@ -42,6 +44,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		currentVersion=dataObject.getCurrentVersion();
 		uid = dataObject.getUID();
 		mode = dataObject.getMode();
+		status = dataObject.getStatus();
 		if(dataObject.getClient()!=null)
 		{
 			clientPK = dataObject.getClient().getPrimaryKey();
@@ -242,5 +245,15 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	public void setSubscriberCount(int subscriberCount) {
 		this.subscriberCount = subscriberCount;
 	}
+
+	public CampaignStatus getStatus()
+  {
+  	return status;
+  }
+
+	public void setStatus(CampaignStatus status)
+  {
+  	this.status = status;
+  }
 	
 }

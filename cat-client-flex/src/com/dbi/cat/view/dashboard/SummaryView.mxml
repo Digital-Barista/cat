@@ -1,143 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+<dashboard:BaseSummaryView xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
 		   xmlns:components="com.dbi.cat.view.components.*" 
+       xmlns:dashboard="com.dbi.cat.view.dashboard.*" 
 		   xmlns:controls="com.dbi.controls.*"
 		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import com.dbi.cat.common.constants.EntryPointType;
-			import com.dbi.cat.common.vo.ClientVO;
-			import com.dbi.cat.common.vo.DashboardCountVO;
-			import com.dbi.cat.common.vo.DashboardDataVO;
-			import com.dbi.cat.common.vo.MessageCreditInfoVO;
 			import com.dbi.cat.event.ClientEvent;
 			import com.dbi.cat.event.ReportingEvent;
-			import com.dbi.controls.AdvancedComboBox;
 			import com.dbi.util.ListUtil;
 			
-			import mx.collections.ArrayCollection;
-			
-			private var _dashboardData:DashboardDataVO;
-			[Bindable]
-			public function get dashboardData():DashboardDataVO
-			{
-				return _dashboardData;
-			}
-			public function set dashboardData(value:DashboardDataVO):void
-			{
-				_dashboardData = value;
-				dispatchEvent(new Event("dashboardDataUpdate"));
-			}
-			
-			[Bindable]
-			public var clients:ArrayCollection;
-			
-			private var _filterClients:ArrayCollection;
-			public function set filterClients(value:ArrayCollection):void
-			{
-				_filterClients = value;
-				refresh();
-			}
-			
-			[Bindable(event="dashboardDataUpdate")]
-			private function get contactTotal():Number
-			{
-				var ret:Number = 0;
-				for each (var contact:DashboardCountVO in dashboardData.contactCounts)
-					ret += contact.count;
-				return ret;
-			}
-			
-			[Bindable(event="dashboardDataUpdate")]
-			private function get messageStatistics():ArrayCollection
-			{
-				var ret:ArrayCollection = new ArrayCollection();
-				var keys:Object = new Object();
-				
-				if (dashboardData != null)
-				{
-					for each (var sent:DashboardCountVO in dashboardData.messagesSent)
-					{
-						if (keys[sent.entryPointType] == null)
-							keys[sent.entryPointType] = new Object();
-						keys[sent.entryPointType].sent = sent.count;
-					}
-					
-					for each (var received:DashboardCountVO in dashboardData.messagesReceived)
-					{
-						if (keys[received.entryPointType] == null)
-							keys[received.entryPointType] = new Object();
-						keys[received.entryPointType].received = received.count;
-					}
-					
-					for each (var epType:EntryPointType in EntryPointType.allTypes)
-					{
-						var object:Object = keys[epType.name];
-						
-						if (object == null)
-							object = new Object();
-						
-						if (object.sent == null)
-							object.sent = 0;
-						if (object.received == null)
-							object.received = 0;
-						
-						object.entryPointType = epType.name;
-						object.total = object.sent + object.received;
-						ret.addItem(object);
-					}
-				}
-				return ret;
-			}
-			
-			[Bindable(event="dashboardDataUpdate")]
-			private function get clientCredits():ArrayCollection
-			{
-				var ret:ArrayCollection = new ArrayCollection();
-				var keys:Object = new Object();
-				
-				try
-				{
-					if (dashboardData != null &&
-						_filterClients != null &&
-						_filterClients.length == 1)
-					{
-						var onlyClient:ClientVO = _filterClients.getItemAt(0) as ClientVO;
-						for each (var info:MessageCreditInfoVO in dashboardData.messageCreditInfos)
-						{
-							if (info.clientName == onlyClient.name)
-							{
-								if (keys[info.network] == null)
-									keys[info.network] = new Object();
-								keys[info.network].credits = info.credits;
-							}
-						}
-					}
-						
-					for each (var epType:EntryPointType in EntryPointType.allTypes)
-					{
-						var object:Object = keys[epType.name];
-						
-						if (object == null)
-							object = new Object();
-						
-						if (object.credits == null)
-							object.credits = 0;
-						
-						object.entryPointType = epType.name;
-						ret.addItem(object);
-					}
-				}
-				catch(e:Error)
-				{
-					ret = new ArrayCollection();
-				}
-				
-				return ret;
-			}
 			
 			private function init():void
 			{
+          refresh();
+          applyPermissions();
+			}
+			
+			private function applyPermissions():void
+			{
+				var isManager:Boolean = false;
+				if (currentUser != null)
+				{
+					isManager = currentUser.isManager;
+				}
 			}
 			
 			private function refresh():void
@@ -161,31 +47,36 @@
 			width="100%" height="100%" >
 		<mx:TitleWindow width="100%" height="100%" layout="horizontal" horizontalAlign="center">
 			<mx:VBox minHeight="250" height="100%" verticalGap="0" horizontalAlign="center">
-				<mx:Label text="Message Credits" styleName="dashboardLabel" />
-				<mx:Label text="(Select a campaign to see credit info)"
-						  visible="{clientCredits.length == 0}"
-						  includeInLayout="{clientCredits.length == 0}" />
-				<mx:Repeater id="CreditRepeater" dataProvider="{clientCredits}">
-					<mx:HBox width="100%"> 
-						<mx:Label text="{CreditRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel1" width="120" />
-						<mx:Label text="{CreditRepeater.currentItem.credits}" styleName="dashboardDataLabel" />
+				<mx:VBox id="MessageCredits">
+					<mx:Label text="Message Credits" styleName="dashboardLabel" />
+					<mx:Label text="(Select a campaign to see credit info)"
+							  visible="{clientCredits.length == 0}"
+							  includeInLayout="{clientCredits.length == 0}" />
+					<mx:Repeater id="CreditRepeater" dataProvider="{clientCredits}">
+						<mx:HBox width="100%"> 
+							<mx:Label text="{CreditRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel1" width="120" />
+							<mx:Label text="{CreditRepeater.currentItem.credits}" styleName="dashboardDataLabel" />
+						</mx:HBox>
+					</mx:Repeater>
+					<mx:HBox width="100%" paddingTop="10" horizontalAlign="center">
+						<mx:Button label="Add Credits"
+								   click="addCredits()"/>
 					</mx:HBox>
-				</mx:Repeater>
-				<mx:HBox width="100%" paddingTop="10" horizontalAlign="center">
-					<mx:Button label="Add Credits"
-							   click="addCredits()"/>
-				</mx:HBox>
-				<mx:Label text="Coupon Info" styleName="dashboardLabel" />
-				<mx:HBox> 
-					<mx:Label text="Coupons Sent" styleName="dashboardSubLabel1" width="170" />
-					<mx:Label text="{dashboardData.couponsSent}" styleName="dashboardDataLabel" minWidth="50" />
-				</mx:HBox>
-				<mx:HBox> 
-					<mx:Label text="Coupons Redeemed" styleName="dashboardSubLabel1" width="170" />
-					<mx:Label text="{dashboardData.couponsRedeemed}" styleName="dashboardDataLabel" minWidth="50" />
-				</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox id="CouponInfo">
+					<mx:Label text="Coupon Info" styleName="dashboardLabel" />
+					<mx:HBox> 
+						<mx:Label text="Coupons Sent" styleName="dashboardSubLabel1" width="170" />
+						<mx:Label text="{dashboardData.couponsSent}" styleName="dashboardDataLabel" minWidth="50" />
+					</mx:HBox>
+					<mx:HBox> 
+						<mx:Label text="Coupons Redeemed" styleName="dashboardSubLabel1" width="170" />
+						<mx:Label text="{dashboardData.couponsRedeemed}" styleName="dashboardDataLabel" minWidth="50" />
+					</mx:HBox>
+				</mx:VBox>
 			</mx:VBox>
-			<mx:VBox minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
+			<mx:VBox id="MessageStatistics" minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
 				<mx:Label text="Message Statistics" styleName="dashboardLabel" />
 				<mx:Repeater id="MessageCountRepeater"
 							 dataProvider="{messageStatistics}">
@@ -203,36 +94,41 @@
 					</mx:HBox>
 				</mx:Repeater>
 			</mx:VBox>
-			<mx:VBox minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
-				<mx:Label text="Subscriber Info" styleName="dashboardLabel" />
-				<mx:HBox> 
-					<mx:Label text="Contacts" styleName="dashboardSubLabel1" width="120" />
-					<mx:Label text="{contactTotal}" styleName="dashboardDataLabel" minWidth="50" />
-				</mx:HBox>
-				<mx:Repeater id="SubscriberRepeater" dataProvider="{dashboardData.contactCounts}">
+			<mx:VBox  minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
+				<mx:VBox id="SubscriberInfo">
+					<mx:Label text="Subscriber Info" styleName="dashboardLabel" />
 					<mx:HBox> 
-						<mx:Label text="{SubscriberRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel2" width="120" />
-						<mx:Label text="{SubscriberRepeater.currentItem.count}" styleName="dashboardDataLabel" minWidth="50" />
+						<mx:Label text="Contacts" styleName="dashboardSubLabel1" width="120" />
+						<mx:Label text="{contactTotal}" styleName="dashboardDataLabel" minWidth="50" />
 					</mx:HBox>
-				</mx:Repeater>
-				<mx:HBox> 
-					<mx:Label text="Subscribers" styleName="dashboardSubLabel1" width="120" />
-					<mx:Label text="{dashboardData.subscriberCount}" styleName="dashboardDataLabel" minWidth="50" />
-				</mx:HBox>
-				<mx:Label text="Endpoint Info" styleName="dashboardLabel" />
-				<mx:DataGrid dataProvider="{dashboardData.endPointSubscriberCounts}"
-							 showHeaders="false"
-							 resizableColumns="false"
-							 borderStyle="none"
-							 backgroundAlpha="0"
-							 selectable="false" 
-							 styleName="dashboardSubLabel1"
-							 verticalGridLines="false">
-					<mx:columns>
-						<mx:DataGridColumn dataField="key"  width="120"  />
-						<mx:DataGridColumn dataField="value"  minWidth="50" />
-					</mx:columns>
-				</mx:DataGrid>
+					<mx:Repeater id="SubscriberRepeater" dataProvider="{dashboardData.contactCounts}">
+						<mx:HBox> 
+							<mx:Label text="{SubscriberRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel2" width="120" />
+							<mx:Label text="{SubscriberRepeater.currentItem.count}" styleName="dashboardDataLabel" minWidth="50" />
+						</mx:HBox>
+					</mx:Repeater>
+					<mx:HBox> 
+						<mx:Label text="Subscribers" styleName="dashboardSubLabel1" width="120" />
+						<mx:Label text="{dashboardData.subscriberCount}" styleName="dashboardDataLabel" minWidth="50" />
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox id="EndpointInfo">
+					<mx:Label text="Endpoint Info" styleName="dashboardLabel" />
+					<mx:DataGrid dataProvider="{dashboardData.endPointSubscriberCounts}"
+								 showHeaders="false"
+								 resizableColumns="false"
+								 borderStyle="none"
+								 backgroundAlpha="0"
+								 selectable="false" 
+								 styleName="dashboardSubLabel1"
+								 verticalGridLines="false">
+						<mx:columns>
+							<mx:DataGridColumn dataField="key"  width="120"  />
+							<mx:DataGridColumn dataField="value"  minWidth="50" />
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
 			</mx:VBox>
 		</mx:TitleWindow>
 		<mx:HBox right="5" top="7" verticalAlign="middle">
@@ -243,4 +139,4 @@
 				click="refresh()" />
 		</mx:HBox>
 	</mx:Canvas>
-</mx:Canvas>
+</dashboard:BaseSummaryView>
