@@ -223,4 +223,19 @@
 					   method="openPaymentURL"
 					   arguments="{event.paymentURL}"/>
 	</EventHandlers>
+    
+  <!-- Account Activation -->
+    <EventHandlers type="{ClientEvent.ACTIVATE_TWITTER_ACCOUNT}">
+        <RemoteObjectInvoker destination="clientManager"
+                             method="startTwitterAuth"
+                             showBusyCursor="true"
+                             arguments="{event.twitterActiviationCallBackUrl}">
+            <resultHandlers>
+                <MethodInvoker generator="{ClientManager}"
+                               method="activateTwitterAccount"
+                               arguments="{resultObject}" />
+            </resultHandlers>
+        </RemoteObjectInvoker>
+    </EventHandlers>
+    
 </EventMap>

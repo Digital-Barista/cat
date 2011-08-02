@@ -9,9 +9,13 @@
         import com.dbi.cat.common.vo.CouponNodeVO;
         import com.dbi.cat.common.vo.MessageVO;
         import com.dbi.cat.event.ReportingEvent;
+        import com.dbi.controls.CustomMessage;
+        import com.dbi.event.CustomMessageEvent;
         import com.dbi.util.ListUtil;
         
         import flash.sampler.getMemberNames;
+        
+        import mx.controls.Alert;
 			
         [Bindable]
         public var currentEntryCampaign:CampaignVO;
@@ -30,6 +34,19 @@
 			private function refresh():void
 			{
 			}
+        
+      private function confirmRefresh():void
+      {
+          CustomMessage.show("Are you sure you want to reload your current welcome message and discard any changes?",
+              ["Yes", "No"],
+              function(e:CustomMessageEvent):void
+              {
+                  if (e.ButtonText == "Yes")
+                  {
+                      refresh();
+                  }
+              });
+      }
 		]]>
 	</mx:Script>
 	
@@ -68,7 +85,7 @@
 					  top="3" right="200"
 					  width="25" height="25"
 					  toolTip="Refresh"
-					  click="refresh()" />
+					  click="confirmRefresh()" />
 		</mx:HBox>
 	</mx:Canvas>
 </mx:Canvas>

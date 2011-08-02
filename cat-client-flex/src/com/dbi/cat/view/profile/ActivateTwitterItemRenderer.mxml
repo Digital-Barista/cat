@@ -5,6 +5,7 @@
 		<![CDATA[
         import com.dbi.cat.common.constants.EntryPointType;
         import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+        import com.dbi.cat.event.ClientEvent;
         
         override public function set data(value:Object):void
         {
@@ -12,13 +13,20 @@
             if (data)
             {
                 var epd:EntryPointDefinitionVO = data as EntryPointDefinitionVO;
-                var text:String = "N/A";
-                var activated:Boolean = false;
                 if (epd.type == EntryPointType.TWITTER.name)
                 {
-                    Activated.text = "";
-                    Activated.visible = Activated.includeInLayout = false;
-                    Activate.visible = Activate.includeInLayout = !activated;
+                    if (epd.credentials)
+                    {
+                        Activated.text = "Activated";
+                        Activated.visible = Activated.includeInLayout = true;
+                        Activate.visible = Activate.includeInLayout = false;
+                    }
+                    else
+                    {
+                        Activated.text = "";
+                        Activated.visible = Activated.includeInLayout = false;
+                        Activate.visible = Activate.includeInLayout = true;
+                    }
                 }
                 else
                 {
@@ -31,6 +39,11 @@
         
 			private function activate():void
       {
+          // Build callback url
+          var url:String = ExternalInterface.call("function(){return window.location.protocol + '//' + window.location.hostname}");
+          var e:ClientEvent = new ClientEvent(ClientEvent.ACTIVATE_TWITTER_ACCOUNT);
+          e.twitterActiviationCallBackUrl = url;
+          dispatchEvent(e);
       }
 		]]>
 	</mx:Script>

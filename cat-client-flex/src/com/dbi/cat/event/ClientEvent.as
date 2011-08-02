@@ -38,6 +38,8 @@ package com.dbi.cat.event
 		public static const CLOSE_ADD_CREDITS:String = "closeAddCreditsEvent";
 		public static const OPEN_PAYMENT_URL:String = "openPaymentURLEvent";
 		
+    // Account activiation
+    public static const ACTIVATE_TWITTER_ACCOUNT:String = "activateTwitterAccountEvent";
 		
 		public var client:ClientVO;
 		public var clients:ArrayCollection;
@@ -46,6 +48,7 @@ package com.dbi.cat.event
 		public var entryPointDefinition:EntryPointDefinitionVO;
 		
 		public var paymentURL:String;
+    public var twitterActiviationCallBackUrl:String;
 		
 		public function ClientEvent(type:String)
 		{

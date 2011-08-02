@@ -23,6 +23,7 @@ package com.dbi.cat.common.vo
 		public var clientIDs:ArrayCollection;
 		public var restrictionID:Number;
 		public var keywords:ArrayCollection;
+    public var credentials:String;
 		
 		public var accountInformation:Object;
 		
