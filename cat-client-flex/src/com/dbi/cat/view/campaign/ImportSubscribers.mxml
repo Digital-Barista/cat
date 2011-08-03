@@ -41,7 +41,7 @@
 				{
 					var event:ImportEvent = new ImportEvent(ImportEvent.DO_IMPORT);
 					event.contacts = Contacts.Contacts.selectedItems;
-					event.node = currentNode;
+					event.nodeUID = currentNode.uid;
 					dispatchEvent(event);
 				}
 			}
@@ -63,7 +63,7 @@
 				{
 					var event:ImportEvent = new ImportEvent(ImportEvent.IMPORT_FILTER);
 					event.searchCriteria = contactSearchCriteria;
-					event.node = currentNode;
+					event.nodeUID = currentNode.uid;
 					dispatchEvent(event);
 				}
 			}

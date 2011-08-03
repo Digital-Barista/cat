@@ -8,6 +8,7 @@ package com.dbi.cat.common.vo
 		public var entryType:String;
 		public var entryPoint:String;
 		public var keyword:String;
+    public var maxMessages:Number = 0;
 		
 		public function EntryDataVO()
 		{

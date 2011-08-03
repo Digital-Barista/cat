@@ -18,5 +18,6 @@ package com.dbi.cat.common.vo
     public var couponRedemptionCount:Number;
     public var isCoupon:Boolean = false;
     public var couponId:Number;
+    public var entryPointUID:String;
 	}
 }

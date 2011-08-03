@@ -33,7 +33,7 @@
 			arguments="{'Subscribing Contacts'}" />
 		<RemoteObjectInvoker destination="subscriptionManager"
 			method="subscribeContactsToEntryPoint"
-			arguments="{[event.contacts, event.node.uid]}">
+			arguments="{[event.contacts, event.nodeUID]}">
 			<resultHandlers>
 				<MethodInvoker generator="{ImportManager}"
 					method="importSuccessfull" />
@@ -55,7 +55,7 @@
 			arguments="{'Subscribing Contacts'}" />
 		<RemoteObjectInvoker destination="subscriptionManager"
 							 method="subscribeContactFilterToEntryPoint"
-							 arguments="{[event.searchCriteria, event.node.uid]}">
+							 arguments="{[event.searchCriteria, event.nodeUID]}">
 			<resultHandlers>
 				<MethodInvoker generator="{ImportManager}"
 							   method="importSuccessfull" />

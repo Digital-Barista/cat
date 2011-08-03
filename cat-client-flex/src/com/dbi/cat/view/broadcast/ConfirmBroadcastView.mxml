@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-                width="400" height="300"
+                width="400" height="400"
                 showCloseButton="true"
                 close="onClose()" 
                 creationComplete="init()"
@@ -21,10 +21,15 @@
             import com.dbi.controls.CustomMessage;
             import com.dbi.event.CustomMessageEvent;
             
+            import mx.binding.utils.BindingUtils;
             import mx.collections.ArrayCollection;
             import mx.containers.HBox;
             import mx.controls.CheckBox;
             import mx.controls.ComboBox;
+            import mx.controls.Label;
+            import mx.controls.RadioButton;
+            import mx.controls.RadioButtonGroup;
+            import mx.controls.TextInput;
             import mx.validators.Validator;
             
             private const TYPE_MESSAGE:String = "Message";
@@ -80,47 +85,23 @@
                 dispatchEvent(new BroadcastMessageEvent(BroadcastMessageEvent.CLOSE_CONFIRM_BROADCAST_MESSAGE));
             }
             
-            public function getClientEntryPoints(entryPointType:String):ArrayCollection
-            {
-                var ret:ArrayCollection = new ArrayCollection();
-                if (Client.selectedItem != null)
-                {
-                    var clientPK:Number = Client.selectedItem.clientId;
-                    if (clientMap != null &&
-                        clientMap[clientPK] != null)
-                    {
-                        for each (var e:EntryPointDefinitionVO in clientMap[clientPK].entryPoints)
-                        {
-                            if (e.type == entryPointType)
-                            {
-                                ret.addItem(e);
-                            }
-                        }
-                    }
-                }
-                return ret;
-            }
-            
             private function populateEntryTypes():void
             {
                 selectedEntryPointControls.removeAll();
                 EntryPointSelection.removeAllChildren();
                 for each (var type:EntryPointType in currentUser.entryPointTypes)
                 {
-                    var check:CheckBox = new CheckBox();
-                    check.addEventListener(Event.CHANGE, validateSend);
-                    
-                    var combo:FormattedComboBox = new FormattedComboBox();
-                    combo.dataProvider = getClientEntryPoints(type.name);
-                    combo.labelField = "name";
-                    combo.addEventListener(Event.CHANGE, validateSend);
+                    var item:ConfirmEntryTypeItem = new ConfirmEntryTypeItem();
+                    item.entryType = type;
+                    BindingUtils.bindProperty(item, "client", Client, "selectedItem");
+                    item.addEventListener(Event.CHANGE, validateSend);
                     
                     var box:FormItem = new FormItem();
+                    box.setStyle("paddingBottom", 10);
                     box.data = type;
                     box.direction = "horizontal";
                     box.label = type.name;
-                    box.addChild(check);
-                    box.addChild(combo);
+                    box.addChild(item);
                     selectedEntryPointControls.addItem(box);
                     
                     EntryPointSelection.addChild(box);
@@ -165,15 +146,10 @@
                 
                 for each (var item:FormItem in selectedEntryPointControls)
                 {
-                    var entryData:EntryDataVO = new EntryDataVO();
-                    entryData.entryType = EntryPointType(item.data).name;
-                    
-                    var check:CheckBox = CheckBox(item.getChildAt(0));
-                    var combo:FormattedComboBox = FormattedComboBox(item.getChildAt(1));
-                    if (check.selected &&
-                        combo.selectedIndex > -1)
+                    var entryItem:ConfirmEntryTypeItem = ConfirmEntryTypeItem(item.getChildAt(0));
+                    var entryData:EntryDataVO = entryItem.getEntryData();
+                    if (entryData)
                     {
-                        entryData.entryPoint = combo.selectedLabel;
                         ret.addItem(entryData);
                     }
                 }
@@ -214,7 +190,7 @@
     </mx:Form>
     <mx:TextArea text="Select the networks this message should be sent out to"
                  fontSize="16" width="359" textAlign="center" borderStyle="none" backgroundAlpha="0.0" editable="false" x="16.5" y="47"/>
-    <mx:Form id="EntryPointSelection" x="10" y="90" width="372" height="139">
+    <mx:Form id="EntryPointSelection" x="10" width="372" height="239" bottom="35">
     </mx:Form>
     <mx:Button id="Send" label="Send {messageType}"
                left="5" right="5" bottom="5"

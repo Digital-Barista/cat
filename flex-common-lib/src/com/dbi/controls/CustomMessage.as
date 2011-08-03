@@ -84,6 +84,7 @@ package com.dbi.controls
 			TextContainer.setStyle("left", 10);
 			TextContainer.setStyle("top", 10);
 			TextContainer.setStyle("bottom", 50);
+      TextContainer.setStyle("backgroundAlpha", 0);
 			BindingUtils.bindProperty(TextContainer, "htmlText", this, "text");
 			addChild(TextContainer);
 			

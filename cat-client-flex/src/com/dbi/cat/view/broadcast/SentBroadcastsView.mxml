@@ -46,6 +46,7 @@
                 <mx:DataGridColumn headerText="Redemption" dataField="couponRedemptionCount" />
                 <mx:DataGridColumn headerText="Subscribers" dataField="subscriberCount" width="80" />
                 <mx:DataGridColumn headerText="Message" dataField="message" />
+                <mx:DataGridColumn itemRenderer="com.dbi.cat.view.broadcast.SubmitRemainingItemRenderer" width="130" />
             </mx:columns>
         </mx:DataGrid>
     </mx:TitleWindow>

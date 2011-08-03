@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:components="com.dbi.cat.view.components.*">
+    <mx:Script>
+        <![CDATA[
+            import com.dbi.cat.common.constants.EntryPointType;
+            import com.dbi.cat.common.vo.ClientVO;
+            import com.dbi.cat.common.vo.EntryDataVO;
+            import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+            import com.dbi.controls.AdvancedComboBox;
+            
+            import mx.collections.ArrayCollection;
+            
+            [Bindable]
+            private var _entryType:EntryPointType;
+            public function set entryType(value:EntryPointType):void
+            {
+                _entryType = value;
+                getClientEntryPoints();
+                if (value != null)
+                {
+                    sendAllLabel = "Send to all " + value.name + " contacts";
+                }
+            }
+            
+            [Bindable]
+            private var _client:ClientVO;
+            public function set client(value:ClientVO):void
+            {
+                _client = value;
+                getClientEntryPoints();
+            }
+            
+            public var clientMap:Object;
+            
+            [Bindable]
+            private var sendAllLabel:String;
+            
+            [Bindable]
+            private var clientEntryPoints:ArrayCollection;
+            
+            private function getClientEntryPoints():void
+            {
+                var ret:ArrayCollection = new ArrayCollection();
+                if (_client != null &&
+                    _entryType != null)
+                {
+                    var clientPK:Number = _client.clientId;
+                    if (clientMap != null &&
+                        clientMap[clientPK] != null)
+                    {
+                        for each (var e:EntryPointDefinitionVO in clientMap[clientPK].entryPoints)
+                        {
+                            if (e.type == _entryType.name)
+                            {
+                                ret.addItem(e);
+                            }
+                        }
+                    }
+                }
+                clientEntryPoints = ret;
+            }
+            
+            public function getEntryData():EntryDataVO
+            {
+                var ret:EntryDataVO;
+                if (UseEntryPoint.selected)
+                {
+                    ret = new EntryDataVO();
+                    ret.entryType = _entryType.name;
+                    ret.entryPoint = EntryPoint.selectedLabel;
+                    if (SendAll.selected)
+                    {
+                      ret.maxMessages = new Number(NumberToSend.text);
+                    }
+                }
+                return ret;
+            }
+            
+            private function change():void
+            {
+                dispatchEvent(new Event(Event.CHANGE));
+            }
+        ]]>
+    </mx:Script>
+    <mx:HBox>
+        <mx:CheckBox id="UseEntryPoint"
+                     change="change()" />
+        <components:FormattedComboBox id="EntryPoint" dataProvider="{clientEntryPoints}" labelField="name"
+                                      bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
+                                      change="change()"/>
+    </mx:HBox>
+    <mx:HBox>
+        <mx:RadioButtonGroup id="NumberOfContacts"
+                             change="change()" />
+        <mx:RadioButton label="{'Send to all ' + _entryType.name + ' contacts'}" selected="true" />
+    </mx:HBox>
+    <mx:HBox verticalAlign="middle">
+        <mx:RadioButton id="SendAll" label="Send to " />
+        <mx:TextInput id="NumberToSend" width="40" restrict="[0-9]"
+                      change="change()" />
+        <mx:Label text="{' ' + _entryType.name + ' contacts'}"  />
+    </mx:HBox>
+</mx:VBox>

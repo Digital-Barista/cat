@@ -30,6 +30,7 @@
         import com.dbi.cat.view.RecoverPasswordView;
         import com.dbi.cat.view.TestCampaignView;
         import com.dbi.cat.view.broadcast.ConfirmBroadcastView;
+        import com.dbi.cat.view.broadcast.ConfirmEntryTypeItem;
         import com.dbi.cat.view.broadcast.SentBroadcastsView;
         import com.dbi.cat.view.campaign.CampaignInfoEditor;
         import com.dbi.cat.view.campaign.CampaignsView;
@@ -702,6 +703,13 @@
             source="{LoginManager}"
             sourceKey="currentUser"
             targetKey="currentUser" />
+    </Injectors>
+    
+    <Injectors target="{ConfirmEntryTypeItem}">
+        <PropertyInjector
+            source="{ClientManager}"
+            sourceKey="clientMap"
+            targetKey="clientMap" />
     </Injectors>
         
     <Injectors target="{SentBroadcastsView}">

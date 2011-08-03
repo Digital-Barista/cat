@@ -13,7 +13,7 @@ package com.dbi.cat.event
 		public static const CLOSE_IMPORT_SUBSCRIBERS:String = "closeImportSubscribers";
 		
 		public var contacts:Array;
-		public var node:NodeVO;
+		public var nodeUID:String;
 		public var searchCriteria:ContactSearchCriteriaVO;
 			
 		public function ImportEvent(type:String)
