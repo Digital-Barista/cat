@@ -110,7 +110,25 @@
             
             private function confirmSend():void
             {
-                CustomMessage.show("Send this " + messageType + " to all of your contacts?",
+                var message:String = "";
+                for each (var ed:EntryDataVO in selectedEntryData)
+                {
+                    var number:String = "all";
+                    if (ed.maxMessages > 0)
+                    {
+                        number = ed.maxMessages.toString();
+                    }
+                    
+                    if (message.length > 0)
+                    {
+                        message += " and ";
+                    }
+                    message += number + " of your " + ed.entryType + " contacts";
+                    
+                }
+                message = "Send this " + messageType + " to " + message + "?";
+                
+                CustomMessage.show(message,
                   ["Yes", "No"],
                   send);
             }
