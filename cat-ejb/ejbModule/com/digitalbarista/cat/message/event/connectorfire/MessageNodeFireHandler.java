@@ -2,6 +2,7 @@ package com.digitalbarista.cat.message.event.connectorfire;
 
 import javax.ejb.SessionContext;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 
 import com.digitalbarista.cat.business.CampaignMessagePart;
 import com.digitalbarista.cat.business.Connector;
@@ -42,6 +43,8 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 				break;
 			}
 		}
+		em.lock(csl, LockModeType.WRITE);
+		em.refresh(csl);
 		String fromAddress = csl.getLastHitEntryPoint();
 		EntryPointType fromType = csl.getLastHitEntryType();
 

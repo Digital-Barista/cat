@@ -1730,6 +1730,8 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		publish(campaign.getUid());
 		
+		em.clear();
+		
 		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}

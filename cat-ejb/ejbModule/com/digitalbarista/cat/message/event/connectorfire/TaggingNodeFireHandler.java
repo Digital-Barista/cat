@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.ejb.SessionContext;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
@@ -49,6 +50,8 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 				break;
 			}
 		}
+		em.lock(csl, LockModeType.WRITE);
+		em.refresh(csl);
 		EntryPointType ept = csl.getLastHitEntryType();
 		Query q = em.createNamedQuery("contact.by.address.and.client");
 		q.setParameter("address",s.getAddress());

@@ -10,6 +10,7 @@ import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 
 import org.hibernate.LockMode;
 import org.hibernate.Session;
@@ -63,6 +64,8 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 				break;
 			}
 		}
+		em.lock(csl, LockModeType.WRITE);
+		em.refresh(csl);
 		String fromAddress = csl.getLastHitEntryPoint();
 		EntryPointType fromType = csl.getLastHitEntryType();
 
