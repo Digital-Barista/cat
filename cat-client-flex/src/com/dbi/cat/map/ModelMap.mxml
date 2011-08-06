@@ -31,6 +31,8 @@
         import com.dbi.cat.view.TestCampaignView;
         import com.dbi.cat.view.broadcast.ConfirmBroadcastView;
         import com.dbi.cat.view.broadcast.ConfirmEntryTypeItem;
+        import com.dbi.cat.view.broadcast.CouponMessageBroadcastView;
+        import com.dbi.cat.view.broadcast.MessageBroadcastView;
         import com.dbi.cat.view.broadcast.SentBroadcastsView;
         import com.dbi.cat.view.campaign.CampaignInfoEditor;
         import com.dbi.cat.view.campaign.CampaignsView;
@@ -742,5 +744,19 @@
             source="{EntryMessageCampaignManager}"
             sourceKey="currentEntryCampaign"
             targetKey="currentEntryCampaign" />
+    </Injectors>
+    
+    <Injectors target="{CouponMessageBroadcastView}">
+        <PropertyInjector
+            source="{ClientManager}"
+            sourceKey="clients"
+            targetKey="clients" />
+    </Injectors>
+    
+    <Injectors target="{MessageBroadcastView}">
+        <PropertyInjector
+            source="{ClientManager}"
+            sourceKey="clients"
+            targetKey="clients" />
     </Injectors>
 </EventMap>
