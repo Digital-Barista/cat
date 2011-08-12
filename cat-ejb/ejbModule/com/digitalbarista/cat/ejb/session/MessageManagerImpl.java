@@ -35,8 +35,6 @@ import com.digitalbarista.cat.data.EntryPointType;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/MessageManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class MessageManagerImpl implements MessageManager {
 

@@ -77,8 +77,6 @@ import com.google.gdata.util.ServiceException;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/ReportingManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class ReportingManagerImpl implements ReportingManager 
 {

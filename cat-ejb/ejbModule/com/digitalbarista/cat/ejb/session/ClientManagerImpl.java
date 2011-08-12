@@ -59,8 +59,6 @@ import com.digitalbarista.cat.util.SecurityUtil;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/ClientManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @Interceptors(AuditInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class ClientManagerImpl implements ClientManager {

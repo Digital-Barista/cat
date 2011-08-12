@@ -32,7 +32,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaQuery;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -46,6 +49,7 @@ import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.BroadcastInfo;
 import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Campaign;
+import com.digitalbarista.cat.business.CampaignEntryMessage;
 import com.digitalbarista.cat.business.CampaignInfo;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Contact;
@@ -79,6 +83,7 @@ import com.digitalbarista.cat.data.ConnectionPoint;
 import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.ConnectorInfoDO;
 import com.digitalbarista.cat.data.ConnectorType;
+import com.digitalbarista.cat.data.ContactDO;
 import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
@@ -90,7 +95,6 @@ import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
-import com.digitalbarista.cat.ejb.session.interceptor.NodeFillInterceptor;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
 import com.digitalbarista.cat.util.MultiValueMap;
@@ -102,8 +106,6 @@ import com.digitalbarista.cat.util.SecurityUtil;
 
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/CampaignManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @Interceptors({AuditInterceptor.class})
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class CampaignManagerImpl implements CampaignManager {
@@ -1088,7 +1090,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.SaveNode)
-	public void save(Node node) {
+	public Node save(Node node) {
 		CampaignDO camp = getSimpleCampaign(node.getCampaignUID());
 		if(node.getUid()==null)
 			node.setUid(UUID.randomUUID().toString());
@@ -1113,6 +1115,8 @@ public class CampaignManagerImpl implements CampaignManager {
 			
 			em.persist(n);
 			em.persist(cnl);
+			
+			node.copyFrom(n);
 
 		} else {
 			if(camp!=null && !camp.getUID().equals(node.getCampaignUID()))
@@ -1123,7 +1127,9 @@ public class CampaignManagerImpl implements CampaignManager {
 
 			node.copyTo(n);
 			em.persist(n);
+			node.copyFrom(n);
 		}
+		return node;
 	}
 
 	private void recordEntryPointChanges(Node node, CampaignDO camp)
@@ -1313,7 +1319,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
 	@AuditEvent(AuditType.SaveConnection)
-	public void save(Connector connector) {
+	public Connector save(Connector connector) {
 		CampaignDO camp = getSimpleCampaign(connector.getCampaignUID());
 		if(connector.getUid()==null)
 			connector.setUid(UUID.randomUUID().toString());
@@ -1366,6 +1372,8 @@ public class CampaignManagerImpl implements CampaignManager {
 				dest.setConnector(c);
 				em.persist(dest);
 			}
+			
+			connector.copyFrom(c);
 			
 		} else {
 			if(camp!=null && !camp.getUID().equals(connector.getCampaignUID()))
@@ -1425,7 +1433,10 @@ public class CampaignManagerImpl implements CampaignManager {
 			
 			connector.copyTo(c);
 			em.persist(c);
+			connector.copyFrom(c);
 		}
+		
+		return connector;
 	}
 
 	@Override
@@ -1687,7 +1698,39 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
 	public void broadcastMessageSearch(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search) {
-		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
+		List<Contact> contacts=new ArrayList<Contact>();
+		for(EntryData entry : entryPoints)
+		{
+			if(entry.getMaxMessages()!=null && entry.getMaxMessages().intValue()>0)
+			{
+				Criteria crit = session.createCriteria(ContactDO.class,"c");
+				crit.add(Restrictions.eq("c.client.id",clientPK));
+				crit.add(Restrictions.eq("c.type",entry.getEntryType()));
+				crit.add(Restrictions.eq("c.address",entry.getEntryPoint()));
+//				crit.addOrder(new Order("rand",false){
+//					
+//					@Override
+//					public String toSqlString(Criteria arg0, CriteriaQuery arg1)
+//							throws HibernateException {
+//						return "rand()";
+//					}
+//
+//					@Override
+//					public String toString() {
+//						return "rand()";
+//					}
+//				});
+				crit.setMaxResults(entry.getMaxMessages());
+				for(ContactDO contact : (List<ContactDO>)crit.list())
+				{
+					Contact c = new Contact();
+					c.copyFrom(contact);
+					contacts.add(c);
+				}
+			}
+		}
+		if(contacts.size()==0)
+			contacts = contactManager.getContacts(search, null).getResults();
 		broadcastMessage(clientPK, entryPoints, message, contacts);
 	}
 
@@ -1739,21 +1782,206 @@ public class CampaignManagerImpl implements CampaignManager {
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
 	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search) {
-		List<Contact> contacts = contactManager.getContacts(search, null).getResults();
+		List<Contact> contacts=new ArrayList<Contact>();
+		for(EntryData entry : entryPoints)
+		{
+			if(entry.getMaxMessages()!=null && entry.getMaxMessages().intValue()>0)
+			{
+				Criteria crit = session.createCriteria(ContactDO.class,"c");
+				crit.add(Restrictions.eq("c.active", true));
+				crit.add(Restrictions.eq("c.client.id",clientPK));
+				crit.add(Restrictions.eq("c.type",entry.getEntryType()));
+				crit.add(Restrictions.eq("c.address",entry.getEntryPoint()));
+				crit.addOrder(new Order("rand",false){
+					
+					@Override
+					public String toSqlString(Criteria arg0, CriteriaQuery arg1)
+							throws HibernateException {
+						return "rand()";
+					}
+
+					@Override
+					public String toString() {
+						return "rand()";
+					}
+				});
+				crit.setMaxResults(entry.getMaxMessages());
+				for(ContactDO contact : (List<ContactDO>)crit.list())
+				{
+					Contact c = new Contact();
+					c.copyFrom(contact);
+					contacts.add(c);
+				}
+			}
+		}
+		if(contacts.size()==0)
+			contacts = contactManager.getContacts(search, null).getResults();
 		broadcastCoupon(clientPK, entryPoints, coupon, contacts);
 	}
 
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
-  public Campaign loadEntryCampaign(Campaign campaign)
-  {
-	  return null;
-  }
+    public CampaignEntryMessage loadEntryCampaign()
+    {
+		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx, session);
+		if(clientIds.size()!=1)
+			throw new IllegalArgumentException("Unable to determine which client's Entry Campaign to load.");
+		Query q = em.createNamedQuery("entry.campaign");
+		q.setParameter("clientId", clientIds.iterator().next());
+		try
+		{
+			CampaignEntryMessage ret = new CampaignEntryMessage();
+			CampaignDO camp = (CampaignDO)q.getSingleResult();
+			if(camp==null)
+			{
+				ret.setActive(false);
+				return ret;
+			}
+			if(camp.getNodes().size()!=2 || camp.getConnectors().size()!=1)
+				throw new IllegalArgumentException("Welcome message campaigns must contain exactly one immediate connector, one entry node, and one message node.");
+			ret.setActive(true);
+			for(CampaignNodeLinkDO nodeLink : camp.getNodes())
+			{
+				if(nodeLink.getNode().getType()==NodeType.OutgoingEntry)
+				{
+					OutgoingEntryNode entryNode = new OutgoingEntryNode();
+					entryNode.copyFrom(nodeLink.getNode());
+					ret.setEntryData(entryNode.getEntryData());
+				}
+				if(nodeLink.getNode().getType()==NodeType.Coupon)
+				{
+					CouponNode messageNode = new CouponNode();
+					messageNode.copyFrom(nodeLink.getNode());
+					ret.setMessageNode(messageNode);
+				}
+				if(nodeLink.getNode().getType()==NodeType.Message)
+				{
+					MessageNode messageNode = new MessageNode();
+					messageNode.copyFrom(nodeLink.getNode());
+					ret.setMessageNode(messageNode);
+				}
+			}
+			return ret;
+		}
+		catch(NoResultException e)
+		{
+			return new CampaignEntryMessage();
+		}
+    }
 
 	@Override
 	@RolesAllowed({"client","admin","account.manager"})
-  public Campaign saveEntryCampaign(Campaign campaign)
-  {
-	  return null;
-  }
+    public CampaignEntryMessage saveEntryCampaign(CampaignEntryMessage campaignMessage)
+    {
+		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx, session);
+		if(clientIds.size()!=1)
+			throw new IllegalArgumentException("Unable to determine which client's Entry Campaign to create.");
+		Query q = em.createNamedQuery("entry.campaign");
+		q.setParameter("clientId", clientIds.iterator().next());
+		try
+		{
+			CampaignEntryMessage ret = new CampaignEntryMessage();
+			CampaignDO camp = (CampaignDO)q.getSingleResult();
+			if(camp.getNodes().size()!=2 || camp.getConnectors().size()!=1)
+				throw new IllegalArgumentException("Welcome message campaigns must contain exactly one immediate connector, one entry node, and one message node.");
+		
+			String entryUID=null;
+			
+			Campaign existingCamp = getDetailedCampaign(camp.getUID());
+			for(Node node : existingCamp.getNodes())
+			{
+				if(node.getType()==NodeType.OutgoingEntry)
+				{
+					((OutgoingEntryNode)node).setEntryData(campaignMessage.getEntryData());
+					((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setSourceNodeUID(save(node).getUid());
+					entryUID=node.getUid();
+				}
+				if(node.getType()==NodeType.Message)
+				{
+					if(campaignMessage.getMessageNode().getType()!=NodeType.Message)
+					{
+						delete(node);
+						((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(save(campaignMessage.getMessageNode()).getUid());
+					} else {
+						MessageNode mNode = (MessageNode)node;
+						mNode.setMessages(((MessageNode)campaignMessage.getMessageNode()).getMessages());
+						campaignMessage.setMessageNode(save(node));
+					}
+				}
+				if(node.getType()==NodeType.Coupon)
+				{
+					if(campaignMessage.getMessageNode().getType()!=NodeType.Coupon)
+					{
+						delete(node);
+						((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(save(campaignMessage.getMessageNode()).getUid());
+					} else {
+						CouponNode existingCNode = (CouponNode)node;
+						CouponNode newCNode = (CouponNode)campaignMessage.getMessageNode();
+						existingCNode.setAvailableMessages(newCNode.getAvailableMessages());
+						existingCNode.setCouponCode(newCNode.getCouponCode());
+						existingCNode.setExpireDate(newCNode.getExpireDate());
+						existingCNode.setExpireDays(newCNode.getExpireDays());
+						existingCNode.setMaxCoupons(newCNode.getMaxCoupons());
+						existingCNode.setMaxRedemptions(newCNode.getMaxRedemptions());
+						existingCNode.setOfferCode(newCNode.getOfferCode());
+						existingCNode.setUnavailableDate(newCNode.getUnavailableDate());
+						existingCNode.setUnavailableMessages(newCNode.getUnavailableMessages());
+						campaignMessage.setMessageNode(save(node));
+					}
+				}
+			}
+			save(existingCamp.getConnectors().iterator().next());
+			existingCamp.getCampaignInfos().clear();
+			for(EntryData entryData : campaignMessage.getEntryData())
+			{
+				CampaignInfo ci = new CampaignInfo();
+				ci.setEntryType(entryData.getEntryType());
+				ci.setName("autoStartNodeUID");
+				ci.setValue(entryUID);
+				existingCamp.getCampaignInfos().add(ci);
+			}
+			existingCamp = save(existingCamp);
+		}
+		catch(NoResultException e)
+		{
+			Campaign entryCamp = new Campaign();
+			entryCamp.setClientPK(clientIds.iterator().next());
+			entryCamp.setName("Client "+entryCamp.getClientPK()+" Entry Message");
+			entryCamp.setMode(CampaignMode.Normal);
+			entryCamp = save(entryCamp);
+			
+			OutgoingEntryNode entry = new OutgoingEntryNode();
+			entry.setCampaignUID(entryCamp.getUid());
+			entry.setEntryData(campaignMessage.getEntryData());
+			entry = (OutgoingEntryNode)save(entry);
+			
+			campaignMessage.getMessageNode().setCampaignUID(entryCamp.getUid());
+			Node message = save(campaignMessage.getMessageNode());
+			
+			ImmediateConnector connector = new ImmediateConnector();
+			connector.setCampaignUID(entryCamp.getUid());
+			connector.setSourceNodeUID(entry.getUid());
+			connector.setDestinationUID(message.getUid());
+			connector = (ImmediateConnector)save(connector);
+			
+			em.clear();
+			
+			for(EntryData entryData : campaignMessage.getEntryData())
+			{
+				CampaignInfo ci = new CampaignInfo();
+				ci.setEntryType(entryData.getEntryType());
+				ci.setName("autoStartNodeUID");
+				ci.setValue(entry.getUid());
+				entryCamp.getCampaignInfos().add(ci);
+			}
+			save(entryCamp);
+		}
+		return campaignMessage;
+    }
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return super.toString();
+	}
 }

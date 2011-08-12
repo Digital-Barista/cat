@@ -40,8 +40,12 @@ public class CATEventHandlerFactory implements CATEventHandlerFactoryInterface{
 	@PersistenceContext(unitName="cat-data")
 	private EntityManager em;
 
+	@Override
+	public void processEvent(CATEvent e) {
+		getHandler(e.getType()).processEvent(e);
+	}
 	
-	public CATEventHandler getHandler(CATEventType t)
+	private CATEventHandler getHandler(CATEventType t)
 	{
 		switch(t)
 		{
@@ -57,5 +61,4 @@ public class CATEventHandlerFactory implements CATEventHandlerFactoryInterface{
 				throw new IllegalArgumentException("Unknown event type:  No configured factory: "+t.toString());
 		}
 	}
-	
 }

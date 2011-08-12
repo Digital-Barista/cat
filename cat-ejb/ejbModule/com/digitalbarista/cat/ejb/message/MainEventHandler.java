@@ -55,7 +55,7 @@ public class MainEventHandler implements MessageListener {
 			{
 				e.getArgs().put("scheduledDate", ""+om.getLongProperty("JMS_JBOSS_SCHEDULED_DELIVERY"));
 			}
-			handlerFactory.getHandler(e.getType()).processEvent(e);
+			handlerFactory.processEvent(e);
 		} catch (Exception ex) {
 			ctx.setRollbackOnly();
 			ex.printStackTrace();

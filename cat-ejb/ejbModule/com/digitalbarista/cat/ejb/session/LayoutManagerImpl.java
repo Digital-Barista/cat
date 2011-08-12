@@ -30,8 +30,6 @@ import com.digitalbarista.cat.util.SecurityUtil;
 
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/LayoutManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class LayoutManagerImpl implements LayoutManager {
 

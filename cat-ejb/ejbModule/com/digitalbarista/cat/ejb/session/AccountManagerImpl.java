@@ -34,8 +34,6 @@ import com.digitalbarista.cat.util.SecurityUtil;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/AccountManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class AccountManagerImpl implements AccountManager {
 

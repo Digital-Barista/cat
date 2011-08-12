@@ -59,8 +59,6 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/ContactManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class ContactManagerImpl implements ContactManager {
 
