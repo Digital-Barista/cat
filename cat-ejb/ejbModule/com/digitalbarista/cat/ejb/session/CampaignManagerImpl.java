@@ -1706,20 +1706,19 @@ public class CampaignManagerImpl implements CampaignManager {
 				Criteria crit = session.createCriteria(ContactDO.class,"c");
 				crit.add(Restrictions.eq("c.client.id",clientPK));
 				crit.add(Restrictions.eq("c.type",entry.getEntryType()));
-				crit.add(Restrictions.eq("c.address",entry.getEntryPoint()));
-//				crit.addOrder(new Order("rand",false){
-//					
-//					@Override
-//					public String toSqlString(Criteria arg0, CriteriaQuery arg1)
-//							throws HibernateException {
-//						return "rand()";
-//					}
-//
-//					@Override
-//					public String toString() {
-//						return "rand()";
-//					}
-//				});
+				crit.addOrder(new Order("rand",false){
+					
+					@Override
+					public String toSqlString(Criteria arg0, CriteriaQuery arg1)
+							throws HibernateException {
+						return "rand()";
+					}
+
+					@Override
+					public String toString() {
+						return "rand()";
+					}
+				});
 				crit.setMaxResults(entry.getMaxMessages());
 				for(ContactDO contact : (List<ContactDO>)crit.list())
 				{
@@ -1788,10 +1787,8 @@ public class CampaignManagerImpl implements CampaignManager {
 			if(entry.getMaxMessages()!=null && entry.getMaxMessages().intValue()>0)
 			{
 				Criteria crit = session.createCriteria(ContactDO.class,"c");
-				crit.add(Restrictions.eq("c.active", true));
 				crit.add(Restrictions.eq("c.client.id",clientPK));
 				crit.add(Restrictions.eq("c.type",entry.getEntryType()));
-				crit.add(Restrictions.eq("c.address",entry.getEntryPoint()));
 				crit.addOrder(new Order("rand",false){
 					
 					@Override
