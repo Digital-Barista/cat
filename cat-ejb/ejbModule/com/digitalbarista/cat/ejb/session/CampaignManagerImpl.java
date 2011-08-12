@@ -1944,7 +1944,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			Campaign entryCamp = new Campaign();
 			entryCamp.setClientPK(clientIds.iterator().next());
 			entryCamp.setName("Client "+entryCamp.getClientPK()+" Entry Message");
-			entryCamp.setMode(CampaignMode.Normal);
+			entryCamp.setMode(CampaignMode.Entry);
 			entryCamp = save(entryCamp);
 			
 			OutgoingEntryNode entry = new OutgoingEntryNode();

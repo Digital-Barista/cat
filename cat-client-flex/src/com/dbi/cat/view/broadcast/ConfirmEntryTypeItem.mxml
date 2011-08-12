@@ -2,14 +2,19 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:components="com.dbi.cat.view.components.*">
     <mx:Script>
         <![CDATA[
-            import com.dbi.cat.common.constants.EntryPointType;
-            import com.dbi.cat.common.vo.ClientVO;
-            import com.dbi.cat.common.vo.EntryDataVO;
-            import com.dbi.cat.common.vo.EntryPointDefinitionVO;
-            import com.dbi.controls.AdvancedComboBox;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.EntryDataVO;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.view.components.EntryDataSelect;
+			import com.dbi.controls.AdvancedComboBox;
+			
+			import mx.collections.ArrayCollection;
+			import mx.utils.StringUtil;
             
-            import mx.collections.ArrayCollection;
-            
+			[Bindable]
+			public var showContactSelect:Boolean = true;
+			
             [Bindable]
             private var _entryType:EntryPointType;
             public function set entryType(value:EntryPointType):void
@@ -37,6 +42,9 @@
             
             [Bindable]
             private var clientEntryPoints:ArrayCollection;
+			
+			[Bindable]
+			private var _entryData:EntryDataVO;
             
             private function getClientEntryPoints():void
             {
@@ -44,26 +52,22 @@
                 if (_client != null &&
                     _entryType != null)
                 {
-                    var clientPK:Number = _client.clientId;
-                    if (clientMap != null &&
-                        clientMap[clientPK] != null)
+                    for each (var e:EntryPointDefinitionVO in _client.entryPoints)
                     {
-                        for each (var e:EntryPointDefinitionVO in clientMap[clientPK].entryPoints)
+                        if (e.type == _entryType.name)
                         {
-                            if (e.type == _entryType.name)
-                            {
-                                ret.addItem(e);
-                            }
+                            ret.addItem(e);
                         }
                     }
                 }
                 clientEntryPoints = ret;
             }
             
-            public function getEntryData():EntryDataVO
+            public function get entryData():EntryDataVO
             {
                 var ret:EntryDataVO;
-                if (UseEntryPoint.selected)
+                if (UseEntryPoint.selected &&
+					EntryPoint.selectedIndex > -1)
                 {
                     ret = new EntryDataVO();
                     ret.entryType = _entryType.name;
@@ -75,6 +79,10 @@
                 }
                 return ret;
             }
+			public function set entryData(value:EntryDataVO):void
+			{
+				_entryData = value;
+			}
             
             private function change():void
             {
@@ -84,20 +92,27 @@
     </mx:Script>
     <mx:HBox>
         <mx:CheckBox id="UseEntryPoint"
+					 selected="{_entryData.entryType == _entryType.name}"
                      change="change()" />
         <components:FormattedComboBox id="EntryPoint" dataProvider="{clientEntryPoints}" labelField="name"
                                       bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
+									  selectedBindingValue="{_entryData.entryPoint}"
+									  selectedBindingProperty="name"
                                       change="change()"/>
     </mx:HBox>
-    <mx:HBox>
-        <mx:RadioButtonGroup id="NumberOfContacts"
-                             change="change()" />
-        <mx:RadioButton label="{'Send to all ' + _entryType.name + ' contacts'}" selected="true" />
-    </mx:HBox>
-    <mx:HBox verticalAlign="middle">
-        <mx:RadioButton id="SendAll" label="Send to " />
-        <mx:TextInput id="NumberToSend" width="40" restrict="[0-9]"
-                      change="change()" />
-        <mx:Label text="{' ' + _entryType.name + ' contacts'}"  />
-    </mx:HBox>
+	<mx:VBox id="ContactSelect"
+			   visible="{showContactSelect}"
+			   includeInLayout="{showContactSelect}">
+	    <mx:HBox>
+	        <mx:RadioButtonGroup id="NumberOfContacts"
+	                             change="change()" />
+	        <mx:RadioButton label="{'Send to all ' + _entryType.name + ' contacts'}" selected="true" />
+	    </mx:HBox>
+	    <mx:HBox verticalAlign="middle">
+	        <mx:RadioButton id="SendAll" label="Send to " />
+	        <mx:TextInput id="NumberToSend" width="40" restrict="[0-9]"
+	                      change="change()" />
+	        <mx:Label text="{' ' + _entryType.name + ' contacts'}"  />
+	    </mx:HBox>
+	</mx:VBox>
 </mx:VBox>

@@ -23,11 +23,11 @@
                        arguments="{ServiceStatusMessage.LOAD_ENTRY_CAMPAIGN_MESSAGE}" />
         <RemoteObjectInvoker 
             destination="campaignManager"
-            method="getEntryCampaign"
+            method="loadEntryCampaign"
             showBusyCursor="true">
             <resultHandlers>
                 <MethodInvoker generator="{EntryMessageCampaignManager}"
-                               method="loadEntryCampaign"
+                               method="loadEntryMessageCampaign"
                                arguments="{resultObject}" />
                 <MethodInvoker
                     generator="{AppManager}"
@@ -52,11 +52,11 @@
           arguments="{['Saving...']}" />
 		<RemoteObjectInvoker destination="campaignManager"
 							 method="saveEntryCampaign"
-							 arguments="{event.campaign}"
+							 arguments="{event.campaignEntryMessage}"
 							 showBusyCursor="true">
 			<resultHandlers>
 				<MethodInvoker generator="{EntryMessageCampaignManager}"
-							   method="saveEntryCampaign"
+							   method="saveEntryMessageCampaign"
 							   arguments="{resultObject}" />
           <InlineInvoker
               method="LoadingMessageView.hide" />
