@@ -855,8 +855,18 @@ public class CampaignManagerImpl implements CampaignManager {
 				CampaignInfoDO ciDO = null;
 				if (ci.getCampaignInfoId() != null)
 					ciDO = em.find(CampaignInfoDO.class, ci.getCampaignInfoId());
-				if (ciDO == null)
-					ciDO = new CampaignInfoDO();
+				else if (ciDO == null)
+				{
+					Query q = em.createNamedQuery("autostart.info.by.unique.key");
+					q.setParameter("campaignId", camp.getPrimaryKey());
+					q.setParameter("entryType", ci.getEntryType());
+					try
+					{
+						ciDO = (CampaignInfoDO)q.getSingleResult();
+					}catch(NoResultException ex)
+					{ciDO = new CampaignInfoDO();}
+				}
+					
 
 				
 				// Update and persist object
@@ -1829,16 +1839,11 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			CampaignEntryMessage ret = new CampaignEntryMessage();
 			CampaignDO camp = (CampaignDO)q.getSingleResult();
-			if(camp==null)
-			{
-				ret.setActive(false);
-				return ret;
-			}
-			if(camp.getNodes().size()!=2 || camp.getConnectors().size()!=1)
-				throw new IllegalArgumentException("Welcome message campaigns must contain exactly one immediate connector, one entry node, and one message node.");
 			ret.setActive(true);
 			for(CampaignNodeLinkDO nodeLink : camp.getNodes())
 			{
+				if(nodeLink.getVersion().intValue()!=camp.getCurrentVersion())
+					continue;
 				if(nodeLink.getNode().getType()==NodeType.OutgoingEntry)
 				{
 					OutgoingEntryNode entryNode = new OutgoingEntryNode();
@@ -1879,8 +1884,6 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			CampaignEntryMessage ret = new CampaignEntryMessage();
 			CampaignDO camp = (CampaignDO)q.getSingleResult();
-			if(camp.getNodes().size()!=2 || camp.getConnectors().size()!=1)
-				throw new IllegalArgumentException("Welcome message campaigns must contain exactly one immediate connector, one entry node, and one message node.");
 		
 			String entryUID=null;
 			
@@ -1898,9 +1901,11 @@ public class CampaignManagerImpl implements CampaignManager {
 					if(campaignMessage.getMessageNode().getType()!=NodeType.Message)
 					{
 						delete(node);
+						campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
 						((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(save(campaignMessage.getMessageNode()).getUid());
 					} else {
 						MessageNode mNode = (MessageNode)node;
+						mNode.setMessage(((MessageNode)campaignMessage.getMessageNode()).getMessage());
 						mNode.setMessages(((MessageNode)campaignMessage.getMessageNode()).getMessages());
 						campaignMessage.setMessageNode(save(node));
 					}
@@ -1910,10 +1915,12 @@ public class CampaignManagerImpl implements CampaignManager {
 					if(campaignMessage.getMessageNode().getType()!=NodeType.Coupon)
 					{
 						delete(node);
+						campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
 						((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(save(campaignMessage.getMessageNode()).getUid());
 					} else {
 						CouponNode existingCNode = (CouponNode)node;
 						CouponNode newCNode = (CouponNode)campaignMessage.getMessageNode();
+						existingCNode.setAvailableMessage(newCNode.getAvailableMessage());
 						existingCNode.setAvailableMessages(newCNode.getAvailableMessages());
 						existingCNode.setCouponCode(newCNode.getCouponCode());
 						existingCNode.setExpireDate(newCNode.getExpireDate());
@@ -1922,22 +1929,42 @@ public class CampaignManagerImpl implements CampaignManager {
 						existingCNode.setMaxRedemptions(newCNode.getMaxRedemptions());
 						existingCNode.setOfferCode(newCNode.getOfferCode());
 						existingCNode.setUnavailableDate(newCNode.getUnavailableDate());
+						existingCNode.setUnavailableMessage(newCNode.getUnavailableMessage());
 						existingCNode.setUnavailableMessages(newCNode.getUnavailableMessages());
 						campaignMessage.setMessageNode(save(node));
 					}
 				}
 			}
+			em.flush();
+			em.clear();
 			save(existingCamp.getConnectors().iterator().next());
-			existingCamp.getCampaignInfos().clear();
+			for(CampaignInfo ci : existingCamp.getCampaignInfos())
+				if(ci.getName().equals("autoStartNodeUID"))
+					ci.setValue(null);
 			for(EntryData entryData : campaignMessage.getEntryData())
 			{
-				CampaignInfo ci = new CampaignInfo();
-				ci.setEntryType(entryData.getEntryType());
-				ci.setName("autoStartNodeUID");
-				ci.setValue(entryUID);
-				existingCamp.getCampaignInfos().add(ci);
+				CampaignInfo selectedCI = null;
+				for(CampaignInfo ci : existingCamp.getCampaignInfos())
+				{
+					if(ci.getEntryType()==entryData.getEntryType() && ci.getName().equals("autoStartNodeUID"))
+					{
+						selectedCI = ci;
+						break;
+					}
+				}
+				if(selectedCI==null)
+				{
+					selectedCI = new CampaignInfo();
+					selectedCI.setCampaignId(existingCamp.getPrimaryKey());
+					selectedCI.setEntryType(entryData.getEntryType());
+					selectedCI.setName("autoStartNodeUID");
+					existingCamp.getCampaignInfos().add(selectedCI);
+
+				}
+				selectedCI.setValue(entryUID);
 			}
 			existingCamp = save(existingCamp);
+			publish(existingCamp.getUid());
 		}
 		catch(NoResultException e)
 		{
@@ -1972,6 +1999,7 @@ public class CampaignManagerImpl implements CampaignManager {
 				entryCamp.getCampaignInfos().add(ci);
 			}
 			save(entryCamp);
+			publish(entryCamp.getUid());
 		}
 		return campaignMessage;
     }
