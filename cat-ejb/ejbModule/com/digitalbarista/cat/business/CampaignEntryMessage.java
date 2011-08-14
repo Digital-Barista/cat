@@ -6,7 +6,7 @@ public class CampaignEntryMessage {
 
 	private Node messageNode;
 	private boolean active;
-private List<EntryData> entryData;
+	private List<EntryData> entryData;
 	
 	public Node getMessageNode() {
 		return messageNode;

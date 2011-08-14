@@ -1839,7 +1839,8 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			CampaignEntryMessage ret = new CampaignEntryMessage();
 			CampaignDO camp = (CampaignDO)q.getSingleResult();
-			ret.setActive(true);
+			if(camp.getCampaignInfos()!=null && camp.getCampaignInfos().size()>0)
+				ret.setActive(true);
 			for(CampaignNodeLinkDO nodeLink : camp.getNodes())
 			{
 				if(nodeLink.getVersion().intValue()!=camp.getCurrentVersion())
@@ -1961,7 +1962,8 @@ public class CampaignManagerImpl implements CampaignManager {
 					existingCamp.getCampaignInfos().add(selectedCI);
 
 				}
-				selectedCI.setValue(entryUID);
+				if(campaignMessage.isActive()) //This will keep autostart entries from being made if the welcome message is deactivated.
+					selectedCI.setValue(entryUID);
 			}
 			existingCamp = save(existingCamp);
 			publish(existingCamp.getUid());
