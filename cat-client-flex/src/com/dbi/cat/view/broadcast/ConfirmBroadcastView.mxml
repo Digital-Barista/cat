@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-                width="400" height="300"
+                width="400" height="400"
                 showCloseButton="true"
                 close="onClose()" 
                 creationComplete="init()"
@@ -21,21 +21,20 @@
             import com.dbi.controls.CustomMessage;
             import com.dbi.event.CustomMessageEvent;
             
+            import mx.binding.utils.BindingUtils;
             import mx.collections.ArrayCollection;
             import mx.containers.HBox;
             import mx.controls.CheckBox;
             import mx.controls.ComboBox;
+            import mx.controls.Label;
+            import mx.controls.RadioButton;
+            import mx.controls.RadioButtonGroup;
+            import mx.controls.TextInput;
             import mx.validators.Validator;
             
             private const TYPE_MESSAGE:String = "Message";
             private const TYPE_COUPON:String = "Coupon";
             
-            [Bindable]
-            public var clients:ArrayCollection;
-            public var clientMap:Object;
-            
-            
-            public var currentUser:UserVO;
             
             [Bindable]
             private var _message:MessageVO;
@@ -67,12 +66,9 @@
                 return "";
             }
             
-            // Keep track of selected entry points for validation and send
-            private var selectedEntryPointControls:ArrayCollection = new ArrayCollection();
             
             private function init():void
             {
-                populateEntryTypes();
                 validateSend();
             }
             private function onClose():void
@@ -80,56 +76,28 @@
                 dispatchEvent(new BroadcastMessageEvent(BroadcastMessageEvent.CLOSE_CONFIRM_BROADCAST_MESSAGE));
             }
             
-            public function getClientEntryPoints(entryPointType:String):ArrayCollection
-            {
-                var ret:ArrayCollection = new ArrayCollection();
-                if (Client.selectedItem != null)
-                {
-                    var clientPK:Number = Client.selectedItem.clientId;
-                    if (clientMap != null &&
-                        clientMap[clientPK] != null)
-                    {
-                        for each (var e:EntryPointDefinitionVO in clientMap[clientPK].entryPoints)
-                        {
-                            if (e.type == entryPointType)
-                            {
-                                ret.addItem(e);
-                            }
-                        }
-                    }
-                }
-                return ret;
-            }
-            
-            private function populateEntryTypes():void
-            {
-                selectedEntryPointControls.removeAll();
-                EntryPointSelection.removeAllChildren();
-                for each (var type:EntryPointType in currentUser.entryPointTypes)
-                {
-                    var check:CheckBox = new CheckBox();
-                    check.addEventListener(Event.CHANGE, validateSend);
-                    
-                    var combo:FormattedComboBox = new FormattedComboBox();
-                    combo.dataProvider = getClientEntryPoints(type.name);
-                    combo.labelField = "name";
-                    combo.addEventListener(Event.CHANGE, validateSend);
-                    
-                    var box:FormItem = new FormItem();
-                    box.data = type;
-                    box.direction = "horizontal";
-                    box.label = type.name;
-                    box.addChild(check);
-                    box.addChild(combo);
-                    selectedEntryPointControls.addItem(box);
-                    
-                    EntryPointSelection.addChild(box);
-                }
-            }
             
             private function confirmSend():void
             {
-                CustomMessage.show("Send this " + messageType + " to all of your contacts?",
+                var message:String = "";
+                for each (var ed:EntryDataVO in EntryDataSelectForm.entryDatas)
+                {
+                    var number:String = "all";
+                    if (ed.maxMessages > 0)
+                    {
+                        number = ed.maxMessages.toString();
+                    }
+                    
+                    if (message.length > 0)
+                    {
+                        message += " and ";
+                    }
+                    message += number + " of your " + ed.entryType + " contacts";
+                    
+                }
+                message = "Send this " + messageType + " to " + message + "?";
+                
+                CustomMessage.show(message,
                   ["Yes", "No"],
                   send);
             }
@@ -150,8 +118,8 @@
                         event = new BroadcastMessageEvent(BroadcastMessageEvent.SEND_BROADCAST_MESSAGE);
                         event.message = _message;
                     }
-                    event.clientID = Client.selectedItem.clientId;
-                    event.entryDatas = selectedEntryData;
+                    event.clientID = EntryDataSelectForm.selectedClientId;
+                    event.entryDatas = EntryDataSelectForm.entryDatas;
                     event.search = new ContactSearchCriteriaVO();
                     
                     dispatchEvent(event);
@@ -159,63 +127,18 @@
                 }
             }
             
-            private function get selectedEntryData():ArrayCollection
-            {
-                var ret:ArrayCollection = new ArrayCollection();
-                
-                for each (var item:FormItem in selectedEntryPointControls)
-                {
-                    var entryData:EntryDataVO = new EntryDataVO();
-                    entryData.entryType = EntryPointType(item.data).name;
-                    
-                    var check:CheckBox = CheckBox(item.getChildAt(0));
-                    var combo:FormattedComboBox = FormattedComboBox(item.getChildAt(1));
-                    if (check.selected &&
-                        combo.selectedIndex > -1)
-                    {
-                        entryData.entryPoint = combo.selectedLabel;
-                        ret.addItem(entryData);
-                    }
-                }
-                return ret;
-            }
             private function validateSend(e:Event=null):void
             {
-                var valid:Boolean = true;
-                if (Client.selectedIndex < 0)
-                {
-                    valid = false;
-                }
-                
-                valid = valid && selectedEntryData.length > 0;
-                Send.enabled = valid;
+                Send.enabled = EntryDataSelectForm.validateData();
             }
             
-            private function changeClient():void
-            {
-                populateEntryTypes();
-                validateSend();
-            }
         ]]>
     </mx:Script>
     
-    <mx:Form id="SendInfo">
-        <mx:FormItem id="ClientField" label="Client">
-            <components:FormattedComboBox
-                id="Client"
-                dataProvider="{clients}"
-                selectedBindingProperty="clientId"
-                labelField="name" 
-                bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
-                y="249" horizontalCenter="250"
-                change="changeClient()" />
-        </mx:FormItem>
-        
-    </mx:Form>
     <mx:TextArea text="Select the networks this message should be sent out to"
-                 fontSize="16" width="359" textAlign="center" borderStyle="none" backgroundAlpha="0.0" editable="false" x="16.5" y="47"/>
-    <mx:Form id="EntryPointSelection" x="10" y="90" width="372" height="139">
-    </mx:Form>
+                 fontSize="16" width="359" textAlign="center" borderStyle="none" backgroundAlpha="0.0" editable="false" x="16.5" top="10"/>
+    <components:EntryDataSelect id="EntryDataSelectForm"
+								change="validateSend()"  top="53" left="0" right="0" bottom="35"/>
     <mx:Button id="Send" label="Send {messageType}"
                left="5" right="5" bottom="5"
                click="confirmSend()" />

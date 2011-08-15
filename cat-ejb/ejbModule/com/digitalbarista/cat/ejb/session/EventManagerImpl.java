@@ -32,8 +32,6 @@ import com.digitalbarista.cat.message.event.CATEvent;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/EventManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class EventManagerImpl implements EventManager {
 
@@ -46,7 +44,6 @@ public class EventManagerImpl implements EventManager {
 	@Resource(mappedName="java:/JmsXA")
 	private ConnectionFactory cf;
 	
-    @RolesAllowed("admin")
     public void queueEvent(CATEvent e){
     	Connection conn=null;
     	Session sess=null;
@@ -74,7 +71,6 @@ public class EventManagerImpl implements EventManager {
     	}
     }
 
-    @RolesAllowed("admin")
     public void queueEventForScheduledDelivery(CATEvent e, Date scheduledDate){
     	Connection conn=null;
     	Session sess=null;

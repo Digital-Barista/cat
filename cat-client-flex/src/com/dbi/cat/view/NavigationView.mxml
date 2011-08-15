@@ -31,7 +31,7 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Label text="CAT" styleName="headerTitle"
+	<mx:Label text="" styleName="headerTitle"
 			  verticalCenter="0"
 			  left="10" />
 	<navigation:MultiCampaignSelect />

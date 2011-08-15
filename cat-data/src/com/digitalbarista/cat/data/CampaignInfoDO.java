@@ -12,10 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Entity implementation class for Entity: CampaignInfoDO
@@ -24,6 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name="campaign_info")
+@NamedQuery(name="autostart.info.by.unique.key",query="select ci from CampaignInfoDO ci where ci.campaign.id=:campaignId and name='autoStartNodeUID' and ci.entryType=:entryType")
 public class CampaignInfoDO implements Serializable,DataObject {
 
 	public final static String KEY_AUTO_START_NODE_UID = "autoStartNodeUID";

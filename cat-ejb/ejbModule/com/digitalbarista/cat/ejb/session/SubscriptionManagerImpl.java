@@ -56,8 +56,6 @@ import flex.messaging.io.ArrayCollection;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/SubscriptionManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class SubscriptionManagerImpl implements SubscriptionManager {
 

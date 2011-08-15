@@ -39,7 +39,8 @@ import org.hibernate.annotations.LazyCollectionOption;
 @NamedQueries({
 	@NamedQuery(name = "campaign.by.uuid", query = "select c from CampaignDO c where c.UID=:uuid"),
 	@NamedQuery(name = "campaign.by.status", query ="select c from CampaignDO c where c.status=:status"),
-	@NamedQuery(name = "campaign.by.status.with.security", query ="select c from CampaignDO c where c.status=:status and c.client.id in (:clientIds)")
+	@NamedQuery(name = "campaign.by.status.with.security", query ="select c from CampaignDO c where c.status=:status and c.client.id in (:clientIds)"),
+	@NamedQuery(name = "entry.campaign", query = "select distinct c from CampaignDO c where c.mode='Entry' and c.client.id=:clientId")
 })
 public class CampaignDO implements Serializable,DataObject {
 	

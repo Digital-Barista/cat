@@ -49,6 +49,7 @@ import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.KeywordDO;
 import com.digitalbarista.cat.data.KeywordLimitDO;
 import com.digitalbarista.cat.data.ReservedKeywordDO;
+import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
 import com.digitalbarista.cat.exception.FlexException;
 import com.digitalbarista.cat.twitter.mbean.TwitterPollCoordinator;
 import com.digitalbarista.cat.util.SecurityUtil;
@@ -58,8 +59,6 @@ import com.digitalbarista.cat.util.SecurityUtil;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/ClientManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @Interceptors(AuditInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class ClientManagerImpl implements ClientManager {
@@ -211,19 +210,16 @@ public class ClientManagerImpl implements ClientManager {
 	public Client save(Client client) {
 		if(client==null)
 			throw new IllegalArgumentException("Cannot save a null client.");
-		
-
-		// Make sure they have access to this client
-		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, null);
-		if (!allowedClientIds.contains(client.getClientId()))
+				
+		ClientDO c = em.find(ClientDO.class, client.getClientId());
+		if(c == null && ctx.isCallerInRole("admin"))
+		{
+			c = new ClientDO();
+		} else if (!SecurityUtil.getAllowedClientIDs(ctx, session, null).contains(client.getClientId()))
 		{
 			throw new SecurityException("You do not have permission to edit this client");
 		}
-		
-		
-		ClientDO c = em.find(ClientDO.class, client.getClientId());
-		if(c == null)
-			c = new ClientDO();
+
 		client.copyTo(c);
 		EntryPointDO ep;
 		if(client.getEntryPoints()!=null)
@@ -321,7 +317,7 @@ public class ClientManagerImpl implements ClientManager {
 		em.flush();
 
 		// Requery client to send back up to date object
-		c = em.find(ClientDO.class, client.getClientId());
+		c = em.find(ClientDO.class, c.getPrimaryKey());
 		Client ret = new Client();
 		ret.copyFrom(c);
 		return ret;

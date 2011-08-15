@@ -32,8 +32,6 @@ import com.digitalbarista.cat.timer.CATTimer;
  */
 @Stateless
 @LocalBinding(jndiBinding="ejb/cat/EventTimerManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class EventTimerManagerImpl implements EventTimerManager {
 

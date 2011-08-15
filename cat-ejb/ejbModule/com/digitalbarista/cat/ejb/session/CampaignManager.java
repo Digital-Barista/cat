@@ -17,6 +17,7 @@ import org.jboss.resteasy.annotations.providers.jaxb.WrappedMap;
 
 import com.digitalbarista.cat.business.BroadcastInfo;
 import com.digitalbarista.cat.business.Campaign;
+import com.digitalbarista.cat.business.CampaignEntryMessage;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.CouponNode;
@@ -74,7 +75,7 @@ public interface CampaignManager {
 	public NodeDO getSimpleNode(String nodeUUID);
 	@Path("/nodes")
 	@POST
-	public void save(Node node);
+	public Node save(Node node);
 	public void delete(Node node);
 	@Path("/nodes/{uid}")
 	@DELETE
@@ -89,7 +90,7 @@ public interface CampaignManager {
 	public ConnectorDO getSimpleConnector(String connectorUUID);
 	@Path("/connectors")
 	@POST
-	public void save(Connector connector);
+	public Connector save(Connector connector);
 	public void delete(Connector connector);
 	@Path("/connectors/{uid}")
 	@DELETE
@@ -115,6 +116,6 @@ public interface CampaignManager {
 	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts);
 	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search);
 	
-	public Campaign loadEntryCampaign(Campaign campaign);
-	public Campaign saveEntryCampaign(Campaign campaign);
+	public CampaignEntryMessage loadEntryCampaign();
+	public CampaignEntryMessage saveEntryCampaign(CampaignEntryMessage campaign);
 }

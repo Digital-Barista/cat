@@ -4,5 +4,5 @@ import javax.ejb.Local;
 
 @Local
 public interface CATEventHandlerFactoryInterface {
-	public CATEventHandler getHandler(CATEventType t);
+	public void processEvent(CATEvent e);
 }

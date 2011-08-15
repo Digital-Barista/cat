@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		   creationComplete="init()" xmlns:components="com.dbi.cat.view.components.*">
+	<mx:Metadata>
+		[Event(name="change")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.EntryDataVO;
+			import com.dbi.cat.common.vo.UserVO;
+			import com.dbi.cat.view.broadcast.ConfirmEntryTypeItem;
+			import com.dbi.controls.AdvancedComboBox;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			public var clientMap:Object;
+			public var currentUser:UserVO;
+			
+			[Bindable]
+			public var showContactSelect:Boolean = true;
+			
+			// Keep track of selected entry points for validation
+			private var selectedEntryPointControls:ArrayCollection = new ArrayCollection();
+			
+			// Values to preselect
+			[Bindable]
+			private var _entryDatas:ArrayCollection;
+			public function set entryDatas(value:ArrayCollection):void
+			{
+				_entryDatas = value;
+				populateEntryTypes();
+			}
+			
+			public function get entryDatas():ArrayCollection
+			{
+				var ret:ArrayCollection = new ArrayCollection();
+				
+				for each (var item:FormItem in selectedEntryPointControls)
+				{
+					var entryItem:ConfirmEntryTypeItem = ConfirmEntryTypeItem(item.getChildAt(0));
+					var entryData:EntryDataVO = entryItem.entryData;
+					if (entryData)
+					{
+						ret.addItem(entryData);
+					}
+				}
+				return ret;
+			}
+			
+			private function init():void
+			{
+				populateEntryTypes();
+			}
+			
+			private function populateEntryTypes():void
+			{
+				selectedEntryPointControls.removeAll();
+				for (var i:int = EntryPointSelection.getChildren().length - 1; i >= 0; i--)
+				{
+					var child:FormItem = EntryPointSelection.getChildAt(i) as FormItem;
+					if (child.id != "ClientField")
+					{
+						EntryPointSelection.removeChildAt(i);
+					}
+				}
+				for each (var type:EntryPointType in currentUser.entryPointTypes)
+				{
+					var item:ConfirmEntryTypeItem = new ConfirmEntryTypeItem();
+					item.entryType = type;
+					BindingUtils.bindProperty(item, "client", Client, "selectedItem");
+					BindingUtils.bindProperty(item, "showContactSelect", this, "showContactSelect");
+					item.addEventListener(Event.CHANGE, changeEntryData);
+					
+					// Add entry data if supplied
+					for each (var data:EntryDataVO in _entryDatas)
+					{
+						if (type.name == data.entryType)
+						{
+							item.entryData = data;
+							break;
+						}
+					}
+					
+					var box:FormItem = new FormItem();
+					box.setStyle("paddingBottom", 10);
+					box.data = type;
+					box.direction = "horizontal";
+					box.label = type.name;
+					box.addChild(item);
+					selectedEntryPointControls.addItem(box);
+					
+					EntryPointSelection.addChild(box);
+				}
+			}
+			
+			
+			private function changeClient():void
+			{
+				populateEntryTypes();
+				dispatchEvent(new Event(Event.CHANGE));
+			}
+			
+			private function changeEntryData(e:Event):void
+			{
+				dispatchEvent(new Event(Event.CHANGE));
+			}
+			
+			
+			public function validateData():Boolean
+			{
+				if (Client.selectedIndex > -1 &&
+					entryDatas.length > 0)
+				{
+					return true;
+				}
+				return false;
+			}
+			
+			public function get selectedClientId():Number
+			{
+				return Client.selectedItem.clientId;
+			}
+		]]>
+	</mx:Script>
+	<mx:Form id="EntryPointSelection" >
+		<mx:FormItem id="ClientField" label="Client">
+			<components:FormattedComboBox
+				id="Client"
+				dataProvider="{clients}"
+				selectedBindingProperty="clientId"
+				labelField="name" 
+				bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
+				y="249" horizontalCenter="250"
+				change="changeClient()" />
+		</mx:FormItem>
+	</mx:Form>
+	
+</mx:VBox>

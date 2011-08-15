@@ -42,8 +42,6 @@ import com.digitalbarista.cat.util.SecurityUtil;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/CouponManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @Interceptors(AuditInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class CouponManagerImpl implements CouponManager {

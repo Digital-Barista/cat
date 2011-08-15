@@ -97,22 +97,24 @@
 			<mx:FormItem label="Organization">
 				<mx:Label text="{client.name}" />
 			</mx:FormItem>
-			<mx:FormItem label="Contatct Name">
+			<mx:FormItem label="Contact Name">
 				<mx:TextInput id="ContactName"  width="300"
 					text="{client.contactName}"
 					change="{client.contactName = ContactName.text}" />
 			</mx:FormItem>
-			<mx:FormItem label="Contatct Email">
+			<mx:FormItem label="Contact Email">
 				<mx:TextInput id="ContactEmail"  width="300"
 					text="{client.contactEmail}"
 					change="{client.contactEmail = ContactEmail.text}"/>
 			</mx:FormItem>
-			<mx:FormItem label="Contatct Phone">
+			<mx:FormItem label="Contact Phone">
 				<mx:TextInput id="ContactPhone"  width="300"
 					text="{client.contactPhone}"
 					change="{client.contactPhone = ContactPhone.text}"/>
 			</mx:FormItem>
-			<mx:FormItem label="Credit Payment URL">
+			<mx:FormItem label="Credit Payment URL"
+						 visible="false"
+						 includeInLayout="false">
 				<mx:TextInput id="PaymentURL"  width="300"
 							  text="{paymentURL}"
 							  change="{changePaymentURL()}"/>

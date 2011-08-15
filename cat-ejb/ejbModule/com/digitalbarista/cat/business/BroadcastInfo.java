@@ -13,6 +13,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 	private Integer couponRedemptionCount;
 	private boolean isCoupon = false;
 	private Long couponId;
+	private String entryPointUID;
 	
 	@Override
 	public void copyFrom(CampaignDO dataObject) {
@@ -41,6 +42,9 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 					couponId=node.getCouponId();
 					break;
 				}
+				case Entry:
+				case OutgoingEntry:
+					entryPointUID = nodeLink.getNode().getUID();
 			}
 		}
 	}
@@ -96,5 +100,16 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 	public void setCouponId(Long couponId) {
 		this.couponId = couponId;
 	}
+
+	public String getEntryPointUID()
+  {
+  	return entryPointUID;
+  }
+
+	public void setEntryPointUID(String entryPointUID)
+  {
+  	this.entryPointUID = entryPointUID;
+  }
+
 
 }

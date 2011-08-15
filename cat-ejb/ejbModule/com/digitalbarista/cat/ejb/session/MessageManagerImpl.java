@@ -26,6 +26,7 @@ import com.digitalbarista.cat.business.MessageNode;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
 import com.digitalbarista.cat.data.CampaignDO;
+import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.EntryPointType;
 
 
@@ -34,8 +35,6 @@ import com.digitalbarista.cat.data.EntryPointType;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/MessageManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class MessageManagerImpl implements MessageManager {
 
@@ -127,26 +126,29 @@ public class MessageManagerImpl implements MessageManager {
 	
 			
 			CampaignDO campaignDO = em.find(CampaignDO.class, campaign.getPrimaryKey());
-			if (campaignDO == null)
-				throw new IllegalArgumentException("The specified campaign does not exist");
-			
-			// Find campaign add in
-			if (campaignDO.getAddInMessages() != null)
+			if (campaignDO != null)
 			{
-				for (AddInMessageDO addDO : campaignDO.getAddInMessages())
+				// Find campaign add in
+				if (campaignDO.getAddInMessages() != null)
 				{
-					if (addDO.getEntryType() == entryType)
+					for (AddInMessageDO addDO : campaignDO.getAddInMessages())
 					{
-						if (addDO.getType() == AddInMessageType.CLIENT)
-							campaignAddIn = addDO.getMessage();
+						if (addDO.getEntryType() == entryType)
+						{
+							if (addDO.getType() == AddInMessageType.CLIENT)
+								campaignAddIn = addDO.getMessage();
+						}
 					}
 				}
 			}
 
+			ClientDO clientDO = em.find(ClientDO.class, campaign.getClientPK());
+			
 			// Find client add ins
-			if (campaignDO.getClient().getAddInMessages() != null)
+			if (clientDO != null &&
+					clientDO.getAddInMessages() != null)
 			{
-				for (AddInMessageDO addDO : campaignDO.getClient().getAddInMessages())
+				for (AddInMessageDO addDO : clientDO.getAddInMessages())
 				{
 					if (addDO.getEntryType() == entryType)
 					{

@@ -1,24 +1,26 @@
 package com.dbi.cat.business
 {
+    import com.dbi.cat.common.vo.CampaignEntryMessageVO;
     import com.dbi.cat.common.vo.CampaignVO;
+    import com.dbi.cat.common.vo.MessageVO;
 
     public class EntryMessageCampaignManager
     {
         [Bindable]
-        public var currentEntryCampaign:CampaignVO;
+        public var currentCampaignEntryMessage:CampaignEntryMessageVO;
         
         public function EntryMessageCampaignManager()
         {
         }
         
-        public function loadEntryMessageCampaign(campaign:CampaignVO):void
+        public function loadEntryMessageCampaign(campaignEntryMessage:CampaignEntryMessageVO):void
         {
-            currentEntryCampaign = campaign;
+			currentCampaignEntryMessage = campaignEntryMessage;
         }
         
-        public function saveEntryMessageCampaign(campaign:CampaignVO):void
+        public function saveEntryMessageCampaign(campaignEntryMessage:CampaignEntryMessageVO):void
         {
-            currentEntryCampaign = campaign;
+			currentCampaignEntryMessage = campaignEntryMessage;
         }
     }
 }

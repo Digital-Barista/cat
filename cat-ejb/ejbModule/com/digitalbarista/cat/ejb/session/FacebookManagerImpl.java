@@ -92,8 +92,6 @@ import com.digitalbarista.cat.message.event.CATEvent;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/FacebookManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class FacebookManagerImpl implements FacebookManager {
 

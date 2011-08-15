@@ -4,10 +4,12 @@ package com.dbi.cat.business
     import com.dbi.cat.common.vo.MessageVO;
     import com.dbi.cat.view.broadcast.ConfirmBroadcastView;
     import com.dbi.cat.view.workspace.WorkspaceView;
+    import com.dbi.controls.CustomMessage;
     
     import flash.display.DisplayObject;
     
     import mx.collections.ArrayCollection;
+    import mx.controls.Alert;
     import mx.core.Application;
     import mx.core.IFlexDisplayObject;
     import mx.managers.PopUpManager;
@@ -27,10 +29,12 @@ package com.dbi.cat.business
 
     public function broadcastMessageResult(result:Object):void
     {
+        CustomMessage.show("Your message has been sent");
     }
     
     public function broadcastCouponMessageResult(result:Object):void
     {
+        CustomMessage.show("Your coupon has been sent");
     }
     
     public function loadBroadcastMessages(result:ArrayCollection):void

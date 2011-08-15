@@ -11,6 +11,7 @@ public class EntryData
 	private EntryPointType entryType;
 	private String entryPoint;
 	private String keyword;
+	private Integer maxMessages = 0;
 	
 	@XmlAttribute
 	public EntryPointType getEntryType() {
@@ -33,4 +34,14 @@ public class EntryData
 	public void setKeyword(String keyword) {
 		this.keyword = keyword;
 	}
+	@XmlAttribute
+	public Integer getMaxMessages()
+  {
+  	return maxMessages;
+  }
+	public void setMaxMessages(Integer maxMessages)
+  {
+  	this.maxMessages = maxMessages;
+  }
+	
 }

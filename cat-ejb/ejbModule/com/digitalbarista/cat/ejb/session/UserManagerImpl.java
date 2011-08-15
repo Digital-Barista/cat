@@ -39,8 +39,6 @@ import com.digitalbarista.cat.util.SecurityUtil;
  */
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/UserManager")
-@RunAsPrincipal("admin")
-@RunAs("admin")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class UserManagerImpl implements UserManager {
 

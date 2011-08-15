@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.ejb.SessionContext;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import org.apache.log4j.LogManager;
@@ -81,6 +82,8 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 				log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
 				return;
 			}
+			getEntityManager().lock(csl, LockModeType.WRITE);
+			getEntityManager().refresh(csl);
 			Node source = getCampaignManager().getSpecificNodeVersion(conn.getSourceNodeUID(), version);
 			String subscriberCurrent=csl.getLastHitNode().getUID();
 			if(source==null || !source.getUid().equals(subscriberCurrent))
@@ -101,6 +104,29 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 			List<SubscriberDO> subs = (List<SubscriberDO>)q.getResultList();
 			for(SubscriberDO s : subs)
 			{
+				CampaignSubscriberLinkDO csl=null;
+				for(CampaignDO subCamp : s.getSubscriptions().keySet())
+				{
+					if(subCamp.getUID().equalsIgnoreCase(conn.getCampaignUID()))
+					{
+						csl=s.getSubscriptions().get(subCamp);
+						break;
+					}
+				}
+				if(csl==null)
+				{
+					log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
+					return;
+				}
+				getEntityManager().lock(csl, LockModeType.WRITE);
+				getEntityManager().refresh(csl);
+				Node source = getCampaignManager().getSpecificNodeVersion(conn.getSourceNodeUID(), version);
+				String subscriberCurrent=csl.getLastHitNode().getUID();
+				if(source==null || !source.getUid().equals(subscriberCurrent))
+				{
+					log.warn("subscriber pk="+csl.getSubscriber().getPrimaryKey()+" is not on node uid="+source.getUid()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
+					return;
+				}
 				ConnectorFireHandler.getHandler(dest.getType())
 					.handle(getEntityManager(), getSessionContext(), conn, dest, version, s, e);
 			}

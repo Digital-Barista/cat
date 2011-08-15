@@ -83,18 +83,20 @@
 			y="249" horizontalCenter="250"
 			change="changeClient()" />
 	</mx:FormItem>
-	<mx:FormItem label="Contatct Name">
+	<mx:FormItem label="Contact Name">
 		<mx:Label text="{client.contactName}" />
 	</mx:FormItem>
-	<mx:FormItem label="Contatct Email">
+	<mx:FormItem label="Contact Email">
 		<mx:Label text="{client.contactEmail}" />
 	</mx:FormItem>
-	<mx:FormItem label="Contatct Phone">
+	<mx:FormItem label="Contact Phone">
 		<mx:Label text="{client.contactPhone}" />
 	</mx:FormItem>
+	<!--
 	<mx:FormItem label="Credit Payment URL">
 		<mx:Label text="{paymentURL}" />
 	</mx:FormItem>
+	-->
 	<mx:TabNavigator id="EntryTypeTabs"
 		width="450" height="300"
 		tabOffset="20">

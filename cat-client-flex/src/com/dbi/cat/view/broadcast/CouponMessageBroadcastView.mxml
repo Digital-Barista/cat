@@ -10,11 +10,15 @@
             import com.dbi.controls.CustomMessage;
             import com.dbi.event.CustomMessageEvent;
             
+            import mx.collections.ArrayCollection;
+            
             [Bindable]
             private var campaign:CampaignVO;
             
             [Bindable]
             private var coupon:CouponNodeVO;
+            
+            public var clients:ArrayCollection;
             
             private function init():void
             {
@@ -23,7 +27,13 @@
             
             private function newBroadcast():void
             {
+                // Need to add client to campaign so preview functions
                 campaign = new CampaignVO();
+                if (clients &&
+                    clients.length > 0)
+                {
+                    campaign.clientPK = clients.getItemAt(0).clientId;
+                }
                 coupon = new CouponNodeVO();
                 coupon.campaignUID = campaign.uid;
             }
