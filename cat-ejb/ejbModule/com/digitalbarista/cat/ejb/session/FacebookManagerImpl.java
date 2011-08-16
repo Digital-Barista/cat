@@ -30,15 +30,11 @@ import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import oauth.signpost.http.HttpRequest;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -93,6 +89,8 @@ import com.digitalbarista.cat.message.event.CATEvent;
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/FacebookManager")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
+@RunAs("admin")
+@RunAsPrincipal("admin")
 public class FacebookManagerImpl implements FacebookManager {
 
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
