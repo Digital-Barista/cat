@@ -14,6 +14,7 @@ package com.dbi.cat.event
 		
 		public var contacts:Array;
 		public var nodeUID:String;
+    public var node:NodeVO;
 		public var searchCriteria:ContactSearchCriteriaVO;
 			
 		public function ImportEvent(type:String)
