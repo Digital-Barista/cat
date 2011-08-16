@@ -68,7 +68,7 @@
 			private function importContacts(e:MouseEvent):void
 			{
 				var event:ImportEvent = new ImportEvent(ImportEvent.OPEN_IMPORT_SUBSCRIBERS);
-				event.nodeUID = outgoingEntryPointVO.uid;
+				event.node = outgoingEntryPointVO;
 				dispatchEvent(event);
 			}
 		]]>
