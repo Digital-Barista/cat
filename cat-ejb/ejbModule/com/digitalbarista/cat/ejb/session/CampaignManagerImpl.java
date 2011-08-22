@@ -1697,9 +1697,13 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		connector = (ImmediateConnector)save(connector);
 
+		em.flush();
 		em.clear();
 
 		publish(campaign.getUid());
+		
+		em.flush();
+		em.clear();
 		
 		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
@@ -1778,10 +1782,12 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		connector = (ImmediateConnector)save(connector);
 
+		em.flush();
 		em.clear();
 		
 		publish(campaign.getUid());
 		
+		em.flush();
 		em.clear();
 		
 		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
