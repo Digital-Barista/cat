@@ -57,6 +57,7 @@ import flex.messaging.io.ArrayCollection;
 @Stateless
 @LocalBinding(jndiBinding = "ejb/cat/SubscriptionManager")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
+@RunAs("admin")
 public class SubscriptionManagerImpl implements SubscriptionManager {
 
 	private Logger logger = LogManager.getLogger(SubscriptionManagerImpl.class);
