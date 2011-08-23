@@ -14,6 +14,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.RoleDO;
+import com.digitalbarista.cat.data.UserDO;
 import com.digitalbarista.cat.ejb.session.CacheAccessManager;
 import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
 import com.digitalbarista.cat.ejb.session.UserManager;
@@ -51,8 +52,6 @@ public class SecurityUtil {
 			return clientIDs;
 
 		clientIDs = new HashSet<Long>();
-		if("guest".equalsIgnoreCase(username))
-			return clientIDs;
 		
 		// If the user is an admin return all "active" client IDs
 		
@@ -65,7 +64,10 @@ public class SecurityUtil {
 		}
 		else
 		{
-			for(RoleDO role : uMan.getSimpleUserByUsername(username).getRoles())
+			UserDO userDO = uMan.getSimpleUserByUsername(username);
+			if(userDO==null)
+				return clientIDs;
+			for(RoleDO role : userDO.getRoles())
 				if(role.getRoleName().equals("account.manager") || role.getRoleName().equals("client"))
 					clientIDs.add(role.getRefId());
 			if(clientIDs.size()==0)
