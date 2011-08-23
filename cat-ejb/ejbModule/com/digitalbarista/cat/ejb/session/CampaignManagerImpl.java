@@ -1682,24 +1682,28 @@ public class CampaignManagerImpl implements CampaignManager {
 		campaign.setClientPK(clientPK);
 		save(campaign);
 		
-		save(message);
+		message = (MessageNode)save(message);
 		
 		OutgoingEntryNode entry = new OutgoingEntryNode();
 		entry.setCampaignUID(campaign.getUid());
 		entry.setEntryData(entryPoints);
 		
-		save(entry);
+		entry = (OutgoingEntryNode)save(entry);
 		
 		ImmediateConnector connector = new ImmediateConnector();
 		connector.setCampaignUID(campaign.getUid());
 		connector.setSourceNodeUID(entry.getUid());
 		connector.setDestinationUID(message.getUid());
 		
-		save(connector);
+		connector = (ImmediateConnector)save(connector);
 
+		em.flush();
 		em.clear();
 
 		publish(campaign.getUid());
+		
+		em.flush();
+		em.clear();
 		
 		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
@@ -1763,25 +1767,27 @@ public class CampaignManagerImpl implements CampaignManager {
 		campaign.setClientPK(clientPK);
 		save(campaign);
 		
-		save(coupon);
+		coupon = (CouponNode)save(coupon);
 		
 		OutgoingEntryNode entry = new OutgoingEntryNode();
 		entry.setCampaignUID(campaign.getUid());
 		entry.setEntryData(entryPoints);
 		
-		save(entry);
+		entry = (OutgoingEntryNode)save(entry);
 		
 		ImmediateConnector connector = new ImmediateConnector();
 		connector.setCampaignUID(campaign.getUid());
 		connector.setSourceNodeUID(entry.getUid());
 		connector.setDestinationUID(coupon.getUid());
 		
-		save(connector);
+		connector = (ImmediateConnector)save(connector);
 
+		em.flush();
 		em.clear();
 		
 		publish(campaign.getUid());
 		
+		em.flush();
 		em.clear();
 		
 		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");

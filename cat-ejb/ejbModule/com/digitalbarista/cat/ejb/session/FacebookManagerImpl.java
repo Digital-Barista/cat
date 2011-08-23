@@ -136,7 +136,6 @@ public class FacebookManagerImpl implements FacebookManager {
 	public List<FacebookMessage> getMessages(String appName, String uid, String signedRequest,
 			UriInfo ui) throws FacebookManagerException 
 	{
-		
 		// Try old way of validating first
 		if (!checkAuthorizationByQuerystring(ui))
 		{

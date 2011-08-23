@@ -390,11 +390,14 @@ public class ClientManagerImpl implements ClientManager {
 		
 		// Make sure they have access to this client
 		List<Long> allowedClientIds = SecurityUtil.getAllowedClientIDs(ctx, session, null);
-		for (int clientId : epd.getClientIDs())
+		if(epd.getClientIDs()!=null)
 		{
-			if (!allowedClientIds.contains(new Long(clientId)))
+			for (int clientId : epd.getClientIDs())
 			{
-				throw new SecurityException("You do not have permission to edit entry points for these clients");
+				if (!allowedClientIds.contains(new Long(clientId)))
+				{
+					throw new SecurityException("You do not have permission to edit entry points for these clients");
+				}
 			}
 		}
 		
