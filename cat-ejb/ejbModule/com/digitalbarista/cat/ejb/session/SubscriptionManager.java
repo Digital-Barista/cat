@@ -14,6 +14,7 @@ import javax.ws.rs.QueryParam;
 
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
+import com.digitalbarista.cat.business.Address;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.Subscriber;
@@ -28,10 +29,15 @@ public interface SubscriptionManager {
 	@Path("/{type}")
 	@GET
 	@Wrapped(element="Addresses")
-	public Set<String> getAllAddresses(@QueryParam("clientid") Long clientId, @PathParam("type") EntryPointType type);
+	public Set<Address> getAllAddressesAsObjects(@QueryParam("clientid") Long clientId, @PathParam("type") EntryPointType type);
+	
+	public Set<String> getAllAddresses(Long clientId, EntryPointType type);
+	
+	public void subscribeToEntryPoint(Set<String> addresses, String entryPointUID, EntryPointType subscriptionType);
+
 	@Path("/{type}/{entryPointUID}")
 	@POST
-	public void subscribeToEntryPoint(@Wrapped(element="Addresses") Set<String> addresses, @PathParam("entryPointUID") String entryPointUID, @PathParam("type") EntryPointType subscriptionType);
+	public void subscribeToEntryPointWithObjects(@Wrapped(element="Addresses") Set<Address> addresses, @PathParam("entryPointUID") String entryPointUID);
 
 	public void subscribeContactsToEntryPoint(@Wrapped(element="Contact") List<Contact> contacts, @PathParam("entryPointUID") String entryPointUID);
 

@@ -3,8 +3,10 @@ package com.digitalbarista.cat.ejb.session;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -26,8 +28,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.security.RunAsPrincipal;
 
+import com.digitalbarista.cat.business.Address;
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.EntryPointDefinition;
@@ -105,6 +107,23 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 				sub.getAddress().length() > 0)
 				ret.add(sub.getAddress());
 		}
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	@PermitAll
+	public Set<Address> getAllAddressesAsObjects(Long clientId, EntryPointType type)
+	{
+		Set<Address> ret = new HashSet<Address>();
+		
+		for(String address : getAllAddresses(clientId,type))
+		{
+			Address a = new Address();
+			a.setType(type);
+			a.setAddress(address);
+			ret.add(a);
+		}
+		
 		return ret;
 	}
 
@@ -225,6 +244,26 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 			CATEvent nodeCompleted = CATEvent.buildNodeOperationCompletedEvent(nodeDO.getUID(), sub.getPrimaryKey().toString());
 			eventManager.queueEvent(nodeCompleted);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@PermitAll
+	public void subscribeToEntryPointWithObjects(Set<Address> addresses, String entryPointUID) 
+	{
+		Map<EntryPointType,Set<String>> typeMap = new HashMap<EntryPointType,Set<String>>();
+		
+		for(Address address : addresses)
+		{
+			if(!typeMap.containsKey(address.getType()))
+			{
+				typeMap.put(address.getType(), new HashSet<String>());
+			}
+			typeMap.get(address.getType()).add(address.getAddress());
+		}
+		
+		for(EntryPointType type : typeMap.keySet())
+			subscribeToEntryPoint(typeMap.get(type),entryPointUID,type);
 	}
 
 	@Override
