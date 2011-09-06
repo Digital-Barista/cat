@@ -99,7 +99,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		Query q = em.createQuery("select s from CampaignSubscriberLinkDO l " +
 				"join l.subscriber s " +
 				"join l.campaign c where c.client.primaryKey = :clientId " +
-				"where s.type=:type");
+				"and s.type=:type");
 		q.setParameter("clientId", clientId);
 		q.setParameter("type", type);
 		
