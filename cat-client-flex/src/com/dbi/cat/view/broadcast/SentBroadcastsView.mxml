@@ -28,7 +28,7 @@
             
 			private function formatDate(dataField:String):Function
 			{
-				return function(coupon:CouponVO, column:AdvancedDataGridColumn):String
+				return function(coupon:BroadcastInfoVO, column:DataGridColumn):String
 				{
 					if (coupon[dataField] == null)
 						return "N/A";
