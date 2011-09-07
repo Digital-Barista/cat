@@ -244,7 +244,7 @@ public class CampaignManagerImpl implements CampaignManager {
 				c.copyFrom(cmp);
 				if(campCounts.containsKey(cmp.getPrimaryKey()))
 					c.setSubscriberCount(campCounts.get(cmp.getPrimaryKey()));
-				if(c.isCoupon())
+				if(c.getIsCoupon())
 				{
 					Criteria couponCount = session.createCriteria(CouponRedemptionDO.class, "cr");
 					couponCount.createAlias("couponResponse", "resp");

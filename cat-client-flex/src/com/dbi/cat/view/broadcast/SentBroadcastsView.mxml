@@ -57,7 +57,7 @@
             <mx:columns>
                 <mx:DataGridColumn headerText="Type" labelFunction="getMessageType"/>
                 <mx:DataGridColumn headerText="Title" dataField="title" />
-                <mx:DataGridColumn headerText="Date Sent" labelFunction="formatDate('unavailableDate')" />
+                <mx:DataGridColumn headerText="Date Sent" labelFunction="formatDate('broadcastDate')" />
                 <mx:DataGridColumn headerText="Redemption" dataField="couponRedemptionCount" />
                 <mx:DataGridColumn headerText="Subscribers" dataField="subscriberCount" width="80" />
                 <mx:DataGridColumn headerText="Message" dataField="message" />

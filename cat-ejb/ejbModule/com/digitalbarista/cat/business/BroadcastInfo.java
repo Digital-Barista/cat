@@ -90,11 +90,11 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.couponRedemptionCount = couponRedemptionCount;
 	}
 
-	public Boolean isCoupon() {
+	public Boolean getIsCoupon() {
 		return isCoupon;
 	}
 
-	public void setCoupon(Boolean isCoupon) {
+	public void setIsCoupon(Boolean isCoupon) {
 		this.isCoupon = isCoupon;
 	}
 
