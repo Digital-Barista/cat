@@ -12,7 +12,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 	private String title;
 	private String message;
 	private Integer couponRedemptionCount;
-	private boolean isCoupon = false;
+	private Boolean isCoupon = false;
 	private Long couponId;
 	private String entryPointUID;
 	private Date broadcastDate;
@@ -90,11 +90,11 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.couponRedemptionCount = couponRedemptionCount;
 	}
 
-	public boolean isCoupon() {
+	public Boolean isCoupon() {
 		return isCoupon;
 	}
 
-	public void setCoupon(boolean isCoupon) {
+	public void setCoupon(Boolean isCoupon) {
 		this.isCoupon = isCoupon;
 	}
 
