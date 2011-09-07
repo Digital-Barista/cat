@@ -50,8 +50,8 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 					entryPointUID = nodeLink.getNode().getUID();
 			}
 		}
-		if(dataObject.getVersions()!=null && dataObject.getVersions().size()>0)
-			broadcastDate = dataObject.getVersions().get(0).getPublishedDate();
+		if(dataObject.getCurrentVersion()>1)
+			broadcastDate = dataObject.getVersions().get(1).getPublishedDate();
 	}
 
 	@Override
