@@ -19,5 +19,6 @@ package com.dbi.cat.common.vo
     public var isCoupon:Boolean = false;
     public var couponId:Number;
     public var entryPointUID:String;
+    public var broadcastDate:Date;
 	}
 }

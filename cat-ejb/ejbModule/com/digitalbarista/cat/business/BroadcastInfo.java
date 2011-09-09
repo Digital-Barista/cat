@@ -1,9 +1,10 @@
 package com.digitalbarista.cat.business;
 
+import java.util.Date;
+
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignNodeLinkDO;
-import com.digitalbarista.cat.data.NodeType;
 
 public class BroadcastInfo implements BusinessObject<CampaignDO> {
 
@@ -11,15 +12,15 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 	private String title;
 	private String message;
 	private Integer couponRedemptionCount;
-	private boolean isCoupon = false;
+	private Boolean isCoupon = false;
 	private Long couponId;
 	private String entryPointUID;
-	
+	private Date broadcastDate;
+
 	@Override
 	public void copyFrom(CampaignDO dataObject) {
 		if(dataObject.getMode() != CampaignMode.Broadcast)
 			throw new IllegalArgumentException("Cannot generate broadcast info on a non-broadcast campaign.");
-		title=dataObject.getName();
 		for(CampaignNodeLinkDO nodeLink : dataObject.getNodes())
 		{
 			switch(nodeLink.getNode().getType())
@@ -29,6 +30,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 					couponRedemptionCount=0;
 					MessageNode node = new MessageNode();
 					node.copyFrom(nodeLink.getNode());
+					title = nodeLink.getNode().getName();
 					message = node.getMessage();
 					isCoupon=false;
 					break;
@@ -38,6 +40,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 					CouponNode node = new CouponNode();
 					node.copyFrom(nodeLink.getNode());
 					message = node.getAvailableMessage();
+					title = nodeLink.getNode().getName();
 					isCoupon=true;
 					couponId=node.getCouponId();
 					break;
@@ -47,6 +50,8 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 					entryPointUID = nodeLink.getNode().getUID();
 			}
 		}
+		if(dataObject.getCurrentVersion()>1)
+			broadcastDate = dataObject.getVersions().get(1).getPublishedDate();
 	}
 
 	@Override
@@ -85,11 +90,11 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.couponRedemptionCount = couponRedemptionCount;
 	}
 
-	public boolean isCoupon() {
+	public Boolean getIsCoupon() {
 		return isCoupon;
 	}
 
-	public void setCoupon(boolean isCoupon) {
+	public void setIsCoupon(Boolean isCoupon) {
 		this.isCoupon = isCoupon;
 	}
 
@@ -110,6 +115,12 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
   {
   	this.entryPointUID = entryPointUID;
   }
+	
+	public Date getBroadcastDate() {
+		return broadcastDate;
+	}
 
-
+	public void setBroadcastDate(Date broadcastDate) {
+		this.broadcastDate = broadcastDate;
+	}
 }
