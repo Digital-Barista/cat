@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+
+<%
+  String appName = request.getParameter("app_id");
+  String appUrl = "http://apps.facebook.com/" + appName + "/";
+%>
+
 <html>
   <head>
     <link href="css/fb.css" type="text/css" rel="stylesheet" />
@@ -10,6 +16,6 @@
   </head>
   <body>
     <h1>You have successfully invited your friends</h1>
-    <a href="#" class="button" id="Inbox" onclick="window.top.location.reload()">Back to Inbox</a>
+    <a href="<%=appUrl%>" class="button" id="Inbox" target="_top">Back to Inbox</a>
   </body>
 </html>
