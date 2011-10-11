@@ -30,7 +30,7 @@
 	String appName = request.getParameter("app_id");
 	String signedRequest = request.getParameter("signed_request");
 	String appUrl = "http://apps.facebook.com/" + appName + "/";
-	String inviteActionUrl = request.getRequestURL().toString() + "?" + request.getQueryString();
+	String inviteActionUrl = "invite_success.jsp";
 	String appId = null;
 	
 	String noMessagesInclude = getInclude(config.getServletContext(), appName, "no_messages.jsp");
