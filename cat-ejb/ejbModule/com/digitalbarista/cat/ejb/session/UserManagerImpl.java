@@ -339,7 +339,7 @@ public class UserManagerImpl implements UserManager {
 						throw new SecurityException("Current user may not remove the specified client-specific role.");
 			}
 			
-			user.getRoles().retainAll(convertedRoles);
+			user.getRoles().clear();
 			user.getRoles().addAll(convertedRoles);
 		}
 	}
