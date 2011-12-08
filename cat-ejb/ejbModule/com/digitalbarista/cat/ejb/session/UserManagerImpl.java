@@ -284,6 +284,8 @@ public class UserManagerImpl implements UserManager {
 		} 
 		else 
 		{
+			if(!ctx.isCallerInRole("admin") && !current.isCorrectPassword(user.getCurrentPassword()))
+				throw new SecurityException("You may not change user details unless you're an admin or have the correct password.");
 			user.copyTo(current);
 			if(user.getRoles()!=null)
 				syncRoles(user.getPrimaryKey(),new HashSet<Role>(user.getRoles()));
