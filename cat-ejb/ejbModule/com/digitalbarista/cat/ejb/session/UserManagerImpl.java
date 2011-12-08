@@ -340,6 +340,7 @@ public class UserManagerImpl implements UserManager {
 			}
 			
 			user.getRoles().clear();
+			em.flush();
 			user.getRoles().addAll(convertedRoles);
 		}
 	}
