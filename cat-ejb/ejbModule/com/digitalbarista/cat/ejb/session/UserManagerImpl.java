@@ -284,14 +284,8 @@ public class UserManagerImpl implements UserManager {
 		} 
 		else 
 		{
-			// If NOT an admin and updating a password we need to verify the
-			// current password is correct
-			if (user.getPassword() != null &&
-					!ctx.isCallerInRole("admin") &&
-					!current.isCorrectPassword(user.getCurrentPassword()) )
-			{
-				throw new SecurityException("Current password did not match.  Cannot update user.");
-			}
+			if(!ctx.isCallerInRole("admin") && !current.isCorrectPassword(user.getCurrentPassword()))
+				throw new SecurityException("You may not change user details unless you're an admin or have the correct password.");
 			user.copyTo(current);
 			if(user.getRoles()!=null)
 				syncRoles(user.getPrimaryKey(),new HashSet<Role>(user.getRoles()));
@@ -336,7 +330,7 @@ public class UserManagerImpl implements UserManager {
 			
 			for(RoleDO role : user.getRoles())
 			{
-				if(user.getRoles().contains(role))
+				if(convertedRoles.contains(role))
 					continue;
 				
 				if(role.getRoleName().equals("admin") && !ctx.isCallerInRole("admin"))
@@ -347,7 +341,8 @@ public class UserManagerImpl implements UserManager {
 						throw new SecurityException("Current user may not remove the specified client-specific role.");
 			}
 			
-			user.getRoles().retainAll(convertedRoles);
+			user.getRoles().clear();
+			em.flush();
 			user.getRoles().addAll(convertedRoles);
 		}
 	}

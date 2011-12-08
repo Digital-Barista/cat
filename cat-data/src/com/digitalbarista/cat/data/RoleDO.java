@@ -69,6 +69,10 @@ public class RoleDO implements Serializable,DataObject {
 			return false; //one is null, but not the other.
 		if(roleType!=null && !roleType.equals(((RoleDO)obj).roleType))
 			return false;
+		if(!(this.refId==null & ((RoleDO)obj).refId==null))
+			return false; //one is null, but not the other.
+		if(refId!=null && !refId.equals(((RoleDO)obj).refId))
+			return false;
 		return true;
 	}
 
@@ -76,7 +80,8 @@ public class RoleDO implements Serializable,DataObject {
 	public int hashCode() {
 		int typeHash=(roleType!=null) ? roleType.hashCode() : 0;
 		int nameHash=(roleName!=null) ? roleName.hashCode() : 0;
-		return typeHash*13 + nameHash;
+		int refIdHash=(refId!=null) ? refId.hashCode() : 0;
+		return refIdHash * 17 + typeHash*13 + nameHash;
 	}
 
 	@Column(name="ref_id")
