@@ -328,7 +328,7 @@ public class UserManagerImpl implements UserManager {
 			
 			for(RoleDO role : user.getRoles())
 			{
-				if(user.getRoles().contains(role))
+				if(convertedRoles.contains(role))
 					continue;
 				
 				if(role.getRoleName().equals("admin") && !ctx.isCallerInRole("admin"))
