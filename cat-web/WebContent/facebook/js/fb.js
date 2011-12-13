@@ -37,9 +37,15 @@ function fbInit()
 }
 function handleResponse(response)
 {
-	if (response.authResponse) 
+	if (response.authResponse ||
+		response.session) 
 	  {
-		  currentUID = response.authResponse.userID;
+		if (response.session){
+			currentUID = response.session.uid;
+		}
+		else{
+			currentUID = response.authResponse.userID;
+		}
 		  hideLogin();
 		  fetchMessages();
 		  showBookmark();
