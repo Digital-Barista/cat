@@ -37,9 +37,9 @@ function fbInit()
 }
 function handleResponse(response)
 {
-	if (response.session) 
+	if (response.authResponse) 
 	  {
-		  currentUID = response.session.uid;
+		  currentUID = response.authResponse.userID;
 		  hideLogin();
 		  fetchMessages();
 		  showBookmark();
