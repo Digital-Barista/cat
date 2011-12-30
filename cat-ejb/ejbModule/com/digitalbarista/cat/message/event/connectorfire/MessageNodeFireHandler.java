@@ -51,7 +51,7 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 		if(sMan.isSubscriberBlacklisted(s.getAddress(), fromType, fromAddress, csl.getCampaign().getClient().getPrimaryKey()))
 			return;
 
-		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getDetailedCampaign(mNode.getCampaignUID()), fromType, mNode.getMessageForType(fromType));
+		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getLastPublishedCampaign(mNode.getCampaignUID()), fromType, mNode.getMessageForType(fromType));
 		for(String actualMessage : messagePart.getMessages())
 		{
 			sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getAddress(), actualMessage, mNode.getName(),mNode.getUid(),version);
