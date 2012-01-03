@@ -118,6 +118,7 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 					log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
 					return;
 				}
+				getCampaignManager().getLastPublishedCampaign(csl.getCampaign().getUID());//Warming the cache.  Keeps deadlocks from happening. on the CSL lock!
 				getEntityManager().lock(csl, LockModeType.WRITE);
 				getEntityManager().refresh(csl);
 				Node source = getCampaignManager().getSpecificNodeVersion(conn.getSourceNodeUID(), version);

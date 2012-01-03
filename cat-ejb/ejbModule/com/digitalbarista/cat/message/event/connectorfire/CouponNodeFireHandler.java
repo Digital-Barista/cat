@@ -136,7 +136,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		
 		em.persist(response);
 		
-		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getDetailedCampaign(cNode.getCampaignUID()), fromType, actualMessage);
+		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getLastPublishedCampaign(cNode.getCampaignUID()), fromType, actualMessage);
 
 		for(String splitMessage : messagePart.getMessages())
 		{
