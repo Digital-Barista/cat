@@ -82,7 +82,6 @@ import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.exception.FacebookManagerException;
 import com.digitalbarista.cat.message.event.CATEvent;
 
-
 /**
  * Session Bean implementation class FacebookManagerImpl
  */
@@ -91,7 +90,8 @@ import com.digitalbarista.cat.message.event.CATEvent;
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 @RunAs("admin")
 @RunAsPrincipal("admin")
-public class FacebookManagerImpl implements FacebookManager {
+public class FacebookManagerImpl implements FacebookManager
+{
 
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
 	private final static String FACEBOOK_REST_API_URL = "https://api.facebook.com";
@@ -100,41 +100,39 @@ public class FacebookManagerImpl implements FacebookManager {
 
 	private final static String FACEBOOK_REST_API_PROTOCAL = "https";
 	private final static String FACEBOOK_REST_API_DOMAIN = "api.facebook.com";
-	
+
 	private final static String FACEBOOK_PARAM_PREFIX = "fb_sig_";
 	private final static String FACEBOOK_PARAM_APP_ID = "fb_sig_app_id";
 	private final static String FACEBOOK_PARAM_USER_ID = "uid";;
 	private final static String FACEBOOK_PARAM_SIGNATURE = "fb_sig";
 	private final static String CONTACT_TAGS = "tags";
-	
+
 	private static final String SIGN_ALGORITHM = "HMACSHA256";
-	
+
 	private Logger logger = LogManager.getLogger(getClass());
-	
+
 	@Resource
-	private SessionContext ctx; 
+	private SessionContext ctx;
 
-	@PersistenceContext(unitName="cat-data")
+	@PersistenceContext(unitName = "cat-data")
 	private EntityManager em;
-	
-	@PersistenceContext(unitName="cat-data")
-	private Session session;
-	
 
-	@EJB(name="ejb/cat/UserManager")
+	@PersistenceContext(unitName = "cat-data")
+	private Session session;
+
+	@EJB(name = "ejb/cat/UserManager")
 	UserManager userManager;
 
-	@EJB(name="ejb/cat/EventManager")
+	@EJB(name = "ejb/cat/EventManager")
 	EventManager eventManager;
 
-	@EJB(name="ejb/cat/SubscriptionManager")
+	@EJB(name = "ejb/cat/SubscriptionManager")
 	SubscriptionManager subscriptionManager;
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	@PermitAll
-	public List<FacebookMessage> getMessages(String appName, String uid, String signedRequest,
-			UriInfo ui) throws FacebookManagerException 
+	public List<FacebookMessage> getMessages(String appName, String uid, String signedRequest, UriInfo ui) throws FacebookManagerException
 	{
 		// Try old way of validating first
 		if (!checkAuthorizationByQuerystring(ui))
@@ -142,48 +140,45 @@ public class FacebookManagerImpl implements FacebookManager {
 			// Check oauth
 			checkAuthorization(appName, signedRequest);
 		}
-		
+
 		// Require facebook user ID
-		if (uid == null ||
-			uid.length() == 0)
+		if (uid == null || uid.length() == 0)
 		{
 			throw new FacebookManagerException("Could not find facebook user ID");
 		}
-		
+
 		// Find app
 		FacebookApp app = findFacebookAppByName(appName);
-		
+
 		// Make sure this user is a contact and has appropriate tags
 		updateContactInfo(appName, uid, ui);
-		
+
 		List<FacebookMessage> ret = new ArrayList<FacebookMessage>();
-		
+
 		Criteria crit = session.createCriteria(FacebookMessageDO.class);
 		crit.add(Restrictions.eq("facebookUID", uid));
 		crit.add(Restrictions.eq("facebookAppName", appName));
 		crit.addOrder(Order.desc("createDate"));
-		
-		for (FacebookMessageDO messageDO : (List<FacebookMessageDO>)crit.list())
+
+		for (FacebookMessageDO messageDO : (List<FacebookMessageDO>) crit.list())
 		{
 			FacebookMessage message = new FacebookMessage();
 			message.copyFrom(messageDO);
 			ret.add(message);
 		}
-		
+
 		// Update count
-		updateMessageCounter(appName, uid, ret.size());
-		
+//		updateMessageCounter(appName, uid, ret.size());
+//		sendAppRequest(uid, appName, "Test Message 2");
+
 		return ret;
 	}
 
-
 	@Override
 	@PermitAll
-	public void delete(Integer facebookMessageId,
-			String signedRequest, UriInfo ui) throws FacebookManagerException 
+	public void delete(Integer facebookMessageId, String signedRequest, UriInfo ui) throws FacebookManagerException
 	{
 
-		
 		FacebookMessageDO message = em.find(FacebookMessageDO.class, facebookMessageId);
 		if (message != null)
 		{
@@ -193,23 +188,22 @@ public class FacebookManagerImpl implements FacebookManager {
 				// Check oauth
 				checkAuthorization(message.getFacebookAppName(), signedRequest);
 			}
-			
+
 			em.remove(message);
 
 			// Update message counter
 			updateMessageCounter(message.getFacebookAppName(), message.getFacebookUID());
 		}
-		
+
 	}
 
-
 	@Override
-	public FacebookMessage respond(Integer facebookMessageId, String response,
-			String uid, String signedRequest,UriInfo ui) throws FacebookManagerException 
+	public FacebookMessage respond(Integer facebookMessageId, String response, String uid, String signedRequest, UriInfo ui)
+	    throws FacebookManagerException
 	{
-		
+
 		FacebookMessage ret = null;
-		
+
 		FacebookMessageDO message = em.find(FacebookMessageDO.class, facebookMessageId);
 		if (message != null)
 		{
@@ -219,14 +213,14 @@ public class FacebookManagerImpl implements FacebookManager {
 				// Check oauth
 				checkAuthorization(message.getFacebookAppName(), signedRequest);
 			}
-			
+
 			// If the response is valid update the message
 			if (message.getMetadata().indexOf(response) > -1)
 				message.setResponse(response);
-			
-			eventManager.queueEvent(CATEvent.buildIncomingFacebookEvent(message.getFacebookUID(), 
-					message.getFacebookAppName(), response, message.getFacebookUID()));
-			
+
+			eventManager.queueEvent(CATEvent.buildIncomingFacebookEvent(message.getFacebookUID(), message.getFacebookAppName(), response,
+			    message.getFacebookUID()));
+
 			ret = new FacebookMessage();
 			ret.copyFrom(message);
 
@@ -234,14 +228,13 @@ public class FacebookManagerImpl implements FacebookManager {
 			updateMessageCounter(message.getFacebookAppName(), uid);
 		}
 
-		
 		return ret;
 	}
 
 	public void updateMessageCounter(final String appName, final String uid, final Integer count)
 	{
 		final FacebookApp app = findFacebookAppByName(appName);
-		
+
 		final Map<String, String> params = new HashMap<String, String>();
 		params.put("method", "dashboard.setCount");
 		params.put("api_key", app.getApiKey());
@@ -250,16 +243,16 @@ public class FacebookManagerImpl implements FacebookManager {
 		params.put("count", count.toString());
 		params.put("uid", uid);
 
-		Thread updater = new Thread( new Runnable()
+		Thread updater = new Thread(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				try 
+				try
 				{
 					callFacebookMethod(app.getSecret(), params);
-				} 
-				catch (FacebookManagerException e) 
+				}
+				catch (FacebookManagerException e)
 				{
 					logger.error("Error updating counter for App: " + appName + ", UID: " + uid, e);
 				}
@@ -267,63 +260,65 @@ public class FacebookManagerImpl implements FacebookManager {
 		});
 		updater.start();
 	}
-	
+
 	public void updateMessageCounter(String appName, String uid)
 	{
 		FacebookApp app = findFacebookAppByName(appName);
-		
+
 		Criteria crit = session.createCriteria(FacebookMessageDO.class);
 		crit.add(Restrictions.eq("facebookUID", uid));
 		crit.add(Restrictions.eq("facebookAppName", app.getAppName()));
 		crit.setProjection(Projections.rowCount());
-		
-		Integer count = (Integer)crit.uniqueResult();
-		
+
+		Integer count = (Integer) crit.uniqueResult();
+
 		updateMessageCounter(appName, uid, count);
 	}
-	
-	
+
 	/**
-	 * Parse the signed request from facebook.  If the signature is invalid
-	 * return null;
+	 * Parse the signed request from facebook. If the signature is invalid return
+	 * null;
 	 */
-	private JSONObject decodeSignedRequest(String appName, String signedRequest) throws FacebookManagerException 
+	private JSONObject decodeSignedRequest(String appName, String signedRequest) throws FacebookManagerException
 	{
 		JSONObject ret = null;
-		
+
 		if (signedRequest != null)
 		{
 			/* split the string into signature and payload */
 			int idx = signedRequest.indexOf(".");
 			byte[] sig = new Base64(true).decode(signedRequest.substring(0, idx).getBytes());
-			String rawpayload = signedRequest.substring(idx+1);
+			String rawpayload = signedRequest.substring(idx + 1);
 			String payload = new String(new Base64(true).decode(rawpayload));
-	
+
 			/* parse the JSON payload and do the signature check */
 			try
 			{
 				ret = new JSONObject(payload);
-				
+
 				/* check if it is HMAC-SHA256 */
-				if (!ret.getString("algorithm").equals("HMAC-SHA256")) 
+				if (!ret.getString("algorithm").equals("HMAC-SHA256"))
 				{
-					/* note that this follows facebooks example, as published on 2010-07-21 (I wonder when this will break) */
+					/*
+					 * note that this follows facebooks example, as published on
+					 * 2010-07-21 (I wonder when this will break)
+					 */
 					throw new FacebookManagerException("Unexpected hash algorithm " + ret.getString("algorithm"));
 				}
-				
+
 				// Look up facebook app
 				FacebookApp app = findFacebookAppByName(appName);
-				
+
 				SecretKeySpec secretKeySpec = new SecretKeySpec(app.getSecret().getBytes(), SIGN_ALGORITHM);
 				Mac mac = Mac.getInstance(SIGN_ALGORITHM);
 				mac.init(secretKeySpec);
 				byte[] mysig = mac.doFinal(rawpayload.getBytes());
-				if (!Arrays.equals(mysig, sig)) 
+				if (!Arrays.equals(mysig, sig))
 				{
 					ret = null;
 				}
 
-			} 
+			}
 			catch (Exception e)
 			{
 				throw new FacebookManagerException("Could not decode facebook signed request: " + payload, e);
@@ -331,13 +326,13 @@ public class FacebookManagerImpl implements FacebookManager {
 		}
 		return ret;
 	}
-	
+
 	boolean checkAuthorizationByQuerystring(UriInfo ui)
 	{
 		MultivaluedMap<String, String> params = ui.getQueryParameters();
 		return validateSignature(params);
 	}
-	
+
 	private boolean checkAuthorization(String appName, String signedRequest) throws FacebookManagerException
 	{
 		if (decodeSignedRequest(appName, signedRequest) == null)
@@ -346,10 +341,9 @@ public class FacebookManagerImpl implements FacebookManager {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * Deprecated method of validating a signature based on querystring
-	 * parameters
+	 * Deprecated method of validating a signature based on querystring parameters
 	 * 
 	 * @param params
 	 * @return
@@ -357,18 +351,16 @@ public class FacebookManagerImpl implements FacebookManager {
 	private boolean validateSignature(MultivaluedMap<String, String> params)
 	{
 		// If the FB signature parameter isn't present this call isn't valid
-		if (params == null ||
-			!params.containsKey(FACEBOOK_PARAM_APP_ID) ||
-			!params.containsKey(FACEBOOK_PARAM_SIGNATURE) )
+		if (params == null || !params.containsKey(FACEBOOK_PARAM_APP_ID) || !params.containsKey(FACEBOOK_PARAM_SIGNATURE))
 		{
 			return false;
 		}
-		
+
 		// Get facebook app
 		FacebookAppDO app = findFacebookApp(params.getFirst(FACEBOOK_PARAM_APP_ID));
 		if (app == null)
 			return false;
-		
+
 		// Build map of proper names to sort
 		Map<String, String> values = new HashMap<String, String>();
 		for (String key : params.keySet())
@@ -379,7 +371,7 @@ public class FacebookManagerImpl implements FacebookManager {
 				values.put(key.substring(FACEBOOK_PARAM_PREFIX.length()), value);
 			}
 		}
-		
+
 		// Sort keys
 		Object[] keys = values.keySet().toArray();
 		Arrays.sort(keys);
@@ -394,51 +386,51 @@ public class FacebookManagerImpl implements FacebookManager {
 		}
 		paramString += app.getSecret();
 		String hashed = md5(paramString);
-		
+
 		// Compare signature to our hash with our secret
 		String sig = params.getFirst(FACEBOOK_PARAM_SIGNATURE);
 		return hashed.equals(sig);
 	}
-	
+
 	private FacebookAppDO findFacebookApp(String appId)
 	{
-		// Look up secret by facebook app id (NOT our facebook_api_id which is the name of the application)
+		// Look up secret by facebook app id (NOT our facebook_api_id which is the
+		// name of the application)
 		Criteria crit = session.createCriteria(FacebookAppDO.class);
 		crit.add(Restrictions.eq("id", appId));
-		FacebookAppDO app = (FacebookAppDO)crit.uniqueResult();
-		
+		FacebookAppDO app = (FacebookAppDO) crit.uniqueResult();
+
 		// The app should exist
 		if (app == null)
 		{
 			logger.error("No facebook app found for App ID: " + appId);
 		}
-		
+
 		return app;
 	}
-	
+
 	public FacebookApp findFacebookAppByName(String applicationName)
 	{
 		FacebookApp ret = null;
-		
+
 		// Look up secret by facebook application name (this is the facebook_api_id)
 		Criteria crit = session.createCriteria(FacebookAppDO.class);
 		crit.add(Restrictions.eq("appName", applicationName));
-		FacebookAppDO app = (FacebookAppDO)crit.uniqueResult();
-		
+		FacebookAppDO app = (FacebookAppDO) crit.uniqueResult();
+
 		if (app != null)
 		{
 			ret = new FacebookApp();
 			ret.copyFrom(app);
 		}
-		
+
 		return ret;
 	}
-	
+
 	/**
-	 * Check the UID to see if it is a facebook contact adding
-	 * it if necessary.  If "tags" are specified in the URL
-	 * look them up and add them to the contact, creating new tags
-	 * if necessary.
+	 * Check the UID to see if it is a facebook contact adding it if necessary. If
+	 * "tags" are specified in the URL look them up and add them to the contact,
+	 * creating new tags if necessary.
 	 * 
 	 * @param ui
 	 */
@@ -459,11 +451,11 @@ public class FacebookManagerImpl implements FacebookManager {
 						crit.add(Restrictions.eq("address", uid));
 						crit.add(Restrictions.eq("type", EntryPointType.Facebook));
 						crit.add(Restrictions.eq("client.primaryKey", app.getClientId()));
-						ContactDO contact = (ContactDO)crit.uniqueResult();
-						
+						ContactDO contact = (ContactDO) crit.uniqueResult();
+
 						// Get app client
 						ClientDO appClient = em.find(ClientDO.class, app.getClientId());
-						
+
 						// Create contact if it doesn't exist
 						if (contact == null)
 						{
@@ -473,25 +465,27 @@ public class FacebookManagerImpl implements FacebookManager {
 							contact.setCreateDate(Calendar.getInstance());
 							contact.setType(EntryPointType.Facebook);
 							em.persist(contact);
-							
+
 							crit = session.createCriteria(CampaignInfoDO.class);
 							crit.add(Restrictions.eq("entryType", EntryPointType.Facebook));
 							crit.add(Restrictions.eq("entryAddress", app.getAppName()));
 							crit.add(Restrictions.eq("name", CampaignInfoDO.KEY_AUTO_START_NODE_UID));
 							crit.createAlias("campaign", "c");
 							crit.add(Restrictions.eq("c.status", CampaignStatus.Active));
-							CampaignInfoDO cInfo = (CampaignInfoDO)crit.uniqueResult();
-							
-							if(cInfo==null)
+							CampaignInfoDO cInfo = (CampaignInfoDO) crit.uniqueResult();
+
+							if (cInfo == null)
 								return;
-							
+
 							HashSet<String> addresses = new HashSet<String>();
 							addresses.add(uid);
-							subscriptionManager.subscribeToEntryPoint(addresses,cInfo.getValue(),EntryPointType.Facebook);
-						} else {
+							subscriptionManager.subscribeToEntryPoint(addresses, cInfo.getValue(), EntryPointType.Facebook);
+						}
+						else
+						{
 							subscriptionManager.unBlacklistAddressForEntryPoint(uid, EntryPointType.Facebook, app.getAppName());
 						}
-						
+
 						// Lookup tags from query string
 						String tagList = ui.getQueryParameters().getFirst(CONTACT_TAGS);
 						if (tagList != null)
@@ -510,7 +504,7 @@ public class FacebookManagerImpl implements FacebookManager {
 									em.persist(ctldo);
 								}
 							}
-							
+
 							// Save any tag changes
 							em.persist(contact);
 						}
@@ -519,12 +513,12 @@ public class FacebookManagerImpl implements FacebookManager {
 			}
 		}
 		// Log failure, but hide the exception
-		catch(Exception e)
+		catch (Exception e)
 		{
 			logger.error("Error trying to add contact and tags for facebook request", e);
 		}
 	}
-	
+
 	/**
 	 * Looks up a contact tag and creates it if not found.
 	 * 
@@ -540,7 +534,7 @@ public class FacebookManagerImpl implements FacebookManager {
 		crit.add(Restrictions.eq("tag", tag));
 		crit.add(Restrictions.eq("type", ContactTagType.USER));
 
-		ContactTagDO contactTag = (ContactTagDO)crit.uniqueResult();
+		ContactTagDO contactTag = (ContactTagDO) crit.uniqueResult();
 		if (contactTag == null)
 		{
 			contactTag = new ContactTagDO();
@@ -549,21 +543,21 @@ public class FacebookManagerImpl implements FacebookManager {
 			contactTag.setType(ContactTagType.USER);
 			em.persist(contactTag);
 		}
-		
+
 		return contactTag;
 	}
-	
+
 	private String callFacebookMethod(String secret, Map<String, String> postParameters) throws FacebookManagerException
 	{
 		String ret = "";
 		String url = FACEBOOK_REST_URL + "?";
-		
+
 		DefaultHttpClient client = new DefaultHttpClient();
-		
+
 		// Sort keys
 		Object[] keys = postParameters.keySet().toArray();
 		Arrays.sort(keys);
-		
+
 		// Add MD5 hash
 		String params = "";
 		for (Object key : keys)
@@ -575,16 +569,16 @@ public class FacebookManagerImpl implements FacebookManager {
 
 		params += secret;
 		String hashed = md5(params);
-		
+
 		// Build a the URL with all parameters on it
 		url += "&sig=" + hashed;
 		HttpGet get = new HttpGet(url);
-		
-		try 
+
+		try
 		{
 			HttpResponse result = client.execute(get);
-			
-			if (result!=null && result.getStatusLine().getStatusCode() == 200)
+
+			if (result != null && result.getStatusLine().getStatusCode() == 200)
 			{
 				ret = EntityUtils.toString(result.getEntity());
 			}
@@ -592,37 +586,36 @@ public class FacebookManagerImpl implements FacebookManager {
 			{
 				throw new FacebookManagerException("Facebook request returned with status code: " + result.getStatusLine().getStatusCode());
 			}
-		} 
-		catch (IOException e) 
+		}
+		catch (IOException e)
 		{
 			throw new FacebookManagerException("Error making facebook request", e);
-		} 
-		
+		}
+
 		return ret;
 	}
-	
 
 	private String md5(String value)
 	{
 		MessageDigest md;
 		String hashed = null;
-		try 
+		try
 		{
 			md = MessageDigest.getInstance("MD5");
 			md.reset();
-	        md.update(value.getBytes());
-	        byte data[] = md.digest();
-//	        hashed = new BigInteger(1, data).toString(16);
-	        
-	        hashed = "";
-	        for (byte element : data) 
-	        {
-	        	hashed += Character.forDigit((element >> 4) & 0xf, 16);
-	        	hashed += Character.forDigit(element & 0xf, 16);
-	        }
+			md.update(value.getBytes());
+			byte data[] = md.digest();
+			// hashed = new BigInteger(1, data).toString(16);
 
-		} 
-		catch (NoSuchAlgorithmException e) 
+			hashed = "";
+			for (byte element : data)
+			{
+				hashed += Character.forDigit((element >> 4) & 0xf, 16);
+				hashed += Character.forDigit(element & 0xf, 16);
+			}
+
+		}
+		catch (NoSuchAlgorithmException e)
 		{
 			e.printStackTrace();
 		}
@@ -630,12 +623,14 @@ public class FacebookManagerImpl implements FacebookManager {
 	}
 
 	@Override
-	public void userAuthorizeApp(String appName, String uid) {
+	public void userAuthorizeApp(String appName, String uid)
+	{
 		subscriptionManager.registerFacebookFollower(uid, appName);
 	}
 
 	@Override
-	public void userDeauthorizeApp(String appName, String uid) {
+	public void userDeauthorizeApp(String appName, String uid)
+	{
 		subscriptionManager.removeFacebookFollower(uid, appName);
 	}
 
@@ -654,37 +649,32 @@ public class FacebookManagerImpl implements FacebookManager {
 			List<NameValuePair> qparams = new ArrayList<NameValuePair>();
 			qparams.add(new BasicNameValuePair("uid", facebookUID));
 			qparams.add(new BasicNameValuePair("access_token", token));
-			
+
 			Document doc = callFacebookMethod("users.isAppUser", qparams);
-			
+
 			// Check return flag
 			String value = doc.getDocumentElement().getFirstChild().getNodeValue();
 			ret = !value.equals("0");
 		}
 		return ret;
 	}
-	
+
 	private Document callFacebookMethod(String method, List<NameValuePair> parameters) throws FacebookManagerException
 	{
 		Document ret = null;
-		
-		try 
+
+		try
 		{
 			DefaultHttpClient client = new DefaultHttpClient();
-			
-			URI uri = URIUtils.createURI(FACEBOOK_REST_API_PROTOCAL, 
-					FACEBOOK_REST_API_DOMAIN, 
-					-1, 
-					"/method/" + method, 
-					URLEncodedUtils.format(parameters, "UTF-8"), 
-					null);
+
+			URI uri = URIUtils.createURI(FACEBOOK_REST_API_PROTOCAL, FACEBOOK_REST_API_DOMAIN, -1, "/method/" + method,
+			    URLEncodedUtils.format(parameters, "UTF-8"), null);
 			HttpGet get = new HttpGet(uri);
-			
-			
+
 			HttpResponse result = client.execute(get);
 			String messageXML = null;
-			
-			if (result!=null && result.getStatusLine().getStatusCode() == 200)
+
+			if (result != null && result.getStatusLine().getStatusCode() == 200)
 			{
 				messageXML = EntityUtils.toString(result.getEntity());
 			}
@@ -698,38 +688,38 @@ public class FacebookManagerImpl implements FacebookManager {
 			InputSource is = new InputSource();
 			is.setCharacterStream(new StringReader(messageXML));
 			Document doc = db.parse(is);
-			
+
 			// Check for error response
 			if (doc.getElementsByTagName("error_response").getLength() > 0)
 			{
 				throw new FacebookManagerException("Facebook returned an error: \n" + messageXML);
 			}
 			ret = doc;
-		} 
-		catch (IOException e) 
+		}
+		catch (IOException e)
 		{
 			throw new FacebookManagerException("Error making facebook request", e);
-		} 
-		catch (URISyntaxException e) 
+		}
+		catch (URISyntaxException e)
 		{
 			throw new FacebookManagerException("Error building facebook URI", e);
-		} 
-		catch (ParserConfigurationException e) 
+		}
+		catch (ParserConfigurationException e)
 		{
 			throw new FacebookManagerException("Could not parse facebook response", e);
-		} 
-		catch (SAXException e) 
+		}
+		catch (SAXException e)
 		{
 			throw new FacebookManagerException("Could not parse facebook response", e);
-		} 
-		
+		}
+
 		return ret;
 	}
-	
+
 	private String getFacebookAppAccessToken(String appName)
 	{
 		String token = null;
-		
+
 		try
 		{
 			// Get facebook app
@@ -738,7 +728,7 @@ public class FacebookManagerImpl implements FacebookManager {
 			{
 				DefaultHttpClient client = new DefaultHttpClient();
 				HttpPost post = new HttpPost(FACEBOOK_ACCESS_TOKEN_URL);
-				
+
 				List<BasicNameValuePair> formparams = new ArrayList<BasicNameValuePair>();
 				formparams.add(new BasicNameValuePair("type", "client_cred"));
 				formparams.add(new BasicNameValuePair("client_id", appDO.getId()));
@@ -746,15 +736,14 @@ public class FacebookManagerImpl implements FacebookManager {
 
 				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, "UTF-8");
 				post.setEntity(entity);
-				
+
 				HttpResponse result = client.execute(post);
-				
+
 				if (result != null)
 				{
 					String content = EntityUtils.toString(result.getEntity());
 					String[] parts = content.split("=");
-					if (parts.length == 2 &&
-						parts[0].equals("access_token") )
+					if (parts.length == 2 && parts[0].equals("access_token"))
 					{
 						token = parts[1];
 					}
@@ -769,38 +758,38 @@ public class FacebookManagerImpl implements FacebookManager {
 				}
 			}
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			logger.error("Error trying to retrieve access token", e);
 		}
-		
+
 		return token;
 	}
 
 	private JSONObject callGraphAPI(String uid, String accessToken)
 	{
 		JSONObject ret = null;
-		
+
 		try
 		{
 			HttpClient client = new DefaultHttpClient();
-			
+
 			String url = FACEBOOK_GRAPH_API_URL + "/" + uid;
 			if (accessToken != null)
 			{
 				url += "?access_token=" + URLEncoder.encode(accessToken);
 			}
-			
+
 			HttpGet get = new HttpGet(url);
 			HttpResponse response = client.execute(get);
-			
+
 			if (response.getStatusLine().getStatusCode() == 200)
 			{
 				String result = EntityUtils.toString(response.getEntity());
 				ret = new JSONObject(result);
 			}
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			logger.error("Failed tyring to get call graph API", e);
 		}
@@ -811,37 +800,37 @@ public class FacebookManagerImpl implements FacebookManager {
 	public List<ContactInfo> updateProfileInformation(Contact contact)
 	{
 		List<ContactInfo> ret = new ArrayList<ContactInfo>();
-		
+
 		/*
-		 * Where our apps require more permissions we can get more information
-		 * by adding the access token for the app.  Currently there is no point.
+		 * Where our apps require more permissions we can get more information by
+		 * adding the access token for the app. Currently there is no point.
 		 */
 		String token = null;
-//		// Get an app ID for the user
-//		Criteria crit = session.createCriteria(FacebookMessageDO.class);
-//		crit.add(Restrictions.eq("facebookUID", uid));
-//		crit.setProjection(Projections.distinct(Projections.property("appName")));
-//		List<String> appIds = (List<String>)crit.list();
-//		
-//		if (appIds.size() > 0)
-//		{
-//			String appId = appIds.get(0);
-//			token = getFacebookAppAccessToken(appId);
-//		}
-		
+		// // Get an app ID for the user
+		// Criteria crit = session.createCriteria(FacebookMessageDO.class);
+		// crit.add(Restrictions.eq("facebookUID", uid));
+		// crit.setProjection(Projections.distinct(Projections.property("appName")));
+		// List<String> appIds = (List<String>)crit.list();
+		//
+		// if (appIds.size() > 0)
+		// {
+		// String appId = appIds.get(0);
+		// token = getFacebookAppAccessToken(appId);
+		// }
+
 		// Call graph API to get profile info
 		JSONObject result = callGraphAPI(contact.getAddress(), token);
 
 		if (result != null)
 		{
 			ContactDO cDO = em.find(ContactDO.class, contact.getContactId());
-			
+
 			try
 			{
 				for (Iterator iterator = result.keys(); iterator.hasNext();)
 				{
-					String key = (String)iterator.next();
-					
+					String key = (String) iterator.next();
+
 					// Update existing keys
 					ContactInfoDO contactInfo = null;
 					for (ContactInfoDO ciDO : cDO.getContactInfos())
@@ -852,33 +841,32 @@ public class FacebookManagerImpl implements FacebookManager {
 							break;
 						}
 					}
-					
+
 					if (contactInfo == null)
 					{
 						contactInfo = new ContactInfoDO();
 						contactInfo.setContact(cDO);
 						contactInfo.setName(key);
 					}
-					
+
 					// Update value
 					contactInfo.setValue(result.getString(key));
 					em.persist(contactInfo);
-					
+
 					// Add the DTO
 					ContactInfo info = new ContactInfo();
 					info.copyFrom(contactInfo);
 					ret.add(info);
 				}
-			} 
+			}
 			catch (JSONException e)
 			{
 				logger.error("Failed parsing graph API JSON response", e);
 			}
 		}
-		
+
 		return ret;
 	}
-
 
 	@Override
 	public FacebookTrackingInfo getFacebookTrackingInfo(HttpServletRequest request)
@@ -889,7 +877,7 @@ public class FacebookManagerImpl implements FacebookManager {
 		{
 			ret.setAppName(request.getParameter("app_id"));
 			String signedRequest = request.getParameter("signed_request");
-			
+
 			if (signedRequest != null)
 			{
 				JSONObject decoded;
@@ -897,15 +885,47 @@ public class FacebookManagerImpl implements FacebookManager {
 				{
 					decoded = decodeSignedRequest(ret.getAppName(), signedRequest);
 					ret.setFacebookUserId(decoded.optString("user_id"));
-				} 
+				}
 				catch (FacebookManagerException e)
 				{
-					e.printStackTrace();
+					logger.error("Error decoding facebook response", e);
 				}
 			}
-			
+
 		}
-		
+
 		return ret;
+	}
+
+	@Override
+	public Boolean sendAppRequest(String facebookUID, String appName, String message)
+	{
+		boolean ret = false;
+		String token = getFacebookAppAccessToken(appName);
+		if (token != null)
+		{
+			String url = FACEBOOK_GRAPH_API_URL + "/" + facebookUID + "/apprequests&message=" + 
+			URLEncoder.encode(message) + "?access_token="
+			    + URLEncoder.encode(token) + "&method=post";
+
+			try
+			{
+				HttpClient client = new DefaultHttpClient();
+				HttpGet get = new HttpGet(url);
+				HttpResponse response = client.execute(get);
+
+				if (response.getStatusLine().getStatusCode() == 200)
+				{
+					String result = EntityUtils.toString(response.getEntity());
+					JSONObject object = new JSONObject(result);
+					ret = true;
+				}
+			}
+			catch (Exception e)
+			{
+				logger.error("Error decoding facebook response", e);
+			}
+		}
+		return true;
 	}
 }

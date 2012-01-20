@@ -75,4 +75,6 @@ public interface FacebookManager
 	List<ContactInfo> updateProfileInformation(Contact contact);
 	
 	FacebookTrackingInfo getFacebookTrackingInfo(HttpServletRequest request);
+	
+	Boolean sendAppRequest(String facebookUID, String appName, String message);
 }
