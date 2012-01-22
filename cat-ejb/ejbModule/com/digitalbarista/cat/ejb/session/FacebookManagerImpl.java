@@ -36,6 +36,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.bsf.util.StringUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -81,6 +82,17 @@ import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.exception.FacebookManagerException;
 import com.digitalbarista.cat.message.event.CATEvent;
+import com.restfb.BinaryAttachment;
+import com.restfb.DefaultFacebookClient;
+import com.restfb.DefaultJsonMapper;
+import com.restfb.Facebook;
+import com.restfb.FacebookClient;
+import com.restfb.JsonMapper;
+import com.restfb.Parameter;
+import com.restfb.batch.BatchRequest;
+import com.restfb.batch.BatchRequest.BatchRequestBuilder;
+import com.restfb.batch.BatchResponse;
+import com.restfb.types.FacebookType;
 
 /**
  * Session Bean implementation class FacebookManagerImpl
@@ -92,6 +104,9 @@ import com.digitalbarista.cat.message.event.CATEvent;
 @RunAsPrincipal("admin")
 public class FacebookManagerImpl implements FacebookManager
 {
+	private final static int APP_TOKEN_EXPIRE_SECONDS = 3600; // Not sure what the
+																														// expiry is, so
+																														// using 1 hour
 
 	private final static String FACEBOOK_REST_URL = "https://api.facebook.com/restserver.php";
 	private final static String FACEBOOK_REST_API_URL = "https://api.facebook.com";
@@ -128,6 +143,9 @@ public class FacebookManagerImpl implements FacebookManager
 
 	@EJB(name = "ejb/cat/SubscriptionManager")
 	SubscriptionManager subscriptionManager;
+
+	private String currentAppAccessToken;
+	private Date appAccessTokenObtained;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -166,10 +184,6 @@ public class FacebookManagerImpl implements FacebookManager
 			message.copyFrom(messageDO);
 			ret.add(message);
 		}
-
-		// Update count
-//		updateMessageCounter(appName, uid, ret.size());
-//		sendAppRequest(uid, appName, "Test Message 2");
 
 		return ret;
 	}
@@ -718,52 +732,67 @@ public class FacebookManagerImpl implements FacebookManager
 
 	private String getFacebookAppAccessToken(String appName)
 	{
-		String token = null;
-
-		try
+		// Expire token after APP_TOKEN_EXPIRE_SECONDS until we figure out
+		// if these actually ever expire (default is 2 hours for USER access
+		// tokens, but no mention of APP access tokens)
+		if (appAccessTokenObtained != null)
 		{
-			// Get facebook app
-			FacebookAppDO appDO = em.find(FacebookAppDO.class, appName);
-			if (appDO != null)
+			Date now = new Date();
+			if ((now.getTime() - appAccessTokenObtained.getTime())/1000 > APP_TOKEN_EXPIRE_SECONDS)
 			{
-				DefaultHttpClient client = new DefaultHttpClient();
-				HttpPost post = new HttpPost(FACEBOOK_ACCESS_TOKEN_URL);
+				logger.debug("App access token expired and refreshing after " + APP_TOKEN_EXPIRE_SECONDS + " seconds");
+				currentAppAccessToken = null;
+			}
+		}
 
-				List<BasicNameValuePair> formparams = new ArrayList<BasicNameValuePair>();
-				formparams.add(new BasicNameValuePair("type", "client_cred"));
-				formparams.add(new BasicNameValuePair("client_id", appDO.getId()));
-				formparams.add(new BasicNameValuePair("client_secret", appDO.getSecret()));
-
-				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, "UTF-8");
-				post.setEntity(entity);
-
-				HttpResponse result = client.execute(post);
-
-				if (result != null)
+		if (currentAppAccessToken == null)
+		{
+			try
+			{
+				// Get facebook app
+				FacebookAppDO appDO = em.find(FacebookAppDO.class, appName);
+				if (appDO != null)
 				{
-					String content = EntityUtils.toString(result.getEntity());
-					String[] parts = content.split("=");
-					if (parts.length == 2 && parts[0].equals("access_token"))
+					DefaultHttpClient client = new DefaultHttpClient();
+					HttpPost post = new HttpPost(FACEBOOK_ACCESS_TOKEN_URL);
+
+					List<BasicNameValuePair> formparams = new ArrayList<BasicNameValuePair>();
+					formparams.add(new BasicNameValuePair("type", "client_cred"));
+					formparams.add(new BasicNameValuePair("client_id", appDO.getId()));
+					formparams.add(new BasicNameValuePair("client_secret", appDO.getSecret()));
+
+					UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, "UTF-8");
+					post.setEntity(entity);
+
+					HttpResponse result = client.execute(post);
+
+					if (result != null)
 					{
-						token = parts[1];
+						String content = EntityUtils.toString(result.getEntity());
+						String[] parts = content.split("=");
+						if (parts.length == 2 && parts[0].equals("access_token"))
+						{
+							currentAppAccessToken = parts[1];
+							appAccessTokenObtained = new Date();
+						}
+						else
+						{
+							throw new FacebookManagerException("Error returned from OAuth service: " + content);
+						}
 					}
 					else
 					{
-						throw new FacebookManagerException("Error returned from OAuth service: " + content);
+						throw new FacebookManagerException("Facebook request returned with status code: " + result.getStatusLine().getStatusCode());
 					}
 				}
-				else
-				{
-					throw new FacebookManagerException("Facebook request returned with status code: " + result.getStatusLine().getStatusCode());
-				}
+			}
+			catch (Exception e)
+			{
+				logger.error("Error trying to retrieve access token", e);
 			}
 		}
-		catch (Exception e)
-		{
-			logger.error("Error trying to retrieve access token", e);
-		}
 
-		return token;
+		return currentAppAccessToken;
 	}
 
 	private JSONObject callGraphAPI(String uid, String accessToken)
@@ -898,34 +927,123 @@ public class FacebookManagerImpl implements FacebookManager
 	}
 
 	@Override
-	public Boolean sendAppRequest(String facebookUID, String appName, String message)
+	/**
+	 * Sends a message from an app to a list of users specified by UID.
+	 * 
+	 * @param facebookUIDs List of facebook user IDs to send to
+	 * @param appName Name of the facebook app
+	 * @param message Message to send to facebook
+	 * 
+	 * @return List of facebook user IDs that FAILED to get the message
+	 */
+	public List<String> sendAppRequest(List<String> facebookUIDs, String appName, String message) throws FacebookManagerException
 	{
-		boolean ret = false;
+		List<String> ret = new ArrayList<String>(facebookUIDs);
+
+		// API only allows 50 requests in batches
+		if (facebookUIDs.size() > 50)
+		{
+			throw new FacebookManagerException("Invalid number of facebook UIDs. Max is 50");
+		}
+
+		// Get the APP access token
 		String token = getFacebookAppAccessToken(appName);
+
 		if (token != null)
 		{
-			String url = FACEBOOK_GRAPH_API_URL + "/" + facebookUID + "/apprequests&message=" + 
-			URLEncoder.encode(message) + "?access_token="
-			    + URLEncoder.encode(token) + "&method=post";
-
 			try
 			{
-				HttpClient client = new DefaultHttpClient();
-				HttpGet get = new HttpGet(url);
-				HttpResponse response = client.execute(get);
 
-				if (response.getStatusLine().getStatusCode() == 200)
+				// String uids = "";
+				// for (String uid : facebookUIDs)
+				// {
+				// if (uids.length() > 0)
+				// {
+				// uids += ",";
+				// }
+				// uids += uid;
+				// }
+				// AppRequestType result = fbClient.publish("apprequests",
+				// AppRequestType.class,
+				// Parameter.with("message", message),
+				// Parameter.with("ids", uids));
+
+				// Build a batch request
+				List<BatchRequest> commands = new ArrayList<BatchRequest>();
+				for (String facebookUID : facebookUIDs)
 				{
-					String result = EntityUtils.toString(response.getEntity());
-					JSONObject object = new JSONObject(result);
-					ret = true;
+					BatchRequest br = new BatchRequestBuilder(facebookUID + "/apprequests").parameters(Parameter.with("method", "post"),
+					    Parameter.with("message", message)).build();
+					commands.add(br);
 				}
+
+				FacebookClient fbClient = new DefaultFacebookClient(token);
+				List<BatchResponse> batchResponses = fbClient.executeBatch(commands, new ArrayList<BinaryAttachment>());
+
+				// Decode responses
+				JsonMapper jsonMapper = new DefaultJsonMapper();
+				for (BatchResponse br : batchResponses)
+				{
+					AppRequestType r = jsonMapper.toJavaObject(br.getBody(), AppRequestType.class);
+					if (r.getTo() != null)
+					{
+						for (String to : r.getTo())
+						{
+							ret.remove(to);
+						}
+					}
+				}
+
 			}
 			catch (Exception e)
 			{
 				logger.error("Error decoding facebook response", e);
 			}
 		}
-		return true;
+		return ret;
+	}
+
+	public static class AppRequestType
+	{
+		@Facebook
+		private String error;
+		
+		@Facebook
+		private String request;
+
+		@Facebook
+		private List<String> to;
+		
+
+		public String getRequest()
+		{
+			return request;
+		}
+
+		public void setRequest(String request)
+		{
+			this.request = request;
+		}
+
+		public List<String> getTo()
+		{
+			return to;
+		}
+
+		public void setTo(List<String> to)
+		{
+			this.to = to;
+		}
+
+		public String getError()
+    {
+    	return error;
+    }
+
+		public void setError(String error)
+    {
+    	this.error = error;
+    }
+
 	}
 }
