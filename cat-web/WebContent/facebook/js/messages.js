@@ -36,7 +36,7 @@ function MessageAPI()
 		var url = MESSAGE_URL + "/list/" + appName  + "/" + window.location.search
 		$.ajax({
 			url:url,
-			data:{'uid':currentUID, 'signedRequest':signedRequest},
+			data:{'uid':dbi.currentUID, 'signedRequest':signedRequest},
 			dataType:'json',
 			type:'POST',
 			success: function(data){
@@ -83,7 +83,7 @@ function MessageAPI()
 	
 	function setupLinkTracking(){
 		$('.messageContainer a:not(.button)').click(function(){
-			_gaq.push(['_trackEvent', 'Message', 'Link', 'fbid=' + currentUID + ',link=' + $(this).attr('href')]);
+			_gaq.push(['_trackEvent', 'Message', 'Link', 'fbid=' + dbi.currentUID + ',link=' + $(this).attr('href')]);
 		});
 	}
 	
@@ -100,7 +100,7 @@ function MessageAPI()
 			  url: url,
 			  type: 'PUT',
 			  dataType: 'json',
-			  data:{'uid': currentUID, 'signedRequest':signedRequest},
+			  data:{'uid': dbi.currentUID, 'signedRequest':signedRequest},
 			  success: function(data) {
 			    updateMessage(data.message);
 			  }
@@ -145,7 +145,7 @@ function MessageAPI()
 			  url: url,
 			  type: 'POST',
 			  dataType: 'json',
-			  data:{'uid': currentUID, 'signedRequest':signedRequest},
+			  data:{'uid': dbi.currentUID, 'signedRequest':signedRequest},
 			  success: function(data) {
 			    removeMessage(messageId);
 			  }
@@ -291,7 +291,7 @@ function MessageAPI()
 					var action = $("<a href='#'>" + keywords[i] + "</a>");
 					action.attr("class", "button");
 					action.bind('click', {messageId: message.facebookMessageId, response: keywords[i]}, function(event) {
-						_gaq.push(['_trackEvent', 'Message', 'Respond', 'fbid=' + currentUID + 
+						_gaq.push(['_trackEvent', 'Message', 'Respond', 'fbid=' + dbi.currentUID + 
 						           ',messageId=' + event.data.messageId + ',response=' + event.data.response]);
 						respond(event.data.messageId, event.data.response);
 					});
@@ -313,7 +313,7 @@ function MessageAPI()
 		// Add print call
 		printLink.bind('click', {messageId: message.facebookMessageId}, function(event) {
 			_gaq.push(['_trackEvent', 'Message', 'Print', 
-			           'fbid=' + currentUID + ',messageId=' + event.data.messageId]);
+			           'fbid=' + dbi.currentUID + ',messageId=' + event.data.messageId]);
 			PrintUtil.showCoupon(event.data.messageId);
 		});
 		
@@ -332,7 +332,7 @@ function MessageAPI()
 		// Add delete call
 		deleteLink.bind('click', {messageId: message.facebookMessageId}, function(event) {
 			_gaq.push(['_trackEvent', 'Message', 'Delete', 
-			           'fbid=' + currentUID + ',messageId=' + event.data.messageId]);
+			           'fbid=' + dbi.currentUID + ',messageId=' + event.data.messageId]);
 			deleteMessage(event.data.messageId);
 		});
 		

@@ -1,9 +1,12 @@
 package com.digitalbarista.cat.message.event;
 
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.SessionContext;
@@ -22,7 +25,6 @@ import javax.persistence.EntityManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpParams;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -35,8 +37,6 @@ import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
-import com.digitalbarista.cat.ejb.session.CampaignManager;
-import com.digitalbarista.cat.ejb.session.FacebookManager;
 
 public class MessageSendRequestEventHandler extends CATEventHandler {
 	
@@ -44,6 +44,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 	private String twitterSendDestName = "cat/messaging/TwitterOutgoing";
 	
 	private Logger log = LogManager.getLogger(MessageSendRequestEventHandler.class);
+	private String dateFormat = "yyyy/MM/dd";
 	
 	protected MessageSendRequestEventHandler(EntityManager newEM,
 			SessionContext newSC) {
@@ -160,12 +161,11 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				fbMessage.setTitle(e.getArgs().get("subject"));
 				
 				String nodeUID = e.getArgs().get("nodeUID");
-				CampaignManager cMan = (CampaignManager)getSessionContext().lookup("ejb/cat/CampaignManager");
-				Node fromNode = cMan.getNode(nodeUID);
+				Node fromNode = getCampaignManager().getNode(nodeUID);
 				Set<String> keywordSet = new HashSet<String>(); 
 				for(String downstreamUID : fromNode.getDownstreamConnections())
 				{
-					Connector dConn = cMan.getConnector(downstreamUID);
+					Connector dConn = getCampaignManager().getConnector(downstreamUID);
 					if(dConn.getType()==ConnectorType.Response)
 					{
 						for(EntryData entry : ((ResponseConnector)dConn).getEntryData())
@@ -183,8 +183,9 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				getEntityManager().persist(fbMessage);
 				getEntityManager().flush();
 				FacebookAppDO applicationInfo = getEntityManager().find(FacebookAppDO.class, e.getSource());
-				FacebookManager fbMan = (FacebookManager)getSessionContext().lookup("ejb/cat/FacebookManager");
-				fbMan.updateMessageCounter(applicationInfo.getAppName(), e.getTarget());
+				List<String> fbuids = new ArrayList<String>();
+				fbuids.add(e.getTarget());
+				getFacebookManager().sendAppRequest(fbuids, applicationInfo.getAppName(), "A new message arrived - "+new SimpleDateFormat(dateFormat).format(new Date()));
 			}catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);

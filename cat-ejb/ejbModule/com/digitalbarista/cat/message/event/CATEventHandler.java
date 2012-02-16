@@ -7,6 +7,7 @@ import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
+import com.digitalbarista.cat.ejb.session.FacebookManager;
 import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 
 public abstract class CATEventHandler {
@@ -17,6 +18,7 @@ public abstract class CATEventHandler {
 	private CampaignManager campaignManager;
 	private ContactManager contactManager;
 	private SubscriptionManager subscriptionManager;
+	private FacebookManager facebookManager;
 	private EventTimerManager timer;
 	
 	protected CATEventHandler(EntityManager newEM, SessionContext newSC)
@@ -39,6 +41,12 @@ public abstract class CATEventHandler {
 		if(eventManager==null)
 			eventManager = (EventManager)getSessionContext().lookup("ejb/cat/EventManager");
 		return eventManager;
+	}
+
+	public FacebookManager getFacebookManager() {
+		if(facebookManager==null)
+			facebookManager = (FacebookManager)getSessionContext().lookup("ejb/cat/FacebookManager");
+		return facebookManager;
 	}
 
 	public CampaignManager getCampaignManager() {
