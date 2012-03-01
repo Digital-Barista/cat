@@ -25,18 +25,19 @@ $.extend(dbi, {
   	});
   	
   	// Wire events
-  	if ($("#InviteButton") &&
-  		$("#Invite") )
-  	{
-  		$("#InviteButton").click(function(){
-  			if ($("#Invite").css("display") == "block")
-  				$("#Invite").css("display", "none");
-  			else
-  				$("#Invite").css("display", "block");
-  			
-  			FB.Canvas.setSize();
-  		});
-  	}
+		$("#InviteButton").click(function(){
+        FB.ui({method: 'apprequests',
+          message: 'Try this app'
+        });
+		});
+		
+		$("#LoginButton").click(function(e){
+		  e.preventDefault();
+		  FB.login(function(resposne){
+	      if (response.authResponse) {
+	      }
+		  });
+		});
   },
   
   handleResponse: function(response){

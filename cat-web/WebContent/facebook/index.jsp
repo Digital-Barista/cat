@@ -89,33 +89,13 @@
 				<a id="InviteButton" class="toolButton fb_button fb_button_medium">
 					<span class="fb_button_text">Invite Friends</span>
 				</a>
-				<fb:bookmark class="toolButton"></fb:bookmark>
-			</div>
-			
-			<div id="Invite">
-				<fb:serverFbml width="740px">
-					<script type="text/fbml">
-						<fb:fbml>
-							<fb:request-form
-								method='POST'
-								type='join DBI'
-								invite='true'
-								action='<%=inviteActionUrl%>'
-								content="<fb:req-choice url='<%=appUrl%>'
-										label='Try this app'/>" >
-								<fb:multi-friend-selector
-									actiontext="Invite your friends to use this application" />
-							</fb:request-form>
-						</fb:fbml>
-					</script>
-				</fb:serverFbml>
 			</div>
 			
 			<table id="Login" class="login">
 				<tr>
 					<td class="loginCell">
 						Connect with this application to get your messages<br />
-						<a href="#" class="button" onclick="FB.login()">Connect</a>
+						<a id="LoginButton" href="#" class="button">Connect</a>
 					</td>
 				</tr>
 			</table>
