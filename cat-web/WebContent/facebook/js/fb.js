@@ -27,7 +27,7 @@ $.extend(dbi, {
   	// Wire events
 		$("#InviteButton").click(function(){
         FB.ui({method: 'apprequests',
-          message: 'Try this app'
+          message: 'Thank you for accessing our app!'
         });
 		});
 		
