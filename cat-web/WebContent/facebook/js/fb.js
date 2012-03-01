@@ -34,10 +34,10 @@ $.extend(dbi, {
 		$("#LoginButton").click(function(e){
 		  e.preventDefault();
 		  FB.login(function(resposne){
-	      if (response.authResponse) {
-	      }
+		    dbi.handleResponse(response);
 		  });
 		});
+		
   },
   
   handleResponse: function(response){
