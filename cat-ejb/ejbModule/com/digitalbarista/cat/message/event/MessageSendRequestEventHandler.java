@@ -44,7 +44,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 	private String twitterSendDestName = "cat/messaging/TwitterOutgoing";
 	
 	private Logger log = LogManager.getLogger(MessageSendRequestEventHandler.class);
-	private String dateFormat = "yyyy/MM/dd";
+	private String dateFormat = "MM/dd/yyyy";
 	
 	protected MessageSendRequestEventHandler(EntityManager newEM,
 			SessionContext newSC) {
