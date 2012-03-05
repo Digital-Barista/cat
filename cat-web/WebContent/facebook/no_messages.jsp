@@ -1,1 +1,1 @@
-<div class="noMessageContent">Thank you for allowing our application. You currently have no new messages, but make sure to bookmark our application and check back regularly for new messages.</div>
+<div class="noMessageContent">Thank you for allowing our application. You currently have no messages, but make sure to check back regularly for new messages.</div>
