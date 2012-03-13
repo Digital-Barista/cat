@@ -32,7 +32,7 @@ package com.dbi.cat.business
 	[Bindable]
 	public class LoginManager
 	{
-		public static const TIMEOUT_MINUTES:Number = 20;
+		public static const TIMEOUT_MINUTES:Number = 60;
 		
 		public static const STATE_LOGIN:String = null;
 		public static const STATE_LOGIN_ATTEMPT:String = "LoginAttempt";

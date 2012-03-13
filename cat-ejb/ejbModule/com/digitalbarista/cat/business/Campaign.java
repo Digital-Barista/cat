@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.business;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignStatus;
+import com.digitalbarista.cat.data.CampaignVersionStatus;
 
 @XmlRootElement(name="Campaign")
 public class Campaign implements BusinessObject<CampaignDO>,Auditable {
@@ -37,6 +39,8 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 	private Long clientPK;
 	private CampaignMode mode;
 	private CampaignStatus status;
+	
+	private Date lastPublished;
 	
 	public void copyFrom(CampaignDO dataObject, Integer version) {
 		primaryKey=dataObject.getPrimaryKey();
@@ -75,6 +79,19 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 					campDO.getValue() != null &&
 					campDO.getValue().length() > 0)
 					isAutoStart = true;
+			}
+		}
+		
+		if (dataObject.getVersions()!=null)
+		{
+			
+			for(int loop=dataObject.getVersions().size()-1; loop>=0; loop--)
+			{
+				if(dataObject.getVersions().get(loop).getStatus()==CampaignVersionStatus.Published)
+				{
+					lastPublished=dataObject.getVersions().get(loop).getPublishedDate();
+					break;
+				}
 			}
 		}
 		
@@ -255,5 +272,12 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
   {
   	this.status = status;
   }
+
+	public Date getLastPublished() {
+		return lastPublished;
+	}
+
+	public void setLastPublished(Date lastPublished) {
+	}
 	
 }

@@ -25,5 +25,6 @@ package com.dbi.cat.common.vo
 		public var campaignInfos:ArrayCollection;
 		public var isAutoStart:Boolean;
 		public var subscriberCount:Number = 0;
+		public var lastPublished:Date;
 	}
 }

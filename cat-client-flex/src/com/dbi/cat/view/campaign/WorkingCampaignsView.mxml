@@ -56,6 +56,7 @@
 			dataProvider="{campaignList}">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name" />
+				<mx:DataGridColumn headerText="Published" dataField="lastPublished "/>
 				<mx:DataGridColumn headerText="Subscribers" dataField="subscriberCount" width="80" />
 				<mx:DataGridColumn headerText="Auto Start" dataField="isAutoStart" 
 					itemRenderer="com.dbi.controls.CheckMarkItemRenderer"
