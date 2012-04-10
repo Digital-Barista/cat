@@ -8,7 +8,6 @@
 	<property name="APP_ROOT" value="src"/>
 	<property name="DEPLOY_DIR" value="${deploy.dir}"/>
 	
-	<taskdef resource="flexTasks.tasks" />
 
 	<target name="set.flex.home" unless="flex.home">
 		<property name="flex.home" value="../flex-sdk"/>
@@ -45,6 +44,7 @@
 				<include name="EarContent/lib/*.jar"/>
 			</fileset>
 		</path>
+		<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
 	</target>
 	
 	<target name="clean" depends="init">
