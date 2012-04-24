@@ -42,6 +42,7 @@
 	
 	<target name="build" depends="clean">
 		<javac classpathref="ear.classpath" srcdir="${src.home}" destdir="${build.dir}"
+			includeantruntime="false"
 			debug="true" debuglevel="lines,vars,source"/>
 	</target>
 	

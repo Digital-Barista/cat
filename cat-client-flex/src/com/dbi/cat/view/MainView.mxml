@@ -58,12 +58,21 @@
 				{
 					isManager = currentUser.isManager;
 				}
-				
-				// Hide top level tabs that only managers can see
-				SecurityUtil.showTabs(Tabs, ["Campaigns", "Contacts", "Users"], isManager);
         
-        // Hide tabs account managers don't need
-        SecurityUtil.showTabs(Tabs, ["EntryMessage"], !isManager);
+        // Hide everything except coupon redemption tab
+        if (currentUser.hasRole(Roles.COUPON))
+        {
+            SecurityUtil.showTabs(Tabs, ["EntryMessage", "Dashboard", "Broadcast", "Campaigns", "Contacts", "Users", "Profile"], false);
+        }
+        else
+        {
+    				// Hide top level tabs that only managers can see
+    				SecurityUtil.showTabs(Tabs, ["Campaigns", "Contacts", "Users"], isManager);
+            
+            // Hide tabs account managers don't need
+            SecurityUtil.showTabs(Tabs, ["EntryMessage"], !isManager);
+        }
+        
 			}
 			
 			private function tabClick(e:IndexChangedEvent):void

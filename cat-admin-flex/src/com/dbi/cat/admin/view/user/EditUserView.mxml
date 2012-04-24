@@ -5,18 +5,20 @@
 	title="{editUser == null || isNaN(editUser.primaryKey) ? 'Create User' : 'Edit User'}" xmlns:vo="com.dbi.cat.vo.*">
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.dataGridClasses.DataGridColumn;
 			import com.dbi.cat.admin.event.UserEvent;
 			import com.dbi.cat.common.constants.Roles;
 			import com.dbi.cat.common.vo.RoleVO;
 			import com.dbi.cat.common.vo.UserVO;
-			import mx.core.UIComponent;
-			import mx.collections.IViewCursor;
-			import mx.managers.DragManager;
-			import mx.events.DragEvent;
-			import mx.collections.ArrayCollection;
-			import mx.validators.EmailValidator;
+			
 			import flash.events.MouseEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.IViewCursor;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.core.UIComponent;
+			import mx.events.DragEvent;
+			import mx.managers.DragManager;
+			import mx.validators.EmailValidator;
 			
 			[Bindable]
 			public var clients:ArrayCollection;
@@ -37,7 +39,7 @@
 			
 			[Bindable]
 			private var availableRoles:ArrayCollection = 
-				new ArrayCollection([Roles.ADMIN, Roles.CLIENT, Roles.ACCOUNT_MANAGER, Roles.BROADCASTER]);
+				new ArrayCollection([Roles.ADMIN, Roles.CLIENT, Roles.ACCOUNT_MANAGER, Roles.BROADCASTER, Roles.COUPON]);
 			
 			private function save():void
 			{
