@@ -17,7 +17,7 @@ import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignInfoDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignStatus;
-import com.digitalbarista.cat.data.CampaignVersionStatus;
+import com.digitalbarista.cat.data.CampaignVersionDO;
 
 @XmlRootElement(name="Campaign")
 public class Campaign implements BusinessObject<CampaignDO>,Auditable {
@@ -83,15 +83,10 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		}
 		
 		if (dataObject.getVersions()!=null)
-		{
-			
-			for(int loop=dataObject.getVersions().size()-1; loop>=0; loop--)
+		{			
+			for(CampaignVersionDO versionDO : dataObject.getVersions())
 			{
-				if(dataObject.getVersions().get(loop).getStatus()==CampaignVersionStatus.Published)
-				{
-					lastPublished=dataObject.getVersions().get(loop).getPublishedDate();
-					break;
-				}
+				lastPublished=(lastPublished==null || lastPublished.before(versionDO.getPublishedDate()))?versionDO.getPublishedDate():lastPublished;
 			}
 		}
 		
