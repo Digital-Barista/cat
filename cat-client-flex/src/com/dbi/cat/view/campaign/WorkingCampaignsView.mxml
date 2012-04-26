@@ -8,6 +8,7 @@
 			import com.dbi.util.ListUtil;
 			
 			import mx.collections.ArrayCollection;
+			import mx.formatters.DateFormatter;
 			
 			[Bindable]
 			public var campaignList:ArrayCollection;
