@@ -258,6 +258,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
 		this.subscriberCount = subscriberCount;
 	}
 
+	@XmlAttribute
 	public CampaignStatus getStatus()
   {
   	return status;
@@ -267,7 +268,7 @@ public class Campaign implements BusinessObject<CampaignDO>,Auditable {
   {
   	this.status = status;
   }
-
+	@XmlAttribute
 	public Date getLastPublished() {
 		return lastPublished;
 	}
