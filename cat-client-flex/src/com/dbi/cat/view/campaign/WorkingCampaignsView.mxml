@@ -33,7 +33,7 @@
 						
 					var df:DateFormatter = new DateFormatter();
 					df.formatString = "MM/DD/YYY";
-					return df.format(coupon[dataField]);
+					return df.format(campaign[dataField]);
 				}
 			}
 
