@@ -8,6 +8,7 @@
 			import com.dbi.util.ListUtil;
 			
 			import mx.collections.ArrayCollection;
+			import mx.formatters.DateFormatter;
 			
 			[Bindable]
 			public var campaignList:ArrayCollection;
@@ -24,6 +25,19 @@
 				refresh();
 			}
 			
+			private function formatDate(dataField:String):Function
+			{
+				return function(campaign:CampaignVO, column:DataGridColumn):String
+				{
+					if (campaign[dataField] == null)
+						return "N/A";
+						
+					var df:DateFormatter = new DateFormatter();
+					df.formatString = "MM/DD/YYY";
+					return df.format(campaign[dataField]);
+				}
+			}
+
 			private function createCampaign():void
 			{
 				var event:CampaignEvent = new CampaignEvent(CampaignEvent.CREATE_CAMPAIGN);
@@ -56,6 +70,7 @@
 			dataProvider="{campaignList}">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name" />
+				<mx:DataGridColumn headerText="Published" dataField="lastPublished" labelFunction="formatDate('lastPublished')"/>
 				<mx:DataGridColumn headerText="Subscribers" dataField="subscriberCount" width="80" />
 				<mx:DataGridColumn headerText="Auto Start" dataField="isAutoStart" 
 					itemRenderer="com.dbi.controls.CheckMarkItemRenderer"

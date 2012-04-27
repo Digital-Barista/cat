@@ -22,8 +22,7 @@
 	</target>
 	
 	<target name="set.flex.common.lib.home" unless="flex.common.lib.home">
-		<property name="flex.common.lib.home" value="../flex-common-lib"/>
-	</target>
+		<property name="flex.common.lib.home" value="../flex-common-lib"/>	</target>
 	
 	<target name="get.build.number" unless="env.BUILD_NUMBER">
 		<property name="build.number" value="dev"/>
