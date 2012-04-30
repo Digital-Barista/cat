@@ -1,8 +1,0 @@
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="cat-data">
-  <test verbose="2" name="RegexTest" annotations="JDK">
-    <classes>
-      <class name="RegexTest"/>
-    </classes>
-  </test>
-</suite>
