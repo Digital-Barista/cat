@@ -27,22 +27,24 @@
         <artifactId>maven-ear-plugin</artifactId>
         <configuration>
           <defaultJavaBundleDir>/lib</defaultJavaBundleDir>
-          <ejbModule>
-            <groupId>com.digitalbarista.cat</groupId>
-            <artifactId>cat-ejb</artifactId>
-            <bundleFileName>cat-ejb.jar</bundleFileName>
-          </ejbModule>
-          <ejbModule>
-            <groupId>com.digitalbarista.cat</groupId>
-            <artifactId>cat-data</artifactId>
-            <bundleFileName>cat-data.jar</bundleFileName>
-          </ejbModule>
-          <webModule>
-            <groupId>nike</groupId>
-            <artifactId>cat-web</artifactId>
-            <bundleFileName>cat-web.war</bundleFileName>
-            <contextRoot>cat</contextRoot>
-          </webModule>
+          <modules>
+            <ejbModule>
+              <groupId>com.digitalbarista.cat</groupId>
+              <artifactId>cat-ejb</artifactId>
+              <bundleFileName>cat-ejb.jar</bundleFileName>
+            </ejbModule>
+            <ejbModule>
+              <groupId>com.digitalbarista.cat</groupId>
+              <artifactId>cat-data</artifactId>
+              <bundleFileName>cat-data.jar</bundleFileName>
+            </ejbModule>
+            <webModule>
+              <groupId>com.digitalbarista.cat</groupId>
+              <artifactId>cat-web</artifactId>
+              <bundleFileName>cat-web.war</bundleFileName>
+              <contextRoot>/cat</contextRoot>
+            </webModule>
+          </modules>
         </configuration>
       </plugin>
     </plugins>
