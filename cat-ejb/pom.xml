@@ -58,6 +58,7 @@
           <groupId>com.digitalbarista.cat</groupId>
           <artifactId>cat-mail-poller</artifactId>
           <version>${project.version}</version>
+          <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>com.digitalbarista.cat</groupId>
