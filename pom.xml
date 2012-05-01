@@ -94,6 +94,11 @@
         <version>3.2.0.3978</version>
       </dependency>
       <dependency>
+        <groupId>com.adobe.blazeds</groupId>
+        <artifactId>blazeds-proxy</artifactId>
+        <version>3.2.0.3978</version>
+      </dependency>
+      <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>
         <version>2.5</version>
