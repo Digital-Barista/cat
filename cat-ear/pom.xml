@@ -42,7 +42,7 @@
               <groupId>com.digitalbarista.cat</groupId>
               <artifactId>cat-web</artifactId>
               <bundleFileName>cat-web.war</bundleFileName>
-              <contextRoot>/cat</contextRoot>
+              <contextRoot>cat</contextRoot>
             </webModule>
           </modules>
         </configuration>

@@ -56,7 +56,7 @@
             </goals>
             <configuration>
               <templateURI>folder:${basedir}/html-template</templateURI>
-              <htmlName>admin</htmlName>
+              <htmlName>index</htmlName>
             </configuration>
           </execution>
         </executions>
