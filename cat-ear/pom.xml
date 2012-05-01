@@ -62,6 +62,10 @@
           <artifactId>javassist</artifactId>
           <groupId>javassist</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>activation</artifactId>
+          <groupId>javax.activation</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
