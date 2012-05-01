@@ -126,6 +126,22 @@
       <artifactId>gdata-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-base</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-client-meta</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.collections</groupId>
+      <artifactId>google-collections</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
     </dependency>
