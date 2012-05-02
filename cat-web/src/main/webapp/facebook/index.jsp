@@ -29,14 +29,23 @@
 <%
 	String appName = request.getParameter("app_id");
 	String signedRequest = request.getParameter("signed_request");
+	String sessionSignedRequest = (String)session.getAttribute("signed_request");
 	String appUrl = "http://apps.facebook.com/" + appName + "/";
 	String inviteActionUrl = request.getRequestURL().toString() + "/invite_success.jsp?app_id=" + appName;
 	String appId = null;
 	
 	String noMessagesInclude = getInclude(config.getServletContext(), appName, "no_messages.jsp");
 	String analyticsInclude = getInclude(config.getServletContext(), appName, "analytics.jsp");
-	String facebookStyleInclude = getInclude(config.getServletContext(), appName, "css/fb.css");
-	
+
+  String ref = request.getParameter("ref");
+  String layoutClass = "";
+  
+  // If redirected from the canvas page assume this is mobile
+  if (ref != null &&
+  		ref.equals("web_canvas") )
+	{
+    layoutClass = "mobile";
+	}
 
 	// Lookup app by name to get facebook app ID needed for javascript SDK
 	InitialContext context = new InitialContext();
@@ -50,13 +59,25 @@
 	// Get tracking info
 	FacebookTrackingInfo trackingInfo = facebookManager.getFacebookTrackingInfo(request);
 
+	// Use the signedRequest from the session if missing from the query params
+	if (signedRequest == null ||
+			signedRequest.length() < 1)
+	{
+		signedRequest = sessionSignedRequest;
+	}
+	
+	// Save the current signedRequest to the session
+	session.setAttribute("signed_request", signedRequest);
 %>
 
 
-<html>
+<html class="<%=layoutClass%>">
 	<head>
-		<link href="<%=facebookStyleInclude%>" type="text/css" rel="stylesheet" />
-		
+	 <meta name="viewport" content="width=device-width" />
+	 <meta name="viewport" content="initial-scale=1.0" />
+	
+    <link href="css/fb.css" type="text/css" rel="stylesheet" />
+    
 		<script type="text/javascript">
 		  var _gaq = _gaq || [];
 		  _gaq.push(['_setCustomVar', 1, 'appName', '<%=trackingInfo.getAppName()%>']);

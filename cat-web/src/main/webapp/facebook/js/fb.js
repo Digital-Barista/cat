@@ -53,6 +53,7 @@ $.extend(dbi, {
   		}
   		else{
   		  dbi.currentUID = response.authResponse.userID;
+  		  dbi.signedRequest = response.authResponse.signedRequest;
   		}
   		
   		dbi.hideLogin();

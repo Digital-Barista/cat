@@ -41,7 +41,7 @@ public interface FacebookManager
 			@FormParam("uid")String uid, @FormParam("signedRequest") String signedRequest, 
 			@Context UriInfo ui) throws FacebookManagerException;
 
-	@PUT
+	@POST
 	@Consumes("application/x-www-form-urlencoded")
 	@Path("/messages/{facebookMessageId}/{response}")
 	FacebookMessage respond(@PathParam("facebookMessageId") Integer facebookMessageId, 

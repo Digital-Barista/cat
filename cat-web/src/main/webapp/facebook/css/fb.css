@@ -17,7 +17,7 @@ a
 
 td
 {
-	font-size:11px;
+	font-size:12px;
 }
 
 h2
@@ -27,7 +27,6 @@ h2
 
 #MainContainer
 {
-	width:735px;
 }
 
 #MessageArea
@@ -106,7 +105,7 @@ h2
 	background:none repeat scroll 0 0 #F2F2F2;
 	border-top:1px solid #CCCCCC;
 
-	height:23px;
+	height:33px;
 	padding:6px 0;
 	
 	color:#333333;
@@ -141,6 +140,7 @@ h2
 	color:#333333;
 	font-size:20px;
 	font-weight:bold;
+	height:25px;
 }
 .bannerBookmark
 {
@@ -149,6 +149,9 @@ h2
 .bookmark
 {
 	display:none;
+	position:absolute;
+	right:2px;
+	top:4px;
 }
 .toolButton
 {
@@ -239,7 +242,12 @@ h2
 
 .selectColumn
 {
-	width:25px;
+	padding:10px;
+	width:30px;
+}
+
+.buttonColumn {
+	width: 25px;
 }
 
 .dateColumn
@@ -249,6 +257,7 @@ h2
 
 .messageColumn
 {
+	padding-top:3px;
 }
 
 .deleteColumn
@@ -259,9 +268,106 @@ h2
 .title
 {
 	font-weight:bold;
+	font-size:1.2em;
 }
 
+.date {
+	margin-bottom:5px;
+  font-weight:bold;
+  color:#999;
+}
 .responseContent
 {
 	color:#22AF0A;
 }
+
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+}
+
+.ie8 .custom-checkbox {
+  zoom: 1;
+}
+
+.custom-checkbox > .box {
+  position: relative;
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+  background-color: #eee;
+  border-radius: 4px;
+}
+
+.custom-checkbox > .box > .tick {
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 18px;
+  height: 6px;
+  border-bottom: 4px solid #3B5998;
+  border-left: 4px solid #3B5998;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  display: none;
+}
+
+.oldie .custom-checkbox > .box > .tick {
+  left: 1px;
+  top: -5px;
+  zoom: 1;
+}
+
+.ie7 .custom-checkbox > .box > .tick {
+  filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.7071067811865476, M12=0.7071067811865475, M21=-0.7071067811865475, M22=0.7071067811865476, sizingMethod='auto expand');
+}
+
+.ie8 .custom-checkbox > .box > .tick {
+  -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.7071067811865476, M12=0.7071067811865475, M21=-0.7071067811865475, M22=0.7071067811865476, sizingMethod='auto expand')";
+}
+
+.custom-checkbox > input:checked + .box > .tick {
+  display: block;
+}
+
+.custom-checkbox.checked > .box > .tick {
+  display: block;
+}
+
+.custom-checkbox > input {
+  position: absolute;
+  outline: none;
+  left: 0;
+  top: 0;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  margin: 0;
+  opacity: 0;
+  z-index: 1;
+}
+
+.ie7 .custom-checkbox > input {
+  filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+}
+
+.ie8 .custom-checkbox > input {
+  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(opacity=0)";
+}
+
+.custom-checkbox > input:active + .box {
+  border-color: #aaa;
+  background-color: #ddd;
+}
+
+/**
+ Special rules for mobile
+*/
+.mobile .buttonColumn {
+	display:none;
+}​​

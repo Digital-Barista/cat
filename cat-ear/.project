@@ -5,11 +5,8 @@
 	<projects>
 		<project>cat-admin-flex</project>
 		<project>cat-client-flex</project>
-		<project>cat-data</project>
-		<project>cat-ejb</project>
 		<project>cat-poc-flex</project>
 		<project>cat-utils</project>
-		<project>cat-web</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

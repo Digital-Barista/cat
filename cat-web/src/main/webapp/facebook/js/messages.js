@@ -1,5 +1,4 @@
 
-
 function MessageAPI()
 {
 	var messageAPI = this;
@@ -8,7 +7,7 @@ function MessageAPI()
 	var CHECKBOX_PREFIX = "message_select_";
 	var MESSAGE_LINE_PREFIX = "message_";
 
-	var signedRequest = document.getElementById('signedRequest').value;
+	var signedRequest =  dbi.signedRequest || document.getElementById('signedRequest').value;
 	
 	// Add click events
 	setupControls();
@@ -98,7 +97,7 @@ function MessageAPI()
 		// Make request
 		$.ajax({
 			  url: url,
-			  type: 'PUT',
+			  type: 'POST',
 			  dataType: 'json',
 			  data:{'uid': dbi.currentUID, 'signedRequest':signedRequest},
 			  success: function(data) {
@@ -214,6 +213,18 @@ function MessageAPI()
 		none.bind('click', function() {
 			selectCheckboxes(false);
 		});
+		
+		// Hack for IE custom checkboxes
+		if ($.browser.msie && parseInt($.browser.version) < 9) {
+		  var inputs = $('.custom-checkbox input');
+		  inputs.live('change', function(){
+		    var ref = $(this),
+		        wrapper = ref.parent();
+		    if(ref.is(':checked')) wrapper.addClass('checked');
+		    else wrapper.removeClass('checked');
+		  });
+		  inputs.trigger('change');
+		}
 	}
 	
 	
@@ -237,16 +248,16 @@ function MessageAPI()
 		// Add check box
 		var cell = $("<td />");
 		cell.attr("class", "selectColumn");
-		var checkbox = $("<input type='checkbox' />");
-		checkbox.attr("id", CHECKBOX_PREFIX + message.facebookMessageId);
+		var checkbox = $("<span class='custom-checkbox'><input type='checkbox' /><span class='box'><span class='tick'></span></span></span>");
+		checkbox.find('input').attr("id", CHECKBOX_PREFIX + message.facebookMessageId);
 		cell.append(checkbox);
 		row.append(cell);
 
 		// Add create date
-		cell = $("<td />");
-		cell.attr("class", "dateColumn");
-		cell.text(message.formattedCreateDate);
-		row.append(cell);
+//		cell = $("<td />");
+//		cell.attr("class", "dateColumn");
+//		cell.text(message.formattedCreateDate);
+//		row.append(cell);
 		
 		
 		// Create div to hold title and body content
@@ -261,6 +272,12 @@ function MessageAPI()
 		title.attr("class", "title");
 		title.text(message.title);
 		content.append(title);
+
+    // Add title
+    var date = $("<div />");
+    date.attr("class", "date");
+    date.text(message.formattedCreateDate);
+    content.append(date);
 		
 		// Add body
 		var body = $("<div />");
@@ -306,7 +323,7 @@ function MessageAPI()
 		
 		// Add print column
 		cell = $("<td />");
-		cell.attr("class", "selectColumn");
+		cell.attr("class", "buttonColumn");
 		var printLink = $("<a href='#'>Print</a>");
 		printLink.attr("class", "button");
 		
@@ -324,7 +341,7 @@ function MessageAPI()
 		
 		// Add delete column
 		cell = $("<td />");
-		cell.attr("class", "selectColumn");
+		cell.attr("class", "buttonColumn");
 		var deleteLink = $("<a href='#'>Delete</a>");
 		deleteLink.attr("class", "button");
 		
