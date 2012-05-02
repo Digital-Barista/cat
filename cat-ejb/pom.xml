@@ -35,6 +35,11 @@
         </executions>
         <configuration>
         	<ejbVersion>3.0</ejbVersion>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
         </configuration>
       </plugin>
   	</plugins>
