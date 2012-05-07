@@ -4,7 +4,7 @@
 
   <groupId>com.digitalbarista.cat</groupId>
   <artifactId>cat-web</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2</version>
   <packaging>war</packaging>
 
   <name>CAT Web App</name>
@@ -18,7 +18,7 @@
   <parent>
     <groupId>com.digitalbarista.cat</groupId>
     <artifactId>cat</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
   </parent>
 
   <build>
