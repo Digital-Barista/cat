@@ -76,6 +76,8 @@
 	 <meta name="viewport" content="width=device-width" />
 	 <meta name="viewport" content="initial-scale=1.0" />
 	
+    <script src="js/modernizr.js" type="text/javascript"></script>
+    
     <link href="css/fb.css" type="text/css" rel="stylesheet" />
     
 		<script type="text/javascript">
