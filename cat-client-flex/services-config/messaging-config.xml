@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service id="message-service" 
+    class="flex.messaging.services.MessageService">
+
+    <adapters>
+        <adapter-definition id="actionscript" class="flex.messaging.services.messaging.adapters.ActionScriptAdapter" default="true" />
+        <adapter-definition id="jms" class="flex.messaging.services.messaging.adapters.JMSAdapter"/>
+    </adapters>
+
+	<destination id="JMS_Receive_Queue">
+		<adapter ref="jms"/>
+		<properties>
+			<jms>
+				<connection-factory>
+					java:/XAConnectionFactory
+				</connection-factory>
+				<destination-type>Queue</destination-type>
+				<destination-jndi-name>
+					cat/test/receiveQueue
+				</destination-jndi-name>
+				<delivery-mode>PERSISTENT</delivery-mode>
+				<message-type>javax.jms.TextMessage</message-type>
+			</jms>
+		</properties>
+		<channels>
+			<channel ref="my-amf-stream"/>
+		</channels>
+	</destination>
+	
+	<default-channels>
+        <channel ref="my-amf-stream"/>
+    </default-channels>
+
+</service>

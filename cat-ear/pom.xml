@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.digitalbarista.cat</groupId>
+  <artifactId>cat-ear</artifactId>
+  <version>1.2-SNAPSHOT</version>
+  <packaging>ear</packaging>
+
+  <name>CAT Enterprise Application</name>
+  <organization>
+      <name>Digital Barista, Inc.</name>
+  </organization>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <parent>
+    <groupId>com.digitalbarista.cat</groupId>
+    <artifactId>cat</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </parent>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-ear-plugin</artifactId>
+        <configuration>
+          <defaultJavaBundleDir>/lib</defaultJavaBundleDir>
+          <modules>
+            <ejbModule>
+              <groupId>com.digitalbarista.cat</groupId>
+              <artifactId>cat-ejb</artifactId>
+              <bundleFileName>cat-ejb.jar</bundleFileName>
+            </ejbModule>
+            <ejbModule>
+              <groupId>com.digitalbarista.cat</groupId>
+              <artifactId>cat-data</artifactId>
+              <bundleFileName>cat-data.jar</bundleFileName>
+            </ejbModule>
+            <webModule>
+              <groupId>com.digitalbarista.cat</groupId>
+              <artifactId>cat-web</artifactId>
+              <bundleFileName>cat-web.war</bundleFileName>
+              <contextRoot>cat</contextRoot>
+            </webModule>
+          </modules>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-ejb</artifactId>
+      <type>ejb</type>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>javassist</artifactId>
+          <groupId>javassist</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>activation</artifactId>
+          <groupId>javax.activation</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-web</artifactId>
+      <type>war</type>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-data</artifactId>
+      <type>ejb</type>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-utils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-ejb</artifactId>
+      <version>${project.version}</version>
+      <type>pom</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-web</artifactId>
+      <version>${project.version}</version>
+      <type>pom</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-data</artifactId>
+      <version>${project.version}</version>
+      <type>pom</type>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>

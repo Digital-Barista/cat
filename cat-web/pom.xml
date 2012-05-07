@@ -1,0 +1,116 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.digitalbarista.cat</groupId>
+  <artifactId>cat-web</artifactId>
+  <version>1.2-SNAPSHOT</version>
+  <packaging>war</packaging>
+
+  <name>CAT Web App</name>
+  <organization>
+      <name>Digital Barista, Inc.</name>
+  </organization>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <parent>
+    <groupId>com.digitalbarista.cat</groupId>
+    <artifactId>cat</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </parent>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.digitalbarista.cat</groupId>
+                  <artifactId>cat-client-flex</artifactId>
+                  <version>${project.version}</version>
+                  <classifier>zip</classifier>
+                  <type>zip</type>
+                  <outputDirectory>${basedir}/target/${project.build.finalName}/client</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.digitalbarista.cat</groupId>
+                  <artifactId>cat-admin-flex</artifactId>
+                  <version>${project.version}</version>
+                  <classifier>zip</classifier>
+                  <type>zip</type>
+                  <outputDirectory>${basedir}/target/${project.build.finalName}/admin</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <packagingExcludes>**/*.jar</packagingExcludes>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-ejb</artifactId>
+      <type>ejb</type>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-client-flex</artifactId>
+      <version>${project.version}</version>
+      <classifier>zip</classifier>
+      <type>zip</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.digitalbarista.cat</groupId>
+      <artifactId>cat-admin-flex</artifactId>
+      <version>${project.version}</version>
+      <classifier>zip</classifier>
+      <type>zip</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.jms</groupId>
+      <artifactId>jms-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jms</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+    </dependency>
+  </dependencies>
+</project>
