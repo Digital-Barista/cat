@@ -285,6 +285,11 @@
         <version>3.6.0.16995</version>
         <type>rb.swc</type>
       </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>4.1.2</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   
