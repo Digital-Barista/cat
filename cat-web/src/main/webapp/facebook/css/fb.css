@@ -322,14 +322,6 @@ h2
   zoom: 1;
 }
 
-.ie7 .custom-checkbox > .box > .tick {
-  filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.7071067811865476, M12=0.7071067811865475, M21=-0.7071067811865475, M22=0.7071067811865476, sizingMethod='auto expand');
-}
-
-.ie8 .custom-checkbox > .box > .tick {
-  -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.7071067811865476, M12=0.7071067811865475, M21=-0.7071067811865475, M22=0.7071067811865476, sizingMethod='auto expand')";
-}
-
 .custom-checkbox > input:checked + .box > .tick {
   display: block;
 }
@@ -350,14 +342,6 @@ h2
   margin: 0;
   opacity: 0;
   z-index: 1;
-}
-
-.ie7 .custom-checkbox > input {
-  filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
-}
-
-.ie8 .custom-checkbox > input {
-  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(opacity=0)";
 }
 
 .custom-checkbox > input:active + .box {

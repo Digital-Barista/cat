@@ -214,17 +214,6 @@ function MessageAPI()
 			selectCheckboxes(false);
 		});
 		
-		// Hack for IE custom checkboxes
-		if ($.browser.msie && parseInt($.browser.version) < 9) {
-		  var inputs = $('.custom-checkbox input');
-		  inputs.live('change', function(){
-		    var ref = $(this),
-		        wrapper = ref.parent();
-		    if(ref.is(':checked')) wrapper.addClass('checked');
-		    else wrapper.removeClass('checked');
-		  });
-		  inputs.trigger('change');
-		}
 	}
 	
 	
@@ -252,13 +241,6 @@ function MessageAPI()
 		checkbox.find('input').attr("id", CHECKBOX_PREFIX + message.facebookMessageId);
 		cell.append(checkbox);
 		row.append(cell);
-
-		// Add create date
-//		cell = $("<td />");
-//		cell.attr("class", "dateColumn");
-//		cell.text(message.formattedCreateDate);
-//		row.append(cell);
-		
 		
 		// Create div to hold title and body content
 		cell = $("<td />");
