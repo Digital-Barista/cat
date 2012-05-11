@@ -57,6 +57,9 @@
             <configuration>
               <templateURI>folder:${basedir}/html-template</templateURI>
               <htmlName>index</htmlName>
+              <parameters>
+                <application>client</application>
+              </parameters>
             </configuration>
           </execution>
         </executions>
