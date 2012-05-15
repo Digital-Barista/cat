@@ -159,7 +159,7 @@
 				{
 					var selected:Boolean = EntryPointTypes[i].selected;
 					EntryPoints[i].enabled = selected;
-					Keywords[i].enabled = selected;
+					Keywords[i].enabled = selected && EntryPoints[i].selectedIndex > -1;
 					
 					if (!selected)
 					{
