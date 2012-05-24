@@ -22,6 +22,10 @@
 	      
 	      input {
 	       margin-right:5px;
+	       
+	       &.number {
+	         width:40px;
+	       }
 	      }
 	    }
 	  }

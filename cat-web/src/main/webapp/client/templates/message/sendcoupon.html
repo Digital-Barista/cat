@@ -1,8 +1,22 @@
 <div class="controls">
+  <div class="actions">
+    <a id="new-coupon" href="#">New Coupon Message</a>
+    <a id="send-coupon" href="#">Send Coupon Message</a>
+  </div>
   <ul class="section">
-    <li><label>Title</label><input id="title" type="text" /></li>
-    <li><label>Max Coupons</label><input id="max-coupons" type="checkbox" checked />Infinite</li>
-    <li><label>Max Redemptions</label><input id="max-redemptions" type="checkbox" checked />Infinite</li>
+    <li><label>Title</label><input id="title" type="text" value="<%= name %>" /></li>
+    <li>
+      <label>Max Coupons</label>
+      <input id="max-coupons" value"<%= this.maxCoupons %>" class="number <% if (this.maxCoupons){ print(' hidden'); } %>" />
+      <input id="infinite-coupons" type="checkbox" <% if (this.maxCoupons){ print('checked'); } %> />
+      Infinite
+    </li>
+    <li>
+      <label>Max Redemptions</label>
+      <input id="max-redemptions" value"<%= this.maxRedemptions %>"" class="number <% if (this.maxRedemptions){ print(' hidden'); } %>"  />
+      <input id="infinite-redemptions" type="checkbox" <% if (this.maxRedemptions){ print('checked'); } %> />
+      Infinite
+    </li>
     <li>
 		  <label>Coupon Code</label>
 	    <input name="coupon-code" id="random-code" type="radio" checked />Random

@@ -481,3 +481,5 @@ li {
           padding-right: 10px; }
         .page .controls .section li input {
           margin-right: 5px; }
+          .page .controls .section li input.number {
+            width: 40px; }

@@ -31,8 +31,10 @@ define([
 		});
     
     router.on('route:sendcoupon', function () {
-     require(['views/message/sendcoupon'], function (SendCouponView) {
-        var sendCoupon= Vm.create(appView, 'SendCouponView', SendCouponView);
+     require(['views/message/sendcoupon',
+              'models/coupon'], function (SendCouponView, Coupon) {
+        var coupon = new Coupon();
+        var sendCoupon= Vm.create(appView, 'SendCouponView', SendCouponView, {model: coupon});
         sendCoupon.render();
       });     
     });

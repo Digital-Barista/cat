@@ -16,7 +16,8 @@ require.config({
     // When you have HTML/CSS designers this aids in keeping them out of the js directory
     templates: '/templates',
     
-    views: '/js/views'
+    views: '/js/views',
+    models: '/js/models'
   },
 	//urlArgs: "bust=" +  (new Date()).getTime()
 
