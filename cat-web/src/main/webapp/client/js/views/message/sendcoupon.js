@@ -1,10 +1,12 @@
 define([
   "backbone",
+  "jquery",
   "views/message/messageeditor",
-  'text!templates/message/sendcoupon.html'
+  'text!templates/message/sendcoupon.html',
+  "jqueryui"
 ],
 
-function(Backbone, MessageEditor, sendCouponTemplate) {
+function(Backbone, $, MessageEditor, sendCouponTemplate) {
 
   var SendCoupon = Backbone.View.extend({
     
@@ -23,6 +25,9 @@ function(Backbone, MessageEditor, sendCouponTemplate) {
       
       // Populate template
       $el.html(this.template(this.model.toJSON()));
+      
+      // Add date picker
+      $el.find('#unavailable-date, #expire-date-value').datepicker();
       
       // Set input values that are bitch to do in a template
       $el.find('#infinite-coupons').prop('checked', infiniteCoupons);
@@ -53,6 +58,12 @@ function(Backbone, MessageEditor, sendCouponTemplate) {
       $el.find('#static-code-value').toggle(!useRandomCode);
       $el.find('#max-redemptions').toggle(!infiniteRedemptions);
       $el.find('#max-coupons').toggle(!infiniteCoupons);
+      
+      $el.find('input[name="expiration"]').prop('checked', false);
+      $el.find('input[id="expire-' + model.get('expire') + '"]').prop('checked', true);
+
+      $el.find('.expire-control').hide();
+      $el.find('#expire-' + model.get('expire') + '-control').show();
     },
 
     events: {
@@ -73,7 +84,10 @@ function(Backbone, MessageEditor, sendCouponTemplate) {
         useRandomCode: $('#random-code').prop('checked'),
         staticCode: $('#static-code-value').val(),
         offerCode: $('#offer-code').val(),
-        unavailableDate: $('#unavailable-date').val()
+        unavailableDate: $('#unavailable-date').val(),
+        expire: $('input[name="expiration"]:checked').val(),
+        expireDays: $('#expire-days').val(),
+        expireDate: $('#expire-date').val()
       });
 
       this.updateControlVisibility();

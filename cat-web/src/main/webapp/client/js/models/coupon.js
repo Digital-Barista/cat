@@ -9,21 +9,26 @@ define([
     
     RANDOM_CODE_LENGTH: 6,
     
+    defaults: {
+      infiniteCoupons: true,
+      infiniteRedemptions: true,
+      maxCoupons: 0,
+      maxRedemptions: 0,
+      useRandomCode: true,
+      staticCode: '',
+      couponCode: '',
+      offerCode: '',
+      unavailableDate: '',
+      expireDate: '',
+      expireDays: '',
+      expire: 'never'
+    },
     
     initialize: function(){
       var model = this;
       
       model.set({
-        availableMessage: model.START_COUPON_CODE + model.END_COUPON_CODE,
-        infiniteCoupons: true,
-        infiniteRedemptions: true,
-        maxCoupons: 0,
-        maxRedemptions: 0,
-        useRandomCode: true,
-        staticCode: '',
-        couponCode: '',
-        offerCode: '',
-        unavailableDate: ''
+        availableMessage: model.START_COUPON_CODE + model.END_COUPON_CODE
       });
     }
 
