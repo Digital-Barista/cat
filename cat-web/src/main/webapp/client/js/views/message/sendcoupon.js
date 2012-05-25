@@ -13,10 +13,46 @@ function(Backbone, MessageEditor, sendCouponTemplate) {
     template: _.template(sendCouponTemplate),
     
     render: function () {
-      $(this.el).html(this.template(this.model.toJSON()));
+      var $el = this.$el,
+          editor,
+          model = this.model,
+          message,
+          infiniteCoupons = model.get('infiniteCoupons'),
+          infiniteRedemptions = model.get('infiniteRedemptions'),
+          useRandomCode = model.get('useRandomCode');
       
-      var editor = new MessageEditor();
+      // Populate template
+      $el.html(this.template(this.model.toJSON()));
+      
+      // Set input values that are bitch to do in a template
+      $el.find('#infinite-coupons').prop('checked', infiniteCoupons);
+      $el.find('#infinite-redemptions').prop('checked', infiniteRedemptions);
+      $el.find('#random-code').prop('checked', useRandomCode);
+      $el.find('#static-code').prop('checked', !useRandomCode);
+      
+      this.updateControlVisibility();
+      
+      // Render the message editor with correct message
+      message = $el.find('#available').prop('checked') ? 
+          model.get('availableMessage') : model.get('unavailableMessage');
+          
+      editor = new MessageEditor({model: new Backbone.Model({message: message})});
       editor.render();
+    },
+    
+    /**
+     * Update controls visibility according to model data
+     */
+    updateControlVisibility: function(){
+      var $el = this.$el,
+          model = this.model,
+          infiniteCoupons = model.get('infiniteCoupons'),
+          infiniteRedemptions = model.get('infiniteRedemptions'),
+          useRandomCode = model.get('useRandomCode');
+    
+      $el.find('#static-code-value').toggle(!useRandomCode);
+      $el.find('#max-redemptions').toggle(!infiniteRedemptions);
+      $el.find('#max-coupons').toggle(!infiniteCoupons);
     },
 
     events: {
@@ -30,11 +66,17 @@ function(Backbone, MessageEditor, sendCouponTemplate) {
       
       model.set({
         name: $('#title').val(),
-        maxCoupons: $('#infinite-coupons').is(':checked') ? undefined : ($('#max-coupons').val() ? $('#max-coupons').val() : 0),
-        maxRedemptions: $('#infinite-redemptions').is(':checked') ? undefined : ($('#max-redemptions').val() ? $('#max-redemptions').val() : 0)
+        infiniteCoupons: $('#infinite-coupons').prop('checked'),
+        maxCoupons: $('#max-coupons').val(),
+        infiniteRedemptions: $('#infinite-redemptions').prop('checked'),
+        maxRedemptions: $('#max-redemptions').val(),
+        useRandomCode: $('#random-code').prop('checked'),
+        staticCode: $('#static-code-value').val(),
+        offerCode: $('#offer-code').val(),
+        unavailableDate: $('#unavailable-date').val()
       });
-      
-      this.render();
+
+      this.updateControlVisibility();
     },
     
     sendCoupon: function(event){

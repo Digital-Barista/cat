@@ -7,26 +7,27 @@
     <li><label>Title</label><input id="title" type="text" value="<%= name %>" /></li>
     <li>
       <label>Max Coupons</label>
-      <input id="max-coupons" value"<%= this.maxCoupons %>" class="number <% if (this.maxCoupons){ print(' hidden'); } %>" />
-      <input id="infinite-coupons" type="checkbox" <% if (this.maxCoupons){ print('checked'); } %> />
+      <input id="max-coupons" value="<%= maxCoupons %>" class="short" />
+      <input id="infinite-coupons" type="checkbox" />
       Infinite
     </li>
     <li>
       <label>Max Redemptions</label>
-      <input id="max-redemptions" value"<%= this.maxRedemptions %>"" class="number <% if (this.maxRedemptions){ print(' hidden'); } %>"  />
-      <input id="infinite-redemptions" type="checkbox" <% if (this.maxRedemptions){ print('checked'); } %> />
+      <input id="max-redemptions" value="<%= maxRedemptions %>" class="short"  />
+      <input id="infinite-redemptions" type="checkbox" />
       Infinite
     </li>
     <li>
 		  <label>Coupon Code</label>
 	    <input name="coupon-code" id="random-code" type="radio" checked />Random
 	    <input name="coupon-code" id="static-code" type="radio" />Static
+	    <input id="static-code-value" class="short" value="<%= staticCode %>" />
     </li>
   </ul>
   
   <ul class="section">
-    <li><label>Offer Code</label><input id="offer-code" type="text" /></li>
-    <li><label>Unavailable Date</label><input id="unavailable-date" type="text" /></li>
+    <li><label>Offer Code</label><input id="offer-code" type="text" value="<%= offerCode %>" /></li>
+    <li><label>Unavailable Date</label><input id="unavailable-date" type="text" value="<%= unavailableDate %>" /></li>
     <li>
 	    <label>Expiration</label>
 	    <input name="expiration" type="radio" id="exp-never" checked />Never

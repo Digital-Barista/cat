@@ -6,9 +6,13 @@ define([
 function(Backbone, editorTemplate) {
 
   var Editor = Backbone.View.extend({
+    
     el: '.editor',
+    
+    template: _.template(editorTemplate),
+    
     render: function () {
-      $(this.el).html(editorTemplate);
+      $(this.el).html(this.template(this.model.toJSON()));
     }
   });
 

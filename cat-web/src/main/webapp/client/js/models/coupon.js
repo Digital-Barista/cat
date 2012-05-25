@@ -15,8 +15,15 @@ define([
       
       model.set({
         availableMessage: model.START_COUPON_CODE + model.END_COUPON_CODE,
-        maxCoupons: 10,
-        maxRedemptions: 10
+        infiniteCoupons: true,
+        infiniteRedemptions: true,
+        maxCoupons: 0,
+        maxRedemptions: 0,
+        useRandomCode: true,
+        staticCode: '',
+        couponCode: '',
+        offerCode: '',
+        unavailableDate: ''
       });
     }
 
