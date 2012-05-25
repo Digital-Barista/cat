@@ -27,7 +27,7 @@ function(Backbone, $, MessageEditor, sendCouponTemplate) {
       $el.html(this.template(this.model.toJSON()));
       
       // Add date picker
-      $el.find('#unavailable-date, #expire-date-value').datepicker();
+      $el.find('.date-picker').datepicker();
       
       // Set input values that are bitch to do in a template
       $el.find('#infinite-coupons').prop('checked', infiniteCoupons);
