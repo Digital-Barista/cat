@@ -149,6 +149,8 @@ function(Backbone, $, MessageEditor, sendCouponTemplate) {
       event.preventDefault();
       
       this.model.set(this.model.defaults);
+      this.model.initialize();
+      this.messageModel.set('message', this.replaceCouponToken(this.model.get('availableMessage')));
       this.render();
     }
     

@@ -6,6 +6,7 @@
 	
 	.main-menu {
 	 position:relative;
+	 right:0;
 	 
 	 li {
 	   float:left;
@@ -24,7 +25,7 @@
    .menu-item {
    
      &.active {
-       background: #DDD;
+       background: rgba(255,255,255, 0.1);
      
        & > a {
         color: #FFF;
@@ -39,8 +40,12 @@
    
    .sub-item {
      
+     a {
+      color: #333;
+     }
+     
      &.active {
-       background: #DDD;
+       background: rgba(0,0,0, 0.1);
        @include border-top-radius(10px);
      
        & > a {
@@ -50,10 +55,10 @@
     }
     
    .sub-menu {
-    height:50px;
     position: absolute;
     right:0;
     display:none;
+    padding-top:10px;
    }
 	}
 }
