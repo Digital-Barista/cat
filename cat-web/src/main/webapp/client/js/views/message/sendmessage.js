@@ -12,7 +12,7 @@ function(Backbone, MessageEditor, sendMessageTemplate) {
       
       $(this.el).html(sendMessageTemplate);
       
-      var editor = new MessageEditor();
+      var editor = new MessageEditor({model: this.model});
       editor.render();
     }
   });

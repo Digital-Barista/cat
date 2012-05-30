@@ -40,8 +40,10 @@ define([
     });
 		
 		router.on('route:sendmessage', function () {
-	   require(['views/message/sendmessage'], function (SendMessageView) {
-        var sendMessage= Vm.create(appView, 'SendMessageView', SendMessageView);
+	   require(['views/message/sendmessage',
+              'models/message'], function (SendMessageView, Message){
+        var message = new Message();
+        var sendMessage= Vm.create(appView, 'SendMessageView', SendMessageView, {model: message});
         sendMessage.render();
       });	  	
 		});

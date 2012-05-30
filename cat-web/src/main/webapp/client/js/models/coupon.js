@@ -4,12 +4,13 @@ define([
 ], function(_, Backbone) {
   var coupon = Backbone.Model.extend({
     
-    START_COUPON_CODE: '<',
-    END_COUPON_CODE: '>',
+    START_COUPON_CODE: '{',
+    END_COUPON_CODE: '}',
     
     RANDOM_CODE_LENGTH: 6,
     
     defaults: {
+      name: '',
       infiniteCoupons: true,
       infiniteRedemptions: true,
       maxCoupons: 0,
@@ -21,7 +22,8 @@ define([
       unavailableDate: '',
       expireDate: '',
       expireDays: '',
-      expire: 'never'
+      expire: 'never',
+      unavailableMessage: ''
     },
     
     initialize: function(){

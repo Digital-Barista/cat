@@ -1,9 +1,9 @@
 define([
-  "backbone",
-  "jquery",
-  "views/message/messageeditor",
+  'backbone',
+  'jquery',
+  'views/message/messageeditor',
   'text!templates/message/sendcoupon.html',
-  "jqueryui"
+  'jqueryui'
 ],
 
 function(Backbone, $, MessageEditor, sendCouponTemplate) {
@@ -14,17 +14,29 @@ function(Backbone, $, MessageEditor, sendCouponTemplate) {
     
     template: _.template(sendCouponTemplate),
     
+    initialize: function(){
+      this.messageModel = new Backbone.Model();
+      this.messageModel.set('message', this.replaceCouponToken(this.model.get('availableMessage')));
+      this.messageModel.bind('change', this.messageUpdate, this);
+
+    },
+
+    events: {
+      "change input": "change",
+      "click #send-coupon": "sendCoupon",
+      "click #new-coupon": "newCoupon"
+    },
+    
     render: function () {
       var $el = this.$el,
-          editor,
           model = this.model,
-          message,
           infiniteCoupons = model.get('infiniteCoupons'),
           infiniteRedemptions = model.get('infiniteRedemptions'),
           useRandomCode = model.get('useRandomCode');
       
       // Populate template
       $el.html(this.template(this.model.toJSON()));
+
       
       // Add date picker
       $el.find('.date-picker').datepicker();
@@ -38,11 +50,26 @@ function(Backbone, $, MessageEditor, sendCouponTemplate) {
       this.updateControlVisibility();
       
       // Render the message editor with correct message
-      message = $el.find('#available').prop('checked') ? 
-          model.get('availableMessage') : model.get('unavailableMessage');
-          
-      editor = new MessageEditor({model: new Backbone.Model({message: message})});
-      editor.render();
+      this.editor = new MessageEditor({model: this.messageModel});
+      this.editor.render();
+    },
+    
+    messageUpdate: function(event){
+      var message = this.messageModel.get('message');
+      var updateMessage = this.replaceCouponToken(message);
+
+      // Set the coupon model message
+      if ($('#available').prop('checked') ) {
+        this.model.set('availableMessage', updateMessage);
+      }
+      else {
+        this.model.set('unavailableMessage', updateMessage);
+      }
+      
+      // Update the editor message only if it has changed (it will fire this again)
+      if (message != updateMessage){
+        this.messageModel.set('message', updateMessage);
+      }
     },
     
     /**
@@ -66,11 +93,6 @@ function(Backbone, $, MessageEditor, sendCouponTemplate) {
       $el.find('#expire-' + model.get('expire') + '-control').show();
     },
 
-    events: {
-      "change input": "change",
-      "click #send-coupon": "sendCoupon",
-      "click #new-coupon": "newCoupon"
-    },
     
     change: function(event){
       var model = this.model;
@@ -89,20 +111,42 @@ function(Backbone, $, MessageEditor, sendCouponTemplate) {
         expireDays: $('#expire-days').val(),
         expireDate: $('#expire-date').val()
       });
+      
+      // Show correct message
+      if ($('#available').prop('checked') ) {
+        this.messageModel.set('message', this.replaceCouponToken(this.model.get('availableMessage')));
+      }
+      else {
+        this.messageModel.set('message', this.model.get('unavailableMessage'));
+      }
 
       this.updateControlVisibility();
     },
     
+    replaceCouponToken: function(text){
+      var model = this.model;
+      var code = model.START_COUPON_CODE;
+      
+      if (model.get('useRandomCode')){
+        code += model.RANDOM_CODE_LENGTH + '_CHAR_CODE';
+      }
+      else {
+        code += model.get('staticCode');
+      } 
+      
+      code += model.END_COUPON_CODE;
+      
+      return text.replace(/{.*?}/g, code);
+    },
+    
     sendCoupon: function(event){
       event.preventDefault();
-      event.stopPropagation();
       
       console.log(this.model.toJSON());
     },
     
     newCoupon: function(event){
       event.preventDefault();
-      event.stopPropagation();
       
       this.model.set(this.model.defaults);
       this.render();

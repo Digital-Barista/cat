@@ -5,6 +5,7 @@ require.config({
     // Major libraries
     jquery: '/js/libs/jquery/jquery-min',
     jqueryui: '/js/libs/jquery/jquery-ui-min',
+    tinymce: '/js/libs/tiny_mce/tiny_mce',
     underscore: 'libs/underscore/underscore-min', // https://github.com/amdjs
     backbone: 'libs/backbone/backbone-min', // https://github.com/amdjs
     sinon: 'libs/sinon/sinon.js',
