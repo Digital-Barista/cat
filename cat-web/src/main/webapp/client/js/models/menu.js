@@ -6,23 +6,23 @@ define([
     defaults: {
       menuItems: [
         {title: 'Dashboard',
-         url: '/',
+         url: '/cat',
          menuItems: [
           {title: 'Summary',
-           url: '/'}]
+           url: '/cat'}]
         },
            
         {title: 'Message',
-         url: '/message/sendcoupon',
+         url: '/cat/message/sendcoupon',
          menuItems: [
           {title: 'Send Coupons',
-           url: '/message/sendcoupon'},
+           url: '/cat/message/sendcoupon'},
            
           {title: 'Send Message',
-           url: '/message/sendmessage'},
+           url: '/cat/message/sendmessage'},
            
           {title: 'Sent Broadcasts',
-           url: '/message/sent'}]
+           url: '/cat/message/sent'}]
         }
       ]
     },

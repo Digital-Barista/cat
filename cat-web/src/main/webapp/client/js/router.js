@@ -8,10 +8,10 @@ define([
   var AppRouter = Backbone.Router.extend({
     routes: {
       // Pages
-      'message/sendcoupon': 'sendcoupon',	
-      'message/sendmessage': 'sendmessage',
-      'message/sent': 'sent',
-      'message': 'sendcoupon',
+      'cat/message/sendcoupon': 'sendcoupon',	
+      'cat/message/sendmessage': 'sendmessage',
+      'cat/message/sent': 'sent',
+      'cat/message': 'sendcoupon',
     
       // Default - catch all
       '*actions': 'defaultAction'

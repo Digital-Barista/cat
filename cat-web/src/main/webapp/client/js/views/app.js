@@ -26,7 +26,7 @@ define([
         var menu = new Menu();
         var mainMenuView = Vm.create(that, 'MainMenuView', MainMenuView, {model: menu});
         mainMenuView.render();
-        mainMenuView.selectMenuItem('/');
+        mainMenuView.selectMenuItem('/cat');
       });
 		} 
 	});
