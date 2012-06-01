@@ -62,6 +62,10 @@ public interface CampaignManager {
 	public List<Campaign> getAllTemplates();
 	
 	public List<Campaign> getCampaigns(List<Long> clientIDs);
+
+	@Path("/broadcast")
+	@GET
+	@Wrapped(element="Broadcasts")
 	public List<BroadcastInfo> getBroadcastCampaigns(List<Long> clientIDs);
 	public List<Campaign> getCampaignTemplates(List<Long> clientIDs);
 	

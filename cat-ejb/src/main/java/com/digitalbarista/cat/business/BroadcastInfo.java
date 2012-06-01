@@ -2,10 +2,14 @@ package com.digitalbarista.cat.business;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignMode;
 import com.digitalbarista.cat.data.CampaignNodeLinkDO;
 
+@XmlRootElement(name="Broadcast")
 public class BroadcastInfo implements BusinessObject<CampaignDO> {
 
 	private Integer subscriberCount;
@@ -58,6 +62,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 	public void copyTo(CampaignDO dataObject) {
 	}
 
+	@XmlAttribute
 	public Integer getSubscriberCount() {
 		return subscriberCount;
 	}
@@ -66,6 +71,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.subscriberCount = subscriberCount;
 	}
 
+	@XmlAttribute
 	public String getTitle() {
 		return title;
 	}
@@ -74,6 +80,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.title = title;
 	}
 
+	@XmlAttribute
 	public String getMessage() {
 		return message;
 	}
@@ -82,6 +89,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.message = message;
 	}
 
+	@XmlAttribute
 	public Integer getCouponRedemptionCount() {
 		return couponRedemptionCount;
 	}
@@ -90,6 +98,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.couponRedemptionCount = couponRedemptionCount;
 	}
 
+	@XmlAttribute
 	public Boolean getIsCoupon() {
 		return isCoupon;
 	}
@@ -98,6 +107,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.isCoupon = isCoupon;
 	}
 
+	@XmlAttribute
 	public Long getCouponId() {
 		return couponId;
 	}
@@ -106,6 +116,7 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
 		this.couponId = couponId;
 	}
 
+	@XmlAttribute
 	public String getEntryPointUID()
   {
   	return entryPointUID;
@@ -115,7 +126,8 @@ public class BroadcastInfo implements BusinessObject<CampaignDO> {
   {
   	this.entryPointUID = entryPointUID;
   }
-	
+
+	@XmlAttribute
 	public Date getBroadcastDate() {
 		return broadcastDate;
 	}
