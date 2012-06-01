@@ -34,7 +34,7 @@ define([
      require(['views/message/sendcoupon',
               'models/coupon'], function (SendCouponView, Coupon) {
         var coupon = new Coupon();
-        var sendCoupon= Vm.create(appView, 'SendCouponView', SendCouponView, {model: coupon});
+        var sendCoupon= Vm.create(appView, 'SendCouponView', SendCouponView, {appView: appView, model: coupon});
         sendCoupon.render();
       });     
     });
@@ -43,7 +43,7 @@ define([
 	   require(['views/message/sendmessage',
               'models/message'], function (SendMessageView, Message){
         var message = new Message();
-        var sendMessage= Vm.create(appView, 'SendMessageView', SendMessageView, {model: message});
+        var sendMessage= Vm.create(appView, 'SendMessageView', SendMessageView, {appView: appView, model: message});
         sendMessage.render();
       });	  	
 		});

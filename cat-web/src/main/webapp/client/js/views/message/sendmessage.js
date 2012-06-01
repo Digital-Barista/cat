@@ -1,19 +1,20 @@
 define([
   "backbone",
   "views/message/messageeditor",
-  'text!templates/message/sendmessage.html'
+  'text!templates/message/sendmessage.html',
+  'vm'
 ],
 
-function(Backbone, MessageEditor, sendMessageTemplate) {
+function(Backbone, MessageEditor, sendMessageTemplate, Vm) {
 
   var SendMessage = Backbone.View.extend({
     el: '.page',
     render: function () {
       
       $(this.el).html(sendMessageTemplate);
-      
-      var editor = new MessageEditor({model: this.model});
-      editor.render();
+
+      this.editor = Vm.create(this.options.appView, 'MessageEditor', MessageEditor, {model: this.model});
+      this.editor.render();
     }
   });
 

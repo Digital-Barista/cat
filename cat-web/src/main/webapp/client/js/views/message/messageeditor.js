@@ -16,33 +16,14 @@ function(Backbone, editorTemplate) {
     },
     
     initialize: function(){
-      this.model.set('editorId', 'editor_' + this.model.cid);
-      this.model.bind('change', this.updateMessage, this);
-    },
-
-    change: function(event){
-      var model = this.model;
-      
-      model.set('message', tinyMCE.activeEditor.getContent());
-    },
-    
-    updateMessage: function(event) {
-      var modelMessage = this.model.get('message');
-      
-      if (modelMessage != tinyMCE.activeEditor.getContent()){
-        tinyMCE.activeEditor.setContent(modelMessage);
-      }
-    },
-    
-    render: function () {
       var view = this;
       
-      $(this.el).html(this.template(this.model.toJSON()));
+      this.model.bind('change', this.updateMessage, this);
 
       // Initialize HTML editor
       tinyMCE.init({
           theme : "advanced",
-          mode: "textareas",
+          mode: "none",
           plugins : "fullscreen,autolink,lists,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,advlist",
 
           // Theme options
@@ -53,10 +34,47 @@ function(Backbone, editorTemplate) {
           theme_advanced_toolbar_align : "left",
           theme_advanced_statusbar_location : "bottom",
           
-          handle_event_callback : $.proxy(view.handleEditorEvent, this)
+          handle_event_callback : $.proxy(view.handleEditorEvent, view)
       });
+      tinyMCE.onAddEditor.add($.proxy(view.handleAddControl, this));
+    },
+
+    clean: function(){
+      this.model.unbind('change', this.updateMessage);
+      tinyMCE.onAddEditor.remove(this.handleAddControl);
       
-      tinyMCE.execCommand("mceAddControl", false, this.model.get('editorId'));
+      // Remove any existing editor
+      if (this.mceEditor){
+        tinyMCE.remove(this.mceEditor);
+      }
+    },
+    
+    change: function(event){
+      var model = this.model
+      
+      model.set('message', this.mceEditor.getContent());
+    },
+    
+    updateMessage: function(event) {
+      var modelMessage = this.model.get('message');
+      
+      if (modelMessage != this.mceEditor.getContent()){
+        this.mceEditor.setContent(modelMessage);
+      }
+    },
+    
+    render: function () {
+      var view = this;
+      
+      this.editorId = 'editor_' + new Date().getTime();
+      $(this.el).html(this.template(_.extend({editorId: this.editorId}, this.model.toJSON())));
+      
+      // Add a new editor
+      tinyMCE.execCommand("mceAddControl", false, this.editorId);
+    },
+    
+    handleAddControl: function(mgr, ed){
+      this.mceEditor = ed;
     },
     
     handleEditorEvent: function(event) {

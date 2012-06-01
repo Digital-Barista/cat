@@ -3,10 +3,11 @@ define([
   'jquery',
   'views/message/messageeditor',
   'text!templates/message/sendcoupon.html',
+  'vm',
   'jqueryui'
 ],
 
-function(Backbone, $, MessageEditor, sendCouponTemplate) {
+function(Backbone, $, MessageEditor, sendCouponTemplate, Vm) {
 
   var SendCoupon = Backbone.View.extend({
     
@@ -18,7 +19,6 @@ function(Backbone, $, MessageEditor, sendCouponTemplate) {
       this.messageModel = new Backbone.Model();
       this.messageModel.set('message', this.replaceCouponToken(this.model.get('availableMessage')));
       this.messageModel.bind('change', this.messageUpdate, this);
-
     },
 
     events: {
@@ -50,7 +50,7 @@ function(Backbone, $, MessageEditor, sendCouponTemplate) {
       this.updateControlVisibility();
       
       // Render the message editor with correct message
-      this.editor = new MessageEditor({model: this.messageModel});
+      this.editor = Vm.create(this.options.appView, 'MessageEditor', MessageEditor, {model: this.messageModel});
       this.editor.render();
     },
     
