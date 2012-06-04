@@ -27,10 +27,8 @@
 	    <security:filter-security-metadata-source>
         <security:intercept-url pattern="/j_spring_security_switch_user" access="ROLE_admin"/>
         <security:intercept-url pattern="/login/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-        <security:intercept-url pattern="/denied/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <security:intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-        <security:intercept-url pattern="/denied" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-        <security:intercept-url pattern="/**" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/" access="ROLE_admin,ROLE_client"/>
       </security:filter-security-metadata-source>
 	  </property>
 	</bean>	
@@ -53,7 +51,7 @@
 	    <property name="userDetailsService" ref="CATUserService" />
 	    <property name="switchUserUrl" value="/j_spring_security_switch_user" />
 	    <property name="exitUserUrl" value="/j_spring_security_exit_user" />
-	    <property name="targetUrl" value="/home" />
+	    <property name="targetUrl" value="/" />
  	</bean>
 
 	<bean id="LogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
@@ -89,7 +87,7 @@
 	  <property name="filterProcessesUrl" value="/j_spring_security_check"/>
 	  <property name="authenticationSuccessHandler">
 	  	<bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
-	  		<property name="defaultTargetUrl" value="/home"/>
+	  		<property name="defaultTargetUrl" value="/"/>
 			<property name="alwaysUseDefaultTargetUrl" value="true"/>
 	  	</bean>
 	  </property>

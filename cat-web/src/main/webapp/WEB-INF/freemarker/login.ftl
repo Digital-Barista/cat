@@ -16,8 +16,8 @@
 <html>
 <head>
   <title>Login Page</title>
-  <link type="text/css" href="<@spring.url '/new-client/css/style.css'/>" rel="stylesheet" />
-  <script src="<@spring.url '/new-client/js/libs/jquery.js' />"></script>
+  <link type="text/css" href="<@spring.url '/css/style.css'/>" rel="stylesheet" />
+  <script src="<@spring.url '/js/libs/jquery/jquery-min.js' />"></script>
   <script>
     $(document).ready(function(){
       var form = $('form');

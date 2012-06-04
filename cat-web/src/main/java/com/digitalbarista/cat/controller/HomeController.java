@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HomeController 
 {
 
-	@RequestMapping(value="/home")
+	@RequestMapping(value="/")
 	public String goToIndex()
 	{
     SecurityContextHolder.getContext();
-		return "redirect:client_one/index.html";
+		return "redirect:index.html";
 	}
 	
 }
