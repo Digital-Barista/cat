@@ -36,7 +36,9 @@
 	<alias name="filterChainProxy" alias="springSecurityFilterChain"/>
 	<bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
 		<security:filter-chain-map path-type="ant">
-			<security:filter-chain  pattern="/**" filters="AppSecurityContextPersistenceFilter,
+      <security:filter-chain pattern="/rs/**" filters="RESTSecurityContextPersistenceFilter,
+                                 RESTCredentialHarvesterFilter"/>
+			<security:filter-chain pattern="/**" filters="AppSecurityContextPersistenceFilter,
 															   LogoutFilter,
 															   LoginPageAuthenticationFilter,
 															   AnonymousAuthFilter,
@@ -47,7 +49,9 @@
 		</security:filter-chain-map>
 	</bean>
 
-	<bean id="SwitchUserFilter" class="com.digitalbarista.cat.security.FixedSwitchUserFilter">
+  <bean id="RESTCredentialHarvesterFilter" class="com.digitalbarista.cat.security.RESTSessionCredentialHarvesterFilter"/>
+
+  <bean id="SwitchUserFilter" class="com.digitalbarista.cat.security.FixedSwitchUserFilter">
 	    <property name="userDetailsService" ref="CATUserService" />
 	    <property name="switchUserUrl" value="/j_spring_security_switch_user" />
 	    <property name="exitUserUrl" value="/j_spring_security_exit_user" />
@@ -98,6 +102,14 @@
 	</bean>
 	
 	<bean id="AppSecurityContextRepo" class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'/>
+  
+	<bean id="RESTSecurityContextPersistenceFilter" class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+		<property name='securityContextRepository' ref="RESTSecurityContextRepo"/>
+	</bean>
+	
+	<bean id="RESTSecurityContextRepo" class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'>
+    <property name="allowSessionCreation" value="false"/>
+  </bean>
 	
 	<bean id="formAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
 	  <property name="loginFormUrl" value="/login"/>
@@ -127,7 +139,7 @@
 	    </property>
 	</bean>
 
-	<security:authentication-manager alias="authenticationManager">
+	<security:authentication-manager alias="authenticationManager" erase-credentials="false">
 		<security:authentication-provider user-service-ref="CATUserService"/>
 	</security:authentication-manager>
 	

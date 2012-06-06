@@ -142,5 +142,9 @@
   		<type>jar</type>
   		<scope>runtime</scope>
   	</dependency>
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jbosssx</artifactId>
+    </dependency>
   </dependencies>
 </project>
