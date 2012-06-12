@@ -9,6 +9,7 @@ $.extend(dbi, {
   	var appId = document.getElementById('appId').value;
   	
   	// Initialize facebook API
+  	FB._https = true;
   	FB.init({appId: appId, status: true, cookie: true, xfbml: true});
   
   	// Set canvas size
