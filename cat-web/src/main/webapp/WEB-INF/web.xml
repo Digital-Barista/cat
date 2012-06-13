@@ -3,12 +3,13 @@
   <display-name>Campaign Admin Tool</display-name>
   <description>Messaging Campaign Administrative Tool</description>
   <context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/cat-ejbs.xml</param-value>
-  </context-param>
-  <context-param>
     <param-name>resteasy.jndi.resources</param-name>
     <param-value>ejb/cat/CampaignManager,ejb/cat/ClientManager,ejb/cat/CouponManager,ejb/cat/ContactManager,ejb/cat/LayoutManager,ejb/cat/SubscriptionManager,ejb/cat/UserManager,ejb/cat/FacebookManager</param-value>
+  </context-param>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/spring-security.xml
+    /WEB-INF/cat-ejbs.xml</param-value>
   </context-param>
   <listener>
     <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
@@ -25,6 +26,47 @@
   <listener>
     <listener-class>com.digitalbarista.cat.timer.CATTimerStartupListener</listener-class>
   </listener>
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/rs/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/login/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/logout/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/login</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/logout</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/j_spring_security_check</url-pattern>
+	</filter-mapping>
+	<servlet>
+		<servlet-name>cat-web</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/cat-web-servlet.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
   <servlet>
     <servlet-name>MessageBrokerServlet</servlet-name>
     <servlet-class>flex.messaging.MessageBrokerServlet</servlet-class>
@@ -82,6 +124,10 @@
       <role-name>admin</role-name>
     </run-as>
   </servlet>
+	<servlet-mapping>
+		<servlet-name>cat-web</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
   <servlet-mapping>
     <servlet-name>Resteasy</servlet-name>
     <url-pattern>/rest/*</url-pattern>

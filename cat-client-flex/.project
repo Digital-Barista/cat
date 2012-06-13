@@ -3,7 +3,6 @@
 	<name>cat-client-flex</name>
 	<comment></comment>
 	<projects>
-		<project>cat-web</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -1,0 +1,43 @@
+body {
+}
+.container {
+	min-height:100%;
+	@include background-image(linear-gradient(top, #03507D, #ddd));
+}
+
+
+.banner {
+	height:50px;
+	width:100%;
+  background: #222121;
+  margin-bottom:60px;
+}
+
+.header {
+	max-width:$content-width;
+  margin:auto;
+  
+  h1 {
+    float:left; 
+    margin:0 20px;
+    padding:0;
+    color: #fff;
+  }
+}
+
+.page {
+  max-width:$content-width;
+  min-height:500px;
+  clear:both;
+  margin:auto;
+  background: #fff;
+  padding:10px;
+  @include border-radius(10px);
+}
+
+.header {
+	
+	h1 {
+	 float: left;
+	}
+}

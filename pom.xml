@@ -28,38 +28,53 @@
     <module>cat-ear</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven2-plugin</artifactId>
+		<version>1.2.3-SNAPSHOT</version>
+      </plugin>
+    </plugins>
+  </build>
+  
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <version>2.5.6.SEC03</version>
+        <artifactId>spring-webmvc</artifactId>
+        <version>3.1.0.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>2.5.6.SEC03</version>
+        <version>3.1.0.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-tx</artifactId>
-        <version>2.5.6.SEC03</version>
+        <version>3.1.0.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-jms</artifactId>
-        <version>2.5.6.SEC03</version>
+        <version>3.1.0.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
-        <version>2.5.6.SEC03</version>
+        <version>3.1.0.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>1.2.16</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>1.6.4</version>
       </dependency>
       <dependency>
         <groupId>javax.ejb</groupId>
@@ -360,5 +375,16 @@
       </snapshots>
       <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
     </pluginRepository>
+	<pluginRepository>
+	  <id>codehaus-snapshots</id>
+	  <name>Codehaus Snapshots</name>
+	  <url>http://nexus.codehaus.org/snapshots/</url>
+	  <releases>
+		<enabled>false</enabled>
+	  </releases>
+	  <snapshots>
+	    <enabled>true</enabled>
+	  </snapshots>
+	</pluginRepository>
   </pluginRepositories>
 </project>

@@ -95,7 +95,7 @@
 		</script>
 	</head>
 	<body>
-		<script src="http://connect.facebook.net/en_US/all.js"></script>
+		<script src="//connect.facebook.net/en_US/all.js"></script>
 		<script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>
 		<script src="js/jquery.query-2.1.7.js" type="text/javascript"></script>
 		<script src="js/messages.js" type="text/javascript"></script>

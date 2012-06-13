@@ -1,0 +1,48 @@
+<div class="controls">
+  <div class="actions">
+    <a id="new-coupon" class="button" href="#">New Coupon Message</a>
+    <a id="send-coupon" class="button" href="#">Send Coupon Message</a>
+  </div>
+  <ul class="section">
+    <li><label>Title</label><input id="title" type="text" value="<%= name %>" /></li>
+    <li>
+      <label>Max Coupons</label>
+      <input id="max-coupons" value="<%= maxCoupons %>" class="short" />
+      <input id="infinite-coupons" type="checkbox" />
+      Infinite
+    </li>
+    <li>
+      <label>Max Redemptions</label>
+      <input id="max-redemptions" value="<%= maxRedemptions %>" class="short"  />
+      <input id="infinite-redemptions" type="checkbox" />
+      Infinite
+    </li>
+    <li>
+		  <label>Coupon Code</label>
+	    <input name="coupon-code" id="random-code" type="radio" checked />Random
+	    <input name="coupon-code" id="static-code" type="radio" />Static
+	    <input id="static-code-value" class="short" value="<%= staticCode %>" />
+    </li>
+  </ul>
+  
+  <ul class="section">
+    <li><label>Offer Code</label><input id="offer-code" type="text" value="<%= offerCode %>" /></li>
+    <li><label>Unavailable Date</label><input id="unavailable-date" class="date-picker" type="text" value="<%= unavailableDate %>" /></li>
+    <li>
+	    <label>Expiration</label>
+	    <input name="expiration" type="radio" id="expire-never" value="never" checked />Never
+	    <input name="expiration" type="radio" id="expire-date" value="date" />Date
+      <input name="expiration" type="radio" id="expire-days" value="days" />Days
+    </li>
+    <li id="expire-date-control" class="expire-control"><label>Expire On</label><input id="expire-date-value" class="date-picker" value="<%= expireDate %>" /></li>
+    <li id="expire-days-control" class="expire-control"><label>Expire </label><input id="expire-days-value" class="short" value="<%= expireDays %>" /> days from send date</li>
+  </ul>
+  
+  <ul class="available-options clear">
+    <li>
+      <input name="available" type="radio" id="available" checked />Available
+      <input name="available" type="radio" id="unavailable" />Unavailable
+    </li>
+  </ul>
+</div>
+<div class="editor"></div>
