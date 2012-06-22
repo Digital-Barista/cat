@@ -1,4 +1,20 @@
 
+
+$menu-item-background-light:rgba(0,0,0, 0.1);
+$menu-item-background-light-hover:rgba(255,255,255, 0.1);
+$menu-item-text-light:rgba(255,255,255, 0.1);
+$menu-item-text-light-hover:rgba(0,0,0, 0.1);
+
+
+
+$menu-item-background-dark:rgba(0,0,0, 0.1);
+$menu-item-background-dark-hover:rgba(255,255,255,0.1);
+$menu-item-background-dark-selected:rgba(255,255,255,0.2);
+$menu-item-text-dark:rgba(255,255,255,0.5);
+$menu-item-text-dark-hover:rgba(255,255,255,1);
+$menu-item-text-dark-selected:rgba(255,255,255,1);
+
+
 .menu {
   max-width:$content-width;
   height: 100px;
@@ -14,21 +30,27 @@
 	   a {
 	     text-transform:uppercase;
 	     font-weight:bold;
-	     color: #555;
+	     color: $menu-item-text-dark;
 	     display:block;
 	     line-height:50px;
 	     padding:0 10px;
-     }
+       }
+
+       a:hover {
+         color: $menu-item-text-dark-hover;
+         background: $menu-item-background-dark-hover
+       }
+
      
    }
    
    .menu-item {
    
      &.active {
-       background: rgba(255,255,255, 0.1);
+       background: $menu-item-background-dark-selected;
      
        & > a {
-        color: #FFF;
+        color: $menu-item-text-dark-selected;
        }
         
 	     .sub-menu {
