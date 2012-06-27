@@ -1,56 +1,38 @@
-
-
-$menu-item-background-light:rgba(0,0,0, 0.1);
-$menu-item-background-light-hover:rgba(255,255,255, 0.1);
-$menu-item-text-light:rgba(255,255,255, 0.1);
-$menu-item-text-light-hover:rgba(0,0,0, 0.1);
-
-
-
-$menu-item-background-dark:rgba(0,0,0, 0.1);
-$menu-item-background-dark-hover:rgba(255,255,255,0.1);
-$menu-item-background-dark-selected:rgba(255,255,255,0.2);
-$menu-item-text-dark:rgba(255,255,255,0.5);
-$menu-item-text-dark-hover:rgba(255,255,255,1);
-$menu-item-text-dark-selected:rgba(255,255,255,1);
-
-
 .menu {
-  max-width:$content-width;
-  height: 100px;
-  margin:auto;
+  width:$sidebar-width;
+  float:left;
 	
 	.main-menu {
 	 position:relative;
-	 right:0;
-	 
+
 	 li {
-	   float:left;
+
 	   
 	   a {
 	     text-transform:uppercase;
-	     font-weight:bold;
-	     color: $menu-item-text-dark;
+	     color: $menu-item-text-light;
 	     display:block;
-	     line-height:50px;
-	     padding:0 10px;
        }
 
-       a:hover {
-         color: $menu-item-text-dark-hover;
-         background: $menu-item-background-dark-hover
-       }
+
 
      
    }
    
    .menu-item {
+
+     a {
+       &:hover {
+         color: $menu-item-text-light-hover;
+         background: $menu-item-background-light-hover
+       }
+     }
    
      &.active {
-       background: $menu-item-background-dark-selected;
+       background: $menu-item-background-light-selected;
      
        & > a {
-        color: $menu-item-text-dark-selected;
+        color: $menu-item-text-light-selected;
        }
         
 	     .sub-menu {
@@ -61,26 +43,32 @@ $menu-item-text-dark-selected:rgba(255,255,255,1);
    
    
    .sub-item {
+     @include border-top-radius(10px);
      
      a {
-      color: #333;
+      color: $menu-item-text-light;
+       &:hover {
+         color: $menu-item-text-light-hover;
+         background: $menu-item-background-light-hover;
+         @include border-top-radius(10px);
+       }
      }
-     
+
+
+
      &.active {
-       background: rgba(0,0,0, 0.1);
-       @include border-top-radius(10px);
-     
+       background: $menu-item-background-light-selected;
+
+
        & > a {
-        color: #FFF;
+        color: $menu-item-text-light-selected;
        }
      }
     }
     
    .sub-menu {
-    position: absolute;
-    right:0;
     display:none;
-    padding-top:10px;
+    padding-left:20px;
    }
 	}
 }
