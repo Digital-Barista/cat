@@ -4,5 +4,6 @@ public enum CATEventType {
 	IncomingMessage,
 	ConnectorFired,
 	NodeOperationCompleted,
-	MessageSendRequested
+	MessageSendRequested,
+  UserSubscribed
 }

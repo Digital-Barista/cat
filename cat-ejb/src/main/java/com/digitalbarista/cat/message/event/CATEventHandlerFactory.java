@@ -57,6 +57,8 @@ public class CATEventHandlerFactory implements CATEventHandlerFactoryInterface{
 				return new ConnectorFiredEventHandler(em,ctx);
 			case MessageSendRequested:
 				return new MessageSendRequestEventHandler(em,ctx);
+      case UserSubscribed:
+        return new UserSubscribedEventHandler(em,ctx);
 			default:
 				throw new IllegalArgumentException("Unknown event type:  No configured factory: "+t.toString());
 		}

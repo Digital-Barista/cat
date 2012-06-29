@@ -102,36 +102,38 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 			Query q = getEntityManager().createNamedQuery("all.subscribers.on.node");
 			q.setParameter("nodeUID", conn.getSourceNodeUID());
 			List<SubscriberDO> subs = (List<SubscriberDO>)q.getResultList();
-			for(SubscriberDO s : subs)
-			{
-				CampaignSubscriberLinkDO csl=null;
-				for(CampaignDO subCamp : s.getSubscriptions().keySet())
-				{
-					if(subCamp.getUID().equalsIgnoreCase(conn.getCampaignUID()))
-					{
-						csl=s.getSubscriptions().get(subCamp);
-						break;
-					}
-				}
-				if(csl==null)
-				{
-					log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
-					return;
-				}
-				getCampaignManager().getLastPublishedCampaign(csl.getCampaign().getUID());//Warming the cache.  Keeps deadlocks from happening. on the CSL lock!
-				getEntityManager().lock(csl, LockModeType.WRITE);
-				getEntityManager().refresh(csl);
-				Node source = getCampaignManager().getSpecificNodeVersion(conn.getSourceNodeUID(), version);
-				String subscriberCurrent=csl.getLastHitNode().getUID();
-				if(source==null || !source.getUid().equals(subscriberCurrent))
-				{
-					log.warn("subscriber pk="+csl.getSubscriber().getPrimaryKey()+" is not on node uid="+source.getUid()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
-					return;
-				}
-				ConnectorFireHandler.getHandler(dest.getType())
-					.handle(getEntityManager(), getSessionContext(), conn, dest, version, s, e);
+      for(SubscriberDO s : subs)
+      {
+        getEventManager().queueEvent(CATEvent.buildFireConnectorForSubscriberEvent(conn.getUid(),""+s.getPrimaryKey(),-1));
+      }
+//			for(SubscriberDO s : subs)
+//			{
+//				CampaignSubscriberLinkDO csl=null;
+//				for(CampaignDO subCamp : s.getSubscriptions().keySet())
+//				{
+//					if(subCamp.getUID().equalsIgnoreCase(conn.getCampaignUID()))
+//					{
+//						csl=s.getSubscriptions().get(subCamp);
+//						break;
+//					}
+//				}
+//				if(csl==null)
+//				{
+//					log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
+//					return;
+//				}
+//				getCampaignManager().getLastPublishedCampaign(csl.getCampaign().getUID());//Warming the cache.  Keeps deadlocks from happening. on the CSL lock!
+//				getEntityManager().lock(csl, LockModeType.WRITE);
+//				getEntityManager().refresh(csl);
+//				Node source = getCampaignManager().getSpecificNodeVersion(conn.getSourceNodeUID(), version);
+//				String subscriberCurrent=csl.getLastHitNode().getUID();
+//				if(source==null || !source.getUid().equals(subscriberCurrent))
+//				{
+//					log.warn("subscriber pk="+csl.getSubscriber().getPrimaryKey()+" is not on node uid="+source.getUid()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
+//					return;
+//				}
+//				ConnectorFireHandler.getHandler(dest.getType())
+//					.handle(getEntityManager(), getSessionContext(), conn, dest, version, s, e);
 			}
 		}
 	}
-
-}

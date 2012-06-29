@@ -79,6 +79,31 @@ public class CATEvent implements Serializable{
 	    return ret;
 	}
 	
+	public static CATEvent buildSubscriptionRequestedEvent(String fromAddress, EntryPointType type, String entryPointUID)
+	{
+		CATEvent ret = new CATEvent();
+		ret.source=fromAddress;
+    switch(type)
+    {
+      case Email:
+        ret.sourceType=CATEventSource.EmailEndpoint;
+        break;
+      case Facebook:
+        ret.sourceType=CATEventSource.FacebookEndpoint;
+        break;
+      case Twitter:
+        ret.sourceType=CATEventSource.TwitterEndpoint;
+        break;
+      case SMS:
+        ret.sourceType=CATEventSource.SMSEndpoint;
+        break;
+    }
+		ret.type=CATEventType.UserSubscribed;
+		ret.target=entryPointUID;
+    ret.targetType=CATTargetType.EntryNode;
+    return ret;
+	}
+	
 	public static CATEvent buildFireConnectorForSubscriberEvent(String connectorUID, String subscriberPK, Integer version)
 	{
 		CATEvent ret = new CATEvent();
