@@ -187,20 +187,18 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		Disjunction dj = Restrictions.disjunction();
 		crit.add(Restrictions.eq("type", subscriptionType));
 		crit.add(Restrictions.eq("address", address));
-		Set<SubscriberDO> subscribers = new HashSet<SubscriberDO>(crit.list());
-		
-		//If we get a result, this user is already subscribed, and we're done.
-    if(subscribers!=null && subscribers.size()>0)
-      return;
-    
-		//And of course if we're still here, this is a NEW subscriber that needs to be created.
-		SubscriberDO sub;
-    sub = new SubscriberDO();
-    sub.setType(subscriptionType);
-    sub.setAddress(address);
-    em.persist(sub);
-		
-		//Now that everybody's a subscriber, actually subscribe them to the campaign.
+		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
+
+    //If we get a result, this user is already exists, and we're done.  Otherwise, create them.
+    if(sub==null)
+    {
+      sub = new SubscriberDO();
+      sub.setType(subscriptionType);
+      sub.setAddress(address);
+      em.persist(sub);
+    }
+
+    //Now our subscriber exists, actually subscribe them to the campaign.
 		CampaignSubscriberLinkDO link;
 		
     boolean isSubscribed=false;
@@ -212,7 +210,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
         break;
       }
     }
-    //Of course if they're already subscribe to this campaign, we're done.  Just a double-check against the previous query.
+    
+    //Of course if they're already subscribe to this campaign, we're done.
     if(isSubscribed)
       return;
       
