@@ -1,4 +1,28 @@
+$border-color:rgba(0,0,0, 0.1);
+$border-width:1px;
+
+$page-padding:10px;
 $content-width: 1000px;
+$page-width:850px;
+$sidebar-width:$content-width - $page-width - $border-width - $border-width - $page-padding - $page-padding;
+
+$menu-item-background-light:rgba(0,0,0, 0.1);
+$menu-item-background-light-hover:rgba(255,255,255, 0.1);
+$menu-item-background-light-selected:rgba(255,255,255, 0.2);
+$menu-item-text-light:rgba(0,0,0, 0.5);
+$menu-item-text-light-hover:rgba(0,0,0, 1);
+$menu-item-text-light-selected:rgba(0,0,0, 1);
+
+
+
+$menu-item-background-dark:rgba(0,0,0, 0.1);
+$menu-item-background-dark-hover:rgba(255,255,255,0.1);
+$menu-item-background-dark-selected:rgba(255,255,255,0.2);
+$menu-item-text-dark:rgba(255,255,255,0.5);
+$menu-item-text-dark-hover:rgba(255,255,255,1);
+$menu-item-text-dark-selected:rgba(255,255,255,1);
+
+
 
 html {
   height:100%;
@@ -9,6 +33,7 @@ body {
 	
 a {
 	text-decoration: none;
+    font-size: 9pt;
 }
 ul {
 	margin:0;

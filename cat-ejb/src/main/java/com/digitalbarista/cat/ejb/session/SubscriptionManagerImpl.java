@@ -132,11 +132,10 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 	@SuppressWarnings("unchecked")
 	@Override
 	@PermitAll
-	public void subscribeToEntryPoint(Set<String> addresses, String entryPointUID, EntryPointType subscriptionType) {
+	public void subscribeToEntryPoint(String address, String entryPointUID, EntryPointType subscriptionType) {
 		
 		// If there are no addresses we're done
-		if (addresses == null ||
-			addresses.size() <= 0)
+		if (address == null)
 			return;
 		
 		//Get the campaign and entry node
@@ -174,78 +173,75 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 		blacklistCrit.add(Restrictions.eq("entryPointType", subscriptionType));
 		blacklistCrit.add(Restrictions.eq("incomingAddress", ((EntryNode)entryNode).getEntryData().get(entryPointIndex).getEntryPoint()));
 		List<BlacklistDO> blacklisted = blacklistCrit.list();
-		for(BlacklistDO subToRemove : blacklisted)
-		{
-			addresses.remove(subToRemove.getAddress());
-		}
+		if(blacklisted!=null && blacklisted.size()>0)
+      return;
 		
 		blacklistCrit = session.createCriteria(BlacklistDO.class);
 		blacklistCrit.add(Restrictions.eq("entryPointType", subscriptionType));
 		blacklistCrit.add(Restrictions.eq("client.id", nodeDO.getCampaign().getClient().getPrimaryKey()));
 		blacklisted = blacklistCrit.list();
-		for(BlacklistDO subToRemove : blacklisted)
-		{
-			addresses.remove(subToRemove.getAddress());
-		}
+		if(blacklisted!=null && blacklisted.size()>0)
+      return;
 		
-		if(addresses.size()==0)
-			return;
-		
-		//Now that we've removed blacklisted addresses, get all the subscribers that match the list.
+		//Now that we know this address isn't blacklisted, get any subscriber that matches the list.
 		Disjunction dj = Restrictions.disjunction();
 		crit.add(Restrictions.eq("type", subscriptionType));
-		crit.add(Restrictions.in("address", addresses));
-		Set<SubscriberDO> subscribers = new HashSet<SubscriberDO>(crit.list());
-		
-		//So . . . this looks odd, but . . . we have CURRENT subscribers . . . 
-		//  now we need to remove all the subscribers in the system from the list
-		//  of people we want to subscribe, so we know what ones need to be created
-		//  from scratch.
-		for(SubscriberDO sub : subscribers)
-		{
-			addresses.remove(sub.getAddress());
-		}
-		
-		//And of course anything left is a NEW subscriber that needs to be created.
-		SubscriberDO subTemp;
-		for(String address : addresses)
-		{
-			subTemp = new SubscriberDO();
-			subTemp.setType(subscriptionType);
-			subTemp.setAddress(address);
-			em.persist(subTemp);
-			subscribers.add(subTemp);
-		}
-		
-		//Now that everybody's a subscriber, actually subscribe them to the campaign.
+		crit.add(Restrictions.eq("address", address));
+		SubscriberDO sub = (SubscriberDO)crit.uniqueResult();
+
+    //If we get a result, this user is already exists, and we're done.  Otherwise, create them.
+    if(sub==null)
+    {
+      sub = new SubscriberDO();
+      sub.setType(subscriptionType);
+      sub.setAddress(address);
+      em.persist(sub);
+    }
+
+    //Now our subscriber exists, actually subscribe them to the campaign.
 		CampaignSubscriberLinkDO link;
 		
-		for(SubscriberDO sub : subscribers)
-		{
-			boolean isSubscribed=false;
-			for(CampaignDO subCamp : sub.getSubscriptions().keySet())
-			{
-				if(subCamp.getUID().equalsIgnoreCase(camp.getUID()))
-				{
-					isSubscribed=true;
-					break;
-				}
-			}
-			//Of course if they're already subscribe to this campaign, skip them.
-			if(isSubscribed)
-				continue;
-			
-			//Otherwise actually subscribe them.
-			link = new CampaignSubscriberLinkDO();
-			link.setCampaign(camp);
-			link.setSubscriber(sub);
-			link.setLastHitNode(nodeDO);
-			link.setLastHitEntryType(subscriptionType);
-			link.setLastHitEntryPoint(((EntryNode)entryNode).getEntryData().get(entryPointIndex).getEntryPoint());
-			em.persist(link);
-			CATEvent nodeCompleted = CATEvent.buildNodeOperationCompletedEvent(nodeDO.getUID(), sub.getPrimaryKey().toString());
-			eventManager.queueEvent(nodeCompleted);
-		}
+    boolean isSubscribed=false;
+    for(CampaignDO subCamp : sub.getSubscriptions().keySet())
+    {
+      if(subCamp.getUID().equalsIgnoreCase(camp.getUID()))
+      {
+        isSubscribed=true;
+        break;
+      }
+    }
+    
+    //Of course if they're already subscribe to this campaign, we're done.
+    if(isSubscribed)
+      return;
+      
+    //Otherwise actually subscribe them.
+    link = new CampaignSubscriberLinkDO();
+    link.setCampaign(camp);
+    link.setSubscriber(sub);
+    link.setLastHitNode(nodeDO);
+    link.setLastHitEntryType(subscriptionType);
+    link.setLastHitEntryPoint(((EntryNode)entryNode).getEntryData().get(entryPointIndex).getEntryPoint());
+    em.persist(link);
+    CATEvent nodeCompleted = CATEvent.buildNodeOperationCompletedEvent(nodeDO.getUID(), sub.getPrimaryKey().toString());
+    eventManager.queueEvent(nodeCompleted);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@PermitAll
+	public void subscribeToEntryPoint(Set<String> addresses, String entryPointUID, EntryPointType subscriptionType) {
+		
+		// If there are no addresses we're done
+		if (addresses == null ||
+			addresses.size() <= 0)
+			return;
+    
+    //All the previous code goes away.  Now, we queue them up, and let the queue do the work.
+    for(String address : addresses)
+    {
+      eventManager.queueEvent(CATEvent.buildSubscriptionRequestedEvent(address, subscriptionType, entryPointUID));
+    }
 	}
 
 	@SuppressWarnings("unchecked")

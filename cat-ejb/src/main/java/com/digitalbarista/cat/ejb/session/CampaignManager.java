@@ -28,6 +28,7 @@ import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.NodeDO;
+import javax.ws.rs.*;
 
 @Local
 @Path("/campaigns")
@@ -66,7 +67,7 @@ public interface CampaignManager {
 	@Path("/broadcast")
 	@GET
 	@Wrapped(element="Broadcasts")
-	public List<BroadcastInfo> getBroadcastCampaigns(List<Long> clientIDs);
+	public List<BroadcastInfo> getBroadcastCampaigns(@QueryParam("clientId") List<Long> clientIDs);
 	public List<Campaign> getCampaignTemplates(List<Long> clientIDs);
 	
 	

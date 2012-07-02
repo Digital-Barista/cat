@@ -35,6 +35,8 @@ public interface SubscriptionManager {
 	
 	public void subscribeToEntryPoint(Set<String> addresses, String entryPointUID, EntryPointType subscriptionType);
 
+  public void subscribeToEntryPoint(String address, String entryPointUID, EntryPointType subscriptionType);
+
 	@Path("/{entryPointUID}")
 	@POST
 	public void subscribeToEntryPointWithObjects(@Wrapped(element="Addresses") Set<Address> addresses, @PathParam("entryPointUID") String entryPointUID);
