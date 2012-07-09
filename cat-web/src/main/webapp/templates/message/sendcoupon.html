@@ -4,7 +4,7 @@
     <a id="send-coupon" class="button" href="#">Send Coupon Message</a>
   </div>
   <ul class="section">
-    <li><label>Title</label><input id="title" type="text" value="<%= name %>" /></li>
+    <li><label>Coupon Title</label><input id="title" type="text" value="<%= name %>" placeholder="Type Coupon Title Here"/>(not required but useful for reference purposes)</li>
     <li>
       <label>Max Coupons</label>
       <input id="max-coupons" value="<%= maxCoupons %>" class="short" />
@@ -21,12 +21,9 @@
 		  <label>Coupon Code</label>
 	    <input name="coupon-code" id="random-code" type="radio" checked />Random
 	    <input name="coupon-code" id="static-code" type="radio" />Static
-	    <input id="static-code-value" class="short" value="<%= staticCode %>" />
+	    <input id="static-code-value" class="short" value="<%= staticCode %>" type="text" placeholder="Static Coupon Code"/>
     </li>
-  </ul>
-  
-  <ul class="section">
-    <li><label>Offer Code</label><input id="offer-code" type="text" value="<%= offerCode %>" /></li>
+    <li><label>Offer Code</label><input id="offer-code" type="text" value="<%= offerCode %>" placeholder="Offer Code" /></li>
     <li><label>Unavailable Date</label><input id="unavailable-date" class="date-picker" type="text" value="<%= unavailableDate %>" /></li>
     <li>
 	    <label>Expiration</label>

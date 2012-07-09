@@ -1,24 +1,25 @@
 
 .page {
-	
+  font-size: $default-font-size;
+  text-transform:uppercase;
 	.controls{
 	  
 	  .actions {
 	   margin-bottom:10px;
+
 	  }
 	  
 	  .section {
-	   width:50%;
+	   width:100%;
 	   float:left;
+
 	   
 	    li {
 	      height:25px;
 	     
 	      label {
-	        width:50%;
 	        display:block;
           float:left;
-          text-align: right;
           padding-right:10px;
 	      }
 	      
