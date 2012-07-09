@@ -67,7 +67,7 @@ public interface CampaignManager {
 	@Path("/broadcast")
 	@GET
 	@Wrapped(element="Broadcasts")
-	public List<BroadcastInfo> getBroadcastCampaigns(@QueryParam("clientId") List<Long> clientIDs);
+	public List<BroadcastInfo> getBroadcastCampaigns(@QueryParam("clientID") List<Long> clientIDs);
 	public List<Campaign> getCampaignTemplates(List<Long> clientIDs);
 	
 	

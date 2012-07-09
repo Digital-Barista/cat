@@ -3,7 +3,12 @@ package com.digitalbarista.cat.business.reporting;
 import java.math.BigInteger;
 
 import com.digitalbarista.cat.data.EntryPointType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlRootElement
+@XmlType
 public class TagSummary 
 {
 	private Long clientId;
@@ -16,6 +21,7 @@ public class TagSummary
 	{
 	}
 
+  @XmlAttribute
 	public Long getClientId()
 	{
 		return clientId;
@@ -26,6 +32,7 @@ public class TagSummary
 		this.clientId = clientId;
 	}
 
+  @XmlAttribute
 	public String getClientName()
 	{
 		return clientName;
@@ -36,6 +43,7 @@ public class TagSummary
 		this.clientName = clientName;
 	}
 
+  @XmlAttribute
 	public EntryPointType getEntryPointType()
 	{
 		return entryPointType;
@@ -46,6 +54,7 @@ public class TagSummary
 		this.entryPointType = entryPointType;
 	}
 
+  @XmlAttribute
 	public String getTag()
 	{
 		return tag;
@@ -56,6 +65,7 @@ public class TagSummary
 		this.tag = tag;
 	}
 
+  @XmlAttribute
 	public BigInteger getUserCount()
 	{
 		return userCount;
