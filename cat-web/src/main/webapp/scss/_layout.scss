@@ -3,8 +3,8 @@
 body {
 }
 .container {
-	margin:20px auto;
-    width:$content-width;
+	margin:0px auto;
+    max-width:$content-width;
 
 }
 
@@ -18,13 +18,16 @@ body {
 }
 
 .page {
+
   width:$page-width;
   min-height:500px;
   border: $border-width $border-color solid;
   float:left;
-  padding:$page-padding
+  padding:$page-padding;
+    &:after {
+    @include animate(fadeIn, 1s, 0s);
 
-
+  }
 }
 
 .header {
