@@ -12,9 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
-import org.jboss.resteasy.annotations.providers.jaxb.WrappedMap;
-
 import com.digitalbarista.cat.business.BroadcastInfo;
 import com.digitalbarista.cat.business.Campaign;
 import com.digitalbarista.cat.business.CampaignEntryMessage;
@@ -29,6 +26,8 @@ import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.ConnectorDO;
 import com.digitalbarista.cat.data.NodeDO;
 import javax.ws.rs.*;
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+import org.jboss.resteasy.annotations.providers.jaxb.WrappedMap;
 
 @Local
 @Path("/campaigns")

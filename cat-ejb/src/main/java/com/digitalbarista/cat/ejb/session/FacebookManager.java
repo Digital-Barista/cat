@@ -12,11 +12,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactInfo;
@@ -24,6 +22,7 @@ import com.digitalbarista.cat.business.FacebookApp;
 import com.digitalbarista.cat.business.FacebookMessage;
 import com.digitalbarista.cat.business.FacebookTrackingInfo;
 import com.digitalbarista.cat.exception.FacebookManagerException;
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 
 @Local

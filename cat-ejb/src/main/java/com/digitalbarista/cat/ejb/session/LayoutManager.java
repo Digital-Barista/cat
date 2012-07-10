@@ -12,10 +12,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.LayoutInfo;
 import com.digitalbarista.cat.data.LayoutInfoDO;
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 @Local
 @Path("/layouts")

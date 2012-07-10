@@ -10,10 +10,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Coupon;
 import com.digitalbarista.cat.util.CouponRedemptionMessage;
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 @Local
 @Path("/coupons")

@@ -156,6 +156,8 @@
   <filter-mapping>
     <filter-name>ContentTypeByExtensionFilter</filter-name>
     <url-pattern>/rest/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
   <session-config>
   	<session-timeout>60</session-timeout>

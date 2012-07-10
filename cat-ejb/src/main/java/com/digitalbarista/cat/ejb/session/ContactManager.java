@@ -5,13 +5,11 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.ContactTag;
@@ -22,6 +20,7 @@ import com.digitalbarista.cat.data.ContactTagType;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.util.PagedList;
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 @Local
 @Path("/contacts")
