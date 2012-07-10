@@ -3990,39 +3990,50 @@ input[type="text"]:focus {
   padding-left: 15px;
 }
 
-/* line 2, ../scss/_message.scss */
-.page {
+/* line 4, ../scss/_message.scss */
+.page .controls {
   font-size: 8pt;
   text-transform: uppercase;
 }
-/* line 7, ../scss/_message.scss */
+/* line 8, ../scss/_message.scss */
 .page .controls .actions {
   margin-bottom: 10px;
 }
-/* line 12, ../scss/_message.scss */
+/* line 13, ../scss/_message.scss */
 .page .controls .section {
   width: 100%;
   float: left;
+  font-size: 8pt;
+  text-transform: uppercase;
 }
-/* line 17, ../scss/_message.scss */
+/* line 19, ../scss/_message.scss */
+.page .controls .section .last {
+  border-bottom: rgba(0, 0, 0, 0.1) 1px solid;
+}
+/* line 23, ../scss/_message.scss */
 .page .controls .section li {
-  height: 25px;
+  border-top: rgba(0, 0, 0, 0.1) 1px solid;
+  padding: 5px 0px;
 }
-/* line 20, ../scss/_message.scss */
-.page .controls .section li label {
+/* line 28, ../scss/_message.scss */
+.page .controls .section label {
   display: block;
   float: left;
   padding-right: 10px;
 }
-/* line 26, ../scss/_message.scss */
-.page .controls .section li input {
+/* line 34, ../scss/_message.scss */
+.page .controls .section input {
   margin-right: 5px;
 }
-/* line 29, ../scss/_message.scss */
-.page .controls .section li input.short {
+/* line 37, ../scss/_message.scss */
+.page .controls .section input.short {
   width: 40px;
 }
-/* line 42, ../scss/_message.scss */
+/* line 45, ../scss/_message.scss */
+.page .controls .available-options {
+  padding: 5px 0px;
+}
+/* line 51, ../scss/_message.scss */
 .page .edit-text {
   width: 100%;
   height: 500px;

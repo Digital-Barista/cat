@@ -1,8 +1,9 @@
 
 .page {
-  font-size: $default-font-size;
-  text-transform:uppercase;
+
 	.controls{
+      font-size: $default-font-size;
+      text-transform:uppercase;
 	  
 	  .actions {
 	   margin-bottom:10px;
@@ -12,16 +13,23 @@
 	  .section {
 	   width:100%;
 	   float:left;
+       font-size: $default-font-size;
+       text-transform:uppercase;
 
+        .last {
+          border-bottom:$border-color $border-width solid;
+        }
 	   
 	    li {
-	      height:25px;
-	     
-	      label {
-	        display:block;
-          float:left;
-          padding-right:10px;
-	      }
+          border-top:$border-color $border-width solid;
+          padding:5px 0px;
+          }
+
+          label {
+            display:block;
+            float:left;
+            padding-right:10px;
+          }
 	      
 	      input {
 	       margin-right:5px;
@@ -30,12 +38,13 @@
 	         width:40px;
 	       }
 	      }
-	    }
 	  } // .section
 	  
 	  .date-picker {
 	  }
-	  
+	  .available-options {
+        padding:5px 0px;
+      }
 	} // .controls
 	
     
