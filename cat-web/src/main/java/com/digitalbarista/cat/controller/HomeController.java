@@ -13,7 +13,7 @@ public class HomeController
 	public String goToIndex()
 	{
     SecurityContextHolder.getContext();
-		return "redirect:index.html";
+		return "app";
 	}
 	
 }

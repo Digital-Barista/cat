@@ -9,6 +9,10 @@ require.config({
     underscore: '/cat/js/libs/underscore/underscore-min', // https://github.com/amdjs
     backbone: '/cat/js/libs/backbone/backbone-min', // https://github.com/amdjs
     sinon: '/cat/js/libs/sinon/sinon.js',
+    Handlebars: '/cat/js/libs/handlebars',
+    hbs: '/cat/js/libs/hbs',
+    i18nprecompile: '/cat/js/libs/hbs/i18nprecompile',
+    json2: '/cat/js/libs/hbs/json2',
 
     // Require.js plugins
     text: '/cat/js/libs/require/text',
@@ -19,10 +23,18 @@ require.config({
     templates: '/cat/templates',
     
     views: '/cat/js/views',
-    models: '/cat/js/models'
+    models: '/cat/js/models',
+    collections: '/cat/js/collections'
   },
+  
 	//urlArgs: "bust=" +  (new Date()).getTime()
-
+  
+  hbs: {
+    disableI18n: true,        
+    disableHelpers: true,
+    templateExtension: "html" 
+  }
+  
 });
 
 // Let's kick off the application

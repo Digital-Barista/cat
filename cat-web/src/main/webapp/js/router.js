@@ -24,9 +24,13 @@ define([
     var router = new AppRouter(options);
     
 		router.on('route:defaultAction', function (actions) {
-			require(['views/dashboard/summary'], function (Summary) {
-        var summary = Vm.create(appView, 'Summary', Summary);
-        summary.render();
+			require(['views/dashboard/summary',
+			         'collections/dashboarddatas'], function (Summary, DashboardCollection) {
+			  var dashboardData = new DashboardCollection();
+        var summary = Vm.create(appView, 'Summary', Summary, {appView: appView, collection: dashboardData});
+        dashboardData.deferred.done(function(){
+          summary.render();
+        });
       });
 		});
     
@@ -49,9 +53,13 @@ define([
 		});
     
     router.on('route:sent', function () {
-     require(['views/message/sent'], function (SentView) {
-        var sent = Vm.create(appView, 'SentView', SentView);
-        sent.render();
+     require(['views/message/sent',
+              'collections/broadcasts'], function (SentView, Broadcasts) {
+        var broadcasts = new Broadcasts();
+        var sent = Vm.create(appView, 'SentView', SentView, {appView: appView, collection: broadcasts});
+        broadcasts.deferred.done(function(){
+          sent.render();
+        });
       });     
     });
 		

@@ -2,13 +2,14 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!templates/dashboard/summary.html'
+  'hbs!templates/dashboard/summary'
 ], function($, _, Backbone, summaryTemplate){
   var SummaryView = Backbone.View.extend({
     el: '.page',
     render: function () {
-		
-      $(this.el).html(summaryTemplate);
+
+      var dashboardData = this.collection.at(0).toJSON();
+      $(this.el).html(summaryTemplate(dashboardData));
     }
   });
   return SummaryView;
