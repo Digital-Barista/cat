@@ -43,8 +43,8 @@
 		horizontalAlign="right"
 		borderStyle="none"
 		paddingTop="0">
-      <dashboard:ASISummaryView id="ASISummary" label="Summary" />
 		<dashboard:SummaryView id="Summary" label="Summary" />
+    <dashboard:ASISummaryView id="ASISummary" label="Summary" />
 		<dashboard:TagSummaryView id="Tags" label="Tags" />
 		<dashboard:ContactCreatesView id="Contacts" label="Contacts" />
 		<dashboard:MessageSendDatesView id="SentMessages" label="Sent Messages" />
