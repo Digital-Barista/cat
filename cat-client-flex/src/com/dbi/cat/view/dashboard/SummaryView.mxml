@@ -12,7 +12,6 @@
 			
 			private function init():void
 			{
-          refresh();
           applyPermissions();
 			}
 			
