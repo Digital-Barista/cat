@@ -2,7 +2,8 @@
 <dashboard:BaseSummaryView xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
 		   xmlns:components="com.dbi.cat.view.components.*" 
        xmlns:dashboard="com.dbi.cat.view.dashboard.*" 
-		   xmlns:controls="com.dbi.controls.*">
+		   xmlns:controls="com.dbi.controls.*"
+		   creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
 			import com.dbi.cat.event.ClientEvent;
@@ -12,6 +13,10 @@
 			
 			private function init():void
 			{
+          if(currentUser !=null && !currentUser.isManager)
+          {
+            refresh();
+          }
           applyPermissions();
 			}
 			
