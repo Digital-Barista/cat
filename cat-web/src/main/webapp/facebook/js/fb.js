@@ -33,7 +33,7 @@ $.extend(dbi, {
 		
 		$("#LoginButton").click(function(e){
 		  e.preventDefault();
-		  FB.login(function(resposne){
+		  FB.login(function(response){
 		    dbi.handleResponse(response);
 		  });
 		});
