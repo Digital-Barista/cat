@@ -13,7 +13,10 @@
 			
 			private function init():void
 			{
-          refresh();
+          if(currentUser !=null && !currentUser.isManager)
+          {
+            refresh();
+          }
           applyPermissions();
 			}
 			

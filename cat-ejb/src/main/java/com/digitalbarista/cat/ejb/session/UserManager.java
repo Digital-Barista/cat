@@ -1,5 +1,4 @@
 package com.digitalbarista.cat.ejb.session;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,12 +13,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 import com.digitalbarista.cat.business.Role;
 import com.digitalbarista.cat.business.User;
 import com.digitalbarista.cat.data.UserDO;
-import com.digitalbarista.cat.util.SecurityUtil;
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 
 @Local
 @Path("/users")
