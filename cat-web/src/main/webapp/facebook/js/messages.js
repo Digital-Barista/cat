@@ -66,7 +66,7 @@ function MessageAPI()
 					for (var i = 0; i < data.length; i++)
 					{
 						var o = data[i];
-					   var row = createRow(o.message);
+					   var row = createRow(o);
 					   container.append(row);
 					}
 					
