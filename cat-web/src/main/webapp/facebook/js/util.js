@@ -17,6 +17,7 @@ PrintUtil.showCoupon = function(messageId)
 	w.document.write('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">');
 	// Write CSS
 	w.document.write('<link href="/cat/facebook/css/coupon.css" type="text/css" rel="stylesheet" />');
+	w.document.write('<link href="/cat/facebook/'+ app +'/css/coupon.css" type="text/css" rel="stylesheet" />');
 	
 	// Get app id
 	var app = $.query.get("app_id");
