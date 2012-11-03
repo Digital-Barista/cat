@@ -913,10 +913,26 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		Map<String,String> oldNewUIDMap = new HashMap<String,String>();
 		
-                campaign.getConnectors().clear();
-                campaign.getNodes().clear();
-                campaign.getCampaignInfos().clear();
-                campaign.getAddInMessages().clear();
+    if (campaign.getConnectors() != null)
+    {
+    	campaign.getConnectors().clear();
+    }
+    
+    if (campaign.getNodes() != null)
+    {
+    	campaign.getNodes().clear();
+    }
+    
+    if (campaign.getCampaignInfos() != null)
+    {
+    	campaign.getCampaignInfos().clear();
+    }
+    
+    if (campaign.getAddInMessages() != null)
+    {
+    	campaign.getAddInMessages().clear();
+    }
+    
 		campaign = save(campaign);
 		Node newNode;
 		for(Node oldNode : template.getNodes())
