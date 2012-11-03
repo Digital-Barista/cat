@@ -30,10 +30,12 @@ package com.dbi.cat.view.workspace
 	
 	import mx.binding.utils.BindingUtils;
 	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
 	import mx.containers.Canvas;
 	import mx.core.Application;
 	import mx.events.DragEvent;
 	import mx.managers.DragManager;
+	import mx.utils.ArrayUtil;
 
 			
 	public class WorkspaceView extends Canvas
@@ -166,6 +168,8 @@ package com.dbi.cat.view.workspace
 				if (e.value == address)
 				{
 					ret = new ArrayCollection(e.keywords.toArray().slice());
+          ret.source.sortOn("keyword", Array.CASEINSENSITIVE);
+          ret.refresh();
 					break;
 				}
 			}
