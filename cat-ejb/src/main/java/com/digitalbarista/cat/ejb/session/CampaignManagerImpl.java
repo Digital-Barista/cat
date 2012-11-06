@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
@@ -40,7 +39,6 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
@@ -99,6 +97,7 @@ import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
 import com.digitalbarista.cat.util.MultiValueMap;
 import com.digitalbarista.cat.util.SecurityUtil;
+import org.springframework.core.annotation.Order;
 
 /**
  * Session Bean implementation class CampaignManagerImpl
@@ -1867,6 +1866,17 @@ public class CampaignManagerImpl implements CampaignManager {
 			CampaignDO camp = (CampaignDO)q.getSingleResult();
 			if(camp.getCampaignInfos()!=null && camp.getCampaignInfos().size()>0)
 				ret.setActive(true);
+                        String currentMessageNodeUID = null;
+                        for(CampaignConnectorLinkDO connectorLink : camp.getConnectors())
+                        {
+                            if(connectorLink.getVersion().intValue()!=camp.getCurrentVersion())
+                                continue;
+                            for(NodeConnectorLinkDO connection : connectorLink.getConnector().getConnections())
+                            {
+                                if(connection.getConnectionPoint()==ConnectionPoint.Destination)
+                                    currentMessageNodeUID=connection.getNode().getUID();
+                            }
+                        }
 			for(CampaignNodeLinkDO nodeLink : camp.getNodes())
 			{
 				if(nodeLink.getVersion().intValue()!=camp.getCurrentVersion())
@@ -1877,13 +1887,13 @@ public class CampaignManagerImpl implements CampaignManager {
 					entryNode.copyFrom(nodeLink.getNode());
 					ret.setEntryData(entryNode.getEntryData());
 				}
-				if(nodeLink.getNode().getType()==NodeType.Coupon)
+				if(nodeLink.getNode().getType()==NodeType.Coupon && nodeLink.getNode().getUID().equalsIgnoreCase(currentMessageNodeUID))
 				{
 					CouponNode messageNode = new CouponNode();
 					messageNode.copyFrom(nodeLink.getNode());
 					ret.setMessageNode(messageNode);
 				}
-				if(nodeLink.getNode().getType()==NodeType.Message)
+				if(nodeLink.getNode().getType()==NodeType.Message && nodeLink.getNode().getUID().equalsIgnoreCase(currentMessageNodeUID))
 				{
 					MessageNode messageNode = new MessageNode();
 					messageNode.copyFrom(nodeLink.getNode());
