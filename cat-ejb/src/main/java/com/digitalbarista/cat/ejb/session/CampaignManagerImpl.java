@@ -1872,6 +1872,8 @@ public class CampaignManagerImpl implements CampaignManager {
                                 continue;
                             for(NodeConnectorLinkDO connection : connectorLink.getConnector().getConnections())
                             {
+                                if(connection.getVersion().intValue()!=camp.getCurrentVersion())
+                                    continue;
                                 if(connection.getConnectionPoint()==ConnectionPoint.Destination)
                                     currentMessageNodeUID=connection.getNode().getUID();
                             }
