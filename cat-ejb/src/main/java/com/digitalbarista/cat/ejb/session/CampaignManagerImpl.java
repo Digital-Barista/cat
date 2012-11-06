@@ -34,6 +34,7 @@ import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaQuery;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -96,7 +97,6 @@ import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
 import com.digitalbarista.cat.util.MultiValueMap;
 import com.digitalbarista.cat.util.SecurityUtil;
-import org.springframework.core.annotation.Order;
 
 /**
  * Session Bean implementation class CampaignManagerImpl
