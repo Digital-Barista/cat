@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
@@ -40,7 +39,6 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditInterceptor;
@@ -913,10 +911,26 @@ public class CampaignManagerImpl implements CampaignManager {
 		
 		Map<String,String> oldNewUIDMap = new HashMap<String,String>();
 		
-                campaign.getConnectors().clear();
-                campaign.getNodes().clear();
-                campaign.getCampaignInfos().clear();
-                campaign.getAddInMessages().clear();
+    if (campaign.getConnectors() != null)
+    {
+    	campaign.getConnectors().clear();
+    }
+    
+    if (campaign.getNodes() != null)
+    {
+    	campaign.getNodes().clear();
+    }
+    
+    if (campaign.getCampaignInfos() != null)
+    {
+    	campaign.getCampaignInfos().clear();
+    }
+    
+    if (campaign.getAddInMessages() != null)
+    {
+    	campaign.getAddInMessages().clear();
+    }
+    
 		campaign = save(campaign);
 		Node newNode;
 		for(Node oldNode : template.getNodes())
@@ -1851,6 +1865,19 @@ public class CampaignManagerImpl implements CampaignManager {
 			CampaignDO camp = (CampaignDO)q.getSingleResult();
 			if(camp.getCampaignInfos()!=null && camp.getCampaignInfos().size()>0)
 				ret.setActive(true);
+                        String currentMessageNodeUID = null;
+                        for(CampaignConnectorLinkDO connectorLink : camp.getConnectors())
+                        {
+                            if(connectorLink.getVersion().intValue()!=camp.getCurrentVersion())
+                                continue;
+                            for(NodeConnectorLinkDO connection : connectorLink.getConnector().getConnections())
+                            {
+                                if(connection.getVersion().intValue()!=camp.getCurrentVersion())
+                                    continue;
+                                if(connection.getConnectionPoint()==ConnectionPoint.Destination)
+                                    currentMessageNodeUID=connection.getNode().getUID();
+                            }
+                        }
 			for(CampaignNodeLinkDO nodeLink : camp.getNodes())
 			{
 				if(nodeLink.getVersion().intValue()!=camp.getCurrentVersion())
@@ -1861,13 +1888,13 @@ public class CampaignManagerImpl implements CampaignManager {
 					entryNode.copyFrom(nodeLink.getNode());
 					ret.setEntryData(entryNode.getEntryData());
 				}
-				if(nodeLink.getNode().getType()==NodeType.Coupon)
+				if(nodeLink.getNode().getType()==NodeType.Coupon && nodeLink.getNode().getUID().equalsIgnoreCase(currentMessageNodeUID))
 				{
 					CouponNode messageNode = new CouponNode();
 					messageNode.copyFrom(nodeLink.getNode());
 					ret.setMessageNode(messageNode);
 				}
-				if(nodeLink.getNode().getType()==NodeType.Message)
+				if(nodeLink.getNode().getType()==NodeType.Message && nodeLink.getNode().getUID().equalsIgnoreCase(currentMessageNodeUID))
 				{
 					MessageNode messageNode = new MessageNode();
 					messageNode.copyFrom(nodeLink.getNode());
@@ -1899,6 +1926,8 @@ public class CampaignManagerImpl implements CampaignManager {
 			String entryUID=null;
 			
 			Campaign existingCamp = getDetailedCampaign(camp.getUID());
+                        MessageNode existingMessageNode = null;
+                        CouponNode existingCouponNode = null;
 			for(Node node : existingCamp.getNodes())
 			{
 				if(node.getType()==NodeType.OutgoingEntry)
@@ -1909,43 +1938,47 @@ public class CampaignManagerImpl implements CampaignManager {
 				}
 				if(node.getType()==NodeType.Message)
 				{
-					if(campaignMessage.getMessageNode().getType()!=NodeType.Message)
-					{
-						delete(node);
-						campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
-						((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(save(campaignMessage.getMessageNode()).getUid());
-					} else {
-						MessageNode mNode = (MessageNode)node;
-						mNode.setMessage(((MessageNode)campaignMessage.getMessageNode()).getMessage());
-						mNode.setMessages(((MessageNode)campaignMessage.getMessageNode()).getMessages());
-						campaignMessage.setMessageNode(save(node));
-					}
+                                    existingMessageNode = (MessageNode)node;
 				}
 				if(node.getType()==NodeType.Coupon)
 				{
-					if(campaignMessage.getMessageNode().getType()!=NodeType.Coupon)
-					{
-						delete(node);
-						campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
-						((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(save(campaignMessage.getMessageNode()).getUid());
-					} else {
-						CouponNode existingCNode = (CouponNode)node;
-						CouponNode newCNode = (CouponNode)campaignMessage.getMessageNode();
-						existingCNode.setAvailableMessage(newCNode.getAvailableMessage());
-						existingCNode.setAvailableMessages(newCNode.getAvailableMessages());
-						existingCNode.setCouponCode(newCNode.getCouponCode());
-						existingCNode.setExpireDate(newCNode.getExpireDate());
-						existingCNode.setExpireDays(newCNode.getExpireDays());
-						existingCNode.setMaxCoupons(newCNode.getMaxCoupons());
-						existingCNode.setMaxRedemptions(newCNode.getMaxRedemptions());
-						existingCNode.setOfferCode(newCNode.getOfferCode());
-						existingCNode.setUnavailableDate(newCNode.getUnavailableDate());
-						existingCNode.setUnavailableMessage(newCNode.getUnavailableMessage());
-						existingCNode.setUnavailableMessages(newCNode.getUnavailableMessages());
-						campaignMessage.setMessageNode(save(node));
-					}
+                                    existingCouponNode = (CouponNode)node;
 				}
 			}
+                        if(campaignMessage.getMessageNode().getType()==NodeType.Message)
+                        {
+                            if(existingMessageNode==null)
+                            {
+                                campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
+                                existingMessageNode = (MessageNode)save(campaignMessage.getMessageNode());
+                            } else {
+                                existingMessageNode.setMessage(((MessageNode)campaignMessage.getMessageNode()).getMessage());
+                                existingMessageNode.setMessages(((MessageNode)campaignMessage.getMessageNode()).getMessages());
+                                campaignMessage.setMessageNode(save(existingMessageNode));
+                            }
+                            ((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(existingMessageNode.getUid());
+                        } else {
+                            if(existingCouponNode==null)
+                            {
+                                campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
+                                existingCouponNode = (CouponNode)save(campaignMessage.getMessageNode());
+                            } else {
+                                CouponNode newCNode = (CouponNode)campaignMessage.getMessageNode();
+                                existingCouponNode.setAvailableMessage(newCNode.getAvailableMessage());
+                                existingCouponNode.setAvailableMessages(newCNode.getAvailableMessages());
+                                existingCouponNode.setCouponCode(newCNode.getCouponCode());
+                                existingCouponNode.setExpireDate(newCNode.getExpireDate());
+                                existingCouponNode.setExpireDays(newCNode.getExpireDays());
+                                existingCouponNode.setMaxCoupons(newCNode.getMaxCoupons());
+                                existingCouponNode.setMaxRedemptions(newCNode.getMaxRedemptions());
+                                existingCouponNode.setOfferCode(newCNode.getOfferCode());
+                                existingCouponNode.setUnavailableDate(newCNode.getUnavailableDate());
+                                existingCouponNode.setUnavailableMessage(newCNode.getUnavailableMessage());
+                                existingCouponNode.setUnavailableMessages(newCNode.getUnavailableMessages());
+                                campaignMessage.setMessageNode(save(existingCouponNode));
+                            }
+                            ((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(existingCouponNode.getUid());
+                        }
 			em.flush();
 			em.clear();
 			save(existingCamp.getConnectors().iterator().next());
