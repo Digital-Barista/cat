@@ -178,26 +178,26 @@ public class ReportingManagerImpl implements ReportingManager
 			}
 			else
 			{
-				ret.setClientCount(Integer.toString(allowedClientIDs.size()));
+//				ret.setClientCount(Integer.toString(allowedClientIDs.size()));
 			
 				// Get campaign count
 				Criteria crit = session.createCriteria(CampaignDO.class);
-				crit.add(Restrictions.in("client.id", allowedClientIDs));
-				crit.add(Restrictions.eq("status", CampaignStatus.Active));
-				crit.add(Restrictions.eq("mode", CampaignMode.Normal));
-				crit.setProjection(Projections.rowCount());
-				ret.setCampaignCount(crit.uniqueResult().toString());
+//				crit.add(Restrictions.in("client.id", allowedClientIDs));
+//				crit.add(Restrictions.eq("status", CampaignStatus.Active));
+//				crit.add(Restrictions.eq("mode", CampaignMode.Normal));
+//				crit.setProjection(Projections.rowCount());
+//				ret.setCampaignCount(crit.uniqueResult().toString());
 				
 	
 				// Get per EntryPointType counts
 				ret.setContactCounts(getContactCounts(allowedClientIDs));
-				ret.setCouponsRedeemed(getCouponsRedeemed(allowedClientIDs));
-				ret.setCouponsSent(getCouponsSent(allowedClientIDs));
-				ret.setMessagesReceived(getMessageReceivedCounts(allowedClientIDs));
-				ret.setMessagesSent(getMessageSentCounts(allowedClientIDs));
+//				ret.setCouponsRedeemed(getCouponsRedeemed(allowedClientIDs));
+//				ret.setCouponsSent(getCouponsSent(allowedClientIDs));
+//				ret.setMessagesReceived(getMessageReceivedCounts(allowedClientIDs));
+//				ret.setMessagesSent(getMessageSentCounts(allowedClientIDs));
 	
 				// Get message credit infos
-				ret.setMessageCreditInfos(getMessageCreditInfos(allowedClientIDs));
+//				ret.setMessageCreditInfos(getMessageCreditInfos(allowedClientIDs));
 				
 				// Get subscriber count
 				crit = session.createCriteria(CampaignSubscriberLinkDO.class);
@@ -208,7 +208,7 @@ public class ReportingManagerImpl implements ReportingManager
 				ret.setSubscriberCount(crit.uniqueResult().toString());
 				
 				// Get subscribers per end point
-				ret.setEndPointSubscriberCounts(getEndpointSubscriberCount(allowedClientIDs));
+//				ret.setEndPointSubscriberCounts(getEndpointSubscriberCount(allowedClientIDs));
 			}
 			
 		}

@@ -52,16 +52,6 @@
                     <mx:FormItem label="Total System Users" labelStyleName="dashboardTotalItem">
                         <mx:Label text="{contactTotal}" styleName="dashboardTotalValue" minWidth="50" />
                     </mx:FormItem>
-                    <mx:FormItem label="Total Messages Sent" labelStyleName="dashboardTotalItem">
-                        <mx:Label text="{messageTotal}" styleName="dashboardTotalValue" minWidth="50" />
-                    </mx:FormItem>
-                    <mx:FormItem label="Total Coupons Sent" labelStyleName="dashboardTotalItem">
-                        <mx:Label text="{dashboardData.couponsSent}" styleName="dashboardTotalValue" minWidth="50" />
-                    </mx:FormItem>
-                    <mx:FormItem label="Total Redemptions*" labelStyleName="dashboardTotalItem">
-                        <mx:Label text="{dashboardData.couponsRedeemed}" styleName="dashboardTotalValue"  minWidth="50" />
-                    </mx:FormItem>
-                    <mx:Label text="*Requires use of Coupon Redemption system" />
                 </mx:Form>
                 <mx:HBox>
                     <mx:Form>
@@ -69,17 +59,11 @@
                         <mx:FormItem label="Total App Users" labelStyleName="dashboardMessageItem">
                             <mx:Label text="{getContactCount(EntryPointType.FACEBOOK).count}" styleName="dashboardMessageValue" minWidth="50" />
                         </mx:FormItem>
-                        <mx:FormItem label="Total Messages Sent" labelStyleName="dashboardMessageItem">
-                            <mx:Label text="{getMessageStatistics(EntryPointType.FACEBOOK).sent}"  styleName="dashboardMessageValue" minWidth="50" />
-                        </mx:FormItem>
                     </mx:Form>
                     <mx:Form>
                         <mx:Label text="Twitter Information" styleName="dashboardMessageHeading" />
                         <mx:FormItem label="Total Feed Followers" labelStyleName="dashboardMessageItem">
                             <mx:Label text="{getContactCount(EntryPointType.TWITTER).count}" styleName="dashboardMessageValue" minWidth="50" />
-                        </mx:FormItem>
-                        <mx:FormItem label="Total Messages Sent" labelStyleName="dashboardMessageItem">
-                            <mx:Label text="{getMessageStatistics(EntryPointType.TWITTER).sent}" styleName="dashboardMessageValue" minWidth="50" />
                         </mx:FormItem>
                     </mx:Form>
                 </mx:HBox>

@@ -49,54 +49,6 @@
 			horizontalCenter="0"
 			width="100%" height="100%" >
 		<mx:TitleWindow width="100%" height="100%" layout="horizontal" horizontalAlign="center">
-			<mx:VBox minHeight="250" height="100%" verticalGap="0" horizontalAlign="center">
-				<mx:VBox id="MessageCredits">
-					<mx:Label text="Message Credits" styleName="dashboardLabel" />
-					<mx:Label text="(Select a campaign to see credit info)"
-							  visible="{clientCredits.length == 0}"
-							  includeInLayout="{clientCredits.length == 0}" />
-					<mx:Repeater id="CreditRepeater" dataProvider="{clientCredits}">
-						<mx:HBox width="100%"> 
-							<mx:Label text="{CreditRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel1" width="120" />
-							<mx:Label text="{CreditRepeater.currentItem.credits}" styleName="dashboardDataLabel" />
-						</mx:HBox>
-					</mx:Repeater>
-					<mx:HBox width="100%" paddingTop="10" horizontalAlign="center">
-						<mx:Button label="Add Credits"
-								   click="addCredits()"/>
-					</mx:HBox>
-				</mx:VBox>
-				
-				<mx:VBox id="CouponInfo">
-					<mx:Label text="Coupon Info" styleName="dashboardLabel" />
-					<mx:HBox> 
-						<mx:Label text="Coupons Sent" styleName="dashboardSubLabel1" width="170" />
-						<mx:Label text="{dashboardData.couponsSent}" styleName="dashboardDataLabel" minWidth="50" />
-					</mx:HBox>
-					<mx:HBox> 
-						<mx:Label text="Coupons Redeemed" styleName="dashboardSubLabel1" width="170" />
-						<mx:Label text="{dashboardData.couponsRedeemed}" styleName="dashboardDataLabel" minWidth="50" />
-					</mx:HBox>
-				</mx:VBox>
-			</mx:VBox>
-			<mx:VBox id="MessageStatistics" minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
-				<mx:Label text="Message Statistics" styleName="dashboardLabel" />
-				<mx:Repeater id="MessageCountRepeater"
-							 dataProvider="{messageStatistics}">
-					<mx:HBox>
-						<mx:Label text="{MessageCountRepeater.currentItem.entryPointType}" styleName="dashboardSubLabel1" width="120" />
-						<mx:Label text="{MessageCountRepeater.currentItem.total}" styleName="dashboardDataLabel" minWidth="50" />
-					</mx:HBox>
-					<mx:HBox>
-						<mx:Label text="Sent" styleName="dashboardSubLabel2" width="120" />
-						<mx:Label text="{MessageCountRepeater.currentItem.sent}" styleName="dashboardDataLabel" minWidth="50" />
-					</mx:HBox>
-					<mx:HBox>
-						<mx:Label text="Received" styleName="dashboardSubLabel2" width="120" />
-						<mx:Label text="{MessageCountRepeater.currentItem.received}" styleName="dashboardDataLabel" minWidth="50" />
-					</mx:HBox>
-				</mx:Repeater>
-			</mx:VBox>
 			<mx:VBox  minWidth="250" height="100%" verticalGap="0" horizontalAlign="center">
 				<mx:VBox id="SubscriberInfo">
 					<mx:Label text="Subscriber Info" styleName="dashboardLabel" />
@@ -114,23 +66,6 @@
 						<mx:Label text="Subscribers" styleName="dashboardSubLabel1" width="120" />
 						<mx:Label text="{dashboardData.subscriberCount}" styleName="dashboardDataLabel" minWidth="50" />
 					</mx:HBox>
-				</mx:VBox>
-				
-				<mx:VBox id="EndpointInfo">
-					<mx:Label text="Endpoint Info" styleName="dashboardLabel" />
-					<mx:DataGrid dataProvider="{dashboardData.endPointSubscriberCounts}"
-								 showHeaders="false"
-								 resizableColumns="false"
-								 borderStyle="none"
-								 backgroundAlpha="0"
-								 selectable="false" 
-								 styleName="dashboardSubLabel1"
-								 verticalGridLines="false">
-						<mx:columns>
-							<mx:DataGridColumn dataField="key"  width="120"  />
-							<mx:DataGridColumn dataField="value"  minWidth="50" />
-						</mx:columns>
-					</mx:DataGrid>
 				</mx:VBox>
 			</mx:VBox>
 		</mx:TitleWindow>
