@@ -76,4 +76,6 @@ public interface FacebookManager
 	FacebookTrackingInfo getFacebookTrackingInfo(HttpServletRequest request);
 	
 	List<String> sendAppRequest(List<String> facebookUIDs, String appName, String message) throws FacebookManagerException;
+
+        boolean sendNotification(String facebookUID, String appName, String message) throws FacebookManagerException;
 }
