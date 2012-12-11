@@ -91,6 +91,7 @@ import com.restfb.Parameter;
 import com.restfb.batch.BatchRequest;
 import com.restfb.batch.BatchRequest.BatchRequestBuilder;
 import com.restfb.batch.BatchResponse;
+import com.restfb.exception.FacebookOAuthException;
 
 /**
  * Session Bean implementation class FacebookManagerImpl
@@ -1001,6 +1002,39 @@ public class FacebookManagerImpl implements FacebookManager
 		return ret;
 	}
 
+	@Override
+	/**
+	 * Sends a message from an app to a list of users specified by UID.
+	 * 
+	 * @param facebookUIDs List of facebook user IDs to send to
+	 * @param appName Name of the facebook app
+	 * @param message Message to send to facebook
+	 * 
+	 * @return List of facebook user IDs that FAILED to get the message
+	 */
+	public boolean sendNotification(String facebookUID, String appName, String message) throws FacebookManagerException
+	{
+		// Get the APP access token
+		String token = getFacebookAppAccessToken(appName);
+
+		if (token != null)
+		{
+			try
+			{
+				FacebookClient fbClient = new DefaultFacebookClient(token);
+				NotificationType result = fbClient.publish(facebookUID + "/notifications",
+				NotificationType.class,
+				Parameter.with("template", message));
+			}
+			catch (Exception e)
+			{
+				logger.error("Error decoding facebook response", e);
+                                return false;
+			}
+		}
+		return true;
+	}
+
 	public static class AppRequestType
 	{
 		@Facebook
@@ -1034,14 +1068,21 @@ public class FacebookManagerImpl implements FacebookManager
 		}
 
 		public String getError()
-    {
-    	return error;
-    }
+                {
+                    return error;
+                }
 
-		public void setError(String error)
-    {
-    	this.error = error;
-    }
+                public void setError(String error)
+                {
+                    this.error = error;
+                }
 
+	}
+        
+	public static class NotificationType
+	{
+		@Facebook
+		private boolean success;
+		
 	}
 }

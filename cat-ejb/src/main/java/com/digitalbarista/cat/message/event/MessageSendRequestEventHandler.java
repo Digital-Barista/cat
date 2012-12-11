@@ -186,7 +186,8 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				List<String> fbuids = new ArrayList<String>();
 				fbuids.add(e.getTarget());
 				getFacebookManager().sendAppRequest(fbuids, applicationInfo.getAppName(), "A new message arrived - "+new SimpleDateFormat(dateFormat).format(new Date()));
-			}catch(Exception ex)
+                                getFacebookManager().sendNotification(e.getTarget(), applicationInfo.getAppName(), "A new message has arrived!");
+                        }catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);
 			}finally
