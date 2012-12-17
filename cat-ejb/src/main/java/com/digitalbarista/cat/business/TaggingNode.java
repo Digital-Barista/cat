@@ -11,28 +11,24 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.data.NodeType;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 @XmlRootElement(name="TaggingNode")
 @XmlType(name="TaggingNode")
 public class TaggingNode extends Node {
 
 	public static final String INFO_PROPERTY_TAG="Tag";
-	
-	private Logger log=LogManager.getLogger(getClass());
-	
+		
 	private List<ContactTag> tags;
 	
 	@Override
 	public NodeType getType() {
 		return NodeType.Tagging;
 	}
-
 
 	@Override
 	public void copyFrom(NodeDO dataObject, Integer version) {
@@ -41,6 +37,7 @@ public class TaggingNode extends Node {
 
 	@Override
 	public void copyTo(NodeDO dataObject) {
+                Logger log = LogManager.getLogger(getClass());
 		super.copyTo(dataObject);
 		Integer version = dataObject.getCampaign().getCurrentVersion();
 		Map<String,NodeInfoDO> nodes = new HashMap<String,NodeInfoDO>();
