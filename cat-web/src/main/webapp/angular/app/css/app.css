@@ -1,0 +1,26 @@
+/* line 1, ../sass/_left-menu.scss */
+.left-menu {
+  float: left;
+  width: 200px;
+  padding: 0;
+}
+/* line 6, ../sass/_left-menu.scss */
+.left-menu .link {
+  color: #005580;
+}
+/* line 9, ../sass/_left-menu.scss */
+.left-menu .link:hover {
+  background-color: #eee;
+}
+
+/* line 5, ../sass/app.scss */
+.main-container {
+  width: 940px;
+  margin: 60px auto 0 auto;
+}
+
+/* line 10, ../sass/app.scss */
+.main-view {
+  float: left;
+  margin-left: 30px;
+}

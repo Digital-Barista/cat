@@ -1,0 +1,13 @@
+.left-menu {
+  float:left;
+  width: 200px;
+  padding:0;
+
+  .link {
+    color: #005580;
+
+    &:hover {
+      background-color: #eee;
+    }
+  }
+}

@@ -1,0 +1,8 @@
+<div class="left-menu well">
+    <ul class="nav nav-list ">
+        <li class="nav-{{item.type}}" ng-class="{active: path == item.url}" ng-repeat="item in menuItems" ng-switch="item.type">
+            <a ng-switch-default href="#{{item.url}}" ng-click="select(item)">{{item.title}}</a>
+            <span ng-switch-when="header">{{item.title}}</span>
+        </li>
+    </ul>
+</div>
