@@ -4,7 +4,7 @@
 
   <groupId>com.digitalbarista.cat</groupId>
   <artifactId>cat-ear</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.3-SNAPSHOT</version>
   <packaging>ear</packaging>
 
   <name>CAT Enterprise Application</name>
@@ -18,7 +18,7 @@
   <parent>
     <groupId>com.digitalbarista.cat</groupId>
     <artifactId>cat</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.3-SNAPSHOT</version>
   </parent>
 
   <build>

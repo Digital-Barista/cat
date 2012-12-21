@@ -1,3 +1,0 @@
-<jboss>
-	<security-domain>java:/jaas/campaign-admin</security-domain>
-</jboss>

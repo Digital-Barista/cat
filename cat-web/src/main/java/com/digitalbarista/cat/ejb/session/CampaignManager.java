@@ -13,15 +13,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Resource;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.interceptor.Interceptors;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -38,10 +29,8 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.jboss.annotation.ejb.LocalBinding;
 
 import com.digitalbarista.cat.audit.AuditEvent;
-import com.digitalbarista.cat.audit.AuditInterceptor;
 import com.digitalbarista.cat.audit.AuditType;
 import com.digitalbarista.cat.business.AddInMessage;
 import com.digitalbarista.cat.business.BroadcastInfo;
@@ -97,58 +86,71 @@ import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
 import com.digitalbarista.cat.util.MultiValueMap;
 import com.digitalbarista.cat.util.SecurityUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Session Bean implementation class CampaignManagerImpl
  */
 
-@Stateless
-@LocalBinding(jndiBinding = "ejb/cat/CampaignManager")
-@Interceptors({AuditInterceptor.class})
-@TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class CampaignManagerImpl implements CampaignManager {
+@Transactional(propagation= Propagation.REQUIRED)
+@Controller
+@RequestMapping(value="/campaigns",
+                consumes={"application/xml","application/json"},
+                produces={"application/xml","application/json"})
+public class CampaignManager {
 
 	Logger log = LogManager.getLogger(getClass());
-	
-	@Resource
-	private SessionContext ctx; //Used to flag rollbacks.
-	
+		
 	@PersistenceContext(unitName="cat-data")
 	private EntityManager em;
 	
 	@PersistenceContext(unitName="cat-data")
 	private Session session;
 	
-	@EJB(name="ejb/cat/EventTimerManager")
-	EventTimerManager timer;
+        @Autowired
+        EventTimerManager timer;
 	
-	@EJB(name="ejb/cat/EventManager")
-	EventManager eventManager;
+        @Autowired
+        EventManager eventManager;
 	
-	@EJB(name="ejb/cat/UserManager")
-	UserManager userManager;
+        @Autowired
+        UserManager userManager;
 	
-	@EJB(name="ejb/cat/LayoutManager")
-	LayoutManager layoutManager;
+        @Autowired
+        LayoutManager layoutManager;
 	
-	@EJB(name="ejb/cat/ContactManager")
-	ContactManager contactManager;
+        @Autowired
+        ContactManager contactManager;
 	
-	@EJB(name="ejb/cat/CacheAccessManager")
-	CacheAccessManager cacheAccessManager;
+        @Autowired
+        CacheAccessManager cacheAccessManager;
+        
+        @Autowired
+        SubscriptionManager subscriptionManager;
 	
-	@Override
+        @Autowired
+        SecurityUtil securityUtil;
+        
 	@SuppressWarnings("unchecked")
-	@PermitAll
-	public List<Campaign> getAllCampaigns() 
+	@RequestMapping(method=RequestMethod.GET)
+        public List<Campaign> getAllCampaigns() 
 	{
 		return getCampaigns(null);
 	}
 
-	@Override
 	@SuppressWarnings("unchecked")
-	@PermitAll
-	public List<Campaign> getAllTemplates() 
+        @RequestMapping(method=RequestMethod.GET,value="/templates")
+        public List<Campaign> getAllTemplates() 
 	{
 		return getCampaignTemplates(null);
 	}
@@ -158,7 +160,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
 		
-		List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
+		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(session, clientIDs);
 		
 		if (allowedClientIDs.size() > 0)
 		{
@@ -202,12 +204,13 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 
-	public List<BroadcastInfo> getBroadcastCampaigns(List<Long> clientIDs)
+        @RequestMapping(method=RequestMethod.GET,value="/broadcast")
+	public List<BroadcastInfo> getBroadcastCampaigns(@RequestParam(value="clientID") List<Long> clientIDs)
 	{
 		List<BroadcastInfo> ret = new ArrayList<BroadcastInfo>();
 		BroadcastInfo c;
 		
-		List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
+		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(session, clientIDs);
 		
 		if (allowedClientIDs.size() > 0)
 		{
@@ -261,7 +264,7 @@ public class CampaignManagerImpl implements CampaignManager {
 	{
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
-		List<Long> allowedClientIDs = SecurityUtil.getAllowedClientIDs(ctx, session, clientIDs);
+		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(session, clientIDs);
 		
 		if (allowedClientIDs.size() > 0)
 		{
@@ -281,8 +284,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.MANDATORY)
-	@PermitAll
+	@Transactional(propagation=Propagation.MANDATORY)
 	public ConnectorDO getSimpleConnector(String connectorUUID)
 	{
 			Criteria crit = session.createCriteria(ConnectorDO.class);
@@ -294,24 +296,22 @@ public class CampaignManagerImpl implements CampaignManager {
 			if(ret==null)
 				return null;
 			
-			if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), ret.getCampaign().getClient().getPrimaryKey()))
+			if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), ret.getCampaign().getClient().getPrimaryKey()))
 				throw new SecurityException("Current user is not allowed to access the specified connector.");
 			
 			return ret;
 	}
 	
-	@Override
-	@PermitAll
-	public Connector getConnector(String connectorUUID) {
+        @RequestMapping(method=RequestMethod.GET,value="/connectors/{uid}")
+	public Connector getConnector(@PathVariable("uid") String connectorUUID) {
 		ConnectorDO conn = getSimpleConnector(connectorUUID);
 		Connector ret = Connector.createConnectorBO(conn);
 		ret.copyFrom(conn);
 		return ret;
 	}
 
-	@Override
-	@PermitAll
-	public Connector getSpecificConnectorVersion(String connectorUUID, Integer version) {
+        @RequestMapping(method=RequestMethod.GET,value="/connectors/{uid}/versions/{version}")
+	public Connector getSpecificConnectorVersion(@PathVariable("uid") String connectorUUID, @PathVariable("version") Integer version) {
 		String key = connectorUUID+"/"+version;
 		Connector ret = (Connector)cacheAccessManager.getCachedObject(CacheName.ConnectorCache, key);
 		if(ret!=null)
@@ -326,13 +326,11 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 	
-	@PermitAll
 	public CampaignDO getSimpleCampaign(String campaignUUID)
 	{
 		return getSimpleCampaign(campaignUUID, false);
 	}
 	
-	@PermitAll
 	public CampaignDO getSimpleCampaign(String campaignUUID, boolean eagerFetch)
 	{
 		try
@@ -351,7 +349,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			if(ret==null)
 				return null;
 			
-			if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), ret.getClient().getPrimaryKey()))
+			if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), ret.getClient().getPrimaryKey()))
 				throw new SecurityException("Current user is not allowed to access the specified campaign.");
 
 			return ret;
@@ -362,10 +360,9 @@ public class CampaignManagerImpl implements CampaignManager {
 		}
 	}
 	
-	@Override
-	@PermitAll
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public Campaign getDetailedCampaign(String campaignUUID) {
+	@Transactional(propagation= Propagation.REQUIRED)
+        @RequestMapping(method=RequestMethod.GET, value="/{uid}")
+	public Campaign getDetailedCampaign(@PathVariable("uid") String campaignUUID) {
 		Campaign campaign = new Campaign();
 		CampaignDO dataCPN = getSimpleCampaign(campaignUUID,true);
 		campaign.copyFrom(dataCPN);
@@ -389,7 +386,6 @@ public class CampaignManagerImpl implements CampaignManager {
 		return campaign;
 	}
 
-	@PermitAll
 	public NodeDO getSimpleNode(String nodeUUID)
 	{
 		try
@@ -403,7 +399,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			if(ret==null)
 				return null;
 			
-			if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), ret.getCampaign().getClient().getPrimaryKey()))
+			if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), ret.getCampaign().getClient().getPrimaryKey()))
 				throw new SecurityException("Current user is not allowed to access the specified node.");
 
 			return ret;
@@ -413,16 +409,14 @@ public class CampaignManagerImpl implements CampaignManager {
 		}
 	}
 	
-	@Override
-	@PermitAll
-	public Node getNode(String nodeUUID) {
+        @RequestMapping(method=RequestMethod.GET,value="/nodes/{uid}")
+	public Node getNode(@PathVariable("uid") String nodeUUID) {
 		NodeDO node = getSimpleNode(nodeUUID);
 		return getSpecificNodeVersion(nodeUUID,node.getCampaign().getCurrentVersion());
 	}
 
-	@Override
-	@PermitAll
-	public Node getSpecificNodeVersion(String nodeUUID, Integer versionNumber)
+        @RequestMapping(method=RequestMethod.GET,value="/nodes/{uid}/versions/{version}")
+	public Node getSpecificNodeVersion(@PathVariable("uid") String nodeUUID, @PathVariable("version") Integer versionNumber)
 	{
 		String key = nodeUUID+"/"+versionNumber;
 		Node ret = (Node)cacheAccessManager.getCachedObject(CacheName.NodeCache, key);
@@ -461,9 +455,8 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 	
-	@Override
-	@PermitAll
-	public Campaign getSpecificCampaignVersion(String campaignUUID, int version) {
+        @RequestMapping(method= RequestMethod.GET,value="/{uid}/versions/{version}")
+	public Campaign getSpecificCampaignVersion(@PathVariable("uid") String campaignUUID, @PathVariable("version") int version) {
 		String key = campaignUUID+"/"+version;
 		Campaign campaign = (Campaign)cacheAccessManager.getCachedObject(CacheName.CampaignCache, key);
 		if(campaign!=null)
@@ -497,10 +490,10 @@ public class CampaignManagerImpl implements CampaignManager {
 		return campaign;
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	@AuditEvent(AuditType.PublishCampaign)
-	public void publish(String campaignUUID) {
+        @RequestMapping(method=RequestMethod.POST,value="{uid}/publish")
+	public void publish(@PathVariable("uid") String campaignUUID) {
 		try
 		{
 			CampaignDO camp = getSimpleCampaign(campaignUUID);
@@ -782,15 +775,14 @@ public class CampaignManagerImpl implements CampaignManager {
 		}
 		catch(Throwable e)
 		{
-			ctx.setRollbackOnly();
 			throw new RuntimeException(e);
 		}
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	@AuditEvent(AuditType.SaveCampaign)
-	public Campaign save(Campaign campaign) {
+        @RequestMapping(method=RequestMethod.POST)
+	public Campaign save(@RequestBody Campaign campaign) {
 		CampaignDO camp = getSimpleCampaign(campaign.getUid());
 		if(camp==null && campaign.getClientPK()==null)
 			throw new IllegalArgumentException("Cannot create a new campaign without a valid client PK.");
@@ -798,7 +790,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			throw new IllegalArgumentException("Cannot change the client ID associated with the campaign.");
 		if(camp==null)
 		{
-			if(!userManager.isUserAllowedForClientId(ctx.getCallerPrincipal().getName(), campaign.getClientPK()))
+			if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), campaign.getClientPK()))
 				throw new SecurityException("Current user is not allowed to create campaigns for the specified client.");	
 			
 			camp = new CampaignDO();
@@ -898,10 +890,10 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	@AuditEvent(AuditType.CreateCampaignFromTemplate)
-	public Campaign createFromTemplate(Campaign campaign, String campaignTemplateUUID)
+        @RequestMapping(method=RequestMethod.POST,value="/{template-uid}")
+	public Campaign createFromTemplate(@RequestBody Campaign campaign, @PathVariable("template-uid") String campaignTemplateUUID)
 	{
 		Campaign template = getDetailedCampaign(campaignTemplateUUID);
 		if(template==null)
@@ -1115,10 +1107,10 @@ public class CampaignManagerImpl implements CampaignManager {
 		return true;
 	}
 	
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	@AuditEvent(AuditType.SaveNode)
-	public Node save(Node node) {
+        @RequestMapping(method= RequestMethod.POST,value="/nodes")
+	public Node save(@RequestBody Node node) {
 		CampaignDO camp = getSimpleCampaign(node.getCampaignUID());
 		if(node.getUid()==null)
 			node.setUid(UUID.randomUUID().toString());
@@ -1344,10 +1336,10 @@ public class CampaignManagerImpl implements CampaignManager {
 		}
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	@AuditEvent(AuditType.SaveConnection)
-	public Connector save(Connector connector) {
+        @RequestMapping(method=RequestMethod.POST,value="/connectors")
+	public Connector save(@RequestBody Connector connector) {
 		CampaignDO camp = getSimpleCampaign(connector.getCampaignUID());
 		if(connector.getUid()==null)
 			connector.setUid(UUID.randomUUID().toString());
@@ -1467,8 +1459,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		return connector;
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	@AuditEvent(AuditType.DeleteCampaign)
 	public void delete(Campaign campaign) {
 		if(campaign==null || campaign.getUid()==null)
@@ -1485,8 +1476,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		camp.setStatus(CampaignStatus.Deleted);
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	@AuditEvent(AuditType.DeleteNode)
 	public void delete(Node node) {
 		if(node==null || node.getUid()==null)
@@ -1549,8 +1539,7 @@ public class CampaignManagerImpl implements CampaignManager {
 			em.remove(n);
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	@AuditEvent(AuditType.DeleteConnection)
 	public void delete(Connector connector) {
 		if(connector==null || connector.getUid()==null)
@@ -1613,9 +1602,8 @@ public class CampaignManagerImpl implements CampaignManager {
 			em.remove(c);
 	}
 
-	@Override
-	@PermitAll
-	public Campaign getLastPublishedCampaign(String campaignUUID) {
+        @RequestMapping(method= RequestMethod.GET,value="/{uid}/published")
+	public Campaign getLastPublishedCampaign(@PathVariable("uid") String campaignUUID) {
 		CampaignDO camp = getSimpleCampaign(campaignUUID);
 		if(camp==null)
 			return null;
@@ -1626,9 +1614,9 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 
-	@Override
-	@PermitAll
-	public Map<String, Long> getNodeSubscriberCount(String campaignUUID) {
+        @RequestMapping(method=RequestMethod.GET,value="/{uid}/nodes")
+        //@WrappedMap(map="nodeSubscriberCount",key="nodeUID",entry="count") -- Doesn't apply, but we need to map this the right way at some point.
+	public Map<String, Long> getNodeSubscriberCount(@PathVariable("uid") String campaignUUID) {
 		getSimpleCampaign(campaignUUID); // Do nothing with this except invoke security checks.
 		
 		String queryString="select csl.lastHitNode.UID, count(csl.lastHitNode.UID) from CampaignSubscriberLinkDO csl where csl.campaign.UID=:campaignUID and csl.active=1 group by csl.lastHitNode.UID";
@@ -1641,47 +1629,42 @@ public class CampaignManagerImpl implements CampaignManager {
 		return ret;
 	}
 
-	@Override
-	public void deleteCampaign(String uid) {
+        @RequestMapping(method=RequestMethod.DELETE,value="/{uid}")
+	public void deleteCampaign(@PathVariable("uid") String uid) {
 		delete(getDetailedCampaign(uid));
 	}
 
-	@Override
-	public void deleteConnector(String uid) {
+        @RequestMapping(method=RequestMethod.DELETE,value="/connectors/{uid}")
+        public void deleteConnector(@PathVariable("uid") String uid) {
 		delete(getConnector(uid));
 	}
 
-	@Override
-	public void deleteNode(String uid) {
+        @RequestMapping(method=RequestMethod.DELETE,value="/nodes/{uid}")
+        public void deleteNode(@PathVariable("uid") String uid) {
 		delete(getNode(uid));
 	}
 	
-	@Override
 	public CampaignDO getCampaignForNode(String uid) {
 		String query = "select c from NodeDO n join n.campaign c where n.UID=:uid";
 		return (CampaignDO)em.createQuery(query).setParameter("uid", uid).getSingleResult();
 	}
 
-	@Override
 	public CampaignDO getCampaignForConnector(String uid) {
 		String query = "select c from ConnectorDO con join con.campaign c where con.UID=:uid";
 		return (CampaignDO)em.createQuery(query).setParameter("uid", uid).getSingleResult();
 	}
 
-	@Override
 	public Integer getCurrentCampaignVersionForNode(String uid) {
 		String query = "select c.currentVersion from NodeDO n join n.campaign c where n.UID=:uid";
 		return (Integer)em.createQuery(query).setParameter("uid", uid).getSingleResult();
 	}
 
-	@Override
 	public Integer getCurrentCampaignVersionForConnector(String uid) {
 		String query = "select c.currentVersion from ConnectorDO con join con.campaign c where con.UID=:uid";
 		return (Integer)em.createQuery(query).setParameter("uid", uid).getSingleResult();
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, List<Contact> contacts) {
 		if(message==null || message.getCampaignUID()==null)
 			throw new IllegalArgumentException("Cannot publish a broadcast message without a valid message, and campaign UID");
@@ -1723,12 +1706,10 @@ public class CampaignManagerImpl implements CampaignManager {
 		em.flush();
 		em.clear();
 		
-		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	public void broadcastMessageSearch(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search) {
 		List<Contact> contacts=new ArrayList<Contact>();
 		for(EntryData entry : entryPoints)
@@ -1765,8 +1746,7 @@ public class CampaignManagerImpl implements CampaignManager {
 		broadcastMessage(clientPK, entryPoints, message, contacts);
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts) {
 		if(coupon==null || coupon.getCampaignUID()==null)
 			throw new IllegalArgumentException("Cannot publish a broadcast coupon without a valid message, and campaign UID");
@@ -1808,12 +1788,10 @@ public class CampaignManagerImpl implements CampaignManager {
 		em.flush();
 		em.clear();
 		
-		SubscriptionManager subscriptionManager = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
 	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search) {
 		List<Contact> contacts=new ArrayList<Contact>();
 		for(EntryData entry : entryPoints)
@@ -1850,11 +1828,10 @@ public class CampaignManagerImpl implements CampaignManager {
 		broadcastCoupon(clientPK, entryPoints, coupon, contacts);
 	}
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
-    public CampaignEntryMessage loadEntryCampaign()
-    {
-		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx, session);
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
+        public CampaignEntryMessage loadEntryCampaign()
+        {
+		Set<Long> clientIds = securityUtil.extractClientIds(session);
 		if(clientIds.size()!=1)
 			throw new IllegalArgumentException("Unable to determine which client's Entry Campaign to load.");
 		Query q = em.createNamedQuery("entry.campaign");
@@ -1907,13 +1884,12 @@ public class CampaignManagerImpl implements CampaignManager {
 		{
 			return new CampaignEntryMessage();
 		}
-    }
+        }
 
-	@Override
-	@RolesAllowed({"client","admin","account.manager"})
-    public CampaignEntryMessage saveEntryCampaign(CampaignEntryMessage campaignMessage)
-    {
-		Set<Long> clientIds = SecurityUtil.extractClientIds(ctx, session);
+        @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
+        public CampaignEntryMessage saveEntryCampaign(CampaignEntryMessage campaignMessage)
+        {
+		Set<Long> clientIds = securityUtil.extractClientIds(session);
 		if(clientIds.size()!=1)
 			throw new IllegalArgumentException("Unable to determine which client's Entry Campaign to create.");
 		Query q = em.createNamedQuery("entry.campaign");

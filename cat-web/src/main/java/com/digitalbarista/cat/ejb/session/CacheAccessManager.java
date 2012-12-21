@@ -3,14 +3,19 @@ package com.digitalbarista.cat.ejb.session;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import org.springframework.stereotype.Component;
 
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.Service;
+@Component
+public class CacheAccessManager {
 
-@Service //Allows this to run as a "singleton" EJB.
-@LocalBinding(jndiBinding = "ejb/cat/CacheAccessManager")
-public class CacheAccessManagerImpl implements CacheAccessManager {
-
+	public enum CacheName
+	{
+		ConnectorCache,
+		NodeCache,
+		CampaignCache,
+		PermissionCache
+	};
+	
 	private CacheManager manager = new CacheManager(getClass().getResource("/cat-ehcache.xml"));
 	
 	private Cache getCache(CacheName name)
@@ -18,12 +23,10 @@ public class CacheAccessManagerImpl implements CacheAccessManager {
 		return manager.getCache(name.toString());
 	}
 	
-	@Override
 	public boolean cacheContainsKey(CacheName name, String key) {
 		return getCache(name).isKeyInCache(key);
 	}
 
-	@Override
 	public Object getCachedObject(CacheName name, String key) {
 		Element el = getCache(name).get(key);
 		if(el==null)
@@ -31,7 +34,6 @@ public class CacheAccessManagerImpl implements CacheAccessManager {
 		return el.getObjectValue();
 	}
 
-	@Override
 	public void cacheObject(CacheName name, String key, Object obj) {
 		getCache(name).put(new Element(key,obj));
 	}

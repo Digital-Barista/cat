@@ -3,14 +3,6 @@ package com.digitalbarista.cat.ejb.session;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RunAs;
-import javax.ejb.EJB;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -19,8 +11,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditType;
@@ -28,31 +18,33 @@ import com.digitalbarista.cat.business.FacebookApp;
 import com.digitalbarista.cat.data.ClientDO;
 import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.util.SecurityUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Session Bean implementation class AccountManagerImpl
  */
-@Stateless
-@LocalBinding(jndiBinding = "ejb/cat/AccountManager")
-@TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class AccountManagerImpl implements AccountManager {
+@Component
+@Transactional(propagation= Propagation.REQUIRED)
+public class AccountManager{
 
-	private Logger log = LogManager.getLogger(AccountManagerImpl.class);
+	private Logger log = LogManager.getLogger(AccountManager.class);
 	
-	@Resource
-	private SessionContext ctx; //Used to flag rollbacks.
-
 	@PersistenceContext(unitName="cat-data")
 	private EntityManager em;
 	
 	@PersistenceContext(unitName="cat-data")
 	private Session session;
 
-	@EJB(name="ejb/cat/UserManager")
-	UserManager userManager;
+        @Autowired
+        UserManager userManager;
+        
+        @Autowired
+        SecurityUtil securityUtil;
 	
 	@SuppressWarnings("unchecked")
-	@PermitAll
 	public List<FacebookApp> getFacebookApps()
 	{
 		Criteria crit = null;
@@ -60,10 +52,10 @@ public class AccountManagerImpl implements AccountManager {
 		crit = session.createCriteria(FacebookAppDO.class);
 
 		// Limit query by allowed clients if necessary
-    	if(!ctx.isCallerInRole("admin"))
+    	if(!securityUtil.isAdmin())
     	{
-    		crit.add(Restrictions.in("client.primaryKey", SecurityUtil.extractClientIds(ctx, session)));
-			if(SecurityUtil.extractClientIds(ctx, session).size() == 0)
+    		crit.add(Restrictions.in("client.primaryKey", securityUtil.extractClientIds(session)));
+			if(securityUtil.extractClientIds(session).size() == 0)
 				return ret;
     	}
     	
@@ -78,8 +70,6 @@ public class AccountManagerImpl implements AccountManager {
 	}
 	
 	
-	@Override
-	@PermitAll
 	@AuditEvent(AuditType.SaveFacebookApp)
 	public FacebookApp save(FacebookApp app) 
 	{
@@ -104,7 +94,6 @@ public class AccountManagerImpl implements AccountManager {
 		return ret;
 	}
 
-	@Override
 	public void delete(FacebookApp app) {
 		if(app == null)
 			throw new IllegalArgumentException("Cannot delete a null facebook app.");

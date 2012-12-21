@@ -5,34 +5,29 @@ import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.annotation.Resource;
-import javax.ejb.SessionContext;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-public class AuditInterceptor {
+public class AuditInterceptor implements MethodInterceptor {
 
 	private static final String dateFormat="MM/dd/yyyy HH:mm:ss.SSS";
-	
-	@Resource
-	private SessionContext ctx;
-	
+		
 	@PersistenceContext(unitName="cat-data")
 	private EntityManager em;
-	
-	@AroundInvoke
-	public Object mdbInterceptor(InvocationContext iCtx) throws Exception
+
+	public Object invoke(MethodInvocation mi) throws Throwable
 	{
-		AuditEvent eventAnnotation = iCtx.getMethod().getAnnotation(AuditEvent.class);
+		AuditEvent eventAnnotation = mi.getMethod().getAnnotation(AuditEvent.class);
 		if(eventAnnotation==null)
-			return iCtx.proceed();
+			return mi.proceed();
 		
 		Auditable target = null;
-		for(Object obj : iCtx.getParameters())
+		for(Object obj : mi.getArguments())
 		{
 			if(Auditable.class.isAssignableFrom(obj.getClass()))
 			{
@@ -42,7 +37,7 @@ public class AuditInterceptor {
 		}
 		
 		if(target==null)
-			return iCtx.proceed();
+			return mi.proceed();
 		
 		Object d1Obj=null;
 		Object d2Obj=null;
@@ -149,13 +144,13 @@ public class AuditInterceptor {
 		
 		AuditDO audit = new AuditDO();
 		audit.setAuditType(eventAnnotation.value());
-		audit.setUsername(ctx.getCallerPrincipal().getName());
+		audit.setUsername(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		audit.setTimestamp(new Date());
 		audit.setDescriminator1(makeString(d1Obj));
 		audit.setDescriminator2(makeString(d2Obj));
 		audit.setData(target.auditString());
 		em.persist(audit);
-		return iCtx.proceed();
+		return mi.proceed();
 	}
 	
 	private String makeString(Object obj)

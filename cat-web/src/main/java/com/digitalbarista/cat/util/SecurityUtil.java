@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.ejb.SessionContext;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -18,35 +17,56 @@ import com.digitalbarista.cat.data.UserDO;
 import com.digitalbarista.cat.ejb.session.CacheAccessManager;
 import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
 import com.digitalbarista.cat.ejb.session.UserManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SecurityUtil {
-
-	public static boolean isAdmin(SessionContext ctx)
+        
+        @Autowired
+        UserManager userManager;
+        
+        @Autowired
+        CacheAccessManager cache;
+    
+	public boolean isAdmin(SecurityContext ctx)
 	{
-		if(ctx.isCallerInRole("admin"))
-		{
-			return true;
-		}
+		for(GrantedAuthority auth : ctx.getAuthentication().getAuthorities())
+                {
+                    if("ROLE_admin".equals(auth.getAuthority()))
+                        return true;
+                }
 		return false;
 	}
 	
-	public static Set<Long> extractClientIds(SessionContext ctx, Session session)
+	public boolean isAdmin()
+	{
+            return isAdmin(SecurityContextHolder.getContext());
+	}
+	
+        public Set<Long> extractClientIds(Session session)
+        {
+            return extractClientIds(SecurityContextHolder.getContext(),session);
+        }
+        
+	public Set<Long> extractClientIds(SecurityContext ctx, Session session)
 	{
 		return extractClientIds(ctx, session, null);
 	}
 	
-	public static Set<Long> extractClientIds(SessionContext ctx, Session session, String user) 
+	public Set<Long> extractClientIds(SecurityContext ctx, Session session, String user) 
 	{
-		UserManager uMan = (UserManager)ctx.lookup("ejb/cat/UserManager");
 		String username = user;
 		if (username == null)
 		{
-			username = ctx.getCallerPrincipal().getName();
+			username = ""+ctx.getAuthentication().getPrincipal();
 		}
 		
 		Set<Long> clientIDs;
 		
-		CacheAccessManager cache = (CacheAccessManager)ctx.lookup("ejb/cat/CacheAccessManager");
 		clientIDs = (Set<Long>)cache.getCachedObject(CacheName.PermissionCache, username);
 		if(clientIDs!=null)
 			return clientIDs;
@@ -55,7 +75,7 @@ public class SecurityUtil {
 		
 		// If the user is an admin return all "active" client IDs
 		
-		if(ctx.isCallerInRole("admin"))
+		if(isAdmin(ctx))
 		{
 			Criteria crit = session.createCriteria(ClientDO.class);
 			crit.add(Restrictions.eq("active", true));
@@ -64,7 +84,7 @@ public class SecurityUtil {
 		}
 		else
 		{
-			UserDO userDO = uMan.getSimpleUserByUsername(username);
+			UserDO userDO = userManager.getSimpleUserByUsername(username);
 			if(userDO==null)
 				return clientIDs;
 			for(RoleDO role : userDO.getRoles())
@@ -83,7 +103,12 @@ public class SecurityUtil {
 		return clientIDs;
 	}
 	
-	public static List<Long> getAllowedClientIDs(SessionContext ctx, Session session, List<Long> clientIDs)
+        public List<Long> getAllowedClientIDs(Session session, List<Long> clientIDs)
+        {
+            return getAllowedClientIDs(SecurityContextHolder.getContext(),session,clientIDs);
+        }
+        
+	public List<Long> getAllowedClientIDs(SecurityContext ctx, Session session, List<Long> clientIDs)
 	{
 		// Get client count
 		Set<Long> allowedClientIDs = extractClientIds(ctx, session);
