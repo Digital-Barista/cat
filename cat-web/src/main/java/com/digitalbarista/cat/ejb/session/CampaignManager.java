@@ -13,17 +13,13 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
@@ -86,6 +82,8 @@ import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.message.event.CATEventType;
 import com.digitalbarista.cat.util.MultiValueMap;
 import com.digitalbarista.cat.util.SecurityUtil;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -111,12 +109,9 @@ public class CampaignManager {
 
 	Logger log = LogManager.getLogger(getClass());
 		
-	@PersistenceContext(unitName="cat-data")
-	private EntityManager em;
-	
-	@PersistenceContext(unitName="cat-data")
-	private Session session;
-	
+        @Autowired
+        private SessionFactory sf;
+        
         @Autowired
         EventTimerManager timer;
 	
@@ -160,11 +155,11 @@ public class CampaignManager {
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
 		
-		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(session, clientIDs);
+		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(sf.getCurrentSession(), clientIDs);
 		
 		if (allowedClientIDs.size() > 0)
 		{
-			Criteria crit = session.createCriteria(CampaignDO.class);
+			Criteria crit = sf.getCurrentSession().createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
 			crit.add(Restrictions.eq("mode", CampaignMode.Normal));
 			crit.add(Restrictions.in("client.id", allowedClientIDs));
@@ -177,7 +172,7 @@ public class CampaignManager {
 				List<Long> campIDList = new ArrayList<Long>();
 				for(CampaignDO camp : campList)
 					campIDList.add(camp.getPrimaryKey());
-				Criteria countCrit = session.createCriteria(CampaignSubscriberLinkDO.class, "csl");
+				Criteria countCrit = sf.getCurrentSession().createCriteria(CampaignSubscriberLinkDO.class, "csl");
 				countCrit.add(Restrictions.in("campaign.id", campIDList));
 				countCrit.add(Restrictions.eq("active",true));
 				ProjectionList pList = Projections.projectionList();
@@ -210,11 +205,11 @@ public class CampaignManager {
 		List<BroadcastInfo> ret = new ArrayList<BroadcastInfo>();
 		BroadcastInfo c;
 		
-		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(session, clientIDs);
+		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(sf.getCurrentSession(), clientIDs);
 		
 		if (allowedClientIDs.size() > 0)
 		{
-			Criteria crit = session.createCriteria(CampaignDO.class);
+			Criteria crit = sf.getCurrentSession().createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
 			crit.add(Restrictions.eq("mode", CampaignMode.Broadcast));
 			crit.add(Restrictions.in("client.id", allowedClientIDs));
@@ -226,7 +221,7 @@ public class CampaignManager {
 				List<Long> campIDList = new ArrayList<Long>();
 				for(CampaignDO camp : campList)
 					campIDList.add(camp.getPrimaryKey());
-				Criteria countCrit = session.createCriteria(CampaignSubscriberLinkDO.class, "csl");
+				Criteria countCrit = sf.getCurrentSession().createCriteria(CampaignSubscriberLinkDO.class, "csl");
 				countCrit.add(Restrictions.in("campaign.id", campIDList));
 				countCrit.add(Restrictions.eq("active",true));
 				ProjectionList pList = Projections.projectionList();
@@ -247,7 +242,7 @@ public class CampaignManager {
 					c.setSubscriberCount(campCounts.get(cmp.getPrimaryKey()));
 				if(c.getIsCoupon())
 				{
-					Criteria couponCount = session.createCriteria(CouponRedemptionDO.class, "cr");
+					Criteria couponCount = sf.getCurrentSession().createCriteria(CouponRedemptionDO.class, "cr");
 					couponCount.createAlias("couponResponse", "resp");
 					couponCount.add(Restrictions.eq("resp.couponOffer.id", c.getCouponId()));
 					couponCount.setProjection(Projections.rowCount());
@@ -264,11 +259,11 @@ public class CampaignManager {
 	{
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
-		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(session, clientIDs);
+		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(sf.getCurrentSession(), clientIDs);
 		
 		if (allowedClientIDs.size() > 0)
 		{
-			Criteria crit = session.createCriteria(CampaignDO.class);
+			Criteria crit = sf.getCurrentSession().createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("status", CampaignStatus.Active));
 			crit.add(Restrictions.eq("mode", CampaignMode.Template));
 			crit.add(Restrictions.in("client.id", allowedClientIDs));
@@ -287,7 +282,7 @@ public class CampaignManager {
 	@Transactional(propagation=Propagation.MANDATORY)
 	public ConnectorDO getSimpleConnector(String connectorUUID)
 	{
-			Criteria crit = session.createCriteria(ConnectorDO.class);
+			Criteria crit = sf.getCurrentSession().createCriteria(ConnectorDO.class);
 			crit.add(Restrictions.eq("UID", connectorUUID));
 			crit.setCacheable(true);
 			crit.setCacheRegion("query/simpleConnector");
@@ -335,7 +330,7 @@ public class CampaignManager {
 	{
 		try
 		{
-			Criteria crit = session.createCriteria(CampaignDO.class);
+			Criteria crit = sf.getCurrentSession().createCriteria(CampaignDO.class);
 			crit.add(Restrictions.eq("UID", campaignUUID));
 			crit.setCacheable(true);
 			crit.setCacheRegion("query/simpleCampaign");
@@ -390,7 +385,7 @@ public class CampaignManager {
 	{
 		try
 		{
-			Criteria crit = session.createCriteria(NodeDO.class);
+			Criteria crit = sf.getCurrentSession().createCriteria(NodeDO.class);
 			crit.add(Restrictions.eq("UID", nodeUUID));
 			crit.setCacheable(true);
 			crit.setCacheRegion("query/SimpleNode");
@@ -442,7 +437,7 @@ public class CampaignManager {
 					Matcher r = Pattern.compile(TaggingNode.INFO_PROPERTY_TAG+"\\[([\\d]+)\\]").matcher(ni.getName());
 					r.matches();
 					ct = new ContactTag();
-					ct.copyFrom(em.find(ContactTagDO.class, new Long(ni.getValue())));
+					ct.copyFrom((ContactTagDO)sf.getCurrentSession().get(ContactTagDO.class, new Long(ni.getValue())));
 					int pos = new Integer(r.group(1));
 					while(tNode.getTags().size()<pos+1)
 						tNode.getTags().add(null);
@@ -554,7 +549,7 @@ public class CampaignManager {
 				newCCL.setCampaign(ccl.getCampaign());
 				newCCL.setConnector(ccl.getConnector());
 				newCCL.setVersion(version+1);
-				em.persist(newCCL);
+				sf.getCurrentSession().persist(newCCL);
 				
 				conn = ccl.getConnector();
 				for(ConnectorInfoDO ci : conn.getConnectorInfo())
@@ -566,7 +561,7 @@ public class CampaignManager {
 					newCI.setName(ci.getName());
 					newCI.setValue(ci.getValue());
 					newCI.setVersion(version+1);
-					em.persist(newCI);
+					sf.getCurrentSession().persist(newCI);
 				}
 				
 				for(NodeConnectorLinkDO ncl : ccl.getConnector().getConnections())
@@ -586,7 +581,7 @@ public class CampaignManager {
 					newNCL.setConnector(ncl.getConnector());
 					newNCL.setNode(ncl.getNode());
 					newNCL.setVersion(version+1);
-					em.persist(newNCL);
+					sf.getCurrentSession().persist(newNCL);
 				}
 			}
 			
@@ -614,7 +609,7 @@ public class CampaignManager {
 					if(cNode.getCouponId()==null)
 						offer = new CouponOfferDO();
 					else
-						offer = em.find(CouponOfferDO.class, cNode.getCouponId());
+						offer = (CouponOfferDO)sf.getCurrentSession().get(CouponOfferDO.class, cNode.getCouponId());
 					offer.setMaxCoupons(cNode.getMaxCoupons());
 					offer.setOfferUnavailableDate(cNode.getUnavailableDate());
 					offer.setNodeUID(cNode.getUid());
@@ -624,13 +619,13 @@ public class CampaignManager {
 					offer.setCouponExpirationDate(cNode.getExpireDate());
 					offer.setCouponExpirationDays(cNode.getExpireDays());
 					offer.setOfferCode(cNode.getOfferCode());
-					em.persist(offer);
+					sf.getCurrentSession().persist(offer);
 					
 					cNode.associateCouponOffer(offer);
 					cNode.copyTo(cnl.getNode());
 				}
 				
-				em.persist(newCNL);
+				sf.getCurrentSession().persist(newCNL);
 				
 				node = cnl.getNode();
 				for(NodeInfoDO ni : node.getNodeInfo())
@@ -642,15 +637,15 @@ public class CampaignManager {
 					newNI.setName(ni.getName());
 					newNI.setValue(ni.getValue());
 					newNI.setVersion(version+1);
-					em.persist(newNI);
+					sf.getCurrentSession().persist(newNI);
 				}
 			}
 			
-			Query q = em.createNamedQuery("layouts.by.campaign.version");
+			Query q = sf.getCurrentSession().getNamedQuery("layouts.by.campaign.version");
 			q.setParameter("campaignPK", camp.getPrimaryKey());
 			q.setParameter("version",version);
 			LayoutInfoDO newLI;
-			for(LayoutInfoDO li : (List<LayoutInfoDO>)q.getResultList())
+			for(LayoutInfoDO li : (List<LayoutInfoDO>)q.list())
 			{
 				newLI=new LayoutInfoDO();
 				newLI.setCampaign(li.getCampaign());
@@ -658,7 +653,7 @@ public class CampaignManager {
 				newLI.setXLoc(li.getXLoc());
 				newLI.setYLoc(li.getYLoc());
 				newLI.setVersion(version+1);
-				em.persist(newLI);
+				sf.getCurrentSession().persist(newLI);
 			}
 
 			Node tempNode;
@@ -680,9 +675,9 @@ public class CampaignManager {
 			for(String nodeUID : diffSet)
 			{
 				tempNode=getSpecificNodeVersion(nodeUID,version-1);
-				q=em.createNamedQuery("subscription.count.for.node");
+				q=sf.getCurrentSession().getNamedQuery("subscription.count.for.node");
 				q.setParameter("nodeUID", nodeUID);
-				if(((Long)q.getSingleResult())>0)
+				if(((Long)q.uniqueResult())>0)
 					throw new IllegalStateException("Can't delete node "+nodeUID+" since it would strand a subscriber.");
 			}
 
@@ -697,7 +692,7 @@ public class CampaignManager {
 				{
 					case Calendar:
 					case Interval:
-						q=em.createNamedQuery("clear.tasks.for.connector");
+						q=sf.getCurrentSession().getNamedQuery("clear.tasks.for.connector");
 						q.setParameter("sourceUID", connUID);
 						q.executeUpdate();				}
 			}
@@ -722,9 +717,9 @@ public class CampaignManager {
 					case Interval:
 						if(previousVersionConnectors.contains(connUID))
 							continue; //Don't do anything if this was in a previous version . . . changes will get caught on a case by case basis.
-						q = em.createNamedQuery("all.subscribers.on.node");
+						q = sf.getCurrentSession().getNamedQuery("all.subscribers.on.node");
 						q.setParameter("nodeUID", tempConnector.getSourceNodeUID());
-						List<SubscriberDO> subs = q.getResultList();
+						List<SubscriberDO> subs = q.list();
 						Calendar c = Calendar.getInstance();
 						IntervalConnector iConn = (IntervalConnector)tempConnector;
 						switch(iConn.getIntervalType())
@@ -761,7 +756,7 @@ public class CampaignManager {
 				{
 					cep.setPublished(false);
 					cepToDelete.add(cep);
-					em.remove(cep);
+					sf.getCurrentSession().delete(cep);
 				}else{
 					cep.setPublished(true);
 				}
@@ -794,7 +789,7 @@ public class CampaignManager {
 				throw new SecurityException("Current user is not allowed to create campaigns for the specified client.");	
 			
 			camp = new CampaignDO();
-			camp.setClient(em.find(ClientDO.class, campaign.getClientPK()));
+			camp.setClient((ClientDO)sf.getCurrentSession().get(ClientDO.class, campaign.getClientPK()));
 			camp.setUID(campaign.getUid());
 			camp.setMode(campaign.getMode());
 			if(camp.getUID()==null || camp.getUID().trim().length()==0)
@@ -803,7 +798,7 @@ public class CampaignManager {
 		campaign.copyTo(camp);
 		
 		// Save campaign
-		em.persist(camp);
+		sf.getCurrentSession().persist(camp);
 		
 		// Update list of addin messages
 		if (campaign.getAddInMessages() != null)
@@ -814,7 +809,7 @@ public class CampaignManager {
 				// Get existing or new data object
 				AddInMessageDO addDO = null;
 				if (add.getAddInMessageId() != null)
-					addDO = em.find(AddInMessageDO.class, add.getAddInMessageId());
+					addDO = (AddInMessageDO)sf.getCurrentSession().get(AddInMessageDO.class, add.getAddInMessageId());
 				if (addDO == null)
 					addDO = new AddInMessageDO();
 
@@ -826,7 +821,7 @@ public class CampaignManager {
 				// Update and persist object
 				addDO.setCampaign(camp);
 				add.copyTo(addDO);
-				em.persist(addDO);
+				sf.getCurrentSession().persist(addDO);
 				
 				// Add message to client list
 				if (camp.getAddInMessages() == null)
@@ -844,15 +839,15 @@ public class CampaignManager {
 				// Get existing or new data object
 				CampaignInfoDO ciDO = null;
 				if (ci.getCampaignInfoId() != null)
-					ciDO = em.find(CampaignInfoDO.class, ci.getCampaignInfoId());
+					ciDO = (CampaignInfoDO)sf.getCurrentSession().get(CampaignInfoDO.class, ci.getCampaignInfoId());
 				else if (ciDO == null)
 				{
-					Query q = em.createNamedQuery("autostart.info.by.unique.key");
+					Query q = sf.getCurrentSession().getNamedQuery("autostart.info.by.unique.key");
 					q.setParameter("campaignId", camp.getPrimaryKey());
 					q.setParameter("entryType", ci.getEntryType());
 					try
 					{
-						ciDO = (CampaignInfoDO)q.getSingleResult();
+						ciDO = (CampaignInfoDO)q.uniqueResult();
 					}catch(NoResultException ex)
 					{ciDO = new CampaignInfoDO();}
 				}
@@ -870,19 +865,19 @@ public class CampaignManager {
 						if(entryData.getEntryType()==EntryPointType.Twitter || entryData.getEntryType()==EntryPointType.Facebook)
 							ciDO.setEntryAddress(entryData.getEntryPoint());
 					}
-					em.persist(ciDO);
+					sf.getCurrentSession().persist(ciDO);
 					// Add info to list
 					if (camp.getCampaignInfos() == null)
 						camp.setCampaignInfos(new HashSet<CampaignInfoDO>());
 					camp.getCampaignInfos().add(ciDO);
 				} else {
 					camp.getCampaignInfos().remove(ciDO);
-					em.remove(ciDO);
+					sf.getCurrentSession().delete(ciDO);
 				}
 			}
 		}
 		
-		em.flush();
+		sf.getCurrentSession().flush();
 		
 		// Return updated campaign
 		Campaign ret = new Campaign();
@@ -1072,13 +1067,13 @@ public class CampaignManager {
 	
 	protected CampaignEntryPointDO getSpecificEntryPoint(String entryPoint, EntryPointType type, String keyword)
 	{
-		Query q = em.createNamedQuery("find.matching.entry.point");
+		Query q = sf.getCurrentSession().getNamedQuery("find.matching.entry.point");
 		q.setParameter("entryPoint", entryPoint);
 		q.setParameter("keyword", keyword);
 		q.setParameter("type", type);
 		try
 		{
-			return (CampaignEntryPointDO)q.getSingleResult();
+			return (CampaignEntryPointDO)q.uniqueResult();
 		}
 		catch(NoResultException e)
 		{
@@ -1133,8 +1128,8 @@ public class CampaignManager {
 						
 			node.copyTo(n);
 			
-			em.persist(n);
-			em.persist(cnl);
+			sf.getCurrentSession().persist(n);
+			sf.getCurrentSession().persist(cnl);
 			
 			node.copyFrom(n);
 
@@ -1146,7 +1141,7 @@ public class CampaignManager {
 				recordEntryPointChanges(node,camp);
 
 			node.copyTo(n);
-			em.persist(n);
+			sf.getCurrentSession().persist(n);
 			node.copyFrom(n);
 		}
 		return node;
@@ -1204,7 +1199,7 @@ public class CampaignManager {
 					throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
 				cep.setQuantity(cep.getQuantity()-1);
 				if(cep.getQuantity()==0 && !cep.isPublished())
-					em.remove(cep);
+					sf.getCurrentSession().delete(cep);
 				else if(cep.getQuantity()<0)
 					log.warn("more entry points removed than have been initially catalogued");
 			}
@@ -1221,7 +1216,7 @@ public class CampaignManager {
 			if(cep!=null)
 			{
 				cep.setQuantity(cep.getQuantity()+1);
-				em.persist(cep);
+				sf.getCurrentSession().persist(cep);
 			}
 			oldEntries.remove(type);
 		}		
@@ -1237,7 +1232,7 @@ public class CampaignManager {
 					throw new IllegalStateException("Trying to remove the entry point belonging to a different campaign.");
 				cep.setQuantity(cep.getQuantity()-1);
 				if(cep.getQuantity()==0 && !cep.isPublished())
-					em.remove(cep);
+					sf.getCurrentSession().delete(cep);
 				else if(cep.getQuantity()<0)
 					log.warn("more entry points removed than have been initially catalogued");
 			}
@@ -1296,7 +1291,7 @@ public class CampaignManager {
 					throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
 				cep.setQuantity(cep.getQuantity()-1);
 				if(cep.getQuantity()==0 && !cep.isPublished())
-					em.remove(cep);
+					sf.getCurrentSession().delete(cep);
 				else if(cep.getQuantity()<0)
 					log.warn("more entry points removed than have been initially catalogued");
 			}
@@ -1313,7 +1308,7 @@ public class CampaignManager {
 			if(cep!=null)
 			{
 				cep.setQuantity(cep.getQuantity()+1);
-				em.persist(cep);
+				sf.getCurrentSession().persist(cep);
 			}
 			oldEntries.remove(type);
 		}		
@@ -1329,7 +1324,7 @@ public class CampaignManager {
 					throw new IllegalStateException("Trying to remove the entry point belonging to a different campaign.");
 				cep.setQuantity(cep.getQuantity()-1);
 				if(cep.getQuantity()==0 && !cep.isPublished())
-					em.remove(cep);
+					sf.getCurrentSession().delete(cep);
 				else if(cep.getQuantity()<0)
 					log.warn("more entry points removed than have been initially catalogued");
 			}
@@ -1366,8 +1361,8 @@ public class CampaignManager {
 			NodeConnectorLinkDO source=null;
 			NodeConnectorLinkDO dest=null;
 			
-			em.persist(c);
-			em.persist(ccl);
+			sf.getCurrentSession().persist(c);
+			sf.getCurrentSession().persist(ccl);
 
 			if(connector.getSourceNodeUID()!=null)
 			{
@@ -1378,7 +1373,7 @@ public class CampaignManager {
 				if(source.getNode()==null)
 					throw new IllegalArgumentException("Source NodeDO could not be found.");
 				source.setConnector(c);
-				em.persist(source);
+				sf.getCurrentSession().persist(source);
 			}
 			
 			if(connector.getDestinationUID()!=null)
@@ -1390,7 +1385,7 @@ public class CampaignManager {
 				if(dest.getNode()==null)
 					throw new IllegalArgumentException("Destination NodeDO could not be found.");
 				dest.setConnector(c);
-				em.persist(dest);
+				sf.getCurrentSession().persist(dest);
 			}
 			
 			connector.copyFrom(c);
@@ -1425,12 +1420,12 @@ public class CampaignManager {
 				source.setConnector(c);
 				source.setVersion(camp.getCurrentVersion());
 				source.setConnectionPoint(ConnectionPoint.Source);
-				em.persist(source);
+				sf.getCurrentSession().persist(source);
 			}
 			
 			if(source!=null && connector.getSourceNodeUID()==null)
 			{
-				em.remove(source);
+				sf.getCurrentSession().delete(source);
 			}
 			
 			if(connector.getDestinationUID()!=null)
@@ -1443,16 +1438,16 @@ public class CampaignManager {
 				dest.setConnector(c);
 				dest.setVersion(camp.getCurrentVersion());
 				dest.setConnectionPoint(ConnectionPoint.Destination);
-				em.persist(dest);
+				sf.getCurrentSession().persist(dest);
 			}
 			
 			if(dest!=null && connector.getDestinationUID()==null)
 			{
-				em.remove(dest);
+				sf.getCurrentSession().delete(dest);
 			}
 			
 			connector.copyTo(c);
-			em.persist(c);
+			sf.getCurrentSession().persist(c);
 			connector.copyFrom(c);
 		}
 		
@@ -1469,7 +1464,7 @@ public class CampaignManager {
 		if(camp==null)
 			return;
 		
-		Query q = em.createNamedQuery("delete.campaign.entry.points");
+		Query q = sf.getCurrentSession().getNamedQuery("delete.campaign.entry.points");
 		q.setParameter("campaignID", camp.getPrimaryKey());
 		q.executeUpdate();
 		
@@ -1497,7 +1492,7 @@ public class CampaignManager {
 						throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
 					cep.setQuantity(cep.getQuantity()-1);
 					if(cep.getQuantity()==0 && !cep.isPublished())
-						em.remove(cep);
+						sf.getCurrentSession().delete(cep);
 					else if(cep.getQuantity()<0)
 						log.warn("more entry points removed than have been initially catalogued");
 				}
@@ -1515,7 +1510,7 @@ public class CampaignManager {
 			for(NodeConnectorLinkDO link : n.getConnections())
 			{
 				if(link.getVersion().equals(currentVersion))
-					em.remove(link);
+					sf.getCurrentSession().delete(link);
 			}
 		}
 		
@@ -1527,16 +1522,16 @@ public class CampaignManager {
 				if(ni.getVersion().equals(currentVersion))
 				{
 					removalNI.add(ni);
-					em.remove(ni);
+					sf.getCurrentSession().delete(ni);
 				}
 			}
 		}
 		n.getNodeInfo().removeAll(removalNI);
 		
-		em.remove(n.getVersionedNodes().get(currentVersion));
+		sf.getCurrentSession().delete(n.getVersionedNodes().get(currentVersion));
 		n.getVersionedNodes().remove(currentVersion);
 		if(n.getVersionedNodes().size()==0)
-			em.remove(n);
+			sf.getCurrentSession().delete(n);
 	}
 
         @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
@@ -1560,7 +1555,7 @@ public class CampaignManager {
 						throw new IllegalStateException("Trying to change the entry point belonging to a different campaign.");
 					cep.setQuantity(cep.getQuantity()-1);
 					if(cep.getQuantity()==0 && !cep.isPublished())
-						em.remove(cep);
+						sf.getCurrentSession().delete(cep);
 					else if(cep.getQuantity()<0)
 						log.warn("more entry points removed than have been initially catalogued");
 				}
@@ -1578,7 +1573,7 @@ public class CampaignManager {
 			for(NodeConnectorLinkDO link : c.getConnections())
 			{
 				if(link.getVersion().equals(currentVersion))
-					em.remove(link);
+					sf.getCurrentSession().delete(link);
 			}
 		}
 		
@@ -1590,16 +1585,16 @@ public class CampaignManager {
 				if(ci.getVersion().equals(currentVersion))
 				{
 					removalCI.add(ci);
-					em.remove(ci);
+					sf.getCurrentSession().delete(ci);
 				}
 			}
 		}
 		c.getConnectorInfo().removeAll(removalCI);
 		
-		em.remove(c.getVersionedConnectors().get(currentVersion));
+		sf.getCurrentSession().delete(c.getVersionedConnectors().get(currentVersion));
 		c.getVersionedConnectors().remove(currentVersion);
 		if(c.getVersionedConnectors().size()==0)
-			em.remove(c);
+			sf.getCurrentSession().delete(c);
 	}
 
         @RequestMapping(method= RequestMethod.GET,value="/{uid}/published")
@@ -1620,9 +1615,9 @@ public class CampaignManager {
 		getSimpleCampaign(campaignUUID); // Do nothing with this except invoke security checks.
 		
 		String queryString="select csl.lastHitNode.UID, count(csl.lastHitNode.UID) from CampaignSubscriberLinkDO csl where csl.campaign.UID=:campaignUID and csl.active=1 group by csl.lastHitNode.UID";
-		Query q = em.createQuery(queryString);
+		Query q = sf.getCurrentSession().createQuery(queryString);
 		q.setParameter("campaignUID", campaignUUID);
-		List<Object[]> result = q.getResultList();
+		List<Object[]> result = q.list();
 		HashMap<String,Long> ret = new HashMap<String,Long>();
 		for(Object[] row : result)
 			ret.put((String)row[0], (Long)row[1]);
@@ -1646,22 +1641,22 @@ public class CampaignManager {
 	
 	public CampaignDO getCampaignForNode(String uid) {
 		String query = "select c from NodeDO n join n.campaign c where n.UID=:uid";
-		return (CampaignDO)em.createQuery(query).setParameter("uid", uid).getSingleResult();
+		return (CampaignDO)sf.getCurrentSession().createQuery(query).setParameter("uid", uid).uniqueResult();
 	}
 
 	public CampaignDO getCampaignForConnector(String uid) {
 		String query = "select c from ConnectorDO con join con.campaign c where con.UID=:uid";
-		return (CampaignDO)em.createQuery(query).setParameter("uid", uid).getSingleResult();
+		return (CampaignDO)sf.getCurrentSession().createQuery(query).setParameter("uid", uid).uniqueResult();
 	}
 
 	public Integer getCurrentCampaignVersionForNode(String uid) {
 		String query = "select c.currentVersion from NodeDO n join n.campaign c where n.UID=:uid";
-		return (Integer)em.createQuery(query).setParameter("uid", uid).getSingleResult();
+		return (Integer)sf.getCurrentSession().createQuery(query).setParameter("uid", uid).uniqueResult();
 	}
 
 	public Integer getCurrentCampaignVersionForConnector(String uid) {
 		String query = "select c.currentVersion from ConnectorDO con join con.campaign c where con.UID=:uid";
-		return (Integer)em.createQuery(query).setParameter("uid", uid).getSingleResult();
+		return (Integer)sf.getCurrentSession().createQuery(query).setParameter("uid", uid).uniqueResult();
 	}
 
         @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
@@ -1698,13 +1693,13 @@ public class CampaignManager {
 		
 		connector = (ImmediateConnector)save(connector);
 
-		em.flush();
-		em.clear();
+		sf.getCurrentSession().flush();
+		sf.getCurrentSession().clear();
 
 		publish(campaign.getUid());
 		
-		em.flush();
-		em.clear();
+		sf.getCurrentSession().flush();
+		sf.getCurrentSession().clear();
 		
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
@@ -1716,7 +1711,7 @@ public class CampaignManager {
 		{
 			if(entry.getMaxMessages()!=null && entry.getMaxMessages().intValue()>0)
 			{
-				Criteria crit = session.createCriteria(ContactDO.class,"c");
+				Criteria crit = sf.getCurrentSession().createCriteria(ContactDO.class,"c");
 				crit.add(Restrictions.eq("c.client.id",clientPK));
 				crit.add(Restrictions.eq("c.type",entry.getEntryType()));
 				crit.addOrder(new Order("rand",false){
@@ -1780,13 +1775,13 @@ public class CampaignManager {
 		
 		connector = (ImmediateConnector)save(connector);
 
-		em.flush();
-		em.clear();
+		sf.getCurrentSession().flush();
+		sf.getCurrentSession().clear();
 		
 		publish(campaign.getUid());
 		
-		em.flush();
-		em.clear();
+		sf.getCurrentSession().flush();
+		sf.getCurrentSession().clear();
 		
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
@@ -1798,7 +1793,7 @@ public class CampaignManager {
 		{
 			if(entry.getMaxMessages()!=null && entry.getMaxMessages().intValue()>0)
 			{
-				Criteria crit = session.createCriteria(ContactDO.class,"c");
+				Criteria crit = sf.getCurrentSession().createCriteria(ContactDO.class,"c");
 				crit.add(Restrictions.eq("c.client.id",clientPK));
 				crit.add(Restrictions.eq("c.type",entry.getEntryType()));
 				crit.addOrder(new Order("rand",false){
@@ -1831,15 +1826,15 @@ public class CampaignManager {
         @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
         public CampaignEntryMessage loadEntryCampaign()
         {
-		Set<Long> clientIds = securityUtil.extractClientIds(session);
+		Set<Long> clientIds = securityUtil.extractClientIds(sf.getCurrentSession());
 		if(clientIds.size()!=1)
 			throw new IllegalArgumentException("Unable to determine which client's Entry Campaign to load.");
-		Query q = em.createNamedQuery("entry.campaign");
+		Query q = sf.getCurrentSession().getNamedQuery("entry.campaign");
 		q.setParameter("clientId", clientIds.iterator().next());
 		try
 		{
 			CampaignEntryMessage ret = new CampaignEntryMessage();
-			CampaignDO camp = (CampaignDO)q.getSingleResult();
+			CampaignDO camp = (CampaignDO)q.uniqueResult();
 			if(camp.getCampaignInfos()!=null && camp.getCampaignInfos().size()>0)
 				ret.setActive(true);
                         String currentMessageNodeUID = null;
@@ -1889,15 +1884,15 @@ public class CampaignManager {
         @PreAuthorize("hasRole(client) || hasRole(admin) || hasRole(account.manager)")
         public CampaignEntryMessage saveEntryCampaign(CampaignEntryMessage campaignMessage)
         {
-		Set<Long> clientIds = securityUtil.extractClientIds(session);
+		Set<Long> clientIds = securityUtil.extractClientIds(sf.getCurrentSession());
 		if(clientIds.size()!=1)
 			throw new IllegalArgumentException("Unable to determine which client's Entry Campaign to create.");
-		Query q = em.createNamedQuery("entry.campaign");
+		Query q = sf.getCurrentSession().getNamedQuery("entry.campaign");
 		q.setParameter("clientId", clientIds.iterator().next());
 		try
 		{
 			CampaignEntryMessage ret = new CampaignEntryMessage();
-			CampaignDO camp = (CampaignDO)q.getSingleResult();
+			CampaignDO camp = (CampaignDO)q.uniqueResult();
 		
 			String entryUID=null;
 			
@@ -1955,8 +1950,8 @@ public class CampaignManager {
                             }
                             ((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(existingCouponNode.getUid());
                         }
-			em.flush();
-			em.clear();
+			sf.getCurrentSession().flush();
+			sf.getCurrentSession().clear();
 			save(existingCamp.getConnectors().iterator().next());
 			for(CampaignInfo ci : existingCamp.getCampaignInfos())
 				if(ci.getName().equals("autoStartNodeUID"))
@@ -2009,7 +2004,7 @@ public class CampaignManager {
 			connector.setDestinationUID(message.getUid());
 			connector = (ImmediateConnector)save(connector);
 			
-			em.clear();
+			sf.getCurrentSession().clear();
 			
 			for(EntryData entryData : campaignMessage.getEntryData())
 			{
