@@ -1,13 +1,7 @@
 'use strict';
 
 angular.module('cat.services', [])
-    .value('ui.config', {
-        tinymce: {
-            theme: 'simple',
-        }
-    })
-    .factory('config', function () {
-        return {
+    .value('config', {
             leftNavItems:[
                 {
                     title:'Dashboard',
@@ -35,4 +29,4 @@ angular.module('cat.services', [])
                 }
             ]
         }
-    });
+    );
