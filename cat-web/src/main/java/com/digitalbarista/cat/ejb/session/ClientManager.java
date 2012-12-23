@@ -168,7 +168,7 @@ public class ClientManager{
     
     @RequestMapping(method=RequestMethod.GET,value="/{id}")
     public Client getClientById(@PathVariable("id") long id) {
-    	if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), id))
+    	if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), id))
             throw new SecurityException("Current user is not allowed to view specified client.");
     	
         Client c = new Client();
@@ -322,7 +322,7 @@ public class ClientManager{
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
 		
-		if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), kwd.getClientId()))
+		if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), kwd.getClientId()))
 			throw new SecurityException("User is not allowed to create keywords for the specified client.");
 		
 		// Check that the keyword is available
@@ -509,7 +509,7 @@ public class ClientManager{
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
 				
-		if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), kwd.getClientId()))
+		if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), kwd.getClientId()))
 			throw new SecurityException("User is not allowed to delete keywords for the specified client.");
 
 		KeywordDO kwdData=null;

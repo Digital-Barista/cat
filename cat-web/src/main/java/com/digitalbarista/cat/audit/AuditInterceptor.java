@@ -1,5 +1,6 @@
 package com.digitalbarista.cat.audit;
 
+import com.digitalbarista.cat.util.SecurityUtil;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -11,7 +12,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class AuditInterceptor implements MethodInterceptor {
 
@@ -19,6 +20,9 @@ public class AuditInterceptor implements MethodInterceptor {
 		
 	@PersistenceContext(unitName="cat-data")
 	private EntityManager em;
+        
+        @Autowired
+        SecurityUtil securityUtil;
 
 	public Object invoke(MethodInvocation mi) throws Throwable
 	{
@@ -144,7 +148,7 @@ public class AuditInterceptor implements MethodInterceptor {
 		
 		AuditDO audit = new AuditDO();
 		audit.setAuditType(eventAnnotation.value());
-		audit.setUsername(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		audit.setUsername(securityUtil.getPrincipalName());
 		audit.setTimestamp(new Date());
 		audit.setDescriminator1(makeString(d1Obj));
 		audit.setDescriminator2(makeString(d2Obj));

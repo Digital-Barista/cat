@@ -145,5 +145,10 @@ public class SecurityUtil {
 		}
 		return filterClientIDs;
 	}
+        
+        public String getPrincipalName()
+        {
+            return ""+SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
 
 }

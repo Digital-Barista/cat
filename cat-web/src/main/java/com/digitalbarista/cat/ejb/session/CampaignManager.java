@@ -291,7 +291,7 @@ public class CampaignManager {
 			if(ret==null)
 				return null;
 			
-			if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), ret.getCampaign().getClient().getPrimaryKey()))
+			if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getCampaign().getClient().getPrimaryKey()))
 				throw new SecurityException("Current user is not allowed to access the specified connector.");
 			
 			return ret;
@@ -344,7 +344,7 @@ public class CampaignManager {
 			if(ret==null)
 				return null;
 			
-			if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), ret.getClient().getPrimaryKey()))
+			if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getClient().getPrimaryKey()))
 				throw new SecurityException("Current user is not allowed to access the specified campaign.");
 
 			return ret;
@@ -394,7 +394,7 @@ public class CampaignManager {
 			if(ret==null)
 				return null;
 			
-			if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), ret.getCampaign().getClient().getPrimaryKey()))
+			if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getCampaign().getClient().getPrimaryKey()))
 				throw new SecurityException("Current user is not allowed to access the specified node.");
 
 			return ret;
@@ -785,7 +785,7 @@ public class CampaignManager {
 			throw new IllegalArgumentException("Cannot change the client ID associated with the campaign.");
 		if(camp==null)
 		{
-			if(!userManager.isUserAllowedForClientId(""+SecurityContextHolder.getContext().getAuthentication().getPrincipal(), campaign.getClientPK()))
+			if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), campaign.getClientPK()))
 				throw new SecurityException("Current user is not allowed to create campaigns for the specified client.");	
 			
 			camp = new CampaignDO();
