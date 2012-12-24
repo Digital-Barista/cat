@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Session Bean implementation class EventTimerManagerImpl
  */
-@Component
+@Component("EventTimerManager")
 @Transactional(propagation=Propagation.REQUIRED)
 public class EventTimerManager{
 

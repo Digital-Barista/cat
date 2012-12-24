@@ -5,11 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.SessionContext;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.ContactTag;
@@ -26,20 +22,34 @@ import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.message.event.CATEvent;
+import org.hibernate.LockOptions;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class TaggingNodeFireHandler extends ConnectorFireHandler {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class TaggingNodeFireHandler implements ConnectorFireHandler {
 
+  @Autowired
+  private CampaignManager cMan;
+  
+  @Autowired
+  private EventManager eMan;
+
+  @Autowired
+  private SessionFactory sf;
+  
 	@Override
-	public void handle(EntityManager em, SessionContext ctx, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) {
-
-		CampaignManager cMan = (CampaignManager)ctx.lookup("ejb/cat/CampaignManager");
-		EventManager eMan = (EventManager)ctx.lookup("ejb/cat/EventManager");
-
+	public void handle(Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) {
 		TaggingNode tNode = (TaggingNode)dest;
 		NodeDO simpleNode=cMan.getSimpleNode(tNode.getUid());
 		List<ContactTagDO> tags = new ArrayList<ContactTagDO>();
 		for(ContactTag cTag : tNode.getTags())
-			tags.add(em.find(ContactTagDO.class, cTag.getContactTagId()));
+			tags.add((ContactTagDO)sf.getCurrentSession().get(ContactTagDO.class, cTag.getContactTagId()));
 		ContactDO con;
 		CampaignSubscriberLinkDO csl=null;
 		for(CampaignDO subCamp : s.getSubscriptions().keySet())
@@ -50,16 +60,16 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 				break;
 			}
 		}
-		em.lock(csl, LockModeType.WRITE);
-		em.refresh(csl);
+		sf.getCurrentSession().buildLockRequest(LockOptions.UPGRADE).lock(csl);
+		sf.getCurrentSession().refresh(csl);
 		EntryPointType ept = csl.getLastHitEntryType();
-		Query q = em.createNamedQuery("contact.by.address.and.client");
+		Query q = sf.getCurrentSession().getNamedQuery("contact.by.address.and.client");
 		q.setParameter("address",s.getAddress());
 		q.setParameter("type", ept);
 		q.setParameter("clientId", simpleNode.getCampaign().getClient().getPrimaryKey());
 		try
 		{
-			con = (ContactDO)q.getSingleResult();
+			con = (ContactDO)q.uniqueResult();
 		}catch(NoResultException nre)
 		{
 			con=null;
@@ -70,7 +80,7 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 			con.setAddress(s.getAddress());
 			con.setType(ept);
 			con.setCreateDate(Calendar.getInstance());
-			em.persist(con);
+			sf.getCurrentSession().persist(con);
 		}
 		Date newDate = new Date();
 		for(ContactTagDO tag : tags)
@@ -82,7 +92,7 @@ public class TaggingNodeFireHandler extends ConnectorFireHandler {
 				ctldo.setTag(tag);
 				ctldo.setInitialTagDate(newDate);
 				con.getContactTags().add(ctldo);
-				em.persist(ctldo);
+				sf.getCurrentSession().persist(ctldo);
 			}
 		}
 		csl.setLastHitNode(simpleNode);

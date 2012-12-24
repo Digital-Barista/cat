@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Session Bean implementation class MessageManagerImpl
  */
-@Component
+@Component("MessageManager")
 @Transactional(propagation= Propagation.REQUIRED)
 public class MessageManager {
 

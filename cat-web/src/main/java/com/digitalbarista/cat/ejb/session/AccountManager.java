@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Session Bean implementation class AccountManagerImpl
  */
-@Component
+@Component("AccountManager")
 @Transactional(propagation= Propagation.REQUIRED)
 public class AccountManager{
 

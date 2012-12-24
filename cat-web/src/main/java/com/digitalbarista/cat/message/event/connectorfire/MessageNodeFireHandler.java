@@ -1,7 +1,5 @@
 package com.digitalbarista.cat.message.event.connectorfire;
 
-import javax.ejb.SessionContext;
-import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
 import com.digitalbarista.cat.business.CampaignMessagePart;
@@ -18,21 +16,38 @@ import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.MessageManager;
 import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 import com.digitalbarista.cat.message.event.CATEvent;
+import org.hibernate.LockOptions;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class MessageNodeFireHandler extends ConnectorFireHandler {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class MessageNodeFireHandler implements ConnectorFireHandler {
 
+  @Autowired
+  private MessageManager mMan;
+  
+  @Autowired
+  private SubscriptionManager sMan;
+  
+  @Autowired
+  private CampaignManager cMan;
+  
+  @Autowired
+  private EventManager eMan;
+
+  @Autowired
+  private SessionFactory sf;
+  
 	@Override
-	public void handle(EntityManager em, SessionContext ctx, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
+	public void handle(Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
 	{
-		MessageManager mMan = (MessageManager)ctx.lookup("ejb/cat/MessageManager");
-		SubscriptionManager sMan = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
-		CampaignManager cMan = (CampaignManager)ctx.lookup("ejb/cat/CampaignManager");
-		EventManager eMan = (EventManager)ctx.lookup("ejb/cat/EventManager");
-
 		MessageNode mNode = (MessageNode)dest;
 		CATEvent sendMessageEvent=null;
 		NodeDO simpleNode=cMan.getSimpleNode(mNode.getUid());
-		
 		
 		CampaignSubscriberLinkDO csl=null;
 		for(CampaignDO subCamp : s.getSubscriptions().keySet())
@@ -43,8 +58,8 @@ public class MessageNodeFireHandler extends ConnectorFireHandler {
 				break;
 			}
 		}
-		em.lock(csl, LockModeType.WRITE);
-		em.refresh(csl);
+		sf.getCurrentSession().buildLockRequest(LockOptions.UPGRADE).lock(csl);
+		sf.getCurrentSession().refresh(csl);
 		String fromAddress = csl.getLastHitEntryPoint();
 		EntryPointType fromType = csl.getLastHitEntryType();
 

@@ -4,10 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.SessionContext;
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -24,7 +21,6 @@ import com.digitalbarista.cat.business.EntryData;
 import com.digitalbarista.cat.business.EntryNode;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
-import com.digitalbarista.cat.data.BlacklistDO;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.CampaignEntryPointDO;
 import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
@@ -37,18 +33,35 @@ import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
-import com.digitalbarista.cat.ejb.session.EventTimerManager;
+import com.digitalbarista.cat.ejb.session.SubscriptionManager;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class IncomingMessageEventHandler extends CATEventHandler {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class IncomingMessageEventHandler implements CATEventHandler {
 
 	Logger log = LogManager.getLogger(getClass());
 	
-	IncomingMessageEventHandler(EntityManager em, 
-			SessionContext ctx)
-	{
-		super(em,ctx);
-	}
-	
+  @Autowired
+  private SessionFactory sf;
+  
+  @Autowired
+  private SubscriptionManager sMan;
+  
+  @Autowired
+  private CampaignManager cMan;
+  
+  @Autowired
+  private ContactManager conMan;
+  
+  @Autowired
+  private EventManager eMan;
+  
 	@Override
 	public void processEvent(CATEvent e) {
 		Query q;
@@ -88,7 +101,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		auditEntry.setSubjectOrMessage(input);
 		auditEntry.setIncomingAddress(e.getSource());
 		auditEntry.setReturnAddress(e.getTarget());
-		getEntityManager().persist(auditEntry);
+		sf.getCurrentSession().persist(auditEntry);
 				
 		//If they don't send a keyword, we can't match it.
 		if(input==null || input.trim().length()==0)
@@ -98,7 +111,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		}
 
 		//Query our subscriber by the return address that was sent to us.
-		q = getEntityManager().createNamedQuery("subscriber.by.address");
+		q = sf.getCurrentSession().getNamedQuery("subscriber.by.address");
 		switch(e.getSourceType())
 		{
 			case EmailEndpoint:
@@ -124,7 +137,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		SubscriberDO sub=null;
 		try
 		{
-			sub = (SubscriberDO)q.getSingleResult();
+			sub = (SubscriberDO)q.uniqueResult();
 		}
 		catch(NoResultException ex){}
 
@@ -133,7 +146,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		{
 			if(e.getSourceType()==CATEventSource.TwitterEndpoint)
 			{
-				Session session = (Session)getEntityManager().getDelegate();
+				Session session = sf.getCurrentSession();
 				Criteria crit = session.createCriteria(SubscriberDO.class);
 				crit.add(Restrictions.eq("type", EntryPointType.Twitter));
 				crit.add(Restrictions.eq("address", e.getArgs().get("twitterID")));
@@ -149,7 +162,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			
 			if(e.getSourceType()==CATEventSource.FacebookEndpoint)
 			{
-				Session session = (Session)getEntityManager().getDelegate();
+				Session session = sf.getCurrentSession();
 				Criteria crit = session.createCriteria(SubscriberDO.class);
 				crit.add(Restrictions.eq("type",EntryPointType.Facebook));
 				crit.add(Restrictions.eq("address", e.getArgs().get("facebookID")));
@@ -189,14 +202,14 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 					sub.setAddress(e.getArgs().get("facebookID"));
 					break;
 			}
-			getEntityManager().persist(sub);
+			sf.getCurrentSession().persist(sub);
 		}
 
 		//Now let's figure out what campaign they're trying to send to.
 		//  Note that 'campaign.entry.points' includes 'keyword' connectors,
 		//  as well as campaign start points.  Note that we're finding ALL 
 		//  possible keywords for the given incoming address.
-		q=getEntityManager().createNamedQuery("campaign.entry.points");
+		q=sf.getCurrentSession().getNamedQuery("campaign.entry.points");
 		switch(e.getSourceType())
 		{
 			case EmailEndpoint:
@@ -216,7 +229,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 				break;
 		}
 		q.setParameter("entryPoint", e.getSource());
-		List<CampaignEntryPointDO> entries = (List<CampaignEntryPointDO>)q.getResultList();
+		List<CampaignEntryPointDO> entries = (List<CampaignEntryPointDO>)q.uniqueResult();
 		
 		//First, we need to grab the keyword.  Note that we already know
 		//  that there's at least one non-whitespace letter, because of
@@ -239,19 +252,19 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			switch(e.getSourceType())
 			{
 				case EmailEndpoint:
-					getSubscriptionManager().blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Email,e.getSource());
+					sMan.blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Email,e.getSource());
 					break;
 					
 				case SMSEndpoint:
-					getSubscriptionManager().blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.SMS,e.getSource());
+					sMan.blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.SMS,e.getSource());
 					break;
 					
 				case TwitterEndpoint:
-					getSubscriptionManager().blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Twitter,e.getSource());
+					sMan.blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Twitter,e.getSource());
 					break;
 					
 				case FacebookEndpoint:
-					getSubscriptionManager().blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Facebook,e.getSource());
+					sMan.blacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Facebook,e.getSource());
 					break;
 			}
 			//And do nothing else.
@@ -315,19 +328,19 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		switch(e.getSourceType())
 		{
 			case EmailEndpoint:
-				getSubscriptionManager().unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Email,e.getSource());
+				sMan.unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Email,e.getSource());
 				break;
 				
 			case SMSEndpoint:
-				getSubscriptionManager().unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.SMS,e.getSource());
+				sMan.unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.SMS,e.getSource());
 				break;
 				
 			case TwitterEndpoint:
-				getSubscriptionManager().unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Twitter,e.getSource());
+				sMan.unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Twitter,e.getSource());
 				break;
 				
 			case FacebookEndpoint:
-				getSubscriptionManager().unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Facebook,e.getSource());
+				sMan.unBlacklistAddressForEntryPoint(e.getTarget(),EntryPointType.Facebook,e.getSource());
 				break;
 		}
 		
@@ -335,7 +348,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 		if(!isSubscribed)
 		{
 			EntryNode en=null;
-			Campaign camp = getCampaignManager().getLastPublishedCampaign(mostLikelyEntry.getCampaign().getUID());
+			Campaign camp = cMan.getLastPublishedCampaign(mostLikelyEntry.getCampaign().getUID());
 			if(camp==null)
 				return;
 			
@@ -370,34 +383,34 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 			csl = new CampaignSubscriberLinkDO();
 			csl.setCampaign(mostLikelyEntry.getCampaign());
 			csl.setSubscriber(sub);
-			csl.setLastHitNode(getCampaignManager().getSimpleNode(en.getUid()));
+			csl.setLastHitNode(cMan.getSimpleNode(en.getUid()));
 			csl.setLastHitEntryType(mostLikelyEntry.getType());
 			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
-			getEntityManager().persist(csl);
+			sf.getCurrentSession().persist(csl);
 			
-			if(!getContactManager().contactExists(e.getTarget(), mostLikelyEntry.getType(), mostLikelyEntry.getCampaign().getClient().getPrimaryKey()))
+			if(!conMan.contactExists(e.getTarget(), mostLikelyEntry.getType(), mostLikelyEntry.getCampaign().getClient().getPrimaryKey()))
 			{
 				Contact con = new Contact();
 				con.setAddress(e.getTarget());
 				con.setClientId(mostLikelyEntry.getCampaign().getClient().getPrimaryKey());
 				con.setCreateDate(Calendar.getInstance());
 				con.setType(mostLikelyEntry.getType());
-				getContactManager().save(con);
+				conMan.save(con);
 			}
 			
 			CATEvent fireImmediateConnectorsEvent = CATEvent.buildNodeOperationCompletedEvent(en.getUid(), sub.getPrimaryKey().toString());
-			getEventManager().queueEvent(fireImmediateConnectorsEvent);
+			eMan.queueEvent(fireImmediateConnectorsEvent);
 		} else {
 			//since they're subscribed, we're going to assume we're triggering a response
 			// connector.  Otherwise we ignore it.
 			csl.setLastHitEntryPoint(mostLikelyEntry.getEntryPoint());
 			csl.setLastHitEntryType(mostLikelyEntry.getType());
 			Integer publishedVersion = csl.getCampaign().getCurrentVersion()-1;
-			Node node = getCampaignManager().getSpecificNodeVersion(csl.getLastHitNode().getUID(), publishedVersion);
+			Node node = cMan.getSpecificNodeVersion(csl.getLastHitNode().getUID(), publishedVersion);
 			Connector conn;
 			for(String connUID : node.getDownstreamConnections())
 			{
-				conn=getCampaignManager().getSpecificConnectorVersion(connUID, publishedVersion);
+				conn=cMan.getSpecificConnectorVersion(connUID, publishedVersion);
 				
 				if(conn.getType().equals(ConnectorType.Response))
 				{
@@ -429,7 +442,7 @@ public class IncomingMessageEventHandler extends CATEventHandler {
 						auditEntry.setMatchedVersion(publishedVersion);
 						
 						CATEvent fireConnectorEvent = CATEvent.buildFireConnectorForSubscriberEvent(rConn.getUid(), sub.getPrimaryKey().toString(),-1);
-						getEventManager().queueEvent(fireConnectorEvent);
+						eMan.queueEvent(fireConnectorEvent);
 						return;
 					}
 				}

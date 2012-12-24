@@ -57,7 +57,12 @@ public class SecurityUtil {
 		return extractClientIds(ctx, session, null);
 	}
 	
-	public Set<Long> extractClientIds(SecurityContext ctx, Session session, String user) 
+	public Set<Long> extractClientIds(Session session, String user) 
+	{
+            return extractClientIds(SecurityContextHolder.getContext(),session,user);
+        }
+        
+        public Set<Long> extractClientIds(SecurityContext ctx, Session session, String user) 
 	{
 		String username = user;
 		if (username == null)
@@ -151,4 +156,15 @@ public class SecurityUtil {
             return ""+SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         }
 
+        public boolean isCallerInRole(String role)
+        {
+            for(GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities())
+            {
+                if(role.equals(ga.getAuthority()) || role.equals("ROLE_"+ga.getAuthority()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 }

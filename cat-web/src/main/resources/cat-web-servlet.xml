@@ -32,4 +32,22 @@
 	  <property name="prefix" value=""/>
 	  <property name="suffix" value=".ftl"/>
 	</bean>
+  
+  <bean id="auditAutoProxy" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+    <property name="beanNames" value="*Manager"/>
+    <property name="interceptorNames">
+      <list>
+        <value>auditInterceptor</value>
+      </list>
+    </property>  
+  </bean>
+
+  <bean id="nodeFillAutoProxy" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+    <property name="beanNames" value="CampaignManager"/>
+    <property name="interceptorNames">
+      <list>
+        <value>nodeFillInterceptor</value>
+      </list>
+    </property>  
+  </bean>
 </beans>

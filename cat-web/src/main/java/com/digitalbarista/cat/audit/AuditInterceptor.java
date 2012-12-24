@@ -6,23 +6,24 @@ import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.hibernate.SessionFactory;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component("auditInterceptor")
 public class AuditInterceptor implements MethodInterceptor {
 
 	private static final String dateFormat="MM/dd/yyyy HH:mm:ss.SSS";
 		
-	@PersistenceContext(unitName="cat-data")
-	private EntityManager em;
-        
-        @Autowired
-        SecurityUtil securityUtil;
+  @Autowired
+  private SessionFactory sf;
+  
+  @Autowired
+  SecurityUtil securityUtil;
 
 	public Object invoke(MethodInvocation mi) throws Throwable
 	{
@@ -153,7 +154,7 @@ public class AuditInterceptor implements MethodInterceptor {
 		audit.setDescriminator1(makeString(d1Obj));
 		audit.setDescriminator2(makeString(d2Obj));
 		audit.setData(target.auditString());
-		em.persist(audit);
+		sf.getCurrentSession().persist(audit);
 		return mi.proceed();
 	}
 	

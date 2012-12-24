@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * Session Bean implementation class ContactManagerImpl
  */
-@Controller
+@Controller("ContactManager")
 @Transactional(propagation=Propagation.REQUIRED)
 @RequestMapping(value="/contacts",
                 produces={"application/xml","application/json"},

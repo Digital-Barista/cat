@@ -5,7 +5,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("CacheAccessManager")
 public class CacheAccessManager {
 
 	public enum CacheName

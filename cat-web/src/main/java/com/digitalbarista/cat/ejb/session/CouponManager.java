@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * Session Bean implementation class ClientDO
  */
-@Controller
+@Controller("CouponManager")
 @Transactional(propagation=Propagation.REQUIRED)
 @RequestMapping(value="/coupons",
                 produces={"application/xml","application/json"},

@@ -101,7 +101,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 
 @Transactional(propagation= Propagation.REQUIRED)
-@Controller
+@Controller("CampaignManager")
 @RequestMapping(value="/campaigns",
                 consumes={"application/xml","application/json"},
                 produces={"application/xml","application/json"})

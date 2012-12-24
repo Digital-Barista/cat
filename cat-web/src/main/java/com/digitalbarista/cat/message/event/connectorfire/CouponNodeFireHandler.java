@@ -4,12 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
-
-import javax.ejb.SessionContext;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
 import org.hibernate.LockMode;
@@ -34,17 +28,35 @@ import com.digitalbarista.cat.ejb.session.MessageManager;
 import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 import com.digitalbarista.cat.message.event.CATEvent;
 import com.digitalbarista.cat.util.SequentialBitShuffler;
+import org.hibernate.LockOptions;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class CouponNodeFireHandler extends ConnectorFireHandler {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class CouponNodeFireHandler implements ConnectorFireHandler {
 
+  @Autowired
+  private MessageManager mMan;
+  
+  @Autowired 
+  private SubscriptionManager sMan;
+  
+  @Autowired
+  private CampaignManager cMan;
+  
+  @Autowired
+  private EventManager eMan;
+  
+  @Autowired
+  private SessionFactory sf;
+  
 	@Override
-	public void handle(EntityManager em, SessionContext ctx, Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
+	public void handle(Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
 	{
-		MessageManager mMan = (MessageManager)ctx.lookup("ejb/cat/MessageManager");
-		SubscriptionManager sMan = (SubscriptionManager)ctx.lookup("ejb/cat/SubscriptionManager");
-		CampaignManager cMan = (CampaignManager)ctx.lookup("ejb/cat/CampaignManager");
-		EventManager eMan = (EventManager)ctx.lookup("ejb/cat/EventManager");
-
 		CouponNode cNode = (CouponNode)dest;
 		CATEvent sendMessageEvent=null;
 		NodeDO simpleNode=cMan.getSimpleNode(cNode.getUid());
@@ -52,7 +64,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		Date now = new Date();
 		String actualMessage;
 
-		CouponOfferDO offer = em.find(CouponOfferDO.class, cNode.getCouponId());
+		CouponOfferDO offer = (CouponOfferDO)sf.getCurrentSession().get(CouponOfferDO.class, cNode.getCouponId());
 		CouponResponseDO response;
 						
 		CampaignSubscriberLinkDO csl=null;
@@ -64,8 +76,8 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 				break;
 			}
 		}
-		em.lock(csl, LockModeType.WRITE);
-		em.refresh(csl);
+		sf.getCurrentSession().buildLockRequest(LockOptions.UPGRADE).lock(csl);
+		sf.getCurrentSession().refresh(csl);
 		String fromAddress = csl.getLastHitEntryPoint();
 		EntryPointType fromType = csl.getLastHitEntryType();
 
@@ -82,15 +94,15 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 			} else {
 				//Get the counter for 6-digit coupon codes.  This may need to change in the future.
 				int COUPON_CODE_LENGTH=6;
-				CouponCounterDO counter = (CouponCounterDO)((Session)em.getDelegate()).get(CouponCounterDO.class,COUPON_CODE_LENGTH, LockMode.UPGRADE);
+				CouponCounterDO counter = (CouponCounterDO)sf.getCurrentSession().get(CouponCounterDO.class,COUPON_CODE_LENGTH, LockOptions.UPGRADE);
 				if(counter==null)
 				{
 					counter = new CouponCounterDO();
 					counter.setCouponCodeLength(COUPON_CODE_LENGTH);
 					counter.setNextNumber(1l);
 					counter.setBitScramble(SequentialBitShuffler.generateBitShuffle(COUPON_CODE_LENGTH));
-					em.persist(counter);
-					counter = (CouponCounterDO)((Session)em.getDelegate()).get(CouponCounterDO.class,COUPON_CODE_LENGTH, LockMode.UPGRADE);
+					sf.getCurrentSession().persist(counter);
+					counter = (CouponCounterDO)sf.getCurrentSession().get(CouponCounterDO.class,COUPON_CODE_LENGTH, LockOptions.UPGRADE);
 				}
 				SequentialBitShuffler shuffler = new SequentialBitShuffler(counter.getBitScramble(),COUPON_CODE_LENGTH);
 				couponCode = shuffler.generateCode(counter.getNextNumber());
@@ -134,7 +146,7 @@ public class CouponNodeFireHandler extends ConnectorFireHandler {
 		}
 		response.setActualMessage(actualMessage);
 		
-		em.persist(response);
+		sf.getCurrentSession().persist(response);
 		
 		CampaignMessagePart messagePart = mMan.getMessagePart(cMan.getLastPublishedCampaign(cNode.getCampaignUID()), fromType, actualMessage);
 

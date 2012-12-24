@@ -1,46 +1,23 @@
 package com.digitalbarista.cat.message.event;
 
-import javax.annotation.Resource;
 import javax.annotation.security.RunAs;
-import javax.ejb.EJB;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.security.RunAsPrincipal;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.digitalbarista.cat.ejb.session.CampaignManager;
-import com.digitalbarista.cat.ejb.session.ContactManager;
-import com.digitalbarista.cat.ejb.session.EventManager;
-import com.digitalbarista.cat.ejb.session.EventTimerManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
-@Stateless
-@LocalBinding(jndiBinding = "ejb/cat/events/EventHandlerFactory")
+@Component
 @RunAs("admin")
 @RunAsPrincipal("admin")
-public class CATEventHandlerFactory implements CATEventHandlerFactoryInterface{
+public class CATEventHandlerFactory {
 
-	@EJB(name="ejb/cat/EventManager")
-	private EventManager emi;
-	
-	@EJB(name="ejb/cat/CampaignManager")
-	private CampaignManager cm;
-	
-	@EJB(name="ejb/cat/ContactManager")
-	private ContactManager conMan;
-	
-	@EJB(name="ejb/cat/EventTimerManager")
-	private EventTimerManager timer;
+  @Autowired
+  private ApplicationContext ctx;
 
-	@Resource
-	private SessionContext ctx; //Used to flag rollbacks.
-	
-	@PersistenceContext(unitName="cat-data")
-	private EntityManager em;
-
-	@Override
 	public void processEvent(CATEvent e) {
 		getHandler(e.getType()).processEvent(e);
 	}
@@ -50,15 +27,15 @@ public class CATEventHandlerFactory implements CATEventHandlerFactoryInterface{
 		switch(t)
 		{
 			case IncomingMessage:
-				return new IncomingMessageEventHandler(em,ctx);
+				return ctx.getBean(IncomingMessageEventHandler.class);
 			case NodeOperationCompleted:
-				return new NodeOperationCompletedEventHandler(em,ctx);
+				return ctx.getBean(NodeOperationCompletedEventHandler.class);
 			case ConnectorFired:
-				return new ConnectorFiredEventHandler(em,ctx);
+				return ctx.getBean(ConnectorFiredEventHandler.class);
 			case MessageSendRequested:
-				return new MessageSendRequestEventHandler(em,ctx);
+				return ctx.getBean(MessageSendRequestEventHandler.class);
       case UserSubscribed:
-        return new UserSubscribedEventHandler(em,ctx);
+        return ctx.getBean(UserSubscribedEventHandler.class);
 			default:
 				throw new IllegalArgumentException("Unknown event type:  No configured factory: "+t.toString());
 		}

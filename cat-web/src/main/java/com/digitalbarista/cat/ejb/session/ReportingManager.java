@@ -67,7 +67,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * Session Bean implementation class SubscriptionManagerImpl
  */
-@Controller
+@Controller("ReportingManager")
 @RequestMapping(value="/reporting",
                 produces={"application/xml","application/json"},
                 consumes={"application/xml","application/json"})

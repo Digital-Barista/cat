@@ -1,17 +1,10 @@
 package com.digitalbarista.cat.message.event;
 
-import java.util.Date;
 import java.util.List;
-
-import javax.ejb.SessionContext;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Connector;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.CampaignDO;
@@ -19,24 +12,38 @@ import com.digitalbarista.cat.data.CampaignSubscriberLinkDO;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.SubscriberDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
-import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
-import com.digitalbarista.cat.ejb.session.EventTimerManager;
-import com.digitalbarista.cat.message.event.connectorfire.ConnectorFireHandler;
+import com.digitalbarista.cat.message.event.connectorfire.ConnectorFireHandlerFactory;
+import org.hibernate.LockOptions;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class ConnectorFiredEventHandler extends CATEventHandler {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class ConnectorFiredEventHandler implements CATEventHandler {
 
 	private Logger log = LogManager.getLogger(ConnectorFiredEventHandler.class);
-	
-	public ConnectorFiredEventHandler(EntityManager newEM,
-			SessionContext newSC) {
-		super(newEM, newSC);
-	}
 
+  @Autowired
+  private SessionFactory sf;
+  
+  @Autowired
+  private CampaignManager campaignManager;
+  
+  @Autowired
+  private EventManager eventManager;
+  
+  @Autowired
+  private ConnectorFireHandlerFactory handler;
+  
 	@Override
 	public void processEvent(CATEvent e) {
-		Integer version = getCampaignManager().getCurrentCampaignVersionForConnector(e.getSource())-1;
-		Connector conn = getCampaignManager().getSpecificConnectorVersion(e.getSource(), version);
+		Integer version = campaignManager.getCurrentCampaignVersionForConnector(e.getSource())-1;
+		Connector conn = campaignManager.getSpecificConnectorVersion(e.getSource(), version);
 		if(conn==null)
 		{
 			log.warn("Connector "+e.getSource()+" version "+version+" no longer exists and was likely deleted on the last publish.");
@@ -56,13 +63,13 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 		}
 		if(conn.getDestinationUID()==null)
 			throw new IllegalStateException("ConnectorDO has no destination node. connector uid="+conn.getUid());
-		Node dest = getCampaignManager().getSpecificNodeVersion(conn.getDestinationUID(), version);
+		Node dest = campaignManager.getSpecificNodeVersion(conn.getDestinationUID(), version);
 		
 		//validate fired connection
 		if(e.getTargetType().equals(CATTargetType.SpecificSubscriber))
 		{
-			SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
-			CampaignDO camp = getCampaignManager().getSimpleCampaign(conn.getCampaignUID());
+			SubscriberDO s = (SubscriberDO)sf.getCurrentSession().get(SubscriberDO.class, new Long(e.getTarget()));
+			CampaignDO camp = campaignManager.getSimpleCampaign(conn.getCampaignUID());
 			if(s==null || camp==null)
 			{
 				log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
@@ -82,9 +89,9 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 				log.warn("subscriber pk="+e.getTarget()+" was not subscribed to campaign UID="+conn.getCampaignUID()+".  ConnectorDO "+conn.getUid()+" will not be fired.");
 				return;
 			}
-			getEntityManager().lock(csl, LockModeType.WRITE);
-			getEntityManager().refresh(csl);
-			Node source = getCampaignManager().getSpecificNodeVersion(conn.getSourceNodeUID(), version);
+			sf.getCurrentSession().buildLockRequest(LockOptions.UPGRADE).lock(csl);
+			sf.getCurrentSession().refresh(csl);
+			Node source = campaignManager.getSpecificNodeVersion(conn.getSourceNodeUID(), version);
 			String subscriberCurrent=csl.getLastHitNode().getUID();
 			if(source==null || !source.getUid().equals(subscriberCurrent))
 			{
@@ -95,16 +102,15 @@ public class ConnectorFiredEventHandler extends CATEventHandler {
 		
 		if(e.getTargetType().equals(CATTargetType.SpecificSubscriber))
 		{
-			SubscriberDO s = getEntityManager().find(SubscriberDO.class, new Long(e.getTarget()));
-			ConnectorFireHandler.getHandler(dest.getType())
-				.handle(getEntityManager(), getSessionContext(), conn, dest, version, s, e);
+			SubscriberDO s = (SubscriberDO)sf.getCurrentSession().get(SubscriberDO.class, new Long(e.getTarget()));
+			handler.handle(dest.getType(), conn, dest, version, s, e);
 		} else if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers)){
-			Query q = getEntityManager().createNamedQuery("all.subscribers.on.node");
+			Query q = sf.getCurrentSession().getNamedQuery("all.subscribers.on.node");
 			q.setParameter("nodeUID", conn.getSourceNodeUID());
-			List<SubscriberDO> subs = (List<SubscriberDO>)q.getResultList();
+			List<SubscriberDO> subs = (List<SubscriberDO>)q.list();
       for(SubscriberDO s : subs)
       {
-        getEventManager().queueEvent(CATEvent.buildFireConnectorForSubscriberEvent(conn.getUid(),""+s.getPrimaryKey(),-1));
+        eventManager.queueEvent(CATEvent.buildFireConnectorForSubscriberEvent(conn.getUid(),""+s.getPrimaryKey(),-1));
       }
 //			for(SubscriberDO s : subs)
 //			{
