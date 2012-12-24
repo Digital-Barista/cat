@@ -9,18 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.ejb.SessionContext;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.MapMessage;
 import javax.jms.MessageProducer;
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.naming.InitialContext;
-import javax.persistence.EntityManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -37,20 +32,36 @@ import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
+import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.FacebookManager;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class MessageSendRequestEventHandler extends CATEventHandler {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class MessageSendRequestEventHandler implements CATEventHandler {
 	
 	private String cfName = "java:/JmsXA";
 	private String twitterSendDestName = "cat/messaging/TwitterOutgoing";
 	
 	private Logger log = LogManager.getLogger(MessageSendRequestEventHandler.class);
 	private String dateFormat = "MM/dd/yyyy";
-	
-	protected MessageSendRequestEventHandler(EntityManager newEM,
-			SessionContext newSC) {
-		super(newEM, newSC);
-	}
 
+  @Autowired
+  private SessionFactory sf;
+  
+  @Autowired
+  private CampaignManager cMan;
+  
+  @Autowired
+  private FacebookManager fbMan;
+  
 	@Override
 	public void processEvent(CATEvent e) {
 		OutgoingMessageEntryDO outAudit = new OutgoingMessageEntryDO();
@@ -74,7 +85,7 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				outAudit.setMessageType(EntryPointType.Facebook);
 				break;
 		}
-		getEntityManager().persist(outAudit);
+		sf.getCurrentSession().persist(outAudit);
 		if(e.getSourceType().equals(CATEventSource.EmailEndpoint))
 		{
 			outAudit.setMessageType(EntryPointType.Email);
@@ -161,11 +172,11 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				fbMessage.setTitle(e.getArgs().get("subject"));
 				
 				String nodeUID = e.getArgs().get("nodeUID");
-				Node fromNode = getCampaignManager().getNode(nodeUID);
+				Node fromNode = cMan.getNode(nodeUID);
 				Set<String> keywordSet = new HashSet<String>(); 
 				for(String downstreamUID : fromNode.getDownstreamConnections())
 				{
-					Connector dConn = getCampaignManager().getConnector(downstreamUID);
+					Connector dConn = cMan.getConnector(downstreamUID);
 					if(dConn.getType()==ConnectorType.Response)
 					{
 						for(EntryData entry : ((ResponseConnector)dConn).getEntryData())
@@ -180,13 +191,13 @@ public class MessageSendRequestEventHandler extends CATEventHandler {
 				for(String keyword : keywordSet)
 					sb.append((sb.length()!=0)?",":"").append(keyword);
 				fbMessage.setMetadata(sb.toString());
-				getEntityManager().persist(fbMessage);
-				getEntityManager().flush();
-				FacebookAppDO applicationInfo = getEntityManager().find(FacebookAppDO.class, e.getSource());
+				sf.getCurrentSession().persist(fbMessage);
+				sf.getCurrentSession().flush();
+				FacebookAppDO applicationInfo = (FacebookAppDO)sf.getCurrentSession().get(FacebookAppDO.class, e.getSource());
 				List<String> fbuids = new ArrayList<String>();
 				fbuids.add(e.getTarget());
-				getFacebookManager().sendAppRequest(fbuids, applicationInfo.getAppName(), "A new message arrived - "+new SimpleDateFormat(dateFormat).format(new Date()));
-                                getFacebookManager().sendNotification(e.getTarget(), applicationInfo.getAppName(), "A new message has arrived!");
+				fbMan.sendAppRequest(fbuids, applicationInfo.getAppName(), "A new message arrived - "+new SimpleDateFormat(dateFormat).format(new Date()));
+                                fbMan.sendNotification(e.getTarget(), applicationInfo.getAppName(), "A new message has arrived!");
                         }catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);

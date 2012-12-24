@@ -1,8 +1,6 @@
 package com.digitalbarista.cat.message.event;
 
 import javax.annotation.security.RunAs;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.jboss.annotation.security.RunAsPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -5,35 +5,38 @@
 package com.digitalbarista.cat.message.event;
 
 import com.digitalbarista.cat.data.EntryPointType;
-import javax.ejb.SessionContext;
-import javax.persistence.EntityManager;
+import com.digitalbarista.cat.ejb.session.SubscriptionManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Falken
  */
-public class UserSubscribedEventHandler extends CATEventHandler {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class UserSubscribedEventHandler implements CATEventHandler {
 
-	public UserSubscribedEventHandler(EntityManager newEM,
-			SessionContext newSC) {
-		super(newEM, newSC);
-	}
-
+  @Autowired
+  private SubscriptionManager sMan;
+  
   @Override
   public void processEvent(CATEvent e) {
     switch(e.getSourceType())
     {
       case EmailEndpoint:
-        getSubscriptionManager().subscribeToEntryPoint(e.getSource(), e.getTarget(), EntryPointType.Email);
+        sMan.subscribeToEntryPoint(e.getSource(), e.getTarget(), EntryPointType.Email);
         break;
       case SMSEndpoint:
-        getSubscriptionManager().subscribeToEntryPoint(e.getSource(), e.getTarget(), EntryPointType.SMS);
+        sMan.subscribeToEntryPoint(e.getSource(), e.getTarget(), EntryPointType.SMS);
         break;
       case TwitterEndpoint:
-        getSubscriptionManager().subscribeToEntryPoint(e.getSource(), e.getTarget(), EntryPointType.Twitter);
+        sMan.subscribeToEntryPoint(e.getSource(), e.getTarget(), EntryPointType.Twitter);
         break;
       case FacebookEndpoint:
-        getSubscriptionManager().subscribeToEntryPoint(e.getSource(), e.getTarget(), EntryPointType.Facebook);
+        sMan.subscribeToEntryPoint(e.getSource(), e.getTarget(), EntryPointType.Facebook);
         break;
       default:
         throw new IllegalArgumentException("Only valid entry types may subscribe users. type="+e.getSourceType()+" is not valid.");

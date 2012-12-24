@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ejb.SessionContext;
-import javax.persistence.EntityManager;
 
 import com.digitalbarista.cat.business.CalendarConnector;
 import com.digitalbarista.cat.business.Connector;
@@ -15,28 +13,37 @@ import com.digitalbarista.cat.business.IntervalConnector;
 import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
-import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.EventTimerManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class NodeOperationCompletedEventHandler extends CATEventHandler {
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+public class NodeOperationCompletedEventHandler implements CATEventHandler {
 
-	public NodeOperationCompletedEventHandler(EntityManager newEM,
-			SessionContext newSC) {
-		super(newEM, newSC);
-	}
-
+  @Autowired
+  private CampaignManager cMan;
+  
+  @Autowired
+  private EventManager eMan;
+  
+  @Autowired
+  private EventTimerManager timer;
+  
 	@Override
 	public void processEvent(CATEvent e) {
-		Integer version = getCampaignManager().getCurrentCampaignVersionForNode(e.getSource())-1;
-		Node publishedNode = getCampaignManager().getSpecificNodeVersion(e.getSource(), version);
+		Integer version = cMan.getCurrentCampaignVersionForNode(e.getSource())-1;
+		Node publishedNode = cMan.getSpecificNodeVersion(e.getSource(), version);
 		Connector connector;
 		ImmediateConnector ic=null;
 		CalendarConnector pastDue=null;
 		Set<IntervalConnector> intervals=new HashSet<IntervalConnector>();
 		for(String connUID : publishedNode.getDownstreamConnections())
 		{
-			connector = getCampaignManager().getSpecificConnectorVersion(connUID, version);
+			connector = cMan.getSpecificConnectorVersion(connUID, version);
 			if(connector==null)
 				continue;
 			if(connector.getType().equals(ConnectorType.Immediate))
@@ -68,14 +75,14 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 				connectorFiredEvent=CATEvent.buildFireConnectorForAllSubscribersEvent(ic.getUid(),-1);
 			else
 				connectorFiredEvent=CATEvent.buildFireConnectorForSubscriberEvent(ic.getUid(), e.getTarget(),-1);
-			getEventManager().queueEvent(connectorFiredEvent);
+			eMan.queueEvent(connectorFiredEvent);
 		} else if (pastDue!=null) {
 			CATEvent connectorFiredEvent;
 			if(e.getTargetType().equals(CATTargetType.AllAppliedSubscribers))
 				connectorFiredEvent=CATEvent.buildFireConnectorForAllSubscribersEvent(pastDue.getUid(),-1);
 			else
 				connectorFiredEvent=CATEvent.buildFireConnectorForSubscriberEvent(pastDue.getUid(), e.getTarget(),-1);
-			getEventManager().queueEvent(connectorFiredEvent);
+			eMan.queueEvent(connectorFiredEvent);
 		}
 		Calendar c = Calendar.getInstance();
 		Date currentTime = new Date();
@@ -100,7 +107,7 @@ public class NodeOperationCompletedEventHandler extends CATEventHandler {
 					c.add(Calendar.MONTH, conn.getInterval().intValue());
 					break;
 			}
-			getTimer().setTimer(conn.getUid(), e.getTarget(), -1, CATEventType.ConnectorFired, c.getTime());
+			timer.setTimer(conn.getUid(), e.getTarget(), -1, CATEventType.ConnectorFired, c.getTime());
 		}
 	}
 
