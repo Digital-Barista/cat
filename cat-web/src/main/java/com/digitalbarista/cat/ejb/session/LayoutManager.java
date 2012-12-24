@@ -1,42 +1,195 @@
 package com.digitalbarista.cat.ejb.session;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.Local;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.persistence.NoResultException;
 
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
 
 import com.digitalbarista.cat.business.LayoutInfo;
+import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.data.LayoutInfoDO;
-import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
+import com.digitalbarista.cat.util.SecurityUtil;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@Local
-@Path("/layouts")
-@Produces({"application/xml","application/json"})
-@Consumes({"application/xml","application/json"})
-public interface LayoutManager {
-	public List<LayoutInfo> getLayoutInfo(List<String> uidList);
-	@GET
-	@Path("/{uid}")
-	public LayoutInfo getLayoutInfo(@PathParam("uid") String uid, Integer version);
-	public LayoutInfoDO getSimpleLayoutInfo(String uuid, Integer version);
-	@DELETE
-	@Path("/{uid}")
-	public void delete(@PathParam("uid") String uid, Integer version);
-	@GET
-	@Wrapped(element="Layouts")
-	public List<LayoutInfo> getLayoutsByCampaign(@QueryParam("campaignid") String uid);
-	@Path("/{campaign-uid}/{version}")
-	@GET
-	@Wrapped(element="Layouts")
-	public List<LayoutInfo> getLayoutsByCampaignAndVersion(@PathParam("campaign-uid") String uid,@PathParam("version") Integer version);
-	@POST
-	public void save(LayoutInfo layout);
+@Controller
+@RequestMapping(value="/layouts",
+                consumes={"application/xml","application/json"},
+                produces={"application/xml","application/json"})
+@Transactional(propagation=Propagation.REQUIRED)
+public class LayoutManager {
+
+        @Autowired
+        UserManager userManager;
+        
+        @Autowired
+        CampaignManager campaignManager;
+	
+        @Autowired
+        SessionFactory sf;
+        
+        @Autowired
+        SecurityUtil securityUtil;
+        
+	public LayoutInfoDO getSimpleLayoutInfo(String uuid, Integer version)
+	{
+		try
+		{
+			Criteria crit = sf.getCurrentSession().createCriteria(LayoutInfoDO.class);
+			crit.add(Restrictions.eq("UID", uuid));
+			crit.add(Restrictions.eq("version", version));
+			LayoutInfoDO ret = (LayoutInfoDO)crit.uniqueResult();
+			
+			if(ret==null)
+				return null;
+			
+			if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getCampaign().getClient().getPrimaryKey()))
+				throw new SecurityException("Current user is not allowed to view layout infor for this campaign.");
+			
+			return ret;
+		}catch(NoResultException e)
+		{
+			return null;
+		}
+	}
+	
+	public List<LayoutInfo> getLayoutInfo(List<String> uidList) {
+		List<LayoutInfo> ret = new ArrayList<LayoutInfo>();
+
+		if(uidList==null)
+			return new ArrayList<LayoutInfo>();
+		
+		Criteria crit = sf.getCurrentSession().createCriteria(LayoutInfoDO.class);
+		crit.add(Restrictions.in("UID", uidList));
+		if(!securityUtil.isAdmin())
+		{
+			crit.createAlias("campaign", "campaign");
+			crit.add(Restrictions.in("campaign.client.id", securityUtil.extractClientIds(sf.getCurrentSession())));
+			if(securityUtil.extractClientIds(sf.getCurrentSession()).size()==0)
+				return ret;
+		}
+
+		LayoutInfo info;
+		for(LayoutInfoDO li : (List<LayoutInfoDO>)crit.list())
+		{
+			info = new LayoutInfo();
+			info.copyFrom(li);
+			ret.add(info);
+		}
+		return ret;
+	}
+
+        @RequestMapping(method=RequestMethod.GET,value="/{uid}/{version}")
+	public LayoutInfo getLayoutInfo(@PathVariable("uid") String uid, @PathVariable("version") Integer version) {
+		if(uid==null)
+			return null;
+		
+		LayoutInfo ret = new LayoutInfo();
+		ret.copyFrom(getSimpleLayoutInfo(uid, version));
+		return ret;
+	}
+
+        @RequestMapping(method=RequestMethod.POST)
+	public void save(@RequestBody LayoutInfo layout) {
+		if(layout==null)
+			throw new IllegalArgumentException("Cannot save a null layout.");
+
+		if(layout.getUUID()==null)
+			throw new IllegalArgumentException("No UUID assigned to this layout.");
+
+		//Grab the live info object.
+		LayoutInfoDO info = getSimpleLayoutInfo(layout.getUUID(), layout.getVersion());
+		
+		//Gotta ACTUALLY set a campaign if this is a new object.
+		if(info==null && layout.getCampaignUUID()==null)
+			throw new IllegalArgumentException("No CampaignDO assigned to this layout.");
+
+		
+		//Find the persistent campaign for the one that got passed in.
+		CampaignDO c=null;
+		if(layout.getCampaignUUID()!=null)
+			c=campaignManager.getSimpleCampaign(layout.getCampaignUUID());
+
+		if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), c.getClient().getPrimaryKey()))
+			throw new SecurityException("Current user is not allowed to create or alter layout info entries for this campaign.");
+		
+		// If layout doesn't exist yet create a new one and assign the campaign
+		if(info==null)
+		{
+			info = new LayoutInfoDO();
+			info.setCampaign(c);
+		}
+		
+		//If this isn't a new object, and there *IS* a campaign already,
+		//  make sure it matches the one supplied.
+		if(c!=null && !info.getCampaign().getUID().equals(c.getUID()))
+			throw new IllegalArgumentException("CampaignDO assigned to this layout did not match previously saved value.");
+		
+		//If this is a new layout, set the campaign
+		if(c!=null)
+			info.setCampaign(c);
+		
+		layout.copyTo(info);
+		info.setVersion(info.getCampaign().getCurrentVersion());
+		sf.getCurrentSession().persist(info);
+	}
+
+	@RequestMapping(method=RequestMethod.GET)
+        public List<LayoutInfo> getLayoutsByCampaign(@RequestParam(value="campaignid",required=true) String uid) {
+		return getLayoutsByCampaignAndVersion(uid,null);
+	}
+	
+        @RequestMapping(method=RequestMethod.GET,value="/{campaign-uid}/{version}")
+	public List<LayoutInfo> getLayoutsByCampaignAndVersion(@PathVariable("campaign-uid") String uid,@PathVariable("version") Integer version) {
+		CampaignDO c = campaignManager.getSimpleCampaign(uid);
+		
+		if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), c.getClient().getPrimaryKey()))
+			throw new SecurityException("Current user is not allowed to view layout info for the specified campaign.");
+
+		if(version==null)
+			version=c.getCurrentVersion();
+	
+		if(c==null)
+			return new ArrayList<LayoutInfo>();
+		
+		List<LayoutInfo> ret = new ArrayList<LayoutInfo>();
+		LayoutInfo temp;
+		
+		String query = "select li from LayoutInfoDO li where li.campaign.id=:pk and li.version=:version";
+		Query q = sf.getCurrentSession().createQuery(query);
+		q.setParameter("pk", c.getPrimaryKey());
+		q.setParameter("version", version);
+		for(LayoutInfoDO info : (List<LayoutInfoDO>)q.list())
+		{
+			temp=new LayoutInfo();
+			temp.copyFrom(info);
+			ret.add(temp);
+		}
+		return ret;
+	}
+
+        @RequestMapping(method=RequestMethod.DELETE,value="/{uid}/{version}")
+        public void delete(@PathVariable("uid") String uid, @PathVariable("version") Integer version) {
+		if(uid==null)
+			throw new IllegalArgumentException("Cannot delete an unspecified layout.");
+		
+		LayoutInfoDO li = getSimpleLayoutInfo(uid, version);
+		if(li==null)
+			return;
+		
+		sf.getCurrentSession().delete(li);
+	}
+
 }
