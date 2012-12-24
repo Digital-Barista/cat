@@ -168,5 +168,33 @@
       <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-analytics</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-analytics-meta</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-base</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.data</groupId>
+      <artifactId>gdata-client-meta</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.collections</groupId>
+      <artifactId>google-collections</artifactId>
+    </dependency>
   </dependencies>
 </project>
