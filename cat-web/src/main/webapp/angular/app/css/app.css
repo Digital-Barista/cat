@@ -21,23 +21,27 @@
 .controls .short {
   width: 50px;
 }
+/* line 10, ../sass/_messages.scss */
+.controls .static-code {
+  margin-left: 20px;
+}
 
-/* line 12, ../sass/_messages.scss */
+/* line 15, ../sass/_messages.scss */
 .control-button {
   float: right;
 }
 
-/* line 16, ../sass/_messages.scss */
+/* line 19, ../sass/_messages.scss */
 .message-editor {
   margin-bottom: 10px;
 }
 
-/* line 21, ../sass/_messages.scss */
+/* line 24, ../sass/_messages.scss */
 .send-message .control-group {
   margin-bottom: 0;
 }
 
-/* line 27, ../sass/_messages.scss */
+/* line 30, ../sass/_messages.scss */
 .sent-broadcast .header {
   font-weight: bold;
 }
@@ -1554,17 +1558,23 @@ h2 {
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.6);
   margin-top: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* line 15, ../sass/app.scss */
+/* line 16, ../sass/app.scss */
 .main-container {
   width: 940px;
   margin: 60px auto 0 auto;
 }
 
-/* line 20, ../sass/app.scss */
+/* line 21, ../sass/app.scss */
 .main-view {
   float: left;
   margin-left: 30px;
   width: 700px;
+}
+
+/* line 27, ../sass/app.scss */
+.bold {
+  font-weight: bold;
 }

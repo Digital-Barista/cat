@@ -3,14 +3,32 @@
         <div class="control-group">
             <label class="control-label">Message Title</label>
             <div class="controls">
-                <input id="title" type="text" value="{{message.name}}" placeholder="Type Message Title Here"/>
+                <input id="title" type="text" ng-model="message.title" placeholder="Type Message Title Here"/>
                 <div class="btn-group pull-right">
-                    <button class="btn">New Message</button>
-                    <button class="btn btn-primary">Send Coupon</button>
+                    <button class="btn" ng-click="resetMessage()">New Message</button>
+                    <button class="btn btn-primary" ng-click="chooseNetworks()">Send Message</button>
                 </div>
             </div>
         </div>
 
     </form>
-    <textarea class="message-editor" ui-tinymce ng-model="tinymce"></textarea>
+    <textarea class="message-editor" ui-tinymce ng-model="message.message"></textarea>
+
+
+
+    <div ui-modal class="fade" ng-model="showConfirmReset" id="resetModal">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>Reset Message</h3>
+        </div>
+        <div class="modal-body">
+            Reset all the form fields and edit a new messages?
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal">No</button>
+            <button class="btn btn-primary" ng-click="confirmReset()">Yes</button>
+        </div>
+    </div>
+
+    <div choosenetworks class=""></div>
 </div>

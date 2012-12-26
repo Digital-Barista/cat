@@ -3,7 +3,7 @@
 
 // Declare app level module which depends on filters, and services
 angular.module('cat', ['cat.filters', 'cat.services', 'cat.directives', 'cat.controllers', 'ui']).
-    config(['$routeProvider', function($routeProvider) {
+    config(['$routeProvider', function($routeProvider, $rootScope) {
         $routeProvider.when('', {templateUrl: 'partials/dashboard.html', controller: 'DashboardCtrl'});
         $routeProvider.when('/sendmessage', {templateUrl: 'partials/sendmessage.html', controller: 'SendMessageCtrl'});
         $routeProvider.when('/sendcoupon', {templateUrl: 'partials/sendcoupon.html', controller: 'SendCouponCtrl'});
