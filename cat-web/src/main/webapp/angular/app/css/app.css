@@ -32,6 +32,16 @@
   margin-bottom: 10px;
 }
 
+/* line 21, ../sass/_messages.scss */
+.send-message .control-group {
+  margin-bottom: 0;
+}
+
+/* line 27, ../sass/_messages.scss */
+.sent-broadcast .header {
+  font-weight: bold;
+}
+
 /*
  * jQuery UI CSS Framework 1.8.20
  *
@@ -1539,13 +1549,20 @@ ul {
   list-style: none;
 }
 
-/* line 9, ../sass/app.scss */
+/* line 10, ../sass/app.scss */
+h2 {
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 0;
+}
+
+/* line 15, ../sass/app.scss */
 .main-container {
   width: 940px;
   margin: 60px auto 0 auto;
 }
 
-/* line 14, ../sass/app.scss */
+/* line 20, ../sass/app.scss */
 .main-view {
   float: left;
   margin-left: 30px;

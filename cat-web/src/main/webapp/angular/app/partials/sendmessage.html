@@ -1,3 +1,16 @@
 <div class="send-message">
-    Message
+    <form class="well form-horizontal">
+        <div class="control-group">
+            <label class="control-label">Message Title</label>
+            <div class="controls">
+                <input id="title" type="text" value="{{message.name}}" placeholder="Type Message Title Here"/>
+                <div class="btn-group pull-right">
+                    <button class="btn">New Message</button>
+                    <button class="btn btn-primary">Send Coupon</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+    <textarea class="message-editor" ui-tinymce ng-model="tinymce"></textarea>
 </div>

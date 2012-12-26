@@ -7,7 +7,7 @@ angular.module('cat', ['cat.filters', 'cat.services', 'cat.directives', 'cat.con
         $routeProvider.when('', {templateUrl: 'partials/dashboard.html', controller: 'DashboardCtrl'});
         $routeProvider.when('/sendmessage', {templateUrl: 'partials/sendmessage.html', controller: 'SendMessageCtrl'});
         $routeProvider.when('/sendcoupon', {templateUrl: 'partials/sendcoupon.html', controller: 'SendCouponCtrl'});
-        $routeProvider.when('/sendbroadcast', {templateUrl: 'partials/sendbroadcast.html', controller: 'SendBroadcastCtrl'});
+        $routeProvider.when('/sentbroadcast', {templateUrl: 'partials/sentbroadcast.html', controller: 'SentBroadcastCtrl'});
         $routeProvider.otherwise({redirectTo: ''});
     }])
     .value('ui.config', {

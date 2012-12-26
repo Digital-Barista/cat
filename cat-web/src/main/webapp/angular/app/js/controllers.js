@@ -22,11 +22,12 @@ angular.module('cat.controllers', [])
                maxCoupons: 0,
                maxRedemptions: 0,
                couponCode: 'random',
-               expiration: 'never'
+               expiration: 'never',
+               available: 'available'
            }
         }
     ])
-    .controller('SendBroadcastCtrl', [
+    .controller('SentBroadcastCtrl', [
         '$scope',
         function ($scope) {
         }

@@ -25,7 +25,7 @@ angular.module('cat.services', [])
                 },
                 {
                     title:'Sent Broadcasts',
-                    url:'/sendbroadcast'
+                    url:'/sentbroadcast'
                 }
             ]
         }
