@@ -95,7 +95,7 @@ angular.module('cat.directives', [])
 
                     // Set chart options
                     var options = {'title':'Contacts',
-                        'width':350,
+                        'width':330,
                         'height':300};
 
                     // Instantiate and draw our chart, passing in some options.
@@ -110,12 +110,10 @@ angular.module('cat.directives', [])
                         ['Apr',  1030]
                     ]);
 
-                    var options = {
+                    var options = $.extend(options, {
                         title: 'Subscribers',
-                        legend: 'none',
-                        'width':350,
-                        'height':300
-                    };
+                        legend: 'none'
+                    });
 
                     var chart = new google.visualization.LineChart(document.getElementById('subscribers'));
                     chart.draw(data, options);

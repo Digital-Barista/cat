@@ -49,6 +49,15 @@
 /* line 1, ../sass/_dashboard.scss */
 .chart {
   float: left;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  -webkit-border-radius: 5px 5px;
+  -moz-border-radius: 5px / 5px;
+  border-radius: 5px / 5px;
+  padding: 5px;
+}
+/* line 7, ../sass/_dashboard.scss */
+.chart:nth-child(2) {
+  margin-left: 5px;
 }
 
 /*
