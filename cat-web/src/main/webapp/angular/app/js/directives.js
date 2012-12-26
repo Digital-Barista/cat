@@ -69,4 +69,57 @@ angular.module('cat.directives', [])
                 setTimeout(countDown, 200);
             }
         }
+    })
+
+    .directive('contactchart', function(){
+        return {
+            restrict: 'A',
+            replace: true,
+            templateUrl: 'partials/dashboardcharts.html',
+            link: function(scope, element, attrs){
+
+                google.load('visualization', '1.0', {'packages':['corechart'], 'callback': drawChart});
+
+                function drawChart() {
+
+                    // Create the data table.
+                    var data = new google.visualization.DataTable();
+                    data.addColumn('string', 'Network');
+                    data.addColumn('number', 'Number Contacts');
+                    data.addRows([
+                        ['SMS', 3],
+                        ['Email', 1],
+                        ['Twitter', 1],
+                        ['Facebook', 1]
+                    ]);
+
+                    // Set chart options
+                    var options = {'title':'Contacts',
+                        'width':350,
+                        'height':300};
+
+                    // Instantiate and draw our chart, passing in some options.
+                    var chart = new google.visualization.PieChart(document.getElementById('contacts'));
+                    chart.draw(data, options);
+
+                    var data = google.visualization.arrayToDataTable([
+                        ['Month', 'Subscribers'],
+                        ['Jan',  1000],
+                        ['Feb',  1170],
+                        ['Mar',  660],
+                        ['Apr',  1030]
+                    ]);
+
+                    var options = {
+                        title: 'Subscribers',
+                        legend: 'none',
+                        'width':350,
+                        'height':300
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('subscribers'));
+                    chart.draw(data, options);
+                }
+            }
+        }
     });

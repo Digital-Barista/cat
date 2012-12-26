@@ -46,6 +46,11 @@
   font-weight: bold;
 }
 
+/* line 1, ../sass/_dashboard.scss */
+.chart {
+  float: left;
+}
+
 /*
  * jQuery UI CSS Framework 1.8.20
  *
@@ -1548,12 +1553,12 @@
   /*must have*/
 }
 
-/* line 6, ../sass/app.scss */
+/* line 7, ../sass/app.scss */
 ul {
   list-style: none;
 }
 
-/* line 10, ../sass/app.scss */
+/* line 11, ../sass/app.scss */
 h2 {
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.6);
@@ -1561,20 +1566,20 @@ h2 {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* line 16, ../sass/app.scss */
+/* line 17, ../sass/app.scss */
 .main-container {
   width: 940px;
   margin: 60px auto 0 auto;
 }
 
-/* line 21, ../sass/app.scss */
+/* line 22, ../sass/app.scss */
 .main-view {
   float: left;
   margin-left: 30px;
   width: 700px;
 }
 
-/* line 27, ../sass/app.scss */
+/* line 28, ../sass/app.scss */
 .bold {
   font-weight: bold;
 }
