@@ -22,6 +22,16 @@
   width: 50px;
 }
 
+/* line 12, ../sass/_messages.scss */
+.control-button {
+  float: right;
+}
+
+/* line 16, ../sass/_messages.scss */
+.message-editor {
+  margin-bottom: 10px;
+}
+
 /*
  * jQuery UI CSS Framework 1.8.20
  *

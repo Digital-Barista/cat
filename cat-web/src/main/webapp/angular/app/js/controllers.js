@@ -21,7 +21,8 @@ angular.module('cat.controllers', [])
                infiniteRedemptions: true,
                maxCoupons: 0,
                maxRedemptions: 0,
-               couponCode: 'random'
+               couponCode: 'random',
+               expiration: 'never'
            }
         }
     ])
