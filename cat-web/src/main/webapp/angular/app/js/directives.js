@@ -4,6 +4,18 @@
 
 
 angular.module('cat.directives', [])
+    .directive('dataloader', function($rootScope){
+        return {
+            restrict: 'A',
+            replace: true,
+            templateUrl: 'partials/dataloader.html',
+            link: function(scope, element, attrs){
+                $rootScope.$on('dataloader', function(event, show){
+                    scope.showDataLoader = show ? 'on' : '';
+                });
+            }
+        }
+    })
     .directive('leftmenu', function (config, $location, $rootScope) {
         return {
             restrict: 'A',

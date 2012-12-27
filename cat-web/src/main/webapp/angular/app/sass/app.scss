@@ -4,6 +4,7 @@
 @import "dashboard";
 @import "jqueryui";
 @import "coupons";
+@import "compass/css3/transition";
 
 ul {
   list-style: none;
@@ -26,4 +27,21 @@ h2 {
 
 .bold {
   font-weight: bold;
+}
+
+$loader-dim: 48px;
+
+.data-loader {
+  opacity: 0;
+  position: fixed;
+  width:$loader-dim;
+  height:$loader-dim;
+  right: 5px;
+  bottom: 5px;
+  background-image: url('../img/loader.gif');
+  @include single-transition(opacity, .5s, ease-in-out, 0);
+
+  &.on {
+    opacity: 1;
+  }
 }

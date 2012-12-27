@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cat.services', [])
-    .factory('ServiceUtil', function($http){
+    .factory('ServiceUtil', function($http, $rootScope){
         return {
             request: function(params){
                 var request,
@@ -17,7 +17,16 @@ angular.module('cat.services', [])
                     config.params = $.extend({}, config.params, {t: new Date().getTime()});
                 }
 
+                if (config.showDataLoader){
+                    $rootScope.$broadcast('dataloader', true);
+                }
+
                 request = $http(config);
+                request.then(function(){
+                    if (config.showDataLoader){
+                        $rootScope.$broadcast('dataloader', false);
+                    }
+                });
                 return request;
             }
         }
