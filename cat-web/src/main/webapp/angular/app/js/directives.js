@@ -4,7 +4,7 @@
 
 
 angular.module('cat.directives', [])
-    .directive('leftmenu', function (config, $location) {
+    .directive('leftmenu', function (config, $location, $rootScope) {
         return {
             restrict: 'A',
             replace: true,
@@ -16,6 +16,9 @@ angular.module('cat.directives', [])
                     scope.path = item.url;
                 }
 
+                $rootScope.$on('$routeChangeSuccess', function(evt, cur, prev) {
+                    scope.path = $location.$$path;
+                });
             }
         }
     })

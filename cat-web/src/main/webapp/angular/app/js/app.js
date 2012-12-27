@@ -8,6 +8,8 @@ angular.module('cat', ['cat.filters', 'cat.services', 'cat.directives', 'cat.con
         $routeProvider.when('/sendmessage', {templateUrl: 'partials/sendmessage.html', controller: 'SendMessageCtrl'});
         $routeProvider.when('/sendcoupon', {templateUrl: 'partials/sendcoupon.html', controller: 'SendCouponCtrl'});
         $routeProvider.when('/sentbroadcast', {templateUrl: 'partials/sentbroadcast.html', controller: 'SentBroadcastCtrl'});
+        $routeProvider.when('/redeemcoupons', {templateUrl: 'partials/redeemcoupons.html', controller: 'RedeemCouponsCtrl'});
+        $routeProvider.when('/sentcoupons', {templateUrl: 'partials/sentcoupons.html', controller: 'SentCouponsCtrl'});
         $routeProvider.otherwise({redirectTo: ''});
     }])
     .value('ui.config', {

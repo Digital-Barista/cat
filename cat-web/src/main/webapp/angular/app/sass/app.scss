@@ -3,6 +3,7 @@
 @import "messages";
 @import "dashboard";
 @import "jqueryui";
+@import "coupons";
 
 ul {
   list-style: none;
@@ -15,14 +16,12 @@ h2 {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 .main-container {
-  width: 940px;
-  margin:60px auto 0 auto;
+  margin-top: 60px;
 }
 
 .main-view {
-  float:left;
-  margin-left: 30px;
-  width:700px;
+
+  margin-left: 220px;
 }
 
 .bold {

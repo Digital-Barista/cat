@@ -1,5 +1,5 @@
 <div class="send-coupon">
-
+    <h2>Send Coupon</h2>
     <div class="well">
     <form class="form-horizontal">
 
@@ -62,13 +62,13 @@
                 <label class="radio inline"><input name="expiration" ng-model="coupon.expiration" type="radio" id="expire-days" value="days" />Days</label>
             </div>
         </div>
-        <div class="control-group"  ng-show="expiration == 'date'">
+        <div class="control-group"  ng-show="coupon.expiration == 'date'">
             <label class="control-label">Expire On</label>
             <div class="controls">
                 <input ui-date id="expire-date-value"  ng-model="expireDate" />
             </div>
         </div>
-        <div class="control-group"   ng-show="expiration == 'days'">
+        <div class="control-group"   ng-show="coupon.expiration == 'days'">
             <label class="control-label">Expire</label>
             <div class="controls">
                 <input id="expire-days-value" type="number" class="short" ng-model="expireDays" /> days from send date

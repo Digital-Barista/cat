@@ -21,9 +21,6 @@
                             <a scrollto="" href="#">Home</a>
                         </li>
                         <li>
-                            <a scrollto="" href="#">Redeem Coupons</a>
-                        </li>
-                        <li>
                             <a scrollto="" href="#">Profile</a>
                         </li>
                     </ul>
@@ -54,15 +51,21 @@
         </div>
     </header>
 
-    <div class="main-container">
-        <div leftmenu></div>
-        <div ng-view class="main-view"></div>
+    <div class="container main-container">
+        <div class="row">
+            <div leftmenu class=""></div>
+            <div ng-view class="main-view"></div>
+        </div>
     </div>
 
 
 <!-- In production use:
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
 -->
+<script>
+    var contextPath = 'http:///catjs/cat';
+</script>
+
 <script src="lib/jquery/jquery-1.8.3.min.js"></script>
 <script src="lib/jquery/jquery-ui-min.js"></script>
 <script src="lib/tiny_mce/jquery.tinymce.js"></script>

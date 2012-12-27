@@ -2,13 +2,11 @@
 
 
 angular.module('cat.controllers', [])
-    .controller('DashboardCtrl', [
-        '$scope',
+    .controller('DashboardCtrl',
         function ($scope) {
         }
-    ])
-    .controller('SendMessageCtrl', [
-        '$scope',
+    )
+    .controller('SendMessageCtrl',
         function ($scope) {
             var emptyMessage = {
                 message: ''
@@ -28,10 +26,8 @@ angular.module('cat.controllers', [])
                 $scope.showNetwork = true;
             }
         }
-    ])
-    .controller('SendCouponCtrl', [
-        '$scope',
-        'config',
+    )
+    .controller('SendCouponCtrl',
         function ($scope) {
            var emptyCoupon = {
                infiniteCoupons: true,
@@ -67,9 +63,31 @@ angular.module('cat.controllers', [])
                 $scope.showNetwork = true;
             }
         }
-    ])
-    .controller('SentBroadcastCtrl', [
-        '$scope',
+    )
+    .controller('SentBroadcastCtrl',
         function ($scope) {
         }
-    ]);
+    )
+    .controller('RedeemCouponsCtrl',
+        function ($scope, CouponServices) {
+            $scope.redeem = function(){
+                delete $scope.message;
+                CouponServices.redeemCoupon({
+                    code: $scope.couponCode,
+                    success: function(result){
+                        $scope.message = result.message;
+                        $scope.messageClass = result.code == 0 ? 'alert-success' : 'alert-error';
+                    }
+                })
+            }
+        }
+    )
+    .controller('SentCouponsCtrl',
+        function ($scope, CouponServices) {
+            CouponServices.listCoupons({
+                success: function(result){
+                    $scope.coupons = result;
+                }
+            })
+        }
+     );

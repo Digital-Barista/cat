@@ -1,14 +1,15 @@
 /* line 1, ../sass/_left-menu.scss */
 .left-menu {
-  float: left;
   width: 200px;
   padding: 0;
+  margin-top: 51px;
+  position: fixed;
 }
-/* line 6, ../sass/_left-menu.scss */
+/* line 7, ../sass/_left-menu.scss */
 .left-menu .link {
   color: #005580;
 }
-/* line 9, ../sass/_left-menu.scss */
+/* line 10, ../sass/_left-menu.scss */
 .left-menu .link:hover {
   background-color: #eee;
 }
@@ -1562,12 +1563,18 @@
   /*must have*/
 }
 
-/* line 7, ../sass/app.scss */
+/* line 1, ../sass/_coupons.scss */
+.redeem {
+  margin: 0 auto;
+  width: 363px;
+}
+
+/* line 8, ../sass/app.scss */
 ul {
   list-style: none;
 }
 
-/* line 11, ../sass/app.scss */
+/* line 12, ../sass/app.scss */
 h2 {
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.6);
@@ -1575,20 +1582,17 @@ h2 {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* line 17, ../sass/app.scss */
+/* line 18, ../sass/app.scss */
 .main-container {
-  width: 940px;
-  margin: 60px auto 0 auto;
+  margin-top: 60px;
 }
 
 /* line 22, ../sass/app.scss */
 .main-view {
-  float: left;
-  margin-left: 30px;
-  width: 700px;
+  margin-left: 220px;
 }
 
-/* line 28, ../sass/app.scss */
+/* line 27, ../sass/app.scss */
 .bold {
   font-weight: bold;
 }
