@@ -31,6 +31,6 @@
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" ng-click="confirmSend()">Send</button>
+        <button class="btn btn-primary" ng-click="confirmSend()" ng-class="{disabled: !message.facebookEntryPoint}">Send</button>
     </div>
 </div>

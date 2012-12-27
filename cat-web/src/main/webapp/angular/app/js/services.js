@@ -52,7 +52,8 @@ angular.module('cat.services', [])
 
                 function success(result){
                     if (args.success){
-                        args.success(result);
+                        clientList = result;
+                        args.success(clientList);
                     }
                 }
             }

@@ -7,7 +7,7 @@ angular.module('cat.controllers', [])
         }
     )
     .controller('SendMessageCtrl',
-        function ($scope) {
+        function ($scope, $rootScope) {
             var emptyMessage = {
                 message: ''
             }
@@ -25,10 +25,15 @@ angular.module('cat.controllers', [])
             $scope.chooseNetworks = function(){
                 $scope.showNetwork = true;
             }
+
+            $rootScope.$on('confirmChooseNetwork', function(e, message){
+                $scope.contacts = message.facebook == 'all' ? 'all' : message.facebookContacts;
+                $scope.showSendMessage = true;
+            });
         }
     )
     .controller('SendCouponCtrl',
-        function ($scope) {
+        function ($scope, $rootScope) {
            var emptyCoupon = {
                infiniteCoupons: true,
                infiniteRedemptions: true,
@@ -51,17 +56,14 @@ angular.module('cat.controllers', [])
                 $scope.showConfirmReset = false;
             }
 
-            $scope.sendCoupon = function(){
-                $scope.showSend = true;
-            }
-
-            $scope.confirmSend = function(){
-
-            }
-
             $scope.chooseNetworks = function(){
                 $scope.showNetwork = true;
             }
+
+            $rootScope.$on('confirmChooseNetwork', function(e, message){
+                $scope.contacts = message.facebook == 'all' ? 'all' : message.facebookContacts;
+                $scope.showSendCoupon = true;
+            });
         }
     )
     .controller('SentBroadcastCtrl',

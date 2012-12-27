@@ -34,16 +34,24 @@ angular.module('cat.directives', [])
             }
         }
     })
-    .directive('choosenetworks', function(ClientServices){
+    .directive('choosenetworks', function($rootScope, ClientServices){
         return {
             restrict: 'A',
             replace: true,
             templateUrl: 'partials/choosenetworks.html',
             link: function(scope, element, attrs){
-                scope.entryPointTypes = ['Facebook', 'Twitter', 'SMS', 'Email'];
                 scope.message = {
                     facebook: 'all',
                     facebookContacts: 0
+                }
+
+                scope.$watch('selectedClient', function(){
+                    delete scope.message.facebookEntryPoint;
+                });
+
+                scope.confirmSend = function(){
+                    scope.showNetwork = false;
+                    $rootScope.$broadcast('confirmChooseNetwork', scope.message);
                 }
 
                 ClientServices.listClients({
