@@ -3,6 +3,16 @@
 /* Filters */
 
 angular.module('cat.filters', [])
+    .filter('entryPointType', function(){
+        return function(input, entryPointType){
+            if (!input){
+                return [];
+            }
+            return $.grep(input, function(entry){
+               return entry.type == entryPointType;
+            });
+        }
+    })
     .filter('timelength', function(){
         return function(input){
             if (input <= 0)

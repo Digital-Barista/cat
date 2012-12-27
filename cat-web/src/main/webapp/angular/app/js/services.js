@@ -31,6 +31,33 @@ angular.module('cat.services', [])
             }
         }
     })
+    .factory('ClientServices', function(ServiceUtil){
+        var clientUrl = contextPath + '/rs/clients',
+            clientList;
+
+        return {
+            listClients: function(params){
+                var args = $.extend({}, params);
+
+                if (!clientList || args.reload){
+                    ServiceUtil.request({
+                        method: 'GET',
+                        url: clientUrl,
+                        data: args.data
+                    }).success(success);
+                }
+                else {
+                    success(clientList);
+                }
+
+                function success(result){
+                    if (args.success){
+                        args.success(result);
+                    }
+                }
+            }
+        }
+    })
     .factory('CouponServices', function(ServiceUtil){
         var couponUrl = contextPath + '/rs/coupons';
 

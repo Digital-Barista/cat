@@ -34,16 +34,24 @@ angular.module('cat.directives', [])
             }
         }
     })
-    .directive('choosenetworks', function(){
+    .directive('choosenetworks', function(ClientServices){
         return {
             restrict: 'A',
             replace: true,
             templateUrl: 'partials/choosenetworks.html',
             link: function(scope, element, attrs){
+                scope.entryPointTypes = ['Facebook', 'Twitter', 'SMS', 'Email'];
                 scope.message = {
                     facebook: 'all',
                     facebookContacts: 0
                 }
+
+                ClientServices.listClients({
+                    success: function(result){
+                        scope.clients = result;
+                        scope.selectedClient = scope.clients ? scope.clients[0] : undefined;
+                    }
+                });
             }
         }
     })
