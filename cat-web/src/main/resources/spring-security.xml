@@ -19,8 +19,13 @@
 	</security:http>-->
 
 	<!-- This is the important part of the web configuration.  The rest is setup. -->
-
-	<bean id="AppFilterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+  <security:global-method-security pre-post-annotations="enabled"
+                                   jsr250-annotations="enabled"
+                                   authentication-manager-ref="authenticationManager">
+    <security:expression-handler ref="expressionHandler"/>
+  </security:global-method-security>
+	
+  <bean id="AppFilterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
 	  <property name="authenticationManager" ref="authenticationManager"/>
 	  <property name="accessDecisionManager" ref="webAccessDecisionManager"/>
 	  <property name="securityMetadataSource">

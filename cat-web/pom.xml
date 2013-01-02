@@ -87,6 +87,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+        <groupId>com.digitalbarista.cat</groupId>
+        <artifactId>cat-mail-poller</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
@@ -229,6 +235,18 @@
       <groupId>com.adobe.blazeds</groupId>
       <artifactId>blazeds-proxy</artifactId>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jettison</groupId>
+      <artifactId>jettison</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.restfb</groupId>
+        <artifactId>restfb</artifactId>
     </dependency>
   </dependencies>
 </project>

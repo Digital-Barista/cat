@@ -17,7 +17,35 @@
         http://www.springframework.org/schema/security/spring-security-3.1.xsd">
   
 	<context:component-scan base-package="com.digitalbarista"/>
-	
+
+  <bean id="JmsConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+    <property name="jndiName" value="java:/JmsXA"/>
+   </bean>
+
+  <bean id="fcDestinationResolver" class="com.nike.nikeid.fc.jms.JMSDestinationResolver">
+    <property name="jndiPrefixes">
+      <list>
+        <value>java:comp/env/</value>
+      </list>
+    </property>
+  </bean>  
+  	
+  <bean id="MailListenerMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <property name="connectionFactory" ref="JmsConnectionFactory"/>
+    <property name="destinationResolver" ref="fcDestinationResolver"/>
+    <property name="destinationName" value="cat/messaging/MailEvents"/>
+    <property name="messageListener" ref="CATMailListener"/>
+    <property name="sessionTransacted" value="true"/>
+  </bean>
+
+  <bean id="MainEventMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <property name="connectionFactory" ref="JmsConnectionFactory"/>
+    <property name="destinationResolver" ref="fcDestinationResolver"/>
+    <property name="destinationName" value="cat/messaging/Events"/>
+    <property name="messageListener" ref="MainEventHandler"/>
+    <property name="sessionTransacted" value="true"/>
+  </bean>
+
   <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
     <property name="defaultHandler" ref="defaultServletPassthroughHandler"/>
   </bean>

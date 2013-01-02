@@ -1,52 +1,35 @@
 package com.digitalbarista.cat.ejb.message;
 
-import java.util.Date;
 
-import javax.annotation.Resource;
 import javax.annotation.security.RunAs;
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
-import javax.ejb.SessionContext;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
-import org.jboss.annotation.security.RunAsPrincipal;
 
 import com.digitalbarista.cat.message.event.CATEvent;
-import com.digitalbarista.cat.message.event.CATEventHandlerFactoryInterface;
+import com.digitalbarista.cat.message.event.CATEventHandlerFactory;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Message-Driven Bean implementation class for: MainEventHandler
  *
  */
-@MessageDriven(activationConfig={
-		   @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
-		   @ActivationConfigProperty(propertyName="destination", propertyValue="cat/messaging/Events"),
-	        @ActivationConfigProperty(propertyName="user", propertyValue="admin"),
-	        @ActivationConfigProperty(propertyName="DLQUser", propertyValue="admin"),
-			@ActivationConfigProperty(propertyName="password", propertyValue="admin"),
-		    @ActivationConfigProperty(propertyName="DLQPassword", propertyValue="admin")
-		})
-@RunAsPrincipal("admin")
+@Component("MainEventHandler")
 @RunAs("admin")
+@Transactional(propagation=Propagation.REQUIRED)
 public class MainEventHandler implements MessageListener {
 
-	@Resource
-	private SessionContext ctx; //Used to flag rollbacks.
+  @Autowired
+  private SessionFactory sf;
+  
+  @Autowired
+  private CATEventHandlerFactory handlerFactory;
 	
-	@PersistenceContext(unitName="cat-data")
-	private EntityManager em;
-	
-	@EJB(name="ejb/cat/events/EventHandlerFactory")
-	private CATEventHandlerFactoryInterface handlerFactory;
-	
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void onMessage(Message message) {
     	ObjectMessage om = (ObjectMessage)message;
     	try {
@@ -57,9 +40,8 @@ public class MainEventHandler implements MessageListener {
 			}
 			handlerFactory.processEvent(e);
 		} catch (Exception ex) {
-			ctx.setRollbackOnly();
-			ex.printStackTrace();
-		}
+      throw new RuntimeException(ex);
+    }
     }
 
 }

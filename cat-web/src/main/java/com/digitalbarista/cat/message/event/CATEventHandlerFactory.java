@@ -2,7 +2,6 @@ package com.digitalbarista.cat.message.event;
 
 import javax.annotation.security.RunAs;
 
-import org.jboss.annotation.security.RunAsPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.ApplicationContext;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RunAs("admin")
-@RunAsPrincipal("admin")
 public class CATEventHandlerFactory {
 
   @Autowired
