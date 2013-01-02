@@ -22,7 +22,6 @@
     <module>cat-client-flex</module>
     <module>cat-admin-flex</module>
     <module>cat-web</module>
-    <module>cat-ear</module>
   </modules>
 
   <build>
