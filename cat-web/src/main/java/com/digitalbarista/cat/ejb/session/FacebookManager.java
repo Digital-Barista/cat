@@ -180,7 +180,7 @@ public class FacebookManager
 
   @RequestMapping(method=RequestMethod.POST,
                   consumes="application/x-www-form-urlencoded",
-                  value="/messages/{facebookMessageId}/{response}")
+                  value="/messages/{facebookMessageId}")
 	public void delete(@PathVariable("facebookMessageId") Integer facebookMessageId, 
                      @ModelAttribute("signedRequest") String signedRequest, 
                      HttpServletRequest ui) throws FacebookManagerException

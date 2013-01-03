@@ -25,6 +25,10 @@
     <security:expression-handler ref="expressionHandler"/>
   </security:global-method-security>
 	
+  <bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+    <property name="permissionEvaluator" ref="CATPermissionEvaluator"/> <!--Annotation configured-->
+  </bean>
+
   <bean id="AppFilterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
 	  <property name="authenticationManager" ref="authenticationManager"/>
 	  <property name="accessDecisionManager" ref="webAccessDecisionManager"/>

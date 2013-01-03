@@ -42,6 +42,7 @@ import flex.messaging.io.ArrayCollection;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,14 +66,14 @@ public class SubscriptionManager {
 	private Logger logger = LogManager.getLogger(SubscriptionManager.class);
 	
   @Autowired
+  private ApplicationContext ctx;
+  
+  @Autowired
   private SessionFactory sf;
   
   @Autowired
 	private ContactManager contactManager;
-
-  @Autowired
-	private CampaignManager campaignManager;
-
+  
   @Autowired
 	private ClientManager clientManager;
 	
@@ -128,6 +129,8 @@ public class SubscriptionManager {
 	@SuppressWarnings("unchecked")
 	public void subscribeToEntryPoint(String address, String entryPointUID, EntryPointType subscriptionType) {
 		
+    CampaignManager campaignManager = ctx.getBean(CampaignManager.class);
+    
 		// If there are no addresses we're done
 		if (address == null)
 			return;
@@ -256,6 +259,8 @@ public class SubscriptionManager {
 
 	public void subscribeContactsToEntryPoint(List<Contact> contacts, String entryPointUID) 
 	{
+    CampaignManager campaignManager = ctx.getBean(CampaignManager.class);
+    
 		// Sort contacts by type
 		Collections.sort(contacts);
 
@@ -302,7 +307,9 @@ public class SubscriptionManager {
 	@SuppressWarnings("unchecked")
 	public List<Subscriber> getSubscribedAddresses(String nodeUID) 
 	{
-		// Load node and campaign
+    CampaignManager campaignManager = ctx.getBean(CampaignManager.class);
+
+    // Load node and campaign
 		Node node = campaignManager.getNode(nodeUID);
 		CampaignDO camp = campaignManager.getSimpleCampaign(node.getCampaignUID());
 		

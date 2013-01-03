@@ -22,51 +22,51 @@ public class CATTimer implements Runnable,Synchronization {
 	
 	@Override
 	public void run() {
-		if(Thread.currentThread()!=timerThread)
-			throw new IllegalStateException("The CATTimer may only be started from the start() method.  Check your code.");
-		while(running)
-		{
-			try
-			{
-				synchronized(monitor)
-				{
-					InitialContext ic = new InitialContext();
-					EventTimerManager man = (EventTimerManager)ic.lookup(ejbName);
-					if(man==null)
-					{
-						monitor.wait();
-						continue;
-					}
-					man.fireOverdueEvents();
-					Date wakeTime=man.getNextEventTime();
-					if(wakeTime==null)
-					{
-						monitor.wait();
-						continue;
-					}
-					Date now = new Date();
-					if(now.after(wakeTime))
-						continue;
-					monitor.wait(wakeTime.getTime()-now.getTime());
-				}
-			}
-			catch(InterruptedException e)
-			{
-				continue;
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-				try
-				{
-					synchronized(monitor)
-					{
-						monitor.wait(60000);
-					}
-				}catch(InterruptedException ex){}
-				continue;
-			}
-		}
+//		if(Thread.currentThread()!=timerThread)
+//			throw new IllegalStateException("The CATTimer may only be started from the start() method.  Check your code.");
+//		while(running)
+//		{
+//			try
+//			{
+//				synchronized(monitor)
+//				{
+//					InitialContext ic = new InitialContext();
+//					EventTimerManager man = (EventTimerManager)ic.lookup(ejbName);
+//					if(man==null)
+//					{
+//						monitor.wait();
+//						continue;
+//					}
+//					man.fireOverdueEvents();
+//					Date wakeTime=man.getNextEventTime();
+//					if(wakeTime==null)
+//					{
+//						monitor.wait();
+//						continue;
+//					}
+//					Date now = new Date();
+//					if(now.after(wakeTime))
+//						continue;
+//					monitor.wait(wakeTime.getTime()-now.getTime());
+//				}
+//			}
+//			catch(InterruptedException e)
+//			{
+//				continue;
+//			}
+//			catch(Exception e)
+//			{
+//				e.printStackTrace();
+//				try
+//				{
+//					synchronized(monitor)
+//					{
+//						monitor.wait(60000);
+//					}
+//				}catch(InterruptedException ex){}
+//				continue;
+//			}
+//		}
 	}
 	
 	public static void stop()

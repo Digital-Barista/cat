@@ -66,6 +66,58 @@
           </archive>
         </configuration>
       </plugin>
+      <plugin>
+        <!-- http://docs.codehaus.org/display/JETTY/Maven+Jetty+Plugin -->
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>6.1.26</version>
+        <configuration>
+          <scanIntervalSeconds>3</scanIntervalSeconds>
+          <!-- jetty config files processed for property replacement by testResources -->
+          <jettyConfig>${project.basedir}/env/jetty.xml</jettyConfig>
+          <jettyEnvXml>${project.basedir}/env/jetty-env.xml</jettyEnvXml> <!-- define datasource for Jetty JNDI -->
+          <contextPath>/cat</contextPath>
+          <systemProperties>
+            <systemProperty>
+              <name>log4j.configuration</name>
+              <value>file:/${project.basedir}/env/log4j.properties</value>
+            </systemProperty>
+          </systemProperties>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.22</version>
+          </dependency>                  
+          <dependency>
+            <!-- BTM transaction manager -->
+            <groupId>org.codehaus.btm</groupId>
+            <artifactId>btm-jetty6-lifecycle</artifactId>
+            <version>1.3.3</version>
+          </dependency>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.2</version>
+          </dependency>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.2</version>
+          </dependency>
+          <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-core</artifactId>
+            <version>5.7.0</version>
+          </dependency>
+        </dependencies>
+      </plugin>
     </plugins>
   </build>
 
@@ -122,6 +174,10 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
+      <artifactId>spring-oxm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
     </dependency>
     <dependency>
@@ -169,6 +225,10 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.transaction</groupId>
@@ -247,6 +307,26 @@
     <dependency>
         <groupId>com.restfb</groupId>
         <artifactId>restfb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-lgpl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
     </dependency>
   </dependencies>
 </project>

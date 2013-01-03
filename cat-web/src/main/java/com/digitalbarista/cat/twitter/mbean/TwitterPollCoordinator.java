@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.OAuthProvider;
@@ -22,7 +20,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import com.digitalbarista.cat.data.EntryPointDO;
@@ -30,6 +27,8 @@ import com.digitalbarista.cat.data.EntryPointType;
 import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -59,13 +58,10 @@ public class TwitterPollCoordinator {
 	private String cfName = "java:/JmsXA";
 	private String destName = "cat/messaging/Events";
 	private String twitterSendDestName = "cat/messaging/TwitterOutgoing";
-	
-	@PersistenceContext(unitName="cat-data")
-	private EntityManager em;
-	
-	@PersistenceContext(unitName="cat-data")
-	private Session session;
-	
+
+  @Autowired
+  private SessionFactory sf;
+  
 	private Logger log = LogManager.getLogger(TwitterPollCoordinator.class);
 	
 	public int checkMessages(String account) {
@@ -303,7 +299,7 @@ public class TwitterPollCoordinator {
 					screenName=kv[1];
 			}
 			
-			Criteria crit = session.createCriteria(EntryPointDO.class);
+			Criteria crit = sf.getCurrentSession().createCriteria(EntryPointDO.class);
 			crit.add(Restrictions.eq("type", EntryPointType.Twitter));
 			crit.add(Restrictions.eq("value", screenName));
 			EntryPointDO entry = (EntryPointDO)crit.uniqueResult();

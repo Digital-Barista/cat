@@ -14,27 +14,23 @@ import com.digitalbarista.cat.data.ContactTagDO;
 import com.digitalbarista.cat.data.NodeDO;
 import com.digitalbarista.cat.data.NodeInfoDO;
 import com.digitalbarista.cat.ejb.session.CacheAccessManager;
-import com.digitalbarista.cat.ejb.session.CampaignManager;
-import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
+import com.digitalbarista.cat.ejb.session.CampaignManager;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component("nodeFillInterceptor")
+@Lazy
 public class NodeFillInterceptor implements MethodInterceptor {
 
     @Autowired
-    private CampaignManager campaignManager;
-
-    @Autowired
-    private ContactManager contactManager;
-
-    @Autowired
-    private CacheAccessManager cache;
-
+    private ApplicationContext ctx;
+  
     @Autowired
     private SessionFactory sf;
     
@@ -60,6 +56,8 @@ public class NodeFillInterceptor implements MethodInterceptor {
 
     private Node fillNode(Node nodeToFill, Integer version)
     {
+            CacheAccessManager cache = ctx.getBean(CacheAccessManager.class);
+            CampaignManager campaignManager = ctx.getBean(CampaignManager.class);
             if(nodeToFill instanceof TaggingNode)
             {
                     String key = nodeToFill.getUid()+"/"+version;

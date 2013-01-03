@@ -15,6 +15,7 @@ import com.digitalbarista.cat.util.SecurityUtil;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,13 +31,13 @@ import org.springframework.web.bind.annotation.RequestParam;
                 produces={"application/xml","application/json"})
 @Transactional(propagation=Propagation.REQUIRED)
 public class LayoutManager {
-
+  
+        @Autowired
+        private ApplicationContext ctx;
+  
         @Autowired
         UserManager userManager;
         
-        @Autowired
-        CampaignManager campaignManager;
-	
         @Autowired
         SessionFactory sf;
         
@@ -103,6 +104,7 @@ public class LayoutManager {
 
         @RequestMapping(method=RequestMethod.POST)
 	public void save(@RequestBody LayoutInfo layout) {
+    CampaignManager campaignManager = ctx.getBean(CampaignManager.class);
 		if(layout==null)
 			throw new IllegalArgumentException("Cannot save a null layout.");
 
@@ -153,6 +155,7 @@ public class LayoutManager {
 	
         @RequestMapping(method=RequestMethod.GET,value="/{campaign-uid}/{version}")
 	public List<LayoutInfo> getLayoutsByCampaignAndVersion(@PathVariable("campaign-uid") String uid,@PathVariable("version") Integer version) {
+    CampaignManager campaignManager = ctx.getBean(CampaignManager.class);
 		CampaignDO c = campaignManager.getSimpleCampaign(uid);
 		
 		if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), c.getClient().getPrimaryKey()))

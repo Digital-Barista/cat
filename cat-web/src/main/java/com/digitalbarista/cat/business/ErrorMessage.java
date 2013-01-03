@@ -16,6 +16,8 @@ public class ErrorMessage {
   private String message;
   private String longMessage;
 
+  private ErrorMessage(){}
+  
   public ErrorMessage(Integer code, String message, String longMessage)
   {
     this.code = code;

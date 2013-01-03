@@ -16,13 +16,17 @@
         http://www.springframework.org/schema/security
         http://www.springframework.org/schema/security/spring-security-3.1.xsd">
   
-	<context:component-scan base-package="com.digitalbarista"/>
+  <context:component-scan base-package="com.digitalbarista" />
+  <context:annotation-config/>
+	
+  <mvc:annotation-driven/>
+  <mvc:default-servlet-handler/>
 
   <bean id="JmsConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
     <property name="jndiName" value="java:/JmsXA"/>
    </bean>
 
-  <bean id="fcDestinationResolver" class="com.nike.nikeid.fc.jms.JMSDestinationResolver">
+  <bean id="CATDestinationResolver" class="com.digitalbarista.cat.jms.CATDestinationResolver">
     <property name="jndiPrefixes">
       <list>
         <value>java:comp/env/</value>
@@ -32,7 +36,7 @@
   	
   <bean id="MailListenerMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
     <property name="connectionFactory" ref="JmsConnectionFactory"/>
-    <property name="destinationResolver" ref="fcDestinationResolver"/>
+    <property name="destinationResolver" ref="CATDestinationResolver"/>
     <property name="destinationName" value="cat/messaging/MailEvents"/>
     <property name="messageListener" ref="CATMailListener"/>
     <property name="sessionTransacted" value="true"/>
@@ -40,28 +44,65 @@
 
   <bean id="MainEventMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
     <property name="connectionFactory" ref="JmsConnectionFactory"/>
-    <property name="destinationResolver" ref="fcDestinationResolver"/>
+    <property name="destinationResolver" ref="CATDestinationResolver"/>
     <property name="destinationName" value="cat/messaging/Events"/>
     <property name="messageListener" ref="MainEventHandler"/>
     <property name="sessionTransacted" value="true"/>
   </bean>
-
-  <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
-    <property name="defaultHandler" ref="defaultServletPassthroughHandler"/>
-  </bean>
-  <bean id="defaultServletPassthroughHandler" class="org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler"/>
  
+  <bean id="JSONConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
+
+  <bean id="JAXBMarshaller" class="com.digitalbarista.cat.util.CATJaxb2Marshaller"/>
+
+  <bean id="XMLConverter" class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+    <property name="marshaller" ref="JAXBMarshaller"/>
+    <property name="unmarshaller" ref="JAXBMarshaller"/>
+  </bean>
+    
+  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+    <property name="messageConverters">
+      <list>
+        <ref bean="XMLConverter"/>
+        <ref bean="JSONConverter"/>
+      </list>
+    </property>
+  </bean>
+
   <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
 	  <property name="templateLoaderPath" value="/WEB-INF/freemarker/"/>
 	</bean>
 	
 	<bean id="freemarkerViewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+    <property name="order" value="2"/>
     <property name="cache" value="true"/>
 	  <property name="prefix" value=""/>
 	  <property name="suffix" value=".ftl"/>
 	</bean>
   
-  <bean id="auditAutoProxy" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+    <bean id="serviceViewResolver" class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+      <property name="favorPathExtension" value="true"/>
+      <property name="order" value="1"/>
+      <property name="mediaTypes">
+        <map>
+          <entry key="json" value="application/json"/>
+          <entry key="xml" value="application/xml"/>
+        </map>
+      </property>
+      <property name="defaultViews">
+        <list>
+          <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+            <property name="extractValueFromSingleKeyModel" value="true"/>
+          </bean>
+          <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+            <constructor-arg>
+              <ref bean="JAXBMarshaller"/>
+            </constructor-arg>
+          </bean>
+        </list>
+      </property>
+    </bean>
+
+    <bean id="auditAutoProxy" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
     <property name="beanNames" value="*Manager"/>
     <property name="interceptorNames">
       <list>
@@ -78,4 +119,6 @@
       </list>
     </property>  
   </bean>
+
+  <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 </beans>

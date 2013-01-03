@@ -26,11 +26,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityUtil {
         
-        @Autowired
-        UserManager userManager;
-        
-        @Autowired
-        CacheAccessManager cache;
+  @Autowired
+  private UserManager userManager;
+
+  @Autowired
+  private CacheAccessManager cache;
     
 	public boolean isAdmin(SecurityContext ctx)
 	{

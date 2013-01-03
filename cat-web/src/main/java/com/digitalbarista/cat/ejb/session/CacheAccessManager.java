@@ -16,7 +16,7 @@ public class CacheAccessManager {
 		PermissionCache
 	};
 	
-	private CacheManager manager = new CacheManager(getClass().getResource("/cat-ehcache.xml"));
+	private static CacheManager manager = new CacheManager(CacheAccessManager.class.getResource("/cat-ehcache.xml"));
 	
 	private Cache getCache(CacheName name)
 	{

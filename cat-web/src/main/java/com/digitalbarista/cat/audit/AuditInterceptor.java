@@ -12,9 +12,11 @@ import org.hibernate.SessionFactory;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component("auditInterceptor")
+@Lazy
 public class AuditInterceptor implements MethodInterceptor {
 
 	private static final String dateFormat="MM/dd/yyyy HH:mm:ss.SSS";
@@ -23,7 +25,7 @@ public class AuditInterceptor implements MethodInterceptor {
   private SessionFactory sf;
   
   @Autowired
-  SecurityUtil securityUtil;
+  private SecurityUtil securityUtil;
 
 	public Object invoke(MethodInvocation mi) throws Throwable
 	{
