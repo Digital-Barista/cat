@@ -26,9 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller("LayoutManager")
-@RequestMapping(value="/layouts",
-                consumes={"application/xml","application/json"},
-                produces={"application/xml","application/json"})
+@RequestMapping(value={"/rest/layouts","/rs/layouts"})
 @Transactional(propagation=Propagation.REQUIRED)
 public class LayoutManager {
   

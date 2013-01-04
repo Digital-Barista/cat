@@ -29,9 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller("CouponManager")
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value="/coupons",
-                produces={"application/xml","application/json"},
-                consumes={"application/xml","application/json"})
+@RequestMapping(value={"/rest/coupons","/rs/coupons"})
 public class CouponManager{
 
 	private static final int SUCCESS=0;

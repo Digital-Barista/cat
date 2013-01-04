@@ -35,10 +35,10 @@ public class SecurityUtil {
 	public boolean isAdmin(SecurityContext ctx)
 	{
 		for(GrantedAuthority auth : ctx.getAuthentication().getAuthorities())
-                {
-                    if("ROLE_admin".equals(auth.getAuthority()))
-                        return true;
-                }
+    {
+        if("ROLE_admin".equals(auth.getAuthority()))
+            return true;
+    }
 		return false;
 	}
 	
@@ -47,10 +47,10 @@ public class SecurityUtil {
             return isAdmin(SecurityContextHolder.getContext());
 	}
 	
-        public Set<Long> extractClientIds(Session session)
-        {
-            return extractClientIds(SecurityContextHolder.getContext(),session);
-        }
+  public Set<Long> extractClientIds(Session session)
+  {
+      return extractClientIds(SecurityContextHolder.getContext(),session);
+  }
         
 	public Set<Long> extractClientIds(SecurityContext ctx, Session session)
 	{

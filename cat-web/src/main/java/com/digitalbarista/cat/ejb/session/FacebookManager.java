@@ -92,9 +92,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 @Transactional(propagation= Propagation.REQUIRED)
-@RequestMapping(value="/facebook",
-                consumes={"application/xml","application/json"},
-                produces={"application/xml","application/json"})
+@RequestMapping(value={"/rest/facebook","/rs/facebook"})
 @RunAs("admin")
 public class FacebookManager
 {
@@ -180,7 +178,7 @@ public class FacebookManager
 
   @RequestMapping(method=RequestMethod.POST,
                   consumes="application/x-www-form-urlencoded",
-                  value="/messages/{facebookMessageId}")
+                  value="/rs/messages/{facebookMessageId}")
 	public void delete(@PathVariable("facebookMessageId") Integer facebookMessageId, 
                      @ModelAttribute("signedRequest") String signedRequest, 
                      HttpServletRequest ui) throws FacebookManagerException

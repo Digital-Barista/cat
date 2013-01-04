@@ -51,9 +51,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller("ClientManager")
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value="/clients",
-                 produces={"application/xml","application/json"},
-                 consumes={"application/xml","application/json"})
+@RequestMapping(value={"/rest/clients","/rs/clients"})
 public class ClientManager{
 
     public static final Integer DEFAULT_MAX_KEYWORDS = 5;

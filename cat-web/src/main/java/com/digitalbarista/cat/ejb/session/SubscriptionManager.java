@@ -56,9 +56,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * Session Bean implementation class SubscriptionManagerImpl
  */
 @Controller
-@RequestMapping(value="/subscriptions",
-                consumes={"application/xml","application/json"},
-                produces={"application/xml","application/json"})
+@RequestMapping(value={"/rest/subscriptions","/rs/subscriptions"})
 @Transactional(propagation=Propagation.REQUIRED)
 @RunAs("admin")
 public class SubscriptionManager {

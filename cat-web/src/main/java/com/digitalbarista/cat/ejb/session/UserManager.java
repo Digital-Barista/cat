@@ -37,9 +37,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller("UserManager")
 @Lazy
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value="/users",
-                produces={"application/xml","application/json"},
-                consumes={"application/xml","application/json"})
+@RequestMapping(value={"/rest/users","/rs/users"})
 public class UserManager {
 	
     @Autowired

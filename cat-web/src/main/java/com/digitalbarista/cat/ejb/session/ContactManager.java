@@ -54,9 +54,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller("ContactManager")
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value="/contacts",
-                produces={"application/xml","application/json"},
-                consumes={"application/xml","application/json"})
+@RequestMapping(value={"/rest/contacts","/rs/contacts"})
 public class ContactManager{
 
 	private Logger log = LogManager.getLogger(ContactManager.class);

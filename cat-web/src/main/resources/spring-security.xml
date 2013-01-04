@@ -37,6 +37,8 @@
         <security:intercept-url pattern="/j_spring_security_switch_user" access="ROLE_admin"/>
         <security:intercept-url pattern="/login/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <security:intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/rs/**" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/rest/**" access="ROLE_admin,ROLE_client"/>
         <security:intercept-url pattern="/" access="ROLE_admin,ROLE_client"/>
       </security:filter-security-metadata-source>
 	  </property>
@@ -45,8 +47,14 @@
 	<alias name="filterChainProxy" alias="springSecurityFilterChain"/>
 	<bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
 		<security:filter-chain-map path-type="ant">
-      <security:filter-chain pattern="/rs/**" filters="RESTSecurityContextPersistenceFilter,
-                                 RESTCredentialHarvesterFilter"/>
+			<security:filter-chain pattern="/rest/**" filters="AppSecurityContextPersistenceFilter,
+                                 BasicAuthenticationFilter,
+															   AppExceptionTranslationFilter,
+															   AppFilterSecurityInterceptor"/>
+			<security:filter-chain pattern="/rs/**" filters="AppSecurityContextPersistenceFilter,
+                                 BasicAuthenticationFilter,
+															   AppExceptionTranslationFilter,
+															   AppFilterSecurityInterceptor"/>
 			<security:filter-chain pattern="/**" filters="AppSecurityContextPersistenceFilter,
 															   LogoutFilter,
 															   LoginPageAuthenticationFilter,
@@ -57,8 +65,6 @@
 															   SwitchUserFilter"/>
 		</security:filter-chain-map>
 	</bean>
-
-  <bean id="RESTCredentialHarvesterFilter" class="com.digitalbarista.cat.security.RESTSessionCredentialHarvesterFilter"/>
 
   <bean id="SwitchUserFilter" class="com.digitalbarista.cat.security.FixedSwitchUserFilter">
 	    <property name="userDetailsService" ref="CATUserService" />

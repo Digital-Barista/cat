@@ -37,19 +37,22 @@ public class NodeFillInterceptor implements MethodInterceptor {
     public Object invoke(MethodInvocation mi) throws Throwable
     {
             Integer version=null;
-            if(Campaign.class.isAssignableFrom(mi.getMethod().getReturnType()))
+            if(mi.getMethod().getDeclaringClass().equals(CampaignManager.class))
             {
-                    Campaign camp = (Campaign)mi.proceed();
-                    if(camp==null)
-                            return null;
-                    for(Node node : camp.getNodes())
-                            fillNode(node,camp.getCurrentVersion());
-                    return camp;
-            } else if(Node.class.isAssignableFrom(mi.getMethod().getReturnType())){
-                    if(mi.getArguments().length==2 && Integer.class.isAssignableFrom(mi.getArguments()[1].getClass()))
-                            version=(Integer)mi.getArguments()[1];
-                    Node ret = fillNode((Node)mi.proceed(),version);
-                    return ret;
+              if(Campaign.class.isAssignableFrom(mi.getMethod().getReturnType()))
+              {
+                      Campaign camp = (Campaign)mi.proceed();
+                      if(camp==null)
+                              return null;
+                      for(Node node : camp.getNodes())
+                              fillNode(node,camp.getCurrentVersion());
+                      return camp;
+              } else if(Node.class.isAssignableFrom(mi.getMethod().getReturnType())){
+                      if(mi.getArguments().length==2 && Integer.class.isAssignableFrom(mi.getArguments()[1].getClass()))
+                              version=(Integer)mi.getArguments()[1];
+                      Node ret = fillNode((Node)mi.proceed(),version);
+                      return ret;
+              }
             }
             return mi.proceed();
     }

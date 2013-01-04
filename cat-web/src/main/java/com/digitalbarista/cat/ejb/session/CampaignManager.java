@@ -86,7 +86,6 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,52 +99,50 @@ import org.springframework.web.bind.annotation.RequestParam;
  * Session Bean implementation class CampaignManagerImpl
  */
 
-@Transactional(propagation= Propagation.REQUIRED)
 @Controller("CampaignManager")
-@RequestMapping(value="/campaigns",
-                consumes={"application/xml","application/json"},
-                produces={"application/xml","application/json"})
+@Transactional(propagation=Propagation.REQUIRED)
+@RequestMapping(value={"/rest/campaigns","/rs/campaigns"})
 public class CampaignManager {
 
 	Logger log = LogManager.getLogger(getClass());
 		
-        @Autowired
-        private SessionFactory sf;
-        
-        @Autowired
-        EventTimerManager timer;
-	
-        @Autowired
-        EventManager eventManager;
-	
-        @Autowired
-        UserManager userManager;
-	
-        @Autowired
-        LayoutManager layoutManager;
-	
-        @Autowired
-        ContactManager contactManager;
-	
-        @Autowired
-        CacheAccessManager cacheAccessManager;
-        
-        @Autowired
-        SubscriptionManager subscriptionManager;
-	
-        @Autowired
-        SecurityUtil securityUtil;
+  @Autowired
+  private SessionFactory sf;
+
+  @Autowired
+  EventTimerManager timer;
+
+  @Autowired
+  EventManager eventManager;
+
+  @Autowired
+  UserManager userManager;
+
+  @Autowired
+  LayoutManager layoutManager;
+
+  @Autowired
+  ContactManager contactManager;
+
+  @Autowired
+  CacheAccessManager cacheAccessManager;
+
+  @Autowired
+  SubscriptionManager subscriptionManager;
+
+  @Autowired
+  SecurityUtil securityUtil;
         
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.GET)
-        public List<Campaign> getAllCampaigns() 
+  public List<Campaign> getAllCampaigns() 
 	{
 		return getCampaigns(null);
 	}
 
 	@SuppressWarnings("unchecked")
-        @RequestMapping(method=RequestMethod.GET,value="/templates")
-        public List<Campaign> getAllTemplates() 
+  @RequestMapping(method=RequestMethod.GET,value="/templates")
+  public List<Campaign> getAllTemplates() 
 	{
 		return getCampaignTemplates(null);
 	}
@@ -199,7 +196,7 @@ public class CampaignManager {
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/broadcast")
+  @RequestMapping(method=RequestMethod.GET,value="/broadcast")
 	public List<BroadcastInfo> getBroadcastCampaigns(@RequestParam(value="clientID") List<Long> clientIDs)
 	{
 		List<BroadcastInfo> ret = new ArrayList<BroadcastInfo>();
@@ -297,7 +294,7 @@ public class CampaignManager {
 			return ret;
 	}
 	
-        @RequestMapping(method=RequestMethod.GET,value="/connectors/{uid}")
+  @RequestMapping(method=RequestMethod.GET,value="/connectors/{uid}")
 	public Connector getConnector(@PathVariable("uid") String connectorUUID) {
 		ConnectorDO conn = getSimpleConnector(connectorUUID);
 		Connector ret = Connector.createConnectorBO(conn);
@@ -305,7 +302,7 @@ public class CampaignManager {
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/connectors/{uid}/versions/{version}")
+  @RequestMapping(method=RequestMethod.GET,value="/connectors/{uid}/versions/{version}")
 	public Connector getSpecificConnectorVersion(@PathVariable("uid") String connectorUUID, @PathVariable("version") Integer version) {
 		String key = connectorUUID+"/"+version;
 		Connector ret = (Connector)cacheAccessManager.getCachedObject(CacheName.ConnectorCache, key);
@@ -356,7 +353,7 @@ public class CampaignManager {
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED)
-        @RequestMapping(method=RequestMethod.GET, value="/{uid}")
+  @RequestMapping(method=RequestMethod.GET, value="/{uid}")
 	public Campaign getDetailedCampaign(@PathVariable("uid") String campaignUUID) {
 		Campaign campaign = new Campaign();
 		CampaignDO dataCPN = getSimpleCampaign(campaignUUID,true);
@@ -410,7 +407,7 @@ public class CampaignManager {
 		return getSpecificNodeVersion(nodeUUID,node.getCampaign().getCurrentVersion());
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/nodes/{uid}/versions/{version}")
+  @RequestMapping(method=RequestMethod.GET,value="/nodes/{uid}/versions/{version}")
 	public Node getSpecificNodeVersion(@PathVariable("uid") String nodeUUID, @PathVariable("version") Integer versionNumber)
 	{
 		String key = nodeUUID+"/"+versionNumber;
@@ -450,7 +447,7 @@ public class CampaignManager {
 		return ret;
 	}
 	
-        @RequestMapping(method= RequestMethod.GET,value="/{uid}/versions/{version}")
+  @RequestMapping(method= RequestMethod.GET,value="/{uid}/versions/{version}")
 	public Campaign getSpecificCampaignVersion(@PathVariable("uid") String campaignUUID, @PathVariable("version") int version) {
 		String key = campaignUUID+"/"+version;
 		Campaign campaign = (Campaign)cacheAccessManager.getCachedObject(CacheName.CampaignCache, key);
@@ -485,9 +482,9 @@ public class CampaignManager {
 		return campaign;
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	@AuditEvent(AuditType.PublishCampaign)
-        @RequestMapping(method=RequestMethod.POST,value="{uid}/publish")
+  @RequestMapping(method=RequestMethod.POST,value="{uid}/publish")
 	public void publish(@PathVariable("uid") String campaignUUID) {
 		try
 		{
@@ -774,9 +771,9 @@ public class CampaignManager {
 		}
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	@AuditEvent(AuditType.SaveCampaign)
-        @RequestMapping(method=RequestMethod.POST)
+  @RequestMapping(method=RequestMethod.POST)
 	public Campaign save(@RequestBody Campaign campaign) {
 		CampaignDO camp = getSimpleCampaign(campaign.getUid());
 		if(camp==null && campaign.getClientPK()==null)
@@ -885,9 +882,9 @@ public class CampaignManager {
 		return ret;
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
-	@AuditEvent(AuditType.CreateCampaignFromTemplate)
-        @RequestMapping(method=RequestMethod.POST,value="/{template-uid}")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @AuditEvent(AuditType.CreateCampaignFromTemplate)
+  @RequestMapping(method=RequestMethod.POST,value="/{template-uid}")
 	public Campaign createFromTemplate(@RequestBody Campaign campaign, @PathVariable("template-uid") String campaignTemplateUUID)
 	{
 		Campaign template = getDetailedCampaign(campaignTemplateUUID);
@@ -1102,9 +1099,9 @@ public class CampaignManager {
 		return true;
 	}
 	
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	@AuditEvent(AuditType.SaveNode)
-        @RequestMapping(method= RequestMethod.POST,value="/nodes")
+  @RequestMapping(method= RequestMethod.POST,value="/nodes")
 	public Node save(@RequestBody Node node) {
 		CampaignDO camp = getSimpleCampaign(node.getCampaignUID());
 		if(node.getUid()==null)
@@ -1331,9 +1328,9 @@ public class CampaignManager {
 		}
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	@AuditEvent(AuditType.SaveConnection)
-        @RequestMapping(method=RequestMethod.POST,value="/connectors")
+  @RequestMapping(method=RequestMethod.POST,value="/connectors")
 	public Connector save(@RequestBody Connector connector) {
 		CampaignDO camp = getSimpleCampaign(connector.getCampaignUID());
 		if(connector.getUid()==null)
@@ -1454,7 +1451,7 @@ public class CampaignManager {
 		return connector;
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	@AuditEvent(AuditType.DeleteCampaign)
 	public void delete(Campaign campaign) {
 		if(campaign==null || campaign.getUid()==null)
@@ -1471,7 +1468,7 @@ public class CampaignManager {
 		camp.setStatus(CampaignStatus.Deleted);
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	@AuditEvent(AuditType.DeleteNode)
 	public void delete(Node node) {
 		if(node==null || node.getUid()==null)
@@ -1534,7 +1531,7 @@ public class CampaignManager {
 			sf.getCurrentSession().delete(n);
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	@AuditEvent(AuditType.DeleteConnection)
 	public void delete(Connector connector) {
 		if(connector==null || connector.getUid()==null)
@@ -1597,7 +1594,7 @@ public class CampaignManager {
 			sf.getCurrentSession().delete(c);
 	}
 
-        @RequestMapping(method= RequestMethod.GET,value="/{uid}/published")
+  @RequestMapping(method= RequestMethod.GET,value="/{uid}/published")
 	public Campaign getLastPublishedCampaign(@PathVariable("uid") String campaignUUID) {
 		CampaignDO camp = getSimpleCampaign(campaignUUID);
 		if(camp==null)
@@ -1609,8 +1606,8 @@ public class CampaignManager {
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/{uid}/nodes")
-        //@WrappedMap(map="nodeSubscriberCount",key="nodeUID",entry="count") -- Doesn't apply, but we need to map this the right way at some point.
+  @RequestMapping(method=RequestMethod.GET,value="/{uid}/nodes")
+  //@WrappedMap(map="nodeSubscriberCount",key="nodeUID",entry="count") -- Doesn't apply, but we need to map this the right way at some point.
 	public Map<String, Long> getNodeSubscriberCount(@PathVariable("uid") String campaignUUID) {
 		getSimpleCampaign(campaignUUID); // Do nothing with this except invoke security checks.
 		
@@ -1624,7 +1621,7 @@ public class CampaignManager {
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.DELETE,value="/{uid}")
+  @RequestMapping(method=RequestMethod.DELETE,value="/{uid}")
 	public void deleteCampaign(@PathVariable("uid") String uid) {
 		delete(getDetailedCampaign(uid));
 	}
@@ -1659,7 +1656,7 @@ public class CampaignManager {
 		return (Integer)sf.getCurrentSession().createQuery(query).setParameter("uid", uid).uniqueResult();
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, List<Contact> contacts) {
 		if(message==null || message.getCampaignUID()==null)
 			throw new IllegalArgumentException("Cannot publish a broadcast message without a valid message, and campaign UID");
@@ -1704,7 +1701,7 @@ public class CampaignManager {
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
 
-        @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole(client) or hasRole(admin) or hasRole(account.manager)")
 	public void broadcastMessageSearch(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search) {
 		List<Contact> contacts=new ArrayList<Contact>();
 		for(EntryData entry : entryPoints)

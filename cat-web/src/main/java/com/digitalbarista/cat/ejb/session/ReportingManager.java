@@ -68,9 +68,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * Session Bean implementation class SubscriptionManagerImpl
  */
 @Controller("ReportingManager")
-@RequestMapping(value="/reporting",
-                produces={"application/xml","application/json"},
-                consumes={"application/xml","application/json"})
+@RequestMapping(value={"/rest/reporting","/rs/reporting"})
 @Transactional(propagation=Propagation.REQUIRED)
 public class ReportingManager 
 {
@@ -151,7 +149,7 @@ public class ReportingManager
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/dashboard")
+  @RequestMapping(method=RequestMethod.GET,value="/dashboard")
 	public DashboardData getDashboardData(@RequestParam("clientID") List<Long> clientIds) throws ReportingManagerException 
 	{
 		DashboardData ret = new DashboardData();

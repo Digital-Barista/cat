@@ -79,42 +79,35 @@
 	  <property name="suffix" value=".ftl"/>
 	</bean>
   
-    <bean id="serviceViewResolver" class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-      <property name="favorPathExtension" value="true"/>
-      <property name="order" value="1"/>
-      <property name="mediaTypes">
-        <map>
-          <entry key="json" value="application/json"/>
-          <entry key="xml" value="application/xml"/>
-        </map>
-      </property>
-      <property name="defaultViews">
-        <list>
-          <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
-            <property name="extractValueFromSingleKeyModel" value="true"/>
-          </bean>
-          <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
-            <constructor-arg>
-              <ref bean="JAXBMarshaller"/>
-            </constructor-arg>
-          </bean>
-        </list>
-      </property>
-    </bean>
+  <bean id="serviceViewResolver" class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+    <property name="favorPathExtension" value="true"/>
+    <property name="order" value="1"/>
+    <property name="mediaTypes">
+      <map>
+        <entry key="json" value="application/json"/>
+        <entry key="xml" value="application/xml"/>
+      </map>
+    </property>
+    <property name="defaultViews">
+      <list>
+        <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+          <property name="extractValueFromSingleKeyModel" value="true"/>
+        </bean>
+        <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+          <constructor-arg>
+            <ref bean="JAXBMarshaller"/>
+          </constructor-arg>
+        </bean>
+      </list>
+    </property>
+  </bean>
 
-    <bean id="auditAutoProxy" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+  <bean id="auditAutoProxy" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+    <property name="proxyTargetClass" value="true"/>
     <property name="beanNames" value="*Manager"/>
     <property name="interceptorNames">
       <list>
         <value>auditInterceptor</value>
-      </list>
-    </property>  
-  </bean>
-
-  <bean id="nodeFillAutoProxy" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
-    <property name="beanNames" value="CampaignManager"/>
-    <property name="interceptorNames">
-      <list>
         <value>nodeFillInterceptor</value>
       </list>
     </property>  
