@@ -153,7 +153,7 @@ public class SecurityUtil {
         
         public String getPrincipalName()
         {
-            return ""+SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return SecurityContextHolder.getContext().getAuthentication().getName();
         }
 
         public boolean isCallerInRole(String role)

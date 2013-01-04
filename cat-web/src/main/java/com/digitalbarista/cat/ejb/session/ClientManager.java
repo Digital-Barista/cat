@@ -92,7 +92,7 @@ public class ClientManager{
     
 
     @SuppressWarnings("unchecked")
-    @PreAuthorize("hasRole(admin) or hasRole(client)")
+    @PreAuthorize("hasRole('admin') or hasRole('client')")
     @RequestMapping(method=RequestMethod.GET,value="/entryPoints")
     public List<EntryPointDefinition> getEntryPointDefinitions()
     {
@@ -100,7 +100,7 @@ public class ClientManager{
     }
     
     @SuppressWarnings("unchecked")
-    @PreAuthorize("hasRole(admin) or hasRole(client)")
+    @PreAuthorize("hasRole('admin') or hasRole('client')")
     public List<EntryPointDefinition> getEntryPointDefinitions(List<Long> clientIds) 
     {
     	List<EntryPointDefinition> ret = new ArrayList<EntryPointDefinition>();
@@ -141,7 +141,7 @@ public class ClientManager{
     }
     
     @SuppressWarnings("unchecked")
-    @PreAuthorize("hasRole(admin)")
+    @PreAuthorize("hasRole('admin')")
     @RequestMapping(method=RequestMethod.GET,value="/entryPoint")
     public EntryPointDefinition getEntryPointDefinition(@RequestParam(value="type",required=true) EntryPointType type,
                                                         @RequestParam(value="account",required=true) String account) 
@@ -195,7 +195,7 @@ public class ClientManager{
 				kywd.setCampaignUID(keywords.get(kywd.getKeyword()));
     }
     
-        @PreAuthorize("hasRole(admin) or hasRole(client)")
+        @PreAuthorize("hasRole('admin') or hasRole('client')")
 	@AuditEvent(AuditType.SaveClient)
         @RequestMapping(method=RequestMethod.POST)
 	public Client save(@RequestBody Client client) {
@@ -314,7 +314,7 @@ public class ClientManager{
 		return ret;
 	}
 
-        @PreAuthorize("hasRole(admin) or hasRole(client) or hasRole(account.manager)")
+        @PreAuthorize("hasRole('admin') or hasRole('client') or hasRole('account.manager')")
         @RequestMapping(method=RequestMethod.POST,value="/keywords")
 	public Keyword save(@RequestBody Keyword kwd) {
 		if(kwd == null)
@@ -373,7 +373,7 @@ public class ClientManager{
 		return ret;
 	}
 	
-	@PreAuthorize("hasRole(admin) or hasRole(client)")
+	@PreAuthorize("hasRole('admin') or hasRole('client')")
         @RequestMapping(method=RequestMethod.POST,value="/entryPoints")
 	public EntryPointDefinition save(@RequestBody EntryPointDefinition epd) {
 		if(epd == null)
@@ -416,14 +416,14 @@ public class ClientManager{
 		return ret;
 	}
 
-	@PreAuthorize("hasRole(admin) or hasRole(client)")
+	@PreAuthorize("hasRole('admin') or hasRole('client')")
         @RequestMapping(method=RequestMethod.GET,value="/keywords")
 	public List<Keyword> getAllKeywords() 
 	{
 		return getKeywords(null);
 	}
 	
-        @PreAuthorize("hasRole(admin) or hasRole(client)")
+        @PreAuthorize("hasRole('admin') or hasRole('client')")
 	public List<Keyword> getKeywords(List<Long> clientIds)
 	{
 		List<Keyword> ret = new ArrayList<Keyword>();
@@ -501,7 +501,7 @@ public class ClientManager{
 		return ret;
 	}
 
-	@PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+	@PreAuthorize("hasRole('admin') or hasRole('account.manager')")
         @RequestMapping(method=RequestMethod.DELETE,value="/keywords")
 	public void delete(Keyword kwd) {
 		if(kwd == null)
@@ -599,7 +599,7 @@ public class ClientManager{
 		return true;
 	}
 
-        @PreAuthorize("hasRole(admin)")
+        @PreAuthorize("hasRole('admin')")
 	public void disableClient(Long clientID) {
 		if(clientID==null)
 			return;
@@ -609,7 +609,7 @@ public class ClientManager{
 		client.setActive(false);
 	}
 
-        @PreAuthorize("hasRole(admin)")
+        @PreAuthorize("hasRole('admin')")
 	public void enableClient(Long clientID) {
 		if(clientID==null)
 			return;

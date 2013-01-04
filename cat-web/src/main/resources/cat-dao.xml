@@ -31,7 +31,12 @@
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
       <property name="dataSource" ref="dataSource"/>
-      <property name="packagesToScan" value="com.digitalbarista.cat.audit,com.digialbarista.cat.data"/>
+      <property name="packagesToScan">
+        <list>
+          <value>com.digitalbarista.cat.audit</value>
+          <value>com.digitalbarista.cat.data</value>
+        </list>
+      </property>
       <property name="hibernateProperties">
         <value>
           hibernate.dialect=org.hibernate.dialect.MySQLDialect

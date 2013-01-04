@@ -54,7 +54,7 @@ public class CouponManager{
         private SecurityUtil securityUtil;
         
         @SuppressWarnings("unchecked")
-        @PreAuthorize("hasRole(admin) or hasRole(client)")
+        @PreAuthorize("hasRole('admin') or hasRole('client')")
         @RequestMapping(method=RequestMethod.POST,value="/{code}")
 	public CouponRedemptionMessage redeemCoupon(@PathVariable("cond") String couponCode) {
 		if(couponCode!=null)
@@ -119,7 +119,7 @@ public class CouponManager{
 		return new CouponRedemptionMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode(),c.getUID());
 	}
 
-    @PreAuthorize("hasRole(admin) or hasRole(client) or hasRole(account.manager)")
+    @PreAuthorize("hasRole('admin') or hasRole('client') or hasRole('account.manager')")
     @RequestMapping(method=RequestMethod.GET)
     public List<Coupon> couponSummaryByClient(@RequestParam("clientid") Long clientID) 
     {

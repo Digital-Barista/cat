@@ -56,7 +56,7 @@ public class UserManager {
         // TODO Auto-generated constructor stub
     }
 
-  @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
   @RequestMapping(method=RequestMethod.POST,value="/{id}/role")
 	public void addRole(@PathVariable("id") Long userPK, @RequestBody Role roleToAdd) {
 		UserDO user = getSimpleUserByPK(userPK);
@@ -77,7 +77,7 @@ public class UserManager {
 		user.getRoles().add(roleToAdd.buildDataRole());
 	}
 
-  @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
   @RequestMapping(method=RequestMethod.POST,value="/{id}/roles")
 	public void addRoles(@PathVariable("id") Long userPK, @RequestBody Set<Role> rolesToAdd) {
 		UserDO user = getSimpleUserByPK(userPK);
@@ -92,7 +92,7 @@ public class UserManager {
 			addRole(userPK,role);
 	}
 
-        @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
 	protected User createUser(User newUser) {
 		UserDO user = new UserDO();
 		newUser.copyTo(user);
@@ -118,8 +118,8 @@ public class UserManager {
 		return ret;
 	}
 
-        @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
-        @RequestMapping(method=RequestMethod.GET,value="/{id}")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @RequestMapping(method=RequestMethod.GET,value="/{id}")
 	public User getUserByPK(@PathVariable("id") long pk) {
 		User ret=new User();
 		ret.copyFrom(getSimpleUserByPK(pk));
@@ -187,7 +187,7 @@ public class UserManager {
 		throw new SecurityException("Current user is not allowed to view the specified user.");
 	}
 	
-  @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
   @RequestMapping(method=RequestMethod.GET,value="/{username}")
 	public User getUserByUsername(@PathVariable("username") String username) {
 		User ret = new User();
@@ -202,7 +202,7 @@ public class UserManager {
 		return ret;
 	}
 
-  @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
   @RequestMapping(method=RequestMethod.DELETE,value="/{id}/role")
 	public void removeRole(@PathVariable("id") Long userPK, @RequestBody Role roleToRemove) {
 		UserDO user = getSimpleUserByPK(userPK);
@@ -223,7 +223,7 @@ public class UserManager {
 		user.getRoles().remove(roleToRemove.buildDataRole());
 	}
 
-  @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
   @RequestMapping(method=RequestMethod.DELETE,value="/{id}/roles")
 	public void removeRoles(@PathVariable("id") Long userPK, @RequestBody Set<Role> rolesToRemove) {
 		UserDO user = getSimpleUserByPK(userPK);
@@ -290,8 +290,8 @@ public class UserManager {
 		return ret;
 	}
 
-        @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
-        @RequestMapping(method= RequestMethod.PUT,value="/{id}/roles")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @RequestMapping(method= RequestMethod.PUT,value="/{id}/roles")
 	public void syncRoles(@PathVariable("id") Long userPK, @RequestBody Set<Role> roles) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -343,13 +343,13 @@ public class UserManager {
 		}
 	}
 
-        @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
-        @RequestMapping(method=RequestMethod.GET,value="/available/{username}")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @RequestMapping(method=RequestMethod.GET,value="/available/{username}")
 	public boolean allowUsername(@PathVariable("username") String username) {
 		return getSimpleUserByUsername(username)!=null;
 	}
 
-  @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
   @RequestMapping(method=RequestMethod.POST,value="/available")
 	public Set<String> usernamesAllowed(@RequestBody Set<String> nameList) {
 		String query = "select u.username" +
@@ -395,7 +395,7 @@ public class UserManager {
 		return ret;
 	}
 	
-  @PreAuthorize("hasRole(admin) or hasRole(account.manager)")
+  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
   @RequestMapping(method=RequestMethod.DELETE)
 	public void delete(@RequestBody User user)
 	{

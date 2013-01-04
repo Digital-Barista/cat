@@ -119,7 +119,6 @@ public class UserDO implements Serializable,DataObject {
 		CascadeType.EVICT,
 		CascadeType.PERSIST,
 		CascadeType.REPLICATE})
-	@JoinColumn(name="username",referencedColumnName="username")
 	public Set<RoleDO> getRoles() {
 		return roles;
 	}

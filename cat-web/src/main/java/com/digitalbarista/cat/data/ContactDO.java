@@ -61,7 +61,6 @@ public class ContactDO implements DataObject,Serializable {
 
 
 	@OneToMany(mappedBy="contact", targetEntity=ContactTagLinkDO.class, cascade={CascadeType.REMOVE}, fetch=FetchType.LAZY)
-	@JoinColumn(updatable=false,insertable=false,name="contact_id")
 	public Set<ContactTagLinkDO> getContactTags() {
 		return contactTags;
 	}
@@ -81,7 +80,6 @@ public class ContactDO implements DataObject,Serializable {
 	}
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=ContactInfoDO.class, mappedBy="contact")
-	@JoinColumn(name="contact_id")
 	public Set<ContactInfoDO> getContactInfos() {
 		return contactInfos;
 	}

@@ -7,7 +7,7 @@
     </services>
 
     <security>
-        <login-command class="flex.messaging.security.TomcatLoginCommand" server="JBoss"/>
+        <login-command class="com.digitalbarista.cat.security.CATFlexAuthenticationHelper" server="all"/>
         <security-constraint id="valid-user">
             <auth-method>Custom</auth-method>
             <roles>

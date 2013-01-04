@@ -368,6 +368,12 @@
         <artifactId>reflections</artifactId>
         <version>0.9.8</version>
       </dependency>
+      <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib</artifactId>
+        <version>2.2.2</version>
+        <scope>runtime</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   

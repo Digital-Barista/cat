@@ -55,18 +55,6 @@
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <packagingExcludes>**/*.jar</packagingExcludes>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <classpathPrefix>lib/</classpathPrefix>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
         <!-- http://docs.codehaus.org/display/JETTY/Maven+Jetty+Plugin -->
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>maven-jetty-plugin</artifactId>
@@ -76,6 +64,7 @@
           <!-- jetty config files processed for property replacement by testResources -->
           <jettyConfig>${project.basedir}/env/jetty.xml</jettyConfig>
           <jettyEnvXml>${project.basedir}/env/jetty-env.xml</jettyEnvXml> <!-- define datasource for Jetty JNDI -->
+          <webAppSourceDirectory>${project.basedir}/target/${project.build.finalName}/</webAppSourceDirectory>
           <contextPath>/cat</contextPath>
           <systemProperties>
             <systemProperty>
@@ -227,10 +216,6 @@
       <artifactId>hibernate-annotations</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
     </dependency>
@@ -321,12 +306,22 @@
       <artifactId>javassist</artifactId>
     </dependency>
     <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-lgpl</artifactId>
     </dependency>
     <dependency>
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>javassist</artifactId>
+          <groupId>javassist</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 </project>

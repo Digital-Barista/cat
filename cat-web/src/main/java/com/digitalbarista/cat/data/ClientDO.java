@@ -67,7 +67,6 @@ public class ClientDO implements Serializable,DataObject {
 
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=AddInMessageDO.class, mappedBy="client")
-	@JoinColumn(name="client_id")
 	public Set<AddInMessageDO> getAddInMessages() {
 		return addInMessages;
 	}
@@ -77,7 +76,6 @@ public class ClientDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=ClientInfoDO.class, mappedBy="client")
-	@JoinColumn(name="client_id")
 	public Set<ClientInfoDO> getClientInfos() {
 		return clientInfos;
 	}
@@ -102,7 +100,6 @@ public class ClientDO implements Serializable,DataObject {
 
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=KeywordLimitDO.class, mappedBy="client")
-	@JoinColumn(name="client_id")
 	public Set<KeywordLimitDO> getKeywordLimits() {
 		return keywordLimits;
 	}

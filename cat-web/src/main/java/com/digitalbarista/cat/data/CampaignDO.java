@@ -105,7 +105,6 @@ public class CampaignDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignNodeLinkDO.class, mappedBy="campaign")
-	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
 	@BatchSize(size=100)
 	public Set<CampaignNodeLinkDO> getNodes() {
 		return nodes;
@@ -117,7 +116,6 @@ public class CampaignDO implements Serializable,DataObject {
 
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=AddInMessageDO.class, mappedBy="campaign")
-	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
 	public Set<AddInMessageDO> getAddInMessages() {
 		return addInMessages;
 	}
@@ -129,7 +127,6 @@ public class CampaignDO implements Serializable,DataObject {
 	
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignInfoDO.class, mappedBy="campaign")
-	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
 	public Set<CampaignInfoDO> getCampaignInfos() {
 		return campaignInfos;
 	}
@@ -148,7 +145,6 @@ public class CampaignDO implements Serializable,DataObject {
 	}
 
 	@OneToMany(fetch=FetchType.LAZY, targetEntity=CampaignConnectorLinkDO.class, mappedBy="campaign")
-	@JoinColumn(insertable=false,updatable=false,name="campaign_id")
 	@BatchSize(size=100)
 	public Set<CampaignConnectorLinkDO> getConnectors() {
 		return connectors;
