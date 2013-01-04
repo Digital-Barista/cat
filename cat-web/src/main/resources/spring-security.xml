@@ -49,11 +49,11 @@
 		<security:filter-chain-map path-type="ant">
 			<security:filter-chain pattern="/rest/**" filters="AppSecurityContextPersistenceFilter,
                                  BasicAuthenticationFilter,
-															   AppExceptionTranslationFilter,
+															   ApiExceptionTranslationFilter,
 															   AppFilterSecurityInterceptor"/>
 			<security:filter-chain pattern="/rs/**" filters="AppSecurityContextPersistenceFilter,
                                  BasicAuthenticationFilter,
-															   AppExceptionTranslationFilter,
+															   ApiExceptionTranslationFilter,
 															   AppFilterSecurityInterceptor"/>
 			<security:filter-chain pattern="/**" filters="AppSecurityContextPersistenceFilter,
 															   LogoutFilter,
@@ -138,6 +138,11 @@
 	
 	<bean id="AppExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
 	  <property name="authenticationEntryPoint" ref="formAuthenticationEntryPoint"/>
+	  <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
+	</bean>
+
+	<bean id="ApiExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+	  <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
 	  <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
 	</bean>
 
