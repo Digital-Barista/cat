@@ -39,6 +39,8 @@
         <security:intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <security:intercept-url pattern="/rs/**" access="ROLE_admin,ROLE_client"/>
         <security:intercept-url pattern="/rest/**" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/angular/app" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/angular/app/" access="ROLE_admin,ROLE_client"/>
         <security:intercept-url pattern="/" access="ROLE_admin,ROLE_client"/>
       </security:filter-security-metadata-source>
 	  </property>
@@ -107,7 +109,7 @@
 	  <property name="filterProcessesUrl" value="/j_spring_security_check"/>
 	  <property name="authenticationSuccessHandler">
 	  	<bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
-	  		<property name="defaultTargetUrl" value="/"/>
+	  		<property name="defaultTargetUrl" value="/angular/app/"/>
 			<property name="alwaysUseDefaultTargetUrl" value="true"/>
 	  	</bean>
 	  </property>

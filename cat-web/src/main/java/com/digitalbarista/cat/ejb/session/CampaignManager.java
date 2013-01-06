@@ -1,20 +1,14 @@
 package com.digitalbarista.cat.ejb.session;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.NoResultException;
+import javax.xml.bind.annotation.XmlElementWrapper;
 
+import com.digitalbarista.cat.business.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -28,26 +22,6 @@ import org.hibernate.criterion.Restrictions;
 
 import com.digitalbarista.cat.audit.AuditEvent;
 import com.digitalbarista.cat.audit.AuditType;
-import com.digitalbarista.cat.business.AddInMessage;
-import com.digitalbarista.cat.business.BroadcastInfo;
-import com.digitalbarista.cat.business.CalendarConnector;
-import com.digitalbarista.cat.business.Campaign;
-import com.digitalbarista.cat.business.CampaignEntryMessage;
-import com.digitalbarista.cat.business.CampaignInfo;
-import com.digitalbarista.cat.business.Connector;
-import com.digitalbarista.cat.business.Contact;
-import com.digitalbarista.cat.business.ContactTag;
-import com.digitalbarista.cat.business.CouponNode;
-import com.digitalbarista.cat.business.EntryData;
-import com.digitalbarista.cat.business.EntryNode;
-import com.digitalbarista.cat.business.ImmediateConnector;
-import com.digitalbarista.cat.business.IntervalConnector;
-import com.digitalbarista.cat.business.LayoutInfo;
-import com.digitalbarista.cat.business.MessageNode;
-import com.digitalbarista.cat.business.Node;
-import com.digitalbarista.cat.business.OutgoingEntryNode;
-import com.digitalbarista.cat.business.ResponseConnector;
-import com.digitalbarista.cat.business.TaggingNode;
 import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.AddInMessageDO;
 import com.digitalbarista.cat.data.AddInMessageType;
@@ -132,7 +106,16 @@ public class CampaignManager {
 
   @Autowired
   SecurityUtil securityUtil;
-        
+
+    @RequestMapping(method=RequestMethod.GET, value="/test")
+    public ServiceResponse test()
+    {
+        ServiceResponse ret = new ServiceResponse();
+        ret.setMetadata(new ServiceResponseMetadata());
+        ret.setErrors(Arrays.asList(new ServiceResponseError[]{new ServiceResponseError()}));
+        return ret;
+    }
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.GET)
   public List<Campaign> getAllCampaigns() 
@@ -147,7 +130,8 @@ public class CampaignManager {
 		return getCampaignTemplates(null);
 	}
 
-	public List<Campaign> getCampaigns(List<Long> clientIDs)
+    @XmlElementWrapper(name = "campaigns")
+    public List<Campaign> getCampaigns(List<Long> clientIDs)
 	{
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
@@ -179,7 +163,7 @@ public class CampaignManager {
 				countCrit.setProjection(pList);
 				List<Object[]> result = (List<Object[]>)countCrit.list();
 				for(Object[] row : result)
-					campCounts.put((Long)row[1], (Integer)row[0]);
+					campCounts.put((Long)row[1], ((Long)row[0]).intValue());
 			}
 			
 				

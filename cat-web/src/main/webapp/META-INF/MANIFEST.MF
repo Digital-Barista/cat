@@ -33,5 +33,6 @@ Class-Path: cat-ejb.jar lib/flex-messaging-common.jar lib/flex-messagi
  .RELEASE.jar lib/spring-jdbc-3.1.0.RELEASE.jar lib/spring-security-we
  b-3.1.0.RELEASE.jar lib/spring-security-core-3.1.0.RELEASE.jar lib/sp
  ring-security-crypto-3.1.0.RELEASE.jar lib/spring-security-config-3.1
- .0.RELEASE.jar lib/freemarker-2.3.18.jar
+ .0.RELEASE.jar lib/freemarker-2.3.18.jar lib/httpclient-4.0.1.jar lib
+ /jsr250-api-1.0.jar
 

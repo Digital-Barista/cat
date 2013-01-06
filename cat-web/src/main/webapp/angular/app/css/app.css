@@ -53,6 +53,8 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   -webkit-border-radius: 5px 5px;
   -moz-border-radius: 5px / 5px;
+  -ms-border-radius: 5px / 5px;
+  -o-border-radius: 5px / 5px;
   border-radius: 5px / 5px;
   padding: 5px;
 }
@@ -1569,12 +1571,33 @@
   width: 363px;
 }
 
-/* line 9, ../sass/app.scss */
+/* line 1, ../sass/_login.scss */
+.login {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  margin-left: -235;
+  width: 475px;
+}
+/* line 8, ../sass/_login.scss */
+.login input {
+  height: 30px;
+}
+/* line 12, ../sass/_login.scss */
+.login form {
+  margin: 0;
+}
+/* line 16, ../sass/_login.scss */
+.login .control-group {
+  margin-top: 20px;
+}
+
+/* line 10, ../sass/app.scss */
 ul {
   list-style: none;
 }
 
-/* line 13, ../sass/app.scss */
+/* line 14, ../sass/app.scss */
 h2 {
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.6);
@@ -1582,22 +1605,22 @@ h2 {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* line 19, ../sass/app.scss */
+/* line 20, ../sass/app.scss */
 .main-container {
   margin-top: 60px;
 }
 
-/* line 23, ../sass/app.scss */
+/* line 24, ../sass/app.scss */
 .main-view {
   margin-left: 220px;
 }
 
-/* line 28, ../sass/app.scss */
+/* line 29, ../sass/app.scss */
 .bold {
   font-weight: bold;
 }
 
-/* line 34, ../sass/app.scss */
+/* line 35, ../sass/app.scss */
 .data-loader {
   opacity: 0;
   position: fixed;
@@ -1609,10 +1632,11 @@ h2 {
   -webkit-transition: opacity 0.5s ease-in-out;
   -webkit-transition-delay: 0;
   -moz-transition: opacity 0.5s ease-in-out 0;
+  -ms-transition: opacity 0.5s ease-in-out 0;
   -o-transition: opacity 0.5s ease-in-out 0;
   transition: opacity 0.5s ease-in-out 0;
 }
-/* line 44, ../sass/app.scss */
+/* line 45, ../sass/app.scss */
 .data-loader.on {
   opacity: 1;
 }

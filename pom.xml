@@ -378,6 +378,7 @@
   </dependencyManagement>
   
   <repositories>
+      <!--
     <repository>
       <id>DBI</id>
       <layout>default</layout>
@@ -394,6 +395,7 @@
       </snapshots>
       <url>http://repo.digitalbarista.com/nexus/content/groups/public/</url>
     </repository>
+    -->
     <repository>
       <id>jbosspublic</id>
       <layout>default</layout>
