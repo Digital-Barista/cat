@@ -17,12 +17,23 @@
 
   <modules>
     <module>cat-mail-poller</module>
-    <module>flex-common-lib</module>
-    <module>cat-common-flex</module>
-    <module>cat-client-flex</module>
-    <module>cat-admin-flex</module>
     <module>cat-web</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>build-flex</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>flex-common-lib</module>
+        <module>cat-common-flex</module>
+        <module>cat-client-flex</module>
+        <module>cat-admin-flex</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
@@ -378,7 +389,6 @@
   </dependencyManagement>
   
   <repositories>
-      <!--
     <repository>
       <id>DBI</id>
       <layout>default</layout>
@@ -395,7 +405,6 @@
       </snapshots>
       <url>http://repo.digitalbarista.com/nexus/content/groups/public/</url>
     </repository>
-    -->
     <repository>
       <id>jbosspublic</id>
       <layout>default</layout>
