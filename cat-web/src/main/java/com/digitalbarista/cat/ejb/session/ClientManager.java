@@ -34,24 +34,16 @@ import com.digitalbarista.cat.data.ReservedKeywordDO;
 import com.digitalbarista.cat.exception.FlexException;
 import com.digitalbarista.cat.twitter.mbean.TwitterPollCoordinator;
 import com.digitalbarista.cat.util.SecurityUtil;
-import javax.persistence.NoResultException;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller("ClientManager")
+@Component("ClientManager")
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value={"/rest/clients","/rs/clients"})
 public class ClientManager{
 
     public static final Integer DEFAULT_MAX_KEYWORDS = 5;
@@ -68,7 +60,6 @@ public class ClientManager{
     @Autowired
     SessionFactory sf;
         
-    @RequestMapping(method=RequestMethod.GET)
     public List<Client> getVisibleClients() {
     	List<Client> ret = new ArrayList<Client>();
     	Criteria crit = sf.getCurrentSession().createCriteria(ClientDO.class);
@@ -93,7 +84,6 @@ public class ClientManager{
 
     @SuppressWarnings("unchecked")
     @PreAuthorize("hasRole('admin') or hasRole('client')")
-    @RequestMapping(method=RequestMethod.GET,value="/entryPoints")
     public List<EntryPointDefinition> getEntryPointDefinitions()
     {
         return getEntryPointDefinitions(null);
@@ -142,9 +132,7 @@ public class ClientManager{
     
     @SuppressWarnings("unchecked")
     @PreAuthorize("hasRole('admin')")
-    @RequestMapping(method=RequestMethod.GET,value="/entryPoint")
-    public EntryPointDefinition getEntryPointDefinition(@RequestParam(value="type",required=true) EntryPointType type,
-                                                        @RequestParam(value="account",required=true) String account) 
+    public EntryPointDefinition getEntryPointDefinition(EntryPointType type, String account) 
     {
         EntryPointDefinition ret = new EntryPointDefinition();
         Criteria crit = sf.getCurrentSession().createCriteria(EntryPointDO.class);
@@ -164,8 +152,7 @@ public class ClientManager{
         return ret;
     }
     
-    @RequestMapping(method=RequestMethod.GET,value="/{id}")
-    public Client getClientById(@PathVariable("id") long id) {
+    public Client getClientById(long id) {
     	if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), id))
             throw new SecurityException("Current user is not allowed to view specified client.");
     	
@@ -195,10 +182,9 @@ public class ClientManager{
 				kywd.setCampaignUID(keywords.get(kywd.getKeyword()));
     }
     
-        @PreAuthorize("hasRole('admin') or hasRole('client')")
+  @PreAuthorize("hasRole('admin') or hasRole('client')")
 	@AuditEvent(AuditType.SaveClient)
-        @RequestMapping(method=RequestMethod.POST)
-	public Client save(@RequestBody Client client) {
+	public Client save(Client client) {
 		if(client==null)
 			throw new IllegalArgumentException("Cannot save a null client.");
 				
@@ -314,9 +300,8 @@ public class ClientManager{
 		return ret;
 	}
 
-        @PreAuthorize("hasRole('admin') or hasRole('client') or hasRole('account.manager')")
-        @RequestMapping(method=RequestMethod.POST,value="/keywords")
-	public Keyword save(@RequestBody Keyword kwd) {
+  @PreAuthorize("hasRole('admin') or hasRole('client') or hasRole('account.manager')")
+  public Keyword save(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
 		
@@ -374,8 +359,7 @@ public class ClientManager{
 	}
 	
 	@PreAuthorize("hasRole('admin') or hasRole('client')")
-        @RequestMapping(method=RequestMethod.POST,value="/entryPoints")
-	public EntryPointDefinition save(@RequestBody EntryPointDefinition epd) {
+	public EntryPointDefinition save(EntryPointDefinition epd) {
 		if(epd == null)
 			throw new IllegalArgumentException("Cannot save a null entry point definition.");
 		
@@ -417,13 +401,12 @@ public class ClientManager{
 	}
 
 	@PreAuthorize("hasRole('admin') or hasRole('client')")
-        @RequestMapping(method=RequestMethod.GET,value="/keywords")
 	public List<Keyword> getAllKeywords() 
 	{
 		return getKeywords(null);
 	}
 	
-        @PreAuthorize("hasRole('admin') or hasRole('client')")
+  @PreAuthorize("hasRole('admin') or hasRole('client')")
 	public List<Keyword> getKeywords(List<Long> clientIds)
 	{
 		List<Keyword> ret = new ArrayList<Keyword>();
@@ -445,8 +428,7 @@ public class ClientManager{
 		return ret;
 	}
 	
-        @RequestMapping(method=RequestMethod.GET,value="/{id}/keywords")
-	public List<Keyword> getAllKeywordsForClient(@PathVariable("id") Long clientID) {
+	public List<Keyword> getAllKeywordsForClient(Long clientID) {
 		if(clientID==null)
 			throw new IllegalArgumentException("Must provide a client ID to query on.");
 		Query q = sf.getCurrentSession().createQuery("select k from KeywordDO k where k.client.id=:id");
@@ -462,9 +444,7 @@ public class ClientManager{
 		return ret;
 	}
 
-	@RequestMapping(method=RequestMethod.GET,value="/{cid}/entryPoints/{eid}/keywords")
-        public List<Keyword> getAllKeywordsForClientAndEntryPoint(@PathVariable("cid") Long clientID,
-                                                                  @PathVariable("eid") Long entryPointID) {
+  public List<Keyword> getAllKeywordsForClientAndEntryPoint(Long clientID, Long entryPointID) {
 		if(clientID==null)
 			throw new IllegalArgumentException("Must provide a client ID to query on.");
 		if(entryPointID==null)
@@ -484,8 +464,7 @@ public class ClientManager{
 		return ret;
 	}
 
-	@RequestMapping(method=RequestMethod.GET,value="/entryPoints/{id}/keywords")
-	public List<Keyword> getAllKeywordsForEntryPoint(@PathVariable("id") Long entryPointID) {
+	public List<Keyword> getAllKeywordsForEntryPoint(Long entryPointID) {
 		if(entryPointID==null)
 			throw new IllegalArgumentException("Must provide an Entry Point ID to query on");
 		Query q = sf.getCurrentSession().createQuery("select k from KeywordDO k where k.entryPoint.id=:id");
@@ -502,7 +481,6 @@ public class ClientManager{
 	}
 
 	@PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-        @RequestMapping(method=RequestMethod.DELETE,value="/keywords")
 	public void delete(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
@@ -518,18 +496,13 @@ public class ClientManager{
 		q.setParameter("entryPoint", kwdData.getEntryPoint().getValue());
 		q.setParameter("keyword", kwdData.getKeyword());
 		q.setParameter("type", kwdData.getEntryPoint().getType());
-		try
-		{
-			CampaignEntryPointDO cep = (CampaignEntryPointDO)q.uniqueResult();
-			throw new IllegalArgumentException("Cannot delete this keyword, as it is still in use in campaign UID='"+cep.getCampaign().getUID()+"'");
-		}
-		catch(NoResultException e)
-		{}
+    CampaignEntryPointDO cep = (CampaignEntryPointDO)q.uniqueResult();
+		if(cep!=null)
+      throw new IllegalArgumentException("Cannot delete this keyword, as it is still in use in campaign UID='"+cep.getCampaign().getUID()+"'");
 		
 		sf.getCurrentSession().delete(kwdData);
 	}
 	
-        @RequestMapping(method=RequestMethod.GET,value="/reservedKeywords")
 	public List<ReservedKeyword> getAllReservedKeywords()
 	{
 		List<ReservedKeyword> ret = new ArrayList<ReservedKeyword>();
@@ -544,8 +517,7 @@ public class ClientManager{
 		return ret;
 	}
         
-        @RequestMapping(method=RequestMethod.POST,value="/reservedKeywords")
-	public ReservedKeyword save(@RequestBody ReservedKeyword keyword)
+	public ReservedKeyword save(ReservedKeyword keyword)
 	{
 		ReservedKeywordDO keyDO = null;
 		
@@ -562,16 +534,14 @@ public class ClientManager{
 		return ret;
 	}
         
-        @RequestMapping(method=RequestMethod.DELETE,value="/reservedKeywords")        
-	public void delete(@RequestBody ReservedKeyword keyword)
+	public void delete(ReservedKeyword keyword)
 	{
 		ReservedKeywordDO keyDO = (ReservedKeywordDO)sf.getCurrentSession().get(ReservedKeywordDO.class, keyword.getReservedKeywordId());
 		if (keyDO != null)
 			sf.getCurrentSession().delete(keyDO);
 	}
 
-        @RequestMapping(method=RequestMethod.POST,value="/reservedKeywords/available")
-	public Boolean checkKeywordAvailability(@RequestBody Keyword keyword) 
+	public Boolean checkKeywordAvailability(Keyword keyword) 
 	{
 		// A keyword is required
 		if (keyword == null ||
@@ -599,7 +569,7 @@ public class ClientManager{
 		return true;
 	}
 
-        @PreAuthorize("hasRole('admin')")
+  @PreAuthorize("hasRole('admin')")
 	public void disableClient(Long clientID) {
 		if(clientID==null)
 			return;
@@ -609,7 +579,7 @@ public class ClientManager{
 		client.setActive(false);
 	}
 
-        @PreAuthorize("hasRole('admin')")
+  @PreAuthorize("hasRole('admin')")
 	public void enableClient(Long clientID) {
 		if(clientID==null)
 			return;
@@ -619,14 +589,11 @@ public class ClientManager{
 		client.setActive(true);
 	}
 	
-        @RequestMapping(method=RequestMethod.GET,value="/twitter/start-auth",produces="text/plain")
-	public String startTwitterAuth(@RequestParam(value="callbackURL",required=true) String callbackURL) {
+	public String startTwitterAuth(String callbackURL) {
 		return "https://www.twitter.com/oauth/authorize?oauth_token="+twitterCoordinator.acquireRequestToken(callbackURL).getToken();
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/twitter/auth",produces="text/plain")
-	public String authTwitterAccount(@RequestParam(value="oauth_token",required=true) String oauthToken, 
-                                         @RequestParam(value="oauth_verifier",required=true) String oauthVerifier) {
+	public String authTwitterAccount(String oauthToken, String oauthVerifier) {
 		if(twitterCoordinator.retrieveAccessToken(oauthToken, oauthVerifier))
 			return "<html><body><h3>You have been successfully authorized!</h3></body></html>";
 		else

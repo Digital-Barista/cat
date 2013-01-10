@@ -42,37 +42,33 @@ import com.digitalbarista.cat.util.SecurityUtil;
 import java.util.Arrays;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * Session Bean implementation class ContactManagerImpl
  */
-@Controller("ContactManager")
+@Component("ContactManager")
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value={"/rest/contacts","/rs/contacts"})
 public class ContactManager{
 
 	private Logger log = LogManager.getLogger(ContactManager.class);
 	
-        @Autowired
-        private SessionFactory sf;
+  @Autowired
+  private SessionFactory sf;
 
-        @Autowired
-        UserManager userManager;
+  @Autowired
+  UserManager userManager;
 
-        @Autowired
-        ReportingManager reportingManager;
-	
-        @Autowired
+  @Autowired
+  ReportingManager reportingManager;
+
+  @Autowired
 	FacebookManager facebookManager;
         
-        @Autowired
-        SecurityUtil securityUtil;
+  @Autowired
+  SecurityUtil securityUtil;
 	
 	private static final String[] ADMIN_FACEBOOK_FIELDS = {"link", "name", "first_name", "last_name", "id"};
 	
@@ -96,7 +92,6 @@ public class ContactManager{
 	}
 	
 	@SuppressWarnings("unchecked")
-        @RequestMapping(method=RequestMethod.GET)
 	public PagedList<Contact> getContacts(ContactSearchCriteria searchCriteria, PagingInfo paging)
 	{
 		Criteria crit = null;
@@ -189,7 +184,6 @@ public class ContactManager{
 	}
 	
 	@SuppressWarnings("unchecked")
-        @RequestMapping(method=RequestMethod.GET,value="/tags")
 	public List<ContactTag> getContactTags()
 	{
 		Criteria crit = null;
@@ -197,13 +191,13 @@ public class ContactManager{
 		crit = sf.getCurrentSession().createCriteria(ContactTagDO.class);
 
 		// Limit query by allowed clients if necessary
-                if(!securityUtil.isAdmin())
-                {
-                        crit.add(Restrictions.in("client.primaryKey", securityUtil.extractClientIds(sf.getCurrentSession())));
-                                if(securityUtil.extractClientIds(sf.getCurrentSession()).size() == 0)
-                                        return ret;
-                }
-    	
+    if(!securityUtil.isAdmin())
+    {
+      crit.add(Restrictions.in("client.primaryKey", securityUtil.extractClientIds(sf.getCurrentSession())));
+      if(securityUtil.extractClientIds(sf.getCurrentSession()).size() == 0)
+        return ret;
+    }
+
 		for (ContactTagDO tag : (List<ContactTagDO>)crit.list())
 		{
 			ContactTag t = new ContactTag();
@@ -230,9 +224,8 @@ public class ContactManager{
 		return matchingContacts.getResults().get(0);
 	}
 	
-        @RequestMapping(method=RequestMethod.POST,value="/tags")
 	@AuditEvent(AuditType.SaveContactTag)
-	public ContactTag save(@RequestBody ContactTag tag) 
+	public ContactTag save(ContactTag tag) 
 	{
 		if(tag == null)
 			throw new IllegalArgumentException("Cannot save a null tag.");
@@ -255,9 +248,8 @@ public class ContactManager{
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.POST)
 	@AuditEvent(AuditType.SaveContact)
-	public Contact save(@RequestBody Contact contact) 
+	public Contact save(Contact contact) 
 	{
 		if(contact == null)
 			throw new IllegalArgumentException("Cannot save a null contact.");
@@ -281,8 +273,7 @@ public class ContactManager{
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.DELETE,value="/tags")
-	public void delete(@RequestBody ContactTag tag) {
+	public void delete(ContactTag tag) {
 		if(tag == null)
 			throw new IllegalArgumentException("Cannot delete a null tag.");
 				
@@ -296,8 +287,7 @@ public class ContactManager{
 		sf.getCurrentSession().delete(tagDO);
 	}
 
-        @RequestMapping(method=RequestMethod.DELETE)
-	public void delete(@RequestBody Contact contact) {
+	public void delete(Contact contact) {
 		if(contact == null)
 			throw new IllegalArgumentException("Cannot delete a null contact.");
 				

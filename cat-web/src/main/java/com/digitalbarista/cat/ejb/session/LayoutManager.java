@@ -3,8 +3,6 @@ package com.digitalbarista.cat.ejb.session;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.NoResultException;
-
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 
@@ -16,52 +14,40 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller("LayoutManager")
-@RequestMapping(value={"/rest/layouts","/rs/layouts"})
+@Component("LayoutManager")
 @Transactional(propagation=Propagation.REQUIRED)
 public class LayoutManager {
   
-        @Autowired
-        private ApplicationContext ctx;
-  
-        @Autowired
-        UserManager userManager;
-        
-        @Autowired
-        SessionFactory sf;
-        
-        @Autowired
-        SecurityUtil securityUtil;
+  @Autowired
+  private ApplicationContext ctx;
+
+  @Autowired
+  UserManager userManager;
+
+  @Autowired
+  SessionFactory sf;
+
+  @Autowired
+  SecurityUtil securityUtil;
         
 	public LayoutInfoDO getSimpleLayoutInfo(String uuid, Integer version)
 	{
-		try
-		{
-			Criteria crit = sf.getCurrentSession().createCriteria(LayoutInfoDO.class);
-			crit.add(Restrictions.eq("UID", uuid));
-			crit.add(Restrictions.eq("version", version));
-			LayoutInfoDO ret = (LayoutInfoDO)crit.uniqueResult();
-			
-			if(ret==null)
-				return null;
-			
-			if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getCampaign().getClient().getPrimaryKey()))
-				throw new SecurityException("Current user is not allowed to view layout infor for this campaign.");
-			
-			return ret;
-		}catch(NoResultException e)
-		{
-			return null;
-		}
+    Criteria crit = sf.getCurrentSession().createCriteria(LayoutInfoDO.class);
+    crit.add(Restrictions.eq("UID", uuid));
+    crit.add(Restrictions.eq("version", version));
+    LayoutInfoDO ret = (LayoutInfoDO)crit.uniqueResult();
+
+    if(ret==null)
+      return null;
+
+    if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getCampaign().getClient().getPrimaryKey()))
+      throw new SecurityException("Current user is not allowed to view layout infor for this campaign.");
+
+    return ret;
 	}
 	
 	public List<LayoutInfo> getLayoutInfo(List<String> uidList) {
@@ -90,8 +76,7 @@ public class LayoutManager {
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/{uid}/{version}")
-	public LayoutInfo getLayoutInfo(@PathVariable("uid") String uid, @PathVariable("version") Integer version) {
+	public LayoutInfo getLayoutInfo(String uid, Integer version) {
 		if(uid==null)
 			return null;
 		
@@ -100,8 +85,7 @@ public class LayoutManager {
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.POST)
-	public void save(@RequestBody LayoutInfo layout) {
+	public void save(LayoutInfo layout) {
     CampaignManager campaignManager = ctx.getBean(CampaignManager.class);
 		if(layout==null)
 			throw new IllegalArgumentException("Cannot save a null layout.");
@@ -146,13 +130,11 @@ public class LayoutManager {
 		sf.getCurrentSession().persist(info);
 	}
 
-	@RequestMapping(method=RequestMethod.GET)
-        public List<LayoutInfo> getLayoutsByCampaign(@RequestParam(value="campaignid",required=true) String uid) {
+  public List<LayoutInfo> getLayoutsByCampaign(String uid) {
 		return getLayoutsByCampaignAndVersion(uid,null);
 	}
 	
-        @RequestMapping(method=RequestMethod.GET,value="/{campaign-uid}/{version}")
-	public List<LayoutInfo> getLayoutsByCampaignAndVersion(@PathVariable("campaign-uid") String uid,@PathVariable("version") Integer version) {
+	public List<LayoutInfo> getLayoutsByCampaignAndVersion(String uid, Integer version) {
     CampaignManager campaignManager = ctx.getBean(CampaignManager.class);
 		CampaignDO c = campaignManager.getSimpleCampaign(uid);
 		
@@ -181,8 +163,7 @@ public class LayoutManager {
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.DELETE,value="/{uid}/{version}")
-        public void delete(@PathVariable("uid") String uid, @PathVariable("version") Integer version) {
+  public void delete(String uid, Integer version) {
 		if(uid==null)
 			throw new IllegalArgumentException("Cannot delete an unspecified layout.");
 		

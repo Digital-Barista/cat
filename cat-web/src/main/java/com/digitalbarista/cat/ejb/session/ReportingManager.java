@@ -56,19 +56,15 @@ import com.google.gdata.util.ServiceException;
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 /**
  * Session Bean implementation class SubscriptionManagerImpl
  */
-@Controller("ReportingManager")
-@RequestMapping(value={"/rest/reporting","/rs/reporting"})
+@Component("ReportingManager")
 @Transactional(propagation=Propagation.REQUIRED)
 public class ReportingManager 
 {
@@ -89,20 +85,19 @@ public class ReportingManager
 	private static final String GA_FACEBOOK_UID = "ga:customVarValue2";
 	
 	
-        @Autowired
-        private UserManager userManager;
-        
-        @Autowired
-        private SecurityUtil securityUtil;
-	
-        @Autowired
-        private SessionFactory sf;
+  @Autowired
+  private UserManager userManager;
+
+  @Autowired
+  private SecurityUtil securityUtil;
+
+  @Autowired
+  private SessionFactory sf;
         
 	Logger logger = LogManager.getLogger(ReportingManager.class);
 	SimpleDateFormat outgoingDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	SimpleDateFormat incomingDateFormatter = new SimpleDateFormat("yyyyMMdd");
 	
-        @RequestMapping(method=RequestMethod.GET,value="/outgoingMessages")
 	public List<OutgoingMessageSummary> getOutgoingMessageSummaries() throws ReportingManagerException 
 	{
 		List<OutgoingMessageSummary> ret = new ArrayList<OutgoingMessageSummary>();
@@ -149,8 +144,7 @@ public class ReportingManager
 		return ret;
 	}
 
-  @RequestMapping(method=RequestMethod.GET,value="/dashboard")
-	public DashboardData getDashboardData(@RequestParam("clientID") List<Long> clientIds) throws ReportingManagerException 
+	public DashboardData getDashboardData(List<Long> clientIds) throws ReportingManagerException 
 	{
 		DashboardData ret = new DashboardData();
 		
@@ -213,8 +207,7 @@ public class ReportingManager
 		return ret;
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/tagSummaries")
-	public List<TagSummary> getTagSummaries(@RequestParam("clientID") List<Long> clientIds) throws ReportingManagerException 
+	public List<TagSummary> getTagSummaries(List<Long> clientIds) throws ReportingManagerException 
 	{
 		List<TagSummary> ret = new ArrayList<TagSummary>();
 		
@@ -813,8 +806,7 @@ public class ReportingManager
 		return creditInfos;
 	}
 
-        @RequestMapping(method=RequestMethod.GET,value="/endpointSubscriberCount")
-	public List<KeyValuePair> getEndpointSubscriberCount(@RequestParam("clientID") List<Long> clientIDs) {
+	public List<KeyValuePair> getEndpointSubscriberCount(List<Long> clientIDs) {
 		//Pull that list of contacts for all client IDs.
 		Criteria crit = sf.getCurrentSession().createCriteria(ContactDO.class);
 		crit.add(Restrictions.in("client.id", clientIDs));

@@ -5,9 +5,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.NoResultException;
-import javax.xml.bind.annotation.XmlElementWrapper;
-
 import com.digitalbarista.cat.business.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -60,22 +57,16 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Session Bean implementation class CampaignManagerImpl
  */
 
-@Controller("CampaignManager")
+@Component
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value={"/rest/campaigns","/rs/campaigns"})
 public class CampaignManager {
 
 	Logger log = LogManager.getLogger(getClass());
@@ -107,31 +98,27 @@ public class CampaignManager {
   @Autowired
   SecurityUtil securityUtil;
 
-    @RequestMapping(method=RequestMethod.GET, value="/test")
-    public ServiceResponse test()
-    {
-        ServiceResponse ret = new ServiceResponse();
-        ret.setMetadata(new ServiceResponseMetadata());
-        ret.setErrors(Arrays.asList(new ServiceResponseError[]{new ServiceResponseError()}));
-        return ret;
-    }
+  public ServiceResponse test()
+  {
+      ServiceResponse ret = new ServiceResponse();
+      ret.setMetadata(new ServiceResponseMetadata());
+      ret.setErrors(Arrays.asList(new ServiceResponseError[]{new ServiceResponseError()}));
+      return ret;
+  }
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(method=RequestMethod.GET)
   public List<Campaign> getAllCampaigns() 
 	{
 		return getCampaigns(null);
 	}
 
 	@SuppressWarnings("unchecked")
-  @RequestMapping(method=RequestMethod.GET,value="/templates")
   public List<Campaign> getAllTemplates() 
 	{
 		return getCampaignTemplates(null);
 	}
 
-    @XmlElementWrapper(name = "campaigns")
-    public List<Campaign> getCampaigns(List<Long> clientIDs)
+  public List<Campaign> getCampaigns(List<Long> clientIDs)
 	{
 		List<Campaign> ret = new ArrayList<Campaign>();
 		Campaign c;
@@ -180,8 +167,7 @@ public class CampaignManager {
 		return ret;
 	}
 
-  @RequestMapping(method=RequestMethod.GET,value="/broadcast")
-	public List<BroadcastInfo> getBroadcastCampaigns(@RequestParam(value="clientID") List<Long> clientIDs)
+	public List<BroadcastInfo> getBroadcastCampaigns(List<Long> clientIDs)
 	{
 		List<BroadcastInfo> ret = new ArrayList<BroadcastInfo>();
 		BroadcastInfo c;
@@ -278,16 +264,14 @@ public class CampaignManager {
 			return ret;
 	}
 	
-  @RequestMapping(method=RequestMethod.GET,value="/connectors/{uid}")
-	public Connector getConnector(@PathVariable("uid") String connectorUUID) {
+	public Connector getConnector(String connectorUUID) {
 		ConnectorDO conn = getSimpleConnector(connectorUUID);
 		Connector ret = Connector.createConnectorBO(conn);
 		ret.copyFrom(conn);
 		return ret;
 	}
 
-  @RequestMapping(method=RequestMethod.GET,value="/connectors/{uid}/versions/{version}")
-	public Connector getSpecificConnectorVersion(@PathVariable("uid") String connectorUUID, @PathVariable("version") Integer version) {
+	public Connector getSpecificConnectorVersion(String connectorUUID, Integer version) {
 		String key = connectorUUID+"/"+version;
 		Connector ret = (Connector)cacheAccessManager.getCachedObject(CacheName.ConnectorCache, key);
 		if(ret!=null)
@@ -309,36 +293,28 @@ public class CampaignManager {
 	
 	public CampaignDO getSimpleCampaign(String campaignUUID, boolean eagerFetch)
 	{
-		try
-		{
-			Criteria crit = sf.getCurrentSession().createCriteria(CampaignDO.class);
-			crit.add(Restrictions.eq("UID", campaignUUID));
-			crit.setCacheable(true);
-			crit.setCacheRegion("query/simpleCampaign");
-			if(eagerFetch)
-			{
-				crit.setFetchMode("connectors", FetchMode.SELECT);
-				crit.setFetchMode("nodes", FetchMode.SELECT);
-			}
-			CampaignDO ret = (CampaignDO)crit.uniqueResult();
-			
-			if(ret==null)
-				return null;
-			
-			if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getClient().getPrimaryKey()))
-				throw new SecurityException("Current user is not allowed to access the specified campaign.");
+    Criteria crit = sf.getCurrentSession().createCriteria(CampaignDO.class);
+    crit.add(Restrictions.eq("UID", campaignUUID));
+    crit.setCacheable(true);
+    crit.setCacheRegion("query/simpleCampaign");
+    if(eagerFetch)
+    {
+      crit.setFetchMode("connectors", FetchMode.SELECT);
+      crit.setFetchMode("nodes", FetchMode.SELECT);
+    }
+    CampaignDO ret = (CampaignDO)crit.uniqueResult();
 
-			return ret;
-		}
-		catch(NoResultException e)
-		{
-			return null;
-		}
+    if(ret==null)
+      return null;
+
+    if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getClient().getPrimaryKey()))
+      throw new SecurityException("Current user is not allowed to access the specified campaign.");
+
+    return ret;
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED)
-  @RequestMapping(method=RequestMethod.GET, value="/{uid}")
-	public Campaign getDetailedCampaign(@PathVariable("uid") String campaignUUID) {
+	public Campaign getDetailedCampaign(String campaignUUID) {
 		Campaign campaign = new Campaign();
 		CampaignDO dataCPN = getSimpleCampaign(campaignUUID,true);
 		campaign.copyFrom(dataCPN);
@@ -364,35 +340,27 @@ public class CampaignManager {
 
 	public NodeDO getSimpleNode(String nodeUUID)
 	{
-		try
-		{
-			Criteria crit = sf.getCurrentSession().createCriteria(NodeDO.class);
-			crit.add(Restrictions.eq("UID", nodeUUID));
-			crit.setCacheable(true);
-			crit.setCacheRegion("query/SimpleNode");
-			NodeDO ret = (NodeDO)crit.uniqueResult();
-			
-			if(ret==null)
-				return null;
-			
-			if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getCampaign().getClient().getPrimaryKey()))
-				throw new SecurityException("Current user is not allowed to access the specified node.");
+    Criteria crit = sf.getCurrentSession().createCriteria(NodeDO.class);
+    crit.add(Restrictions.eq("UID", nodeUUID));
+    crit.setCacheable(true);
+    crit.setCacheRegion("query/SimpleNode");
+    NodeDO ret = (NodeDO)crit.uniqueResult();
 
-			return ret;
-		}catch(NoResultException e)
-		{
-			return null;
-		}
+    if(ret==null)
+      return null;
+
+    if(!userManager.isUserAllowedForClientId(securityUtil.getPrincipalName(), ret.getCampaign().getClient().getPrimaryKey()))
+      throw new SecurityException("Current user is not allowed to access the specified node.");
+
+    return ret;
 	}
 	
-        @RequestMapping(method=RequestMethod.GET,value="/nodes/{uid}")
-	public Node getNode(@PathVariable("uid") String nodeUUID) {
+	public Node getNode(String nodeUUID) {
 		NodeDO node = getSimpleNode(nodeUUID);
 		return getSpecificNodeVersion(nodeUUID,node.getCampaign().getCurrentVersion());
 	}
 
-  @RequestMapping(method=RequestMethod.GET,value="/nodes/{uid}/versions/{version}")
-	public Node getSpecificNodeVersion(@PathVariable("uid") String nodeUUID, @PathVariable("version") Integer versionNumber)
+	public Node getSpecificNodeVersion(String nodeUUID, Integer versionNumber)
 	{
 		String key = nodeUUID+"/"+versionNumber;
 		Node ret = (Node)cacheAccessManager.getCachedObject(CacheName.NodeCache, key);
@@ -431,8 +399,7 @@ public class CampaignManager {
 		return ret;
 	}
 	
-  @RequestMapping(method= RequestMethod.GET,value="/{uid}/versions/{version}")
-	public Campaign getSpecificCampaignVersion(@PathVariable("uid") String campaignUUID, @PathVariable("version") int version) {
+	public Campaign getSpecificCampaignVersion(String campaignUUID, int version) {
 		String key = campaignUUID+"/"+version;
 		Campaign campaign = (Campaign)cacheAccessManager.getCachedObject(CacheName.CampaignCache, key);
 		if(campaign!=null)
@@ -468,8 +435,7 @@ public class CampaignManager {
 
   @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
 	@AuditEvent(AuditType.PublishCampaign)
-  @RequestMapping(method=RequestMethod.POST,value="{uid}/publish")
-	public void publish(@PathVariable("uid") String campaignUUID) {
+	public void publish(String campaignUUID) {
 		try
 		{
 			CampaignDO camp = getSimpleCampaign(campaignUUID);
@@ -757,8 +723,7 @@ public class CampaignManager {
 
   @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
 	@AuditEvent(AuditType.SaveCampaign)
-  @RequestMapping(method=RequestMethod.POST)
-	public Campaign save(@RequestBody Campaign campaign) {
+	public Campaign save(Campaign campaign) {
 		CampaignDO camp = getSimpleCampaign(campaign.getUid());
 		if(camp==null && campaign.getClientPK()==null)
 			throw new IllegalArgumentException("Cannot create a new campaign without a valid client PK.");
@@ -826,11 +791,11 @@ public class CampaignManager {
 					Query q = sf.getCurrentSession().getNamedQuery("autostart.info.by.unique.key");
 					q.setParameter("campaignId", camp.getPrimaryKey());
 					q.setParameter("entryType", ci.getEntryType());
-					try
+          ciDO = (CampaignInfoDO)q.uniqueResult();
+          if(ciDO==null)
 					{
-						ciDO = (CampaignInfoDO)q.uniqueResult();
-					}catch(NoResultException ex)
-					{ciDO = new CampaignInfoDO();}
+            ciDO = new CampaignInfoDO();
+          }
 				}
 					
 
@@ -868,8 +833,7 @@ public class CampaignManager {
 
   @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
   @AuditEvent(AuditType.CreateCampaignFromTemplate)
-  @RequestMapping(method=RequestMethod.POST,value="/{template-uid}")
-	public Campaign createFromTemplate(@RequestBody Campaign campaign, @PathVariable("template-uid") String campaignTemplateUUID)
+	public Campaign createFromTemplate(Campaign campaign, String campaignTemplateUUID)
 	{
 		Campaign template = getDetailedCampaign(campaignTemplateUUID);
 		if(template==null)
@@ -1052,14 +1016,7 @@ public class CampaignManager {
 		q.setParameter("entryPoint", entryPoint);
 		q.setParameter("keyword", keyword);
 		q.setParameter("type", type);
-		try
-		{
-			return (CampaignEntryPointDO)q.uniqueResult();
-		}
-		catch(NoResultException e)
-		{
-			return null;
-		}
+    return (CampaignEntryPointDO)q.uniqueResult();
 	}
 	
 	protected boolean isEntryPointValid(String campaignUID, String entryPoint, EntryPointType type, String keyword)
@@ -1085,8 +1042,7 @@ public class CampaignManager {
 	
   @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
 	@AuditEvent(AuditType.SaveNode)
-  @RequestMapping(method= RequestMethod.POST,value="/nodes")
-	public Node save(@RequestBody Node node) {
+	public Node save(Node node) {
 		CampaignDO camp = getSimpleCampaign(node.getCampaignUID());
 		if(node.getUid()==null)
 			node.setUid(UUID.randomUUID().toString());
@@ -1314,8 +1270,7 @@ public class CampaignManager {
 
   @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
 	@AuditEvent(AuditType.SaveConnection)
-  @RequestMapping(method=RequestMethod.POST,value="/connectors")
-	public Connector save(@RequestBody Connector connector) {
+	public Connector save(Connector connector) {
 		CampaignDO camp = getSimpleCampaign(connector.getCampaignUID());
 		if(connector.getUid()==null)
 			connector.setUid(UUID.randomUUID().toString());
@@ -1578,8 +1533,7 @@ public class CampaignManager {
 			sf.getCurrentSession().delete(c);
 	}
 
-  @RequestMapping(method= RequestMethod.GET,value="/{uid}/published")
-	public Campaign getLastPublishedCampaign(@PathVariable("uid") String campaignUUID) {
+	public Campaign getLastPublishedCampaign(String campaignUUID) {
 		CampaignDO camp = getSimpleCampaign(campaignUUID);
 		if(camp==null)
 			return null;
@@ -1590,9 +1544,7 @@ public class CampaignManager {
 		return ret;
 	}
 
-  @RequestMapping(method=RequestMethod.GET,value="/{uid}/nodes")
-  //@WrappedMap(map="nodeSubscriberCount",key="nodeUID",entry="count") -- Doesn't apply, but we need to map this the right way at some point.
-	public Map<String, Long> getNodeSubscriberCount(@PathVariable("uid") String campaignUUID) {
+	public Map<String, Long> getNodeSubscriberCount(String campaignUUID) {
 		getSimpleCampaign(campaignUUID); // Do nothing with this except invoke security checks.
 		
 		String queryString="select csl.lastHitNode.UID, count(csl.lastHitNode.UID) from CampaignSubscriberLinkDO csl where csl.campaign.UID=:campaignUID and csl.active=1 group by csl.lastHitNode.UID";
@@ -1605,18 +1557,15 @@ public class CampaignManager {
 		return ret;
 	}
 
-  @RequestMapping(method=RequestMethod.DELETE,value="/{uid}")
-	public void deleteCampaign(@PathVariable("uid") String uid) {
+	public void deleteCampaign(String uid) {
 		delete(getDetailedCampaign(uid));
 	}
 
-        @RequestMapping(method=RequestMethod.DELETE,value="/connectors/{uid}")
-        public void deleteConnector(@PathVariable("uid") String uid) {
+  public void deleteConnector(String uid) {
 		delete(getConnector(uid));
 	}
 
-        @RequestMapping(method=RequestMethod.DELETE,value="/nodes/{uid}")
-        public void deleteNode(@PathVariable("uid") String uid) {
+  public void deleteNode(String uid) {
 		delete(getNode(uid));
 	}
 	
@@ -1722,7 +1671,7 @@ public class CampaignManager {
 		broadcastMessage(clientPK, entryPoints, message, contacts);
 	}
 
-        @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
 	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts) {
 		if(coupon==null || coupon.getCampaignUID()==null)
 			throw new IllegalArgumentException("Cannot publish a broadcast coupon without a valid message, and campaign UID");
@@ -1767,7 +1716,7 @@ public class CampaignManager {
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
 
-        @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
 	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search) {
 		List<Contact> contacts=new ArrayList<Contact>();
 		for(EntryData entry : entryPoints)
@@ -1804,77 +1753,71 @@ public class CampaignManager {
 		broadcastCoupon(clientPK, entryPoints, coupon, contacts);
 	}
 
-        @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
-        public CampaignEntryMessage loadEntryCampaign()
-        {
+  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  public CampaignEntryMessage loadEntryCampaign()
+  {
 		Set<Long> clientIds = securityUtil.extractClientIds(sf.getCurrentSession());
 		if(clientIds.size()!=1)
 			throw new IllegalArgumentException("Unable to determine which client's Entry Campaign to load.");
 		Query q = sf.getCurrentSession().getNamedQuery("entry.campaign");
 		q.setParameter("clientId", clientIds.iterator().next());
-		try
-		{
-			CampaignEntryMessage ret = new CampaignEntryMessage();
-			CampaignDO camp = (CampaignDO)q.uniqueResult();
-			if(camp.getCampaignInfos()!=null && camp.getCampaignInfos().size()>0)
-				ret.setActive(true);
-                        String currentMessageNodeUID = null;
-                        for(CampaignConnectorLinkDO connectorLink : camp.getConnectors())
-                        {
-                            if(connectorLink.getVersion().intValue()!=camp.getCurrentVersion())
-                                continue;
-                            for(NodeConnectorLinkDO connection : connectorLink.getConnector().getConnections())
-                            {
-                                if(connection.getVersion().intValue()!=camp.getCurrentVersion())
-                                    continue;
-                                if(connection.getConnectionPoint()==ConnectionPoint.Destination)
-                                    currentMessageNodeUID=connection.getNode().getUID();
-                            }
-                        }
-			for(CampaignNodeLinkDO nodeLink : camp.getNodes())
-			{
-				if(nodeLink.getVersion().intValue()!=camp.getCurrentVersion())
-					continue;
-				if(nodeLink.getNode().getType()==NodeType.OutgoingEntry)
-				{
-					OutgoingEntryNode entryNode = new OutgoingEntryNode();
-					entryNode.copyFrom(nodeLink.getNode());
-					ret.setEntryData(entryNode.getEntryData());
-				}
-				if(nodeLink.getNode().getType()==NodeType.Coupon && nodeLink.getNode().getUID().equalsIgnoreCase(currentMessageNodeUID))
-				{
-					CouponNode messageNode = new CouponNode();
-					messageNode.copyFrom(nodeLink.getNode());
-					ret.setMessageNode(messageNode);
-				}
-				if(nodeLink.getNode().getType()==NodeType.Message && nodeLink.getNode().getUID().equalsIgnoreCase(currentMessageNodeUID))
-				{
-					MessageNode messageNode = new MessageNode();
-					messageNode.copyFrom(nodeLink.getNode());
-					ret.setMessageNode(messageNode);
-				}
-			}
-			return ret;
-		}
-		catch(NoResultException e)
-		{
-			return new CampaignEntryMessage();
-		}
-        }
+    CampaignEntryMessage ret = new CampaignEntryMessage();
+    CampaignDO camp = (CampaignDO)q.uniqueResult();
+    if(camp==null)
+      return ret;
+    if(camp.getCampaignInfos()!=null && camp.getCampaignInfos().size()>0)
+      ret.setActive(true);
+    String currentMessageNodeUID = null;
+    for(CampaignConnectorLinkDO connectorLink : camp.getConnectors())
+    {
+      if(connectorLink.getVersion().intValue()!=camp.getCurrentVersion())
+        continue;
+      for(NodeConnectorLinkDO connection : connectorLink.getConnector().getConnections())
+      {
+        if(connection.getVersion().intValue()!=camp.getCurrentVersion())
+          continue;
+        if(connection.getConnectionPoint()==ConnectionPoint.Destination)
+          currentMessageNodeUID=connection.getNode().getUID();
+      }
+    }
+    for(CampaignNodeLinkDO nodeLink : camp.getNodes())
+    {
+      if(nodeLink.getVersion().intValue()!=camp.getCurrentVersion())
+        continue;
+      if(nodeLink.getNode().getType()==NodeType.OutgoingEntry)
+      {
+        OutgoingEntryNode entryNode = new OutgoingEntryNode();
+        entryNode.copyFrom(nodeLink.getNode());
+        ret.setEntryData(entryNode.getEntryData());
+      }
+      if(nodeLink.getNode().getType()==NodeType.Coupon && nodeLink.getNode().getUID().equalsIgnoreCase(currentMessageNodeUID))
+      {
+        CouponNode messageNode = new CouponNode();
+        messageNode.copyFrom(nodeLink.getNode());
+        ret.setMessageNode(messageNode);
+      }
+      if(nodeLink.getNode().getType()==NodeType.Message && nodeLink.getNode().getUID().equalsIgnoreCase(currentMessageNodeUID))
+      {
+        MessageNode messageNode = new MessageNode();
+        messageNode.copyFrom(nodeLink.getNode());
+        ret.setMessageNode(messageNode);
+      }
+    }
+    return ret;
+  }
 
-        @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
-        public CampaignEntryMessage saveEntryCampaign(CampaignEntryMessage campaignMessage)
-        {
+  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  public CampaignEntryMessage saveEntryCampaign(CampaignEntryMessage campaignMessage)
+  {
 		Set<Long> clientIds = securityUtil.extractClientIds(sf.getCurrentSession());
 		if(clientIds.size()!=1)
 			throw new IllegalArgumentException("Unable to determine which client's Entry Campaign to create.");
 		Query q = sf.getCurrentSession().getNamedQuery("entry.campaign");
 		q.setParameter("clientId", clientIds.iterator().next());
-		try
-		{
-			CampaignEntryMessage ret = new CampaignEntryMessage();
-			CampaignDO camp = (CampaignDO)q.uniqueResult();
-		
+    CampaignEntryMessage ret = new CampaignEntryMessage();
+    CampaignDO camp = (CampaignDO)q.uniqueResult();
+    if(camp!=null)
+    {
 			String entryUID=null;
 			
 			Campaign existingCamp = getDetailedCampaign(camp.getUID());
@@ -1897,40 +1840,40 @@ public class CampaignManager {
                                     existingCouponNode = (CouponNode)node;
 				}
 			}
-                        if(campaignMessage.getMessageNode().getType()==NodeType.Message)
-                        {
-                            if(existingMessageNode==null)
-                            {
-                                campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
-                                existingMessageNode = (MessageNode)save(campaignMessage.getMessageNode());
-                            } else {
-                                existingMessageNode.setMessage(((MessageNode)campaignMessage.getMessageNode()).getMessage());
-                                existingMessageNode.setMessages(((MessageNode)campaignMessage.getMessageNode()).getMessages());
-                                campaignMessage.setMessageNode(save(existingMessageNode));
-                            }
-                            ((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(existingMessageNode.getUid());
-                        } else {
-                            if(existingCouponNode==null)
-                            {
-                                campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
-                                existingCouponNode = (CouponNode)save(campaignMessage.getMessageNode());
-                            } else {
-                                CouponNode newCNode = (CouponNode)campaignMessage.getMessageNode();
-                                existingCouponNode.setAvailableMessage(newCNode.getAvailableMessage());
-                                existingCouponNode.setAvailableMessages(newCNode.getAvailableMessages());
-                                existingCouponNode.setCouponCode(newCNode.getCouponCode());
-                                existingCouponNode.setExpireDate(newCNode.getExpireDate());
-                                existingCouponNode.setExpireDays(newCNode.getExpireDays());
-                                existingCouponNode.setMaxCoupons(newCNode.getMaxCoupons());
-                                existingCouponNode.setMaxRedemptions(newCNode.getMaxRedemptions());
-                                existingCouponNode.setOfferCode(newCNode.getOfferCode());
-                                existingCouponNode.setUnavailableDate(newCNode.getUnavailableDate());
-                                existingCouponNode.setUnavailableMessage(newCNode.getUnavailableMessage());
-                                existingCouponNode.setUnavailableMessages(newCNode.getUnavailableMessages());
-                                campaignMessage.setMessageNode(save(existingCouponNode));
-                            }
-                            ((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(existingCouponNode.getUid());
-                        }
+      if(campaignMessage.getMessageNode().getType()==NodeType.Message)
+      {
+          if(existingMessageNode==null)
+          {
+              campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
+              existingMessageNode = (MessageNode)save(campaignMessage.getMessageNode());
+          } else {
+              existingMessageNode.setMessage(((MessageNode)campaignMessage.getMessageNode()).getMessage());
+              existingMessageNode.setMessages(((MessageNode)campaignMessage.getMessageNode()).getMessages());
+              campaignMessage.setMessageNode(save(existingMessageNode));
+          }
+          ((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(existingMessageNode.getUid());
+      } else {
+          if(existingCouponNode==null)
+          {
+              campaignMessage.getMessageNode().setCampaignUID(existingCamp.getUid());
+              existingCouponNode = (CouponNode)save(campaignMessage.getMessageNode());
+          } else {
+              CouponNode newCNode = (CouponNode)campaignMessage.getMessageNode();
+              existingCouponNode.setAvailableMessage(newCNode.getAvailableMessage());
+              existingCouponNode.setAvailableMessages(newCNode.getAvailableMessages());
+              existingCouponNode.setCouponCode(newCNode.getCouponCode());
+              existingCouponNode.setExpireDate(newCNode.getExpireDate());
+              existingCouponNode.setExpireDays(newCNode.getExpireDays());
+              existingCouponNode.setMaxCoupons(newCNode.getMaxCoupons());
+              existingCouponNode.setMaxRedemptions(newCNode.getMaxRedemptions());
+              existingCouponNode.setOfferCode(newCNode.getOfferCode());
+              existingCouponNode.setUnavailableDate(newCNode.getUnavailableDate());
+              existingCouponNode.setUnavailableMessage(newCNode.getUnavailableMessage());
+              existingCouponNode.setUnavailableMessages(newCNode.getUnavailableMessages());
+              campaignMessage.setMessageNode(save(existingCouponNode));
+          }
+          ((ImmediateConnector)existingCamp.getConnectors().iterator().next()).setDestinationUID(existingCouponNode.getUid());
+      }
 			sf.getCurrentSession().flush();
 			sf.getCurrentSession().clear();
 			save(existingCamp.getConnectors().iterator().next());
@@ -1962,9 +1905,7 @@ public class CampaignManager {
 			}
 			existingCamp = save(existingCamp);
 			publish(existingCamp.getUid());
-		}
-		catch(NoResultException e)
-		{
+		} else {
 			Campaign entryCamp = new Campaign();
 			entryCamp.setClientPK(clientIds.iterator().next());
 			entryCamp.setName("Client "+entryCamp.getClientPK()+" Entry Message");

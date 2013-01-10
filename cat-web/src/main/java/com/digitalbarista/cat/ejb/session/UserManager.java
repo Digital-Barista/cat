@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.NoResultException;
-
 import org.hibernate.Criteria;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Projections;
@@ -22,43 +20,36 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Session Bean implementation class UserManagerImpl
  */
-@Controller("UserManager")
+@Component("UserManager")
 @Lazy
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value={"/rest/users","/rs/users"})
 public class UserManager {
 	
-    @Autowired
-    private CacheAccessManager cache;
+  @Autowired
+  private CacheAccessManager cache;
 
-    @Autowired
-    private SessionFactory sf;
-    
-    @Autowired
-    private SecurityUtil securityUtil;
-    
-    /**
-     * Default constructor. 
-     */
-    public UserManager() {
-        // TODO Auto-generated constructor stub
-    }
+  @Autowired
+  private SessionFactory sf;
+
+  @Autowired
+  private SecurityUtil securityUtil;
+
+  /**
+   * Default constructor. 
+   */
+  public UserManager() {
+      // TODO Auto-generated constructor stub
+  }
 
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.POST,value="/{id}/role")
-	public void addRole(@PathVariable("id") Long userPK, @RequestBody Role roleToAdd) {
+	public void addRole(Long userPK, Role roleToAdd) {
 		UserDO user = getSimpleUserByPK(userPK);
 		
 		if(user==null)
@@ -78,8 +69,7 @@ public class UserManager {
 	}
 
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.POST,value="/{id}/roles")
-	public void addRoles(@PathVariable("id") Long userPK, @RequestBody Set<Role> rolesToAdd) {
+	public void addRoles(Long userPK, Set<Role> rolesToAdd) {
 		UserDO user = getSimpleUserByPK(userPK);
 
 		if(user==null)
@@ -119,8 +109,7 @@ public class UserManager {
 	}
 
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.GET,value="/{id}")
-	public User getUserByPK(@PathVariable("id") long pk) {
+	public User getUserByPK(long pk) {
 		User ret=new User();
 		ret.copyFrom(getSimpleUserByPK(pk));
 		return ret;
@@ -128,38 +117,31 @@ public class UserManager {
 
 	public UserDO getSimpleUserByUsername(String username)
 	{
-		try
-		{
-			Criteria crit = sf.getCurrentSession().createCriteria(UserDO.class);
-			crit.add(Restrictions.eq("username", username));
-			crit.setCacheable(true);
-			crit.setCacheRegion("query/userByUsername");
-			UserDO ret = (UserDO)crit.uniqueResult();
-			
-			if(ret==null)
-				return null;
-			
-			if(securityUtil.isAdmin())
-				return ret;
-			
-			if(securityUtil.getPrincipalName().equals(ret.getUsername()))
-				return ret;
-			
-			Set<Long> clientIds = securityUtil.extractClientIds(sf.getCurrentSession());
-			
-			for(RoleDO role : ret.getRoles())
-			{
-				if(role.getRoleName().equals("account.manager"))
-					if(clientIds.contains(role.getRefId()))
-						return ret;
-			}
-			
-			throw new SecurityException("Current user is not allowed to view the specified user.");
-		}
-		catch(NoResultException e)
-		{
-			return null;
-		}
+    Criteria crit = sf.getCurrentSession().createCriteria(UserDO.class);
+    crit.add(Restrictions.eq("username", username));
+    crit.setCacheable(true);
+    crit.setCacheRegion("query/userByUsername");
+    UserDO ret = (UserDO)crit.uniqueResult();
+
+    if(ret==null)
+      return null;
+
+    if(securityUtil.isAdmin())
+      return ret;
+
+    if(securityUtil.getPrincipalName().equals(ret.getUsername()))
+      return ret;
+
+    Set<Long> clientIds = securityUtil.extractClientIds(sf.getCurrentSession());
+
+    for(RoleDO role : ret.getRoles())
+    {
+      if(role.getRoleName().equals("account.manager"))
+        if(clientIds.contains(role.getRefId()))
+          return ret;
+    }
+
+    throw new SecurityException("Current user is not allowed to view the specified user.");
 	}
 	
 	public UserDO getSimpleUserByPK(Long pk)
@@ -188,14 +170,12 @@ public class UserManager {
 	}
 	
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.GET,value="/{username}")
-	public User getUserByUsername(@PathVariable("username") String username) {
+	public User getUserByUsername(String username) {
 		User ret = new User();
 		ret.copyFrom(getSimpleUserByUsername(username));
 		return ret;
 	}
 
-  @RequestMapping(method=RequestMethod.GET,value="/me")
 	public User getCurrentUser() {
 		User ret = new User();
 		ret.copyFrom(getSimpleUserByUsername(securityUtil.getPrincipalName()));
@@ -203,8 +183,7 @@ public class UserManager {
 	}
 
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.DELETE,value="/{id}/role")
-	public void removeRole(@PathVariable("id") Long userPK, @RequestBody Role roleToRemove) {
+	public void removeRole(Long userPK, Role roleToRemove) {
 		UserDO user = getSimpleUserByPK(userPK);
 
 		if(user==null)
@@ -224,8 +203,7 @@ public class UserManager {
 	}
 
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.DELETE,value="/{id}/roles")
-	public void removeRoles(@PathVariable("id") Long userPK, @RequestBody Set<Role> rolesToRemove) {
+	public void removeRoles(Long userPK, Set<Role> rolesToRemove) {
 		UserDO user = getSimpleUserByPK(userPK);
 
 		if(user==null)
@@ -238,8 +216,7 @@ public class UserManager {
 			removeRole(userPK,role);
 	}
 
-  @RequestMapping(method=RequestMethod.POST)
-	public User save(@RequestBody User user) {
+	public User save(User user) {
 		UserDO current = getSimpleUserByPK(user.getPrimaryKey());
 		
 		//If this is you, or you're an admin . . . have at it!
@@ -291,8 +268,7 @@ public class UserManager {
 	}
 
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method= RequestMethod.PUT,value="/{id}/roles")
-	public void syncRoles(@PathVariable("id") Long userPK, @RequestBody Set<Role> roles) {
+	public void syncRoles(Long userPK, Set<Role> roles) {
 		UserDO user = getSimpleUserByPK(userPK);
 
 		if(user==null)
@@ -344,14 +320,12 @@ public class UserManager {
 	}
 
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.GET,value="/available/{username}")
-	public boolean allowUsername(@PathVariable("username") String username) {
+	public boolean allowUsername(String username) {
 		return getSimpleUserByUsername(username)!=null;
 	}
 
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.POST,value="/available")
-	public Set<String> usernamesAllowed(@RequestBody Set<String> nameList) {
+	public Set<String> usernamesAllowed(Set<String> nameList) {
 		String query = "select u.username" +
 				" from UserDO u" +
 				" where u.username in (:nameList)";
@@ -361,10 +335,9 @@ public class UserManager {
 	}
 
 	@SuppressWarnings("unchecked")
-  @RequestMapping(method=RequestMethod.GET)
   public List<User> getAllVisibleUsers() 
 	{
-            return getVisibleUsers(null);
+    return getVisibleUsers(null);
 	}
 	
 	public List<User> getVisibleUsers(List<Long> clientIds)
@@ -396,8 +369,7 @@ public class UserManager {
 	}
 	
   @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
-  @RequestMapping(method=RequestMethod.DELETE)
-	public void delete(@RequestBody User user)
+	public void delete(User user)
 	{
 		sf.getCurrentSession().delete(getSimpleUserByUsername(user.getUsername()));
 	}

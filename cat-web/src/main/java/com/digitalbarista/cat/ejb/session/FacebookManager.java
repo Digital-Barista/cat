@@ -79,20 +79,15 @@ import com.restfb.batch.BatchRequest.BatchRequestBuilder;
 import com.restfb.batch.BatchResponse;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * Session Bean implementation class FacebookManagerImpl
  */
-@Controller
+@Component
 @Transactional(propagation= Propagation.REQUIRED)
-@RequestMapping(value={"/rest/facebook","/rs/facebook"})
 @RunAs("admin")
 public class FacebookManager
 {
@@ -133,12 +128,7 @@ public class FacebookManager
 	private String currentAppAccessToken;
 	private Date appAccessTokenObtained;
 
-  @RequestMapping(method={RequestMethod.POST, RequestMethod.GET},
-                  value="/messages/list/{appName}",
-                  consumes="application/x-www-form-urlencoded")
-  public List<FacebookMessage> getMessages(@PathVariable("appName") String appName, 
-                                           @ModelAttribute("uid") String uid, 
-                                           @ModelAttribute("signedRequest") String signedRequest, HttpServletRequest ui) throws FacebookManagerException
+  public List<FacebookMessage> getMessages(String appName, String uid, String signedRequest, HttpServletRequest ui) throws FacebookManagerException
 	{
 		// Try old way of validating first
 		if (!checkAuthorizationByQuerystring(ui))
@@ -176,12 +166,7 @@ public class FacebookManager
 		return ret;
 	}
 
-  @RequestMapping(method=RequestMethod.POST,
-                  consumes="application/x-www-form-urlencoded",
-                  value="/messages/{facebookMessageId}")
-	public void delete(@PathVariable("facebookMessageId") Integer facebookMessageId, 
-                     @ModelAttribute("signedRequest") String signedRequest, 
-                     HttpServletRequest ui) throws FacebookManagerException
+	public void delete(Integer facebookMessageId, String signedRequest, HttpServletRequest ui) throws FacebookManagerException
 	{
 
 		FacebookMessageDO message = (FacebookMessageDO) sf.getCurrentSession().get(FacebookMessageDO.class, facebookMessageId);
@@ -202,15 +187,7 @@ public class FacebookManager
 
 	}
 
-  @RequestMapping(method=RequestMethod.POST,
-                  consumes="application/x-www-form-urlencoded",
-                  value="/messages/{facebookMessageId}/{response}")
-	public FacebookMessage respond(@PathVariable("facebookMessageId") Integer facebookMessageId, 
-                                 @PathVariable("facebookMessageId") String response, 
-                                 @ModelAttribute("uid") String uid, 
-                                 @ModelAttribute("signedRequest") String signedRequest, 
-                                 HttpServletRequest ui)
-	    throws FacebookManagerException
+	public FacebookMessage respond(Integer facebookMessageId, String response, String uid, String signedRequest, HttpServletRequest ui) throws FacebookManagerException
 	{
 
 		FacebookMessage ret = null;
@@ -636,18 +613,12 @@ public class FacebookManager
 		return hashed;
 	}
 
-  @RequestMapping(method=RequestMethod.PUT, value="/messages/authorize/{appName}/{uid}")
-	public void userAuthorizeApp(@PathVariable("appName") String appName, 
-                               @PathVariable("uid") String uid)
+	public void userAuthorizeApp(String appName, String uid)
 	{
 		subscriptionManager.registerFacebookFollower(uid, appName);
 	}
 
-  @RequestMapping(method=RequestMethod.POST,
-                  consumes="application/x-www-form-urlencoded",
-                  value="/deauthorize/{appName}")
-  public void userDeauthorizeApp(@PathVariable("appName") String appName, 
-                                 @ModelAttribute("fb_sig_user") String uid)
+  public void userDeauthorizeApp(String appName, String uid)
 	{
 		subscriptionManager.removeFacebookFollower(uid, appName);
 	}

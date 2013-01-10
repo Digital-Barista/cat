@@ -16,20 +16,15 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Session Bean implementation class ClientDO
  */
-@Controller("CouponManager")
+@Component("CouponManager")
 @Transactional(propagation=Propagation.REQUIRED)
-@RequestMapping(value={"/rest/coupons","/rs/coupons"})
 public class CouponManager{
 
 	private static final int SUCCESS=0;
@@ -41,22 +36,21 @@ public class CouponManager{
 	
 	private static final int UNKNOWN_ERROR=5;
 	
-        @Autowired
-        private SessionFactory sf;
-        
-        @Autowired
-        private UserManager userManager;
-	
-        @Autowired
-        private ContactManager contactManager;
+  @Autowired
+  private SessionFactory sf;
 
-        @Autowired
-        private SecurityUtil securityUtil;
-        
-        @SuppressWarnings("unchecked")
-        @PreAuthorize("hasRole('admin') or hasRole('client')")
-        @RequestMapping(method=RequestMethod.POST,value="/{code}")
-	public CouponRedemptionMessage redeemCoupon(@PathVariable("cond") String couponCode) {
+  @Autowired
+  private UserManager userManager;
+
+  @Autowired
+  private ContactManager contactManager;
+
+  @Autowired
+  private SecurityUtil securityUtil;
+
+  @SuppressWarnings("unchecked")
+  @PreAuthorize("hasRole('admin') or hasRole('client')")
+	public CouponRedemptionMessage redeemCoupon(String couponCode) {
 		if(couponCode!=null)
 			couponCode=couponCode.trim();
 		
@@ -119,10 +113,9 @@ public class CouponManager{
 		return new CouponRedemptionMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode(),c.getUID());
 	}
 
-    @PreAuthorize("hasRole('admin') or hasRole('client') or hasRole('account.manager')")
-    @RequestMapping(method=RequestMethod.GET)
-    public List<Coupon> couponSummaryByClient(@RequestParam("clientid") Long clientID) 
-    {
+  @PreAuthorize("hasRole('admin') or hasRole('client') or hasRole('account.manager')")
+  public List<Coupon> couponSummaryByClient(Long clientID) 
+  {
 		List<Long> clientIds = null;
 		
 		if (clientID != null)
@@ -155,8 +148,7 @@ public class CouponManager{
 		return ret;
 	}
 	
-        @RequestMapping(method= RequestMethod.GET,value="/{code}")
-        public CouponRedemptionMessage queryCoupon(@PathVariable("code") String couponCode) {
+  public CouponRedemptionMessage queryCoupon(String couponCode) {
 		if(couponCode!=null)
 			couponCode=couponCode.trim();
 

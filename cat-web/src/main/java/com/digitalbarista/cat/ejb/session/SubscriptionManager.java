@@ -43,20 +43,15 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 /**
  * Session Bean implementation class SubscriptionManagerImpl
  */
-@Controller
-@RequestMapping(value={"/rest/subscriptions","/rs/subscriptions"})
+@Component
 @Transactional(propagation=Propagation.REQUIRED)
 @RunAs("admin")
 public class SubscriptionManager {
@@ -108,8 +103,7 @@ public class SubscriptionManager {
 	}
 
 	@SuppressWarnings("unchecked")
-  @RequestMapping(method=RequestMethod.GET,value="/{type}")
-	public Set<Address> getAllAddressesAsObjects(@RequestParam("clientid") Long clientId, @PathVariable("type") EntryPointType type)
+	public Set<Address> getAllAddressesAsObjects(Long clientId, EntryPointType type)
 	{
 		Set<Address> ret = new HashSet<Address>();
 		
@@ -237,8 +231,7 @@ public class SubscriptionManager {
     }
 	}
 
-  @RequestMapping(method=RequestMethod.POST,value="/{entryPointUID}")
-	public void subscribeToEntryPointWithObjects(Set<Address> addresses, @PathVariable("entryPointUID") String entryPointUID) 
+	public void subscribeToEntryPointWithObjects(Set<Address> addresses, String entryPointUID) 
 	{
 		Map<EntryPointType,Set<String>> typeMap = new HashMap<EntryPointType,Set<String>>();
 		
