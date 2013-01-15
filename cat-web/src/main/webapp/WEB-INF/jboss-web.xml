@@ -1,7 +1,3 @@
 <jboss-web>
   <context-root>cat</context-root>
-  <loader-repository>
-    com.digitalbarista.cat.web:archive=cat-web
-    <loader-repository-config>java2ParentDelegation=false</loader-repository-config>
-  </loader-repository>
 </jboss-web>
