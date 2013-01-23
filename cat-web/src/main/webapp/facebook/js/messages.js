@@ -30,6 +30,7 @@ function MessageAPI()
 		
 		// Get app ID from querystring
 		var appName = $.query.get("app_id");
+    if(appName==undefined) appName= $.query.get("app_name");
 		
 		// Make the message request
 		var url = MESSAGE_URL + "/list/" + appName  + "/" + window.location.search
