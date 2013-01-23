@@ -27,11 +27,13 @@
 %>
 
 <%
-	String appName = request.getParameter("app_id");
+	String appName = request.getParameter("app_name");
+	if(appName==null)
+		appName = request.getParameter("app_id");
 	String signedRequest = request.getParameter("signed_request");
 	String sessionSignedRequest = (String)session.getAttribute("signed_request");
 	String appUrl = "//apps.facebook.com/" + appName + "/";
-	String inviteActionUrl = request.getRequestURL().toString() + "/invite_success.jsp?app_id=" + appName;
+	String inviteActionUrl = request.getRequestURL().toString() + "/invite_success.jsp?app_name=" + appName;
 	String appId = null;
 	
 	String noMessagesInclude = getInclude(config.getServletContext(), appName, "no_messages.jsp");

@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 
 <%
-  String appName = request.getParameter("app_id");
+  String appName = request.getParameter("app_name");
+  if(appName==null)
+	appName = request.getParameter("app_id");
   String appUrl = "http://apps.facebook.com/" + appName + "/";
 %>
 
