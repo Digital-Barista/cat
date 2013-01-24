@@ -29,11 +29,10 @@ function MessageAPI()
 		});
 		
 		// Get app ID from querystring
-		var appName = $.query.get("app_id");
-    if(appName=="")
-    { 
-      appName= $.query.get("app_name");
-    }
+		var appName = $.query.get("app_name");
+		if (!appName){
+			appName = $.query.get("app_id");
+		}
 		
 		// Make the message request
 		var url = MESSAGE_URL + "/list/" + appName  + "/" + window.location.search
