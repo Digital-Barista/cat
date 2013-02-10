@@ -50,7 +50,7 @@ public class PagingUtil {
 		if (crit != null)
 		{
 			crit.setProjection(Projections.rowCount());
-			ret = (Integer)crit.uniqueResult();
+			ret = ((Long)crit.uniqueResult()).intValue();
 			
 			// Remove projection
 			crit.setProjection(null);

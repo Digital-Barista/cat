@@ -18,6 +18,7 @@ import com.digitalbarista.cat.ejb.session.CacheAccessManager;
 import com.digitalbarista.cat.ejb.session.CacheAccessManager.CacheName;
 import com.digitalbarista.cat.ejb.session.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,13 +26,28 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SecurityUtil {
-        
+  
   @Autowired
+  private ApplicationContext ctx;
+  
   private UserManager userManager;
 
-  @Autowired
   private CacheAccessManager cache;
-    
+  
+  private CacheAccessManager getCache()
+  {
+    if(cache==null)
+      cache=ctx.getBean(CacheAccessManager.class);
+    return cache;
+  }
+  
+  private UserManager getUserManager()
+  {
+    if(userManager==null)
+      userManager=ctx.getBean(UserManager.class);
+    return userManager;
+  }
+  
 	public boolean isAdmin(SecurityContext ctx)
 	{
 		for(GrantedAuthority auth : ctx.getAuthentication().getAuthorities())
@@ -72,7 +88,7 @@ public class SecurityUtil {
 		
 		Set<Long> clientIDs;
 		
-		clientIDs = (Set<Long>)cache.getCachedObject(CacheName.PermissionCache, username);
+		clientIDs = (Set<Long>)getCache().getCachedObject(CacheName.PermissionCache, username);
 		if(clientIDs!=null)
 			return clientIDs;
 
@@ -89,7 +105,7 @@ public class SecurityUtil {
 		}
 		else
 		{
-			UserDO userDO = userManager.getSimpleUserByUsername(username);
+			UserDO userDO = getUserManager().getSimpleUserByUsername(username);
 			if(userDO==null)
 				return clientIDs;
 			for(RoleDO role : userDO.getRoles())
@@ -103,8 +119,8 @@ public class SecurityUtil {
 			crit.setProjection(Projections.id());
 			clientIDs = new HashSet<Long>(crit.list());
 		}
-		if(!cache.cacheContainsKey(CacheName.PermissionCache, username))
-			cache.cacheObject(CacheName.PermissionCache, username, clientIDs);
+		if(!getCache().cacheContainsKey(CacheName.PermissionCache, username))
+			getCache().cacheObject(CacheName.PermissionCache, username, clientIDs);
 		return clientIDs;
 	}
 	

@@ -44,7 +44,7 @@ public class CATFlexAuthenticationHelper implements LoginCommand {
       Logger.getLogger(getClass()).debug("Authentication failed: ",ex);
       return null;
     }
-    SecurityContextHolder.getContext().setAuthentication(authentication);
+    SecurityContextHolder.getContextHolderStrategy().getContext().setAuthentication(authentication);
     final String principalName=authentication.getName();
     return new Principal(){
       public String getName() {
@@ -57,7 +57,7 @@ public class CATFlexAuthenticationHelper implements LoginCommand {
     List<String> roleNames = (List<String>)roles;
     if(SecurityContextHolder.getContext()==null || SecurityContextHolder.getContext().getAuthentication()==null)
       return false;
-    Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>)SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+    Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>)SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication().getAuthorities();
     for(String roleName : roleNames)
     {
       for(GrantedAuthority authority : authorities)

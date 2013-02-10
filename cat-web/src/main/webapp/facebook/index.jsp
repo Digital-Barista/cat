@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.codehaus.jettison.json.JSONObject"%>
 <%@page import="com.digitalbarista.cat.ejb.session.FacebookManager"%>
 <%@page import="javax.naming.InitialContext"%>
@@ -48,8 +49,7 @@
 	}
 
 	// Lookup app by name to get facebook app ID needed for javascript SDK
-	InitialContext context = new InitialContext();
-	FacebookManager facebookManager = (FacebookManager)context.lookup("ejb/cat/FacebookManager");
+	FacebookManager facebookManager = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext()).getBean(FacebookManager.class);
 	FacebookApp app = facebookManager.findFacebookAppByName(appName);
 	if (app != null)
 	{

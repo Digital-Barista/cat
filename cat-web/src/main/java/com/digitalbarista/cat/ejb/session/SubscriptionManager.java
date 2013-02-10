@@ -51,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Session Bean implementation class SubscriptionManagerImpl
  */
-@Component
+@Component("SubscriptionManager")
 @Transactional(propagation=Propagation.REQUIRED)
 @RunAs("admin")
 public class SubscriptionManager {

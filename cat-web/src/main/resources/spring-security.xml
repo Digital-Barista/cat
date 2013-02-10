@@ -49,7 +49,10 @@
 	<alias name="filterChainProxy" alias="springSecurityFilterChain"/>
 	<bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
 		<security:filter-chain-map path-type="ant">
-      <security:filter-chain pattern="/messagebroker/*" filters="none"/>
+      <security:filter-chain pattern="/messagebroker/*" filters="AppSecurityContextPersistenceFilter,AppFilterSecurityInterceptor"/>
+			<security:filter-chain pattern="/unsecure/rest/**" filters="AppSecurityContextPersistenceFilter,
+																 AnonymousAuthFilter,
+                                 AppFilterSecurityInterceptor"/>
 			<security:filter-chain pattern="/rest/**" filters="AppSecurityContextPersistenceFilter,
                                  BasicAuthenticationFilter,
 															   ApiExceptionTranslationFilter,

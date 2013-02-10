@@ -48,7 +48,7 @@ public class UserManager {
       // TODO Auto-generated constructor stub
   }
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void addRole(Long userPK, Role roleToAdd) {
 		UserDO user = getSimpleUserByPK(userPK);
 		
@@ -68,7 +68,7 @@ public class UserManager {
 		user.getRoles().add(roleToAdd.buildDataRole());
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void addRoles(Long userPK, Set<Role> rolesToAdd) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -82,7 +82,7 @@ public class UserManager {
 			addRole(userPK,role);
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	protected User createUser(User newUser) {
 		UserDO user = new UserDO();
 		newUser.copyTo(user);
@@ -108,7 +108,7 @@ public class UserManager {
 		return ret;
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public User getUserByPK(long pk) {
 		User ret=new User();
 		ret.copyFrom(getSimpleUserByPK(pk));
@@ -169,7 +169,7 @@ public class UserManager {
 		throw new SecurityException("Current user is not allowed to view the specified user.");
 	}
 	
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public User getUserByUsername(String username) {
 		User ret = new User();
 		ret.copyFrom(getSimpleUserByUsername(username));
@@ -182,7 +182,7 @@ public class UserManager {
 		return ret;
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void removeRole(Long userPK, Role roleToRemove) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -202,7 +202,7 @@ public class UserManager {
 		user.getRoles().remove(roleToRemove.buildDataRole());
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void removeRoles(Long userPK, Set<Role> rolesToRemove) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -267,7 +267,7 @@ public class UserManager {
 		return ret;
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void syncRoles(Long userPK, Set<Role> roles) {
 		UserDO user = getSimpleUserByPK(userPK);
 
@@ -319,12 +319,12 @@ public class UserManager {
 		}
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public boolean allowUsername(String username) {
 		return getSimpleUserByUsername(username)!=null;
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public Set<String> usernamesAllowed(Set<String> nameList) {
 		String query = "select u.username" +
 				" from UserDO u" +
@@ -368,7 +368,7 @@ public class UserManager {
 		return ret;
 	}
 	
-  @PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void delete(User user)
 	{
 		sf.getCurrentSession().delete(getSimpleUserByUsername(user.getUsername()));

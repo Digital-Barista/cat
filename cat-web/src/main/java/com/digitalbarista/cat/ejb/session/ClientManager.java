@@ -83,14 +83,14 @@ public class ClientManager{
     
 
     @SuppressWarnings("unchecked")
-    @PreAuthorize("hasRole('admin') or hasRole('client')")
+    @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client')")
     public List<EntryPointDefinition> getEntryPointDefinitions()
     {
         return getEntryPointDefinitions(null);
     }
     
     @SuppressWarnings("unchecked")
-    @PreAuthorize("hasRole('admin') or hasRole('client')")
+    @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client')")
     public List<EntryPointDefinition> getEntryPointDefinitions(List<Long> clientIds) 
     {
     	List<EntryPointDefinition> ret = new ArrayList<EntryPointDefinition>();
@@ -131,7 +131,7 @@ public class ClientManager{
     }
     
     @SuppressWarnings("unchecked")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('ROLE_admin')")
     public EntryPointDefinition getEntryPointDefinition(EntryPointType type, String account) 
     {
         EntryPointDefinition ret = new EntryPointDefinition();
@@ -182,7 +182,7 @@ public class ClientManager{
 				kywd.setCampaignUID(keywords.get(kywd.getKeyword()));
     }
     
-  @PreAuthorize("hasRole('admin') or hasRole('client')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client')")
 	@AuditEvent(AuditType.SaveClient)
 	public Client save(Client client) {
 		if(client==null)
@@ -300,7 +300,7 @@ public class ClientManager{
 		return ret;
 	}
 
-  @PreAuthorize("hasRole('admin') or hasRole('client') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client') or hasRole('ROLE_account.manager')")
   public Keyword save(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
@@ -358,7 +358,7 @@ public class ClientManager{
 		return ret;
 	}
 	
-	@PreAuthorize("hasRole('admin') or hasRole('client')")
+	@PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client')")
 	public EntryPointDefinition save(EntryPointDefinition epd) {
 		if(epd == null)
 			throw new IllegalArgumentException("Cannot save a null entry point definition.");
@@ -400,13 +400,13 @@ public class ClientManager{
 		return ret;
 	}
 
-	@PreAuthorize("hasRole('admin') or hasRole('client')")
+	@PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client')")
 	public List<Keyword> getAllKeywords() 
 	{
 		return getKeywords(null);
 	}
 	
-  @PreAuthorize("hasRole('admin') or hasRole('client')")
+  @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client')")
 	public List<Keyword> getKeywords(List<Long> clientIds)
 	{
 		List<Keyword> ret = new ArrayList<Keyword>();
@@ -480,7 +480,7 @@ public class ClientManager{
 		return ret;
 	}
 
-	@PreAuthorize("hasRole('admin') or hasRole('account.manager')")
+	@PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void delete(Keyword kwd) {
 		if(kwd == null)
 			throw new IllegalArgumentException("Cannot save a null keyword.");
@@ -569,7 +569,7 @@ public class ClientManager{
 		return true;
 	}
 
-  @PreAuthorize("hasRole('admin')")
+  @PreAuthorize("hasRole('ROLE_admin')")
 	public void disableClient(Long clientID) {
 		if(clientID==null)
 			return;
@@ -579,7 +579,7 @@ public class ClientManager{
 		client.setActive(false);
 	}
 
-  @PreAuthorize("hasRole('admin')")
+  @PreAuthorize("hasRole('ROLE_admin')")
 	public void enableClient(Long clientID) {
 		if(clientID==null)
 			return;

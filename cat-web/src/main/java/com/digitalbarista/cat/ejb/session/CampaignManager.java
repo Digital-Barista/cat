@@ -65,7 +65,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Session Bean implementation class CampaignManagerImpl
  */
 
-@Component
+@Component("CampaignManager")
 @Transactional(propagation=Propagation.REQUIRED)
 public class CampaignManager {
 
@@ -433,7 +433,7 @@ public class CampaignManager {
 		return campaign;
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	@AuditEvent(AuditType.PublishCampaign)
 	public void publish(String campaignUUID) {
 		try
@@ -721,7 +721,7 @@ public class CampaignManager {
 		}
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	@AuditEvent(AuditType.SaveCampaign)
 	public Campaign save(Campaign campaign) {
 		CampaignDO camp = getSimpleCampaign(campaign.getUid());
@@ -831,7 +831,7 @@ public class CampaignManager {
 		return ret;
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
   @AuditEvent(AuditType.CreateCampaignFromTemplate)
 	public Campaign createFromTemplate(Campaign campaign, String campaignTemplateUUID)
 	{
@@ -1040,7 +1040,7 @@ public class CampaignManager {
 		return true;
 	}
 	
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	@AuditEvent(AuditType.SaveNode)
 	public Node save(Node node) {
 		CampaignDO camp = getSimpleCampaign(node.getCampaignUID());
@@ -1268,7 +1268,7 @@ public class CampaignManager {
 		}
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	@AuditEvent(AuditType.SaveConnection)
 	public Connector save(Connector connector) {
 		CampaignDO camp = getSimpleCampaign(connector.getCampaignUID());
@@ -1390,7 +1390,7 @@ public class CampaignManager {
 		return connector;
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	@AuditEvent(AuditType.DeleteCampaign)
 	public void delete(Campaign campaign) {
 		if(campaign==null || campaign.getUid()==null)
@@ -1407,7 +1407,7 @@ public class CampaignManager {
 		camp.setStatus(CampaignStatus.Deleted);
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	@AuditEvent(AuditType.DeleteNode)
 	public void delete(Node node) {
 		if(node==null || node.getUid()==null)
@@ -1470,7 +1470,7 @@ public class CampaignManager {
 			sf.getCurrentSession().delete(n);
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	@AuditEvent(AuditType.DeleteConnection)
 	public void delete(Connector connector) {
 		if(connector==null || connector.getUid()==null)
@@ -1589,7 +1589,7 @@ public class CampaignManager {
 		return (Integer)sf.getCurrentSession().createQuery(query).setParameter("uid", uid).uniqueResult();
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void broadcastMessage(Long clientPK, List<EntryData> entryPoints, MessageNode message, List<Contact> contacts) {
 		if(message==null || message.getCampaignUID()==null)
 			throw new IllegalArgumentException("Cannot publish a broadcast message without a valid message, and campaign UID");
@@ -1634,7 +1634,7 @@ public class CampaignManager {
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void broadcastMessageSearch(Long clientPK, List<EntryData> entryPoints, MessageNode message, ContactSearchCriteria search) {
 		List<Contact> contacts=new ArrayList<Contact>();
 		for(EntryData entry : entryPoints)
@@ -1671,7 +1671,7 @@ public class CampaignManager {
 		broadcastMessage(clientPK, entryPoints, message, contacts);
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void broadcastCoupon(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, List<Contact> contacts) {
 		if(coupon==null || coupon.getCampaignUID()==null)
 			throw new IllegalArgumentException("Cannot publish a broadcast coupon without a valid message, and campaign UID");
@@ -1716,7 +1716,7 @@ public class CampaignManager {
 		subscriptionManager.subscribeContactsToEntryPoint(contacts, entry.getUid());
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
 	public void broadcastCouponSearch(Long clientPK, List<EntryData> entryPoints, CouponNode coupon, ContactSearchCriteria search) {
 		List<Contact> contacts=new ArrayList<Contact>();
 		for(EntryData entry : entryPoints)
@@ -1753,7 +1753,7 @@ public class CampaignManager {
 		broadcastCoupon(clientPK, entryPoints, coupon, contacts);
 	}
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
   public CampaignEntryMessage loadEntryCampaign()
   {
 		Set<Long> clientIds = securityUtil.extractClientIds(sf.getCurrentSession());
@@ -1806,7 +1806,7 @@ public class CampaignManager {
     return ret;
   }
 
-  @PreAuthorize("hasRole('client') or hasRole('admin') or hasRole('account.manager')")
+  @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_admin') or hasRole('ROLE_account.manager')")
   public CampaignEntryMessage saveEntryCampaign(CampaignEntryMessage campaignMessage)
   {
 		Set<Long> clientIds = securityUtil.extractClientIds(sf.getCurrentSession());

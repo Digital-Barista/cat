@@ -39,7 +39,7 @@
     <property name="destinationResolver" ref="CATDestinationResolver"/>
     <property name="destinationName" value="cat/messaging/MailEvents"/>
     <property name="messageListener" ref="CATMailListener"/>
-    <property name="sessionTransacted" value="true"/>
+    <property name="transactionManager" ref="transactionManager"/>
   </bean>
 
   <bean id="MainEventMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
@@ -47,7 +47,7 @@
     <property name="destinationResolver" ref="CATDestinationResolver"/>
     <property name="destinationName" value="cat/messaging/Events"/>
     <property name="messageListener" ref="MainEventHandler"/>
-    <property name="sessionTransacted" value="true"/>
+    <property name="transactionManager" ref="transactionManager"/>
   </bean>
  
   <bean id="JSONConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>

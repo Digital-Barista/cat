@@ -40,6 +40,8 @@
       <property name="hibernateProperties">
         <value>
           hibernate.dialect=org.hibernate.dialect.MySQLDialect
+          hibernate.validator.apply_to_ddl=false
+          hibernate.validator.autoregister_listeners=false
         </value>
       </property>
     </bean>

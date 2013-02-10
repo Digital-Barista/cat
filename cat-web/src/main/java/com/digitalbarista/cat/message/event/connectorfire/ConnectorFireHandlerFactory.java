@@ -33,10 +33,10 @@ public class ConnectorFireHandlerFactory {
 				return ctx.getBean(MessageNodeFireHandler.class);
 				
 			case Tagging:
-				return new TaggingNodeFireHandler();
+				return ctx.getBean(TaggingNodeFireHandler.class);
 				
 			case Coupon:
-				return new CouponNodeFireHandler();
+				return ctx.getBean(CouponNodeFireHandler.class);
 				
 			default:
 				throw new IllegalArgumentException("Invalid Node type for connector fired event: "+type.toString());
