@@ -94,7 +94,7 @@
           <property name="extractValueFromSingleKeyModel" value="true"/>
           <property name="objectMapper">
             <bean class="org.codehaus.jackson.map.ObjectMapper">
-              <property name="serializatioInclusion" value="NON_NULL"/>
+              <property name="serializationInclusion" value="NON_NULL"/>
             </bean>
           </property>
         </bean>

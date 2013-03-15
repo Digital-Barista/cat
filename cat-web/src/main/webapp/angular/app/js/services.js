@@ -32,7 +32,7 @@ angular.module('cat.services', [])
         }
     })
     .factory('ClientServices', function(ServiceUtil){
-        var clientUrl = contextPath + '/rs/clients',
+        var clientUrl = contextPath + '/data/client',
             clientList;
 
         return {
