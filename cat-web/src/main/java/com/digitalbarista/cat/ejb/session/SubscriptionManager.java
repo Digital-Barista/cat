@@ -161,14 +161,8 @@ public class SubscriptionManager {
 		Criteria blacklistCrit = sf.getCurrentSession().createCriteria(BlacklistDO.class);
 		blacklistCrit.add(Restrictions.eq("entryPointType", subscriptionType));
 		blacklistCrit.add(Restrictions.eq("incomingAddress", ((EntryNode)entryNode).getEntryData().get(entryPointIndex).getEntryPoint()));
-		List<BlacklistDO> blacklisted = blacklistCrit.list();
-		if(blacklisted!=null && blacklisted.size()>0)
-      return;
-		
-		blacklistCrit = sf.getCurrentSession().createCriteria(BlacklistDO.class);
-		blacklistCrit.add(Restrictions.eq("entryPointType", subscriptionType));
 		blacklistCrit.add(Restrictions.eq("client.id", nodeDO.getCampaign().getClient().getPrimaryKey()));
-		blacklisted = blacklistCrit.list();
+		List<BlacklistDO> blacklisted = blacklistCrit.list();
 		if(blacklisted!=null && blacklisted.size()>0)
       return;
 		
