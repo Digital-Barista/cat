@@ -4,10 +4,10 @@
   <New id="FCDS" class="org.mortbay.jetty.plus.naming.Resource">
     <Arg>java:jdbc/campaignAdminDS</Arg>
     <Arg>
-      <New class="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource">
-        <Set name="URL">jdbc:mysql://localhost:3306/campaign_admin</Set>
-        <Set name="User">cat_user</Set>
-        <Set name="Password">cat_pass</Set>
+      <New class="${jdbc.dataSource}">
+        <Set name="URL">${jdbc.url}</Set>
+        <Set name="User">${jdbc.username}</Set>
+        <Set name="Password">${jdbc.password}</Set>
       </New>
     </Arg>
   </New>

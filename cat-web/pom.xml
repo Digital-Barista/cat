@@ -11,8 +11,13 @@
   <organization>
       <name>Digital Barista, Inc.</name>
   </organization>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jdbc.dataSource>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</jdbc.dataSource>
+    <jdbc.url>jdbc:mysql://localhost:3306/campaign_admin</jdbc.url>
+    <jdbc.username>cat_user</jdbc.username>
+    <jdbc.password>cat_pass</jdbc.password>    
   </properties>
 
   <parent>
@@ -22,6 +27,23 @@
   </parent>
 
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+         <include>**/*.properties</include>
+         <include>**/*.xml</include>
+        </includes>
+      </testResource>
+      <testResource>
+        <directory>env</directory>
+        <filtering>true</filtering>
+        <includes>
+            <include>*.xml</include>
+        </includes>
+      </testResource>
+    </testResources>    
     <plugins>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -62,8 +84,8 @@
         <configuration>
           <scanIntervalSeconds>3</scanIntervalSeconds>
           <!-- jetty config files processed for property replacement by testResources -->
-          <jettyConfig>${project.basedir}/env/jetty.xml</jettyConfig>
-          <jettyEnvXml>${project.basedir}/env/jetty-env.xml</jettyEnvXml> <!-- define datasource for Jetty JNDI -->
+          <jettyConfig>target/test-classes/jetty.xml</jettyConfig>
+          <jettyEnvXml>target/test-classes/jetty-env.xml</jettyEnvXml> <!-- define datasource for Jetty JNDI -->
           <contextPath>/cat</contextPath>
           <systemProperties>
             <systemProperty>
