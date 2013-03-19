@@ -46,6 +46,61 @@
     </testResources>    
     <plugins>
       <plugin>
+        <groupId>org.dbmaintain</groupId>
+        <artifactId>dbmaintain-maven-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <goalPrefix>db</goalPrefix>
+          <databases>
+            <database>
+              <dialect>h2</dialect>
+              <driverClassName>org.h2.Driver</driverClassName>
+              <userName>cat_user</userName>
+              <password>cat_pass</password>
+              <url>jdbc:h2:target/h2/cat;MVCC=TRUE;MODE=MYSQL</url>
+              <schemaNames>PUBLIC</schemaNames>
+            </database>
+          </databases>
+          <qualifiers>mysql,h2</qualifiers>
+          <excludedQualifiers>mysql</excludedQualifiers>
+          <autoCreateDbMaintainScriptsTable>true</autoCreateDbMaintainScriptsTable>
+          <scriptLocations>${basedir}/scripts/incremental,${basedir}/scripts/repeatable</scriptLocations>
+        </configuration>
+        <executions>
+           <execution>
+             <id>updateDatabase</id>
+               <phase>process-test-resources</phase>
+               <goals>
+                   <goal>updateDatabase</goal>
+               </goals>
+           </execution>
+           <execution>
+             <id>cleanDatabase</id>
+               <goals>
+                   <goal>cleanDatabase</goal>
+               </goals>
+               <configuration>
+                 <disableConstraints>true</disableConstraints>
+               </configuration>
+           </execution>
+       </executions>
+        <dependencies>
+          <dependency>
+            <!-- replacing dbmaintain with our own version that includes
+                 H2 support.
+            -->
+            <groupId>org.dbmaintain</groupId>
+            <artifactId>dbmaintain</artifactId>
+            <version>2.4.H2</version>                
+          </dependency>
+          <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.2.134</version>
+          </dependency>
+        </dependencies>
+      </plugin>          
+      <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
@@ -364,6 +419,18 @@
           <groupId>javassist</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.dbmaintain</groupId>
+      <artifactId>dbmaintain</artifactId>
+      <version>2.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-dbutils</groupId>
+      <artifactId>commons-dbutils</artifactId>
+      <version>1.5</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

@@ -440,6 +440,22 @@
   
   <pluginRepositories>
     <pluginRepository>
+      <id>DBI</id>
+      <layout>default</layout>
+      <name>DBI Repository</name>
+      <releases>
+        <enabled>true</enabled>
+        <checksumPolicy>warn</checksumPolicy>
+        <updatePolicy>daily</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <checksumPolicy>warn</checksumPolicy>
+        <updatePolicy>daily</updatePolicy>
+      </snapshots>
+      <url>http://repo.digitalbarista.com/nexus/content/groups/public/</url>
+    </pluginRepository>
+    <pluginRepository>
       <id>sonatypeflex</id>
       <name>Sonatype FlexGroup Repo</name>
       <layout>default</layout>
