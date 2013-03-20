@@ -101,8 +101,8 @@ public class CampaignManager {
   public ServiceResponse test()
   {
       ServiceResponse ret = new ServiceResponse();
-      ret.setMetadata(new ServiceResponseMetadata());
-      ret.setErrors(Arrays.asList(new ServiceResponseError[]{new ServiceResponseError()}));
+      ret.setMetadata(new ServiceMetadata());
+      ret.setErrors(Arrays.asList(new ServiceError[]{new ServiceError()}));
       return ret;
   }
 

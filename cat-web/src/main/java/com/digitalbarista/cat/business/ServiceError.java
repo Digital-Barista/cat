@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date: 1/6/13
  */
 @XmlRootElement(name="error")
-public class ServiceResponseError
+public class ServiceError
 {
     private String code;
     private String message;

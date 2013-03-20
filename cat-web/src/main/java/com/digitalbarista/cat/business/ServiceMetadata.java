@@ -7,21 +7,32 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date: 1/6/13
  */
 @XmlRootElement(name="metadata")
-public class ServiceResponseMetadata
+public class ServiceMetadata
 {
-    private int limit = 999;
+    public static final int DEFAULT_LIMIT = 999;
+
+    private int limit = DEFAULT_LIMIT;
     private int offset = 0;
     private int total = 0;
     private String sortField;
     private int sortDirection = 1;
 
+    public ServiceMetadata()
+    {
+    }
+    public ServiceMetadata(Integer limit, Integer offset, String sortField, Integer sortDirection){
+        setLimit(limit);
+        setOffset(offset);
+        setSortDirection(sortDirection);
+        this.sortField = sortField;
+    }
     @XmlAttribute
     public int getLimit() {
         return limit;
     }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
+    public void setLimit(Integer limit) {
+        this.limit = limit != null ? limit : DEFAULT_LIMIT;
     }
 
     @XmlAttribute
@@ -29,8 +40,8 @@ public class ServiceResponseMetadata
         return offset;
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
+    public void setOffset(Integer offset) {
+        this.offset = offset != null ? offset : 0;
     }
 
     @XmlAttribute
@@ -56,7 +67,7 @@ public class ServiceResponseMetadata
         return sortDirection;
     }
 
-    public void setSortDirection(int sortDirection) {
-        this.sortDirection = sortDirection;
+    public void setSortDirection(Integer sortDirection) {
+        this.sortDirection = sortDirection == -1 || sortDirection == 1 ? sortDirection : 1;
     }
 }
