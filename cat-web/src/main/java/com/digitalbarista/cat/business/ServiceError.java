@@ -12,6 +12,17 @@ public class ServiceError
     private String code;
     private String message;
 
+    public ServiceError(){
+
+    }
+    public ServiceError(String code, String message){
+        this.code = code;
+        this.message = message;
+    }
+    public ServiceError(String message){
+        this.message = message;
+    }
+    
     @XmlAttribute
     public String getCode() {
         return code;

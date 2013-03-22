@@ -86,6 +86,23 @@ angular.module('cat.services', [])
             }
         }
     })
+    .factory('CampaignServices', function(ServiceUtil){
+        var broadcastUrl = contextPath + '/data/broadcast';
+
+        return {
+
+            broadcastMessage: function(params){
+                var args = $.extend({}, params),
+                    url = broadcastUrl;
+
+                ServiceUtil.request({
+                    method: 'POST',
+                    url: url,
+                    data: JSON.stringify(args.data)
+                }).success(args.success);
+            }
+        }
+    })
     .value('config', {
             leftNavItems:[
                 {

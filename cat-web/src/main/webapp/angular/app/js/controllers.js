@@ -7,7 +7,7 @@ angular.module('cat.controllers', [])
         }
     )
     .controller('SendMessageCtrl',
-        function ($scope, $rootScope) {
+        function ($scope, $rootScope, CampaignServices) {
             var emptyMessage = {
                 message: ''
             }
@@ -24,6 +24,19 @@ angular.module('cat.controllers', [])
 
             $scope.chooseNetworks = function(){
                 $scope.showNetwork = true;
+            }
+
+            $scope.sendMessage = function(){
+                CampaignServices.broadcastMessage({
+                    data: {
+                        clientId: 1,
+                        message: "This is my message",
+                        entryPoints: [{
+                            entryType: 'Facebook',
+                            entryPoint: 'dbi_coupons'
+                        }]
+                    }
+                });
             }
 
             $rootScope.$on('confirmChooseNetwork', function(e, message){
@@ -69,7 +82,7 @@ angular.module('cat.controllers', [])
     .controller('SentBroadcastCtrl',
         function ($scope) {
         }
-    )
+    ) 
     .controller('RedeemCouponsCtrl',
         function ($scope, CouponServices) {
             $scope.redeem = function(){

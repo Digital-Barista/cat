@@ -3,6 +3,7 @@ package com.digitalbarista.cat.business;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +16,12 @@ public class ServiceResponse
     private Object result;
     private List<ServiceError> errors;
 
+    public void addError(ServiceError error){
+        if (errors == null){
+            errors = new ArrayList<ServiceError>();
+        }
+        errors.add(error);
+    }
     @XmlElementRef
     public ServiceMetadata getMetadata() {
         return metadata;

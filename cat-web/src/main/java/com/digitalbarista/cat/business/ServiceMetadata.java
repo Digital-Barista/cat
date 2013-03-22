@@ -68,6 +68,6 @@ public class ServiceMetadata
     }
 
     public void setSortDirection(Integer sortDirection) {
-        this.sortDirection = sortDirection == -1 || sortDirection == 1 ? sortDirection : 1;
+        this.sortDirection = (sortDirection != null && (sortDirection == -1 || sortDirection == 1)) ? sortDirection : 1;
     }
 }
