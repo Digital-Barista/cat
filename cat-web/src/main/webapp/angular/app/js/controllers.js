@@ -7,9 +7,10 @@ angular.module('cat.controllers', [])
         }
     )
     .controller('SendMessageCtrl',
-        function ($scope, $rootScope, CampaignServices) {
+        function ($scope, $rootScope, CampaignServices, ServiceUtil) {
             var emptyMessage = {
-                message: ''
+                message: '',
+                entryPoints: []
             }
             $scope.message = $.extend({}, emptyMessage);
 
@@ -27,14 +28,17 @@ angular.module('cat.controllers', [])
             }
 
             $scope.sendMessage = function(){
+                $scope.showSendMessage = false;
                 CampaignServices.broadcastMessage({
                     data: {
-                        clientId: 1,
-                        message: "This is my message",
-                        entryPoints: [{
-                            entryType: 'Facebook',
-                            entryPoint: 'dbi_coupons'
-                        }]
+                        clientId: $scope.message.clientId,
+                        message: $scope.message.message,
+                        entryPoints: $scope.message.entryPoints
+                    },
+                    success: function(data){
+                        if (!ServiceUtil.handleResult(data)){
+                            console.log(data);
+                        }
                     }
                 });
             }

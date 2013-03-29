@@ -16,6 +16,57 @@ angular.module('cat.directives', [])
             }
         }
     })
+    .directive('modalloader', function ($rootScope) {
+        return {
+            restrict: 'A',
+            replace: true,
+            templateUrl: 'partials/modalloader.html',
+            link: function (scope, element, attrs) {
+                var timeout,
+                    timeoutMils = 20000;
+                $rootScope.$on('modalloader', function (event, show) {
+                    setVisibility(show);
+                });
+
+                function setVisibility(visible) {
+                    clearTimeout(timeout);
+                    scope.showModalLoader = visible ? 'on' : '';
+
+                    if (visible) {
+                        timeout = setTimeout(function () {
+                            scope.showModalLoader = '';
+                        }, timeoutMils);
+                    }
+                }
+            }
+        }
+    })
+    .directive('modalmessage', function ($rootScope) {
+        return {
+            restrict: 'A',
+            replace: true,
+            templateUrl: 'partials/modalmessage.html',
+            link: function (scope, element, attrs) {
+                $rootScope.$on('showmodal', function (event, message) {
+                    scope.message = message;
+                    if (!scope.message.buttons) {
+                        scope.message.buttons = [
+                            {text: 'OK'}
+                        ];
+                    }
+                    scope.showModalMessage = 'on';
+                });
+
+                scope.clickButton = function (index) {
+                    var buttons = scope.message.buttons;
+                    if (buttons && buttons[index] && buttons[index].click) {
+                        buttons[index].click();
+                    }
+                    scope.showModalMessage = '';
+                }
+            }
+        }
+    })
     .directive('leftmenu', function (config, $location, $rootScope) {
         return {
             restrict: 'A',
@@ -40,19 +91,33 @@ angular.module('cat.directives', [])
             replace: true,
             templateUrl: 'partials/choosenetworks.html',
             link: function (scope, element, attrs) {
-                scope.message = {
+                $.extend(scope.message, {
                     facebook: 'all',
-                    facebookContacts: 0
-                }
+                    facebookContacts: 0,
+                    entryPoints: []
+                });
 
-                scope.$watch('selectedClient', function () {
-                    delete scope.message.facebookEntryPoint;
+                scope.$watch('selectedClient', function (newVal) {
+                    scope.message.clientId = newVal ? newVal.clientId : undefined;
                 });
 
                 scope.confirmSend = function () {
+                    var i, point, points = [scope.message.facebookEntryPoint];
+                    scope.message.entryPoints = [];
+                    for (i = points.length; i--;) {
+                        point = points[i];
+                        if (point) {
+                            scope.message.entryPoints.push({
+                                    entryType: point.type,
+                                    entryPoint: point.value
+                                }
+                            );
+                        }
+                    }
                     scope.showNetwork = false;
                     $rootScope.$broadcast('confirmChooseNetwork', scope.message);
                 }
+
 
                 ClientServices.listClients({
                     success: function (data) {
@@ -64,7 +129,8 @@ angular.module('cat.directives', [])
         }
     })
 
-    .directive('sessiontimeout', function ($rootScope, $location) {
+    .
+    directive('sessiontimeout', function ($rootScope, $location) {
         return {
             restrict: 'A',
             replace: true,

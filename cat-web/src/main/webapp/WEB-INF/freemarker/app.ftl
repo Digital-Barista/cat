@@ -13,6 +13,8 @@
 
 <div sessiontimeout></div>
 <div dataloader></div>
+<div modalmessage></div>
+<div modalloader></div>
 
 <header class="navbar navbar-fixed-top">
     <div class="navbar-inner">

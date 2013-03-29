@@ -2,6 +2,8 @@ package com.digitalbarista.cat.controller;
 
 import com.digitalbarista.cat.business.*;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import edu.emory.mathcs.backport.java.util.Arrays;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +17,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import java.io.StringReader;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class CampaignController
@@ -38,15 +41,15 @@ public class CampaignController
         ServiceResponse ret = new ServiceResponse();
         try {
             JSONObject json = new JSONObject(body);
-            JAXBContext context = JAXBContext.newInstance(EntryData.class);
-            Unmarshaller unmarsh = context.createUnmarshaller();
+            ObjectMapper mapper = new ObjectMapper();
 
             Long clientId = new Long(json.get("clientId").toString());
             MessageNode message = new MessageNode();
+            message.setCampaignUID(UUID.randomUUID().toString());
             message.setMessage(json.get("message").toString());
 
-            Object entries = unmarsh.unmarshal(new StreamSource(new StringReader(json.get("entryPoints").toString())));
-            List<EntryData> entryPoints = (List<EntryData>)entries;
+            String entry = json.get("entryPoints").toString();
+            List<EntryData> entryPoints = Arrays.asList(mapper.readValue(entry, EntryData[].class));
 
             campaignManager.broadcastMessageSearch(clientId, entryPoints, message, null);
             ret.setResult("message sent");

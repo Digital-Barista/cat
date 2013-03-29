@@ -21,13 +21,31 @@ angular.module('cat.services', [])
                     $rootScope.$broadcast('dataloader', true);
                 }
 
+                if (config.showLoader){
+                    $rootScope.$broadcast('modalloader', true);
+                }
+
                 request = $http(config);
                 request.then(function(){
                     if (config.showDataLoader){
                         $rootScope.$broadcast('dataloader', false);
                     }
+                    if (config.showLoader){
+                        $rootScope.$broadcast('modalloader', false);
+                    }
                 });
                 return request;
+            },
+
+            handleResult: function(result){
+                if (result.errors){
+                    $rootScope.$broadcast('showmodal', {
+                        title: 'Error',
+                        message: result.errors[0].message
+                    });
+                    return true;
+                }
+                return false;
             }
         }
     })
@@ -98,6 +116,7 @@ angular.module('cat.services', [])
                 ServiceUtil.request({
                     method: 'POST',
                     url: url,
+                    showLoader: true,
                     data: JSON.stringify(args.data)
                 }).success(args.success);
             }
