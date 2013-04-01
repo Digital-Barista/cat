@@ -232,57 +232,7 @@ public class CampaignManager {
 
 	public List<BroadcastInfo> getBroadcastCampaigns(List<Long> clientIDs)
 	{
-		List<BroadcastInfo> ret = new ArrayList<BroadcastInfo>();
-		BroadcastInfo c;
-		
-		List<Long> allowedClientIDs = securityUtil.getAllowedClientIDs(sf.getCurrentSession(), clientIDs);
-		
-		if (allowedClientIDs.size() > 0)
-		{
-			Criteria crit = sf.getCurrentSession().createCriteria(CampaignDO.class);
-			crit.add(Restrictions.eq("status", CampaignStatus.Active));
-			crit.add(Restrictions.eq("mode", CampaignMode.Broadcast));
-			crit.add(Restrictions.in("client.id", allowedClientIDs));
-			
-			List<CampaignDO> campList = (List<CampaignDO>)crit.list();
-			Map<Long,Integer> campCounts = new HashMap<Long,Integer>();
-			if(campList!=null && campList.size()>1)
-			{
-				List<Long> campIDList = new ArrayList<Long>();
-				for(CampaignDO camp : campList)
-					campIDList.add(camp.getPrimaryKey());
-				Criteria countCrit = sf.getCurrentSession().createCriteria(CampaignSubscriberLinkDO.class, "csl");
-				countCrit.add(Restrictions.in("campaign.id", campIDList));
-				countCrit.add(Restrictions.eq("active",true));
-				ProjectionList pList = Projections.projectionList();
-				pList.add(Projections.count("id"));
-				pList.add(Projections.property("campaign.id"));
-				pList.add(Projections.groupProperty("campaign.id"));
-				countCrit.setProjection(pList);
-				List<Object[]> result = (List<Object[]>)countCrit.list();
-				for(Object[] row : result)
-					campCounts.put((Long)row[1], (Integer)row[0]);
-			}
-				
-			for(CampaignDO cmp : campList)
-			{
-				c = new BroadcastInfo();
-				c.copyFrom(cmp);
-				if(campCounts.containsKey(cmp.getPrimaryKey()))
-					c.setSubscriberCount(campCounts.get(cmp.getPrimaryKey()));
-				if(c.getIsCoupon())
-				{
-					Criteria couponCount = sf.getCurrentSession().createCriteria(CouponRedemptionDO.class, "cr");
-					couponCount.createAlias("couponResponse", "resp");
-					couponCount.add(Restrictions.eq("resp.couponOffer.id", c.getCouponId()));
-					couponCount.setProjection(Projections.rowCount());
-					c.setCouponRedemptionCount((Integer)couponCount.uniqueResult());
-				}
-				ret.add(c);
-			}
-		}
-		
-		return ret;
+    return (List<BroadcastInfo>)getBroadcastCampaigns(clientIDs,null).getResult();
 	}
 	
 	public List<Campaign> getCampaignTemplates(List<Long> clientIDs)

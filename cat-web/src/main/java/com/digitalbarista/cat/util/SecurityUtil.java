@@ -83,7 +83,7 @@ public class SecurityUtil {
 		String username = user;
 		if (username == null)
 		{
-			username = ""+ctx.getAuthentication().getPrincipal();
+			username = ctx.getAuthentication().getName();
 		}
 		
 		Set<Long> clientIDs;

@@ -55,6 +55,11 @@ public class ClientManager {
     @Autowired
     SessionFactory sf;
 
+    public List<Client> getClients()
+    {
+      return (List<Client>)getClients(null).getResult();
+    }
+    
     public ServiceResponse getClients(ServiceMetadata metadata) {
         ServiceMetadata meta = metadata != null ? metadata : new ServiceMetadata();
         List<Client> clients = new ArrayList<Client>();
@@ -83,6 +88,11 @@ public class ClientManager {
         return ret;
     }
 
+    public List<Client> getVisibleClients()
+    {
+      return getVisibleClients(null);
+    }
+    
     public List<Client> getVisibleClients(ServiceMetadata metadata) {
         ServiceMetadata meta = metadata != null ? metadata : new ServiceMetadata();
         List<Client> ret = new ArrayList<Client>();
