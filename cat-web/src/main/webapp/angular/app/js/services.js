@@ -126,6 +126,7 @@ angular.module('cat.services', [])
 
                 ServiceUtil.request({
                     method: 'GET',
+                    params: args.data,
                     url: broadcastUrl,
                     data: JSON.stringify(args.data)
                 }).success(args.success);

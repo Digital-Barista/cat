@@ -48,6 +48,9 @@
     </form>
 </div>
 
+<script>
+    var contextPath = '<@spring.url ''/>';
+</script>
 </body>
 
 </html>

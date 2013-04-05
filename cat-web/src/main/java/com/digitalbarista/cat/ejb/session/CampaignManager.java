@@ -179,12 +179,13 @@ public class CampaignManager {
         if (allowedClientIDs.size() > 0)
         {
             Criteria crit = sf.getCurrentSession().createCriteria(CampaignDO.class);
-            CriteriaUtil.applyPagingInfo(crit, meta);
             crit.add(Restrictions.eq("status", CampaignStatus.Active));
             crit.add(Restrictions.eq("mode", CampaignMode.Broadcast));
             crit.add(Restrictions.in("client.id", allowedClientIDs));
 
             meta.setTotal(CriteriaUtil.getTotalResultCount(crit));
+            CriteriaUtil.applyPagingInfo(crit, meta);
+
             List<CampaignDO> campList = (List<CampaignDO>)crit.list();
             Map<Long,Integer> campCounts = new HashMap<Long,Integer>();
             if(campList!=null && campList.size()>1)
