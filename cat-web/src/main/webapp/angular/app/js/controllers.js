@@ -84,7 +84,14 @@ angular.module('cat.controllers', [])
         }
     )
     .controller('SentBroadcastCtrl',
-        function ($scope) {
+        function ($scope, CampaignServices) {
+            CampaignServices.listBroadcasts({
+                success: function(data){
+                    if (!ServiceUtil.handleResult(data)){
+                        $scope.broadcasts = data.result;
+                    }
+                }
+            });
         }
     ) 
     .controller('RedeemCouponsCtrl',
@@ -107,6 +114,6 @@ angular.module('cat.controllers', [])
                 success: function(result){
                     $scope.coupons = result;
                 }
-            })
+            });
         }
      );

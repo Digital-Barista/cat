@@ -50,14 +50,14 @@ angular.module('cat.services', [])
         }
     })
     .factory('ClientServices', function(ServiceUtil){
-        var clientUrl = contextPath + '/data/client',
-            clientList;
+        var clientUrl = contextPath + '/data/client.json',
+            clientResult;
 
         return {
             listClients: function(params){
                 var args = $.extend({}, params);
 
-                if (!clientList || args.reload){
+                if (!clientResult || args.reload){
                     ServiceUtil.request({
                         method: 'GET',
                         url: clientUrl,
@@ -65,20 +65,20 @@ angular.module('cat.services', [])
                     }).success(success);
                 }
                 else {
-                    success(clientList);
+                    success(clientResult);
                 }
 
                 function success(result){
                     if (args.success){
-                        clientList = result;
-                        args.success(clientList);
+                        clientResult = result;
+                        args.success(clientResult);
                     }
                 }
             }
         }
     })
     .factory('CouponServices', function(ServiceUtil){
-        var couponUrl = contextPath + '/rs/coupons';
+        var couponUrl = contextPath + '/data/coupons';
 
         return {
 
@@ -117,6 +117,16 @@ angular.module('cat.services', [])
                     method: 'POST',
                     url: url,
                     showLoader: true,
+                    data: JSON.stringify(args.data)
+                }).success(args.success);
+            },
+
+            listBroadcasts: function(params){
+                var args = $.extend({}, params);
+
+                ServiceUtil.request({
+                    method: 'GET',
+                    url: broadcastUrl,
                     data: JSON.stringify(args.data)
                 }).success(args.success);
             }
