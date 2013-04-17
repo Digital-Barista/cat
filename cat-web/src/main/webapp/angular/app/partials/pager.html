@@ -1,0 +1,10 @@
+<div class="pagination pagination-centered">
+    <div>
+        {{paging.offset+1}} - {{paging.lastRecord}} of {{paging.total}}
+    </div>
+    <ul ng-show="pages.length > 1">
+        <li ng-repeat="page in pages" ng-class="{'active': page.selected, 'disabled': page.disabled}">
+            <a ng-click="changePage(page.index)">{{page.label}}</a>
+        </li>
+    </ul>
+</div>
