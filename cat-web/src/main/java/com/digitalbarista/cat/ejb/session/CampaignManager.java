@@ -203,7 +203,7 @@ public class CampaignManager {
                 countCrit.setProjection(pList);
                 List<Object[]> result = (List<Object[]>)countCrit.list();
                 for(Object[] row : result)
-                    campCounts.put((Long)row[1], (Integer)row[0]);
+                    campCounts.put((Long)row[1], ((Long)row[0]).intValue());
             }
 
             for(CampaignDO cmp : campList)
@@ -218,7 +218,7 @@ public class CampaignManager {
                     couponCount.createAlias("couponResponse", "resp");
                     couponCount.add(Restrictions.eq("resp.couponOffer.id", c.getCouponId()));
                     couponCount.setProjection(Projections.rowCount());
-                    c.setCouponRedemptionCount((Integer)couponCount.uniqueResult());
+                    c.setCouponRedemptionCount(((Long)couponCount.uniqueResult()).intValue());
                 }
                 infos.add(c);
             }
