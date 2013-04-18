@@ -547,7 +547,7 @@ public class ClientManager {
         Criteria crit = sf.getCurrentSession().createCriteria(ReservedKeywordDO.class);
         crit.add(Restrictions.eq("keyword", keyword.getKeyword()));
         crit.setProjection(Projections.count("keyword"));
-        Integer reservedCount = (Integer) crit.uniqueResult();
+        Long reservedCount = (Long) crit.uniqueResult();
         if (reservedCount > 0)
             return false;
 
@@ -556,7 +556,7 @@ public class ClientManager {
         crit.add(Restrictions.eq("keyword", keyword.getKeyword()));
         crit.add(Restrictions.eq("entryPoint.primaryKey", keyword.getEntryPointId()));
         crit.setProjection(Projections.count("keyword"));
-        Integer usedCount = (Integer) crit.uniqueResult();
+        Long usedCount = (Long) crit.uniqueResult();
         if (usedCount > 0)
             return false;
 
