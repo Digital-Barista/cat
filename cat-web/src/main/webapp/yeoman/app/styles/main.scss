@@ -38,7 +38,7 @@ $loader-dim: 48px;
   height:$loader-dim;
   right: 5px;
   bottom: 5px;
-  background-image: url('../img/loader.gif');
+  background-image: url('images/loader.gif');
   @include single-transition(opacity, .5s, ease-in-out, 0);
 
   &.on {
@@ -64,7 +64,7 @@ $modal-loader-dim: 100px;
 
   &:after {
     content: "";
-    background-image: url('../img/modal-loader.gif');
+    background-image: url('images/modal-loader.gif');
     width: $modal-loader-dim;
     height: $modal-loader-dim;
     position: absolute;

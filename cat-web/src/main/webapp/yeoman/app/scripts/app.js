@@ -1,11 +1,14 @@
 'use strict';
 
-angular.module('cat', ['cat.services', 'cat.controllers', 'ui'])
+angular.module('cat', ['cat.services', 'cat.controllers', 'cat.directives', 'cat.filters', 'ui'])
   .config(function ($routeProvider) {
     $routeProvider
         .when('', {templateUrl: 'views/dashboard.html', controller: 'DashboardCtrl'})
         .when('/sendmessage', {templateUrl: 'views/sendmessage.html', controller: 'SendMessageCtrl'})
         .when('/sendcoupon', {templateUrl: 'views/sendcoupon.html', controller: 'SendCouponCtrl'})
+        .when('/sentbroadcast', {templateUrl: 'views/sentbroadcast.html', controller: 'SentBroadcastCtrl'})
+        .when('/sentcoupons', {templateUrl: 'views/sentcoupons.html', controller: 'SentCouponsCtrl'})
+        .when('/redeemcoupons', {templateUrl: 'views/redeemcoupons.html', controller: 'RedeemCouponsCtrl'})
       .otherwise({
         redirectTo: ''
       });

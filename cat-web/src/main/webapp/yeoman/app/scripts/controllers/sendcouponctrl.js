@@ -13,14 +13,14 @@ angular.module('cat.controllers').controller('SendCouponCtrl',
             message: ''
         }
 
-        $scope.coupon = $.extend({}, emptyCoupon);
+        $scope.message = $.extend({}, emptyCoupon);
 
         $scope.resetCoupon = function(){
             $scope.showConfirmReset = true;
         }
 
         $scope.confirmReset = function(){
-            $scope.coupon = $.extend({}, emptyCoupon);
+            $scope.message = $.extend({}, emptyCoupon);
             $scope.showConfirmReset = false;
         }
 

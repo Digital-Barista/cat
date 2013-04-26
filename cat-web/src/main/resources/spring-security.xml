@@ -41,6 +41,7 @@
         <security:intercept-url pattern="/rest/**" access="ROLE_admin,ROLE_client"/>
         <security:intercept-url pattern="/angular/app" access="ROLE_admin,ROLE_client"/>
         <security:intercept-url pattern="/angular/app/" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/yeoman/app/" access="ROLE_admin,ROLE_client"/>
         <security:intercept-url pattern="/" access="ROLE_admin,ROLE_client"/>
       </security:filter-security-metadata-source>
 	  </property>

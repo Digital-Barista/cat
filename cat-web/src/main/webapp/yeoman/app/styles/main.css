@@ -8224,7 +8224,7 @@ h2 {
   height: 48px;
   right: 5px;
   bottom: 5px;
-  background-image: url("../img/loader.gif");
+  background-image: url("images/loader.gif");
   -webkit-transition: opacity 0.5s ease-in-out;
   -webkit-transition-delay: 0;
   -moz-transition: opacity 0.5s ease-in-out 0;
@@ -8254,7 +8254,7 @@ h2 {
 /* line 65, main.scss */
 .modal-loader:after {
   content: "";
-  background-image: url("../img/modal-loader.gif");
+  background-image: url("images/modal-loader.gif");
   width: 100px;
   height: 100px;
   position: absolute;

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('cat').directive('leftmenu', function (config, $location, $rootScope) {
+angular.module('cat.directives', []).directive('leftmenu', function (config, $location, $rootScope) {
     return {
         restrict: 'A',
         replace: true,
