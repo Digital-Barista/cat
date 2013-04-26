@@ -2,10 +2,13 @@ package com.digitalbarista.cat.ejb.session;
 
 import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.Coupon;
+import com.digitalbarista.cat.business.ServiceMetadata;
+import com.digitalbarista.cat.business.ServiceResponse;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
 import com.digitalbarista.cat.util.CouponRedemptionMessage;
+import com.digitalbarista.cat.util.CriteriaUtil;
 import com.digitalbarista.cat.util.SecurityUtil;
 import java.util.ArrayList;
 import java.util.Date;
@@ -125,6 +128,36 @@ public class CouponManager{
 		}
 		return getCouponSummaries(clientIds);
 	}
+    public ServiceResponse getCouponSummaries(List<Long> clientIDs, ServiceMetadata metadata)
+    {
+        ServiceMetadata meta = metadata != null ? metadata : new ServiceMetadata();
+        List<Coupon> coupons = new ArrayList<Coupon>();
+        List<Long> allowedClientIds = securityUtil.getAllowedClientIDs(sf.getCurrentSession(), clientIDs);
+
+        if (allowedClientIds.size() > 0)
+        {
+            Criteria crit = sf.getCurrentSession().createCriteria(CouponOfferDO.class);
+            crit.createAlias("campaign", "campaign");
+            crit.add(Restrictions.in("campaign.client.id", allowedClientIds));
+
+            meta.setTotal(CriteriaUtil.getTotalResultCount(crit));
+            CriteriaUtil.applyPagingInfo(crit, meta);
+
+            Coupon temp;
+            for(CouponOfferDO offer : (List<CouponOfferDO>)crit.list())
+            {
+                temp = new Coupon();
+                temp.copyFrom(offer);
+                coupons.add(temp);
+            }
+        }
+
+        ServiceResponse ret = new ServiceResponse();
+        ret.setResult(coupons);
+        ret.setMetadata(meta);
+
+        return ret;
+    }
 
 	public List<Coupon> getCouponSummaries(List<Long> clientIDs)
 	{

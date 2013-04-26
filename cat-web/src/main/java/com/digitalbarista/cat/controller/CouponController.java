@@ -1,0 +1,36 @@
+package com.digitalbarista.cat.controller;
+
+import com.digitalbarista.cat.business.*;
+import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.CouponManager;
+import edu.emory.mathcs.backport.java.util.Arrays;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jettison.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+import java.util.UUID;
+
+@Controller
+public class CouponController
+{
+    @Autowired
+    private CouponManager couponManager;
+
+    @RequestMapping(value = "/data/coupon")
+    public ServiceResponse listCoupons(@RequestParam(required = false) Integer offset,
+                                       @RequestParam(required = false) Integer limit,
+                                       @RequestParam(required = false) String sort,
+                                       @RequestParam(required = false) Integer direction)
+    {
+        ServiceMetadata meta = new ServiceMetadata(limit, offset, sort, direction);
+        ServiceResponse ret = couponManager.getCouponSummaries(null, meta);
+        return ret;
+    }
+
+}
