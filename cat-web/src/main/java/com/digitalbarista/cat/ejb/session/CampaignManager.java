@@ -1634,7 +1634,10 @@ public class CampaignManager {
 		connector.setCampaignUID(campaign.getUid());
 		connector.setSourceNodeUID(entry.getUid());
 		connector.setDestinationUID(message.getUid());
-		
+
+    sf.getCurrentSession().flush();
+    sf.getCurrentSession().clear();
+    
 		connector = (ImmediateConnector)save(connector);
 
 		sf.getCurrentSession().flush();
@@ -1717,6 +1720,9 @@ public class CampaignManager {
 		connector.setSourceNodeUID(entry.getUid());
 		connector.setDestinationUID(coupon.getUid());
 		
+    sf.getCurrentSession().flush();
+    sf.getCurrentSession().clear();
+    
 		connector = (ImmediateConnector)save(connector);
 
 		sf.getCurrentSession().flush();
