@@ -104,7 +104,7 @@ function MessageAPI()
 			  dataType: 'json',
 			  data:{'uid': dbi.currentUID, 'signedRequest':signedRequest},
 			  success: function(data) {
-			    updateMessage(data.message);
+			    updateMessage(data);
 			  }
 			});
 	}
