@@ -229,7 +229,7 @@ public class IncomingMessageEventHandler implements CATEventHandler {
 				break;
 		}
 		q.setParameter("entryPoint", e.getSource());
-		List<CampaignEntryPointDO> entries = (List<CampaignEntryPointDO>)q.uniqueResult();
+		List<CampaignEntryPointDO> entries = (List<CampaignEntryPointDO>)q.list();
 		
 		//First, we need to grab the keyword.  Note that we already know
 		//  that there's at least one non-whitespace letter, because of
