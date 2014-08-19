@@ -1,0 +1,29 @@
+<div class="sent-coupons">
+    <h2>Sent Coupons</h2>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Campaign</th>
+                <th>Coupon</th>
+                <th>Unavailable</th>
+                <th>Expire Date</th>
+                <th>Expire Days</th>
+                <th>Sent</th>
+                <th>Redeemed</th>
+                <th>Avg. Time to Redeem</th>
+            </tr>
+        </thead>
+        <tr ng-repeat="coupon in coupons">
+            <td>{{coupon.campaignName}}</td>
+            <td>{{coupon.couponName}}</td>
+            <td>{{coupon.unavailableDate | date:'yyy/MM/dd'}}</td>
+            <td>{{coupon.expireDate | date:'yyyy/MM/dd'}}</td>
+            <td>{{coupon.expireDays}}</td>
+            <td>{{coupon.issuedCouponCount}}</td>
+            <td>{{coupon.totalRedemptionCount}}</td>
+            <td>{{coupon.averageRedemptionTime | timelength}}</td>
+        </tr>
+    </table>
+    <div pager paging="paging"></div>
+</div>

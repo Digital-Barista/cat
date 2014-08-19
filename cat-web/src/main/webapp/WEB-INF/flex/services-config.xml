@@ -4,11 +4,10 @@
     <services>
         <service-include file-path="remoting-config.xml" />
         <service-include file-path="proxy-config.xml" />
-        <service-include file-path="messaging-config.xml" />        
     </services>
 
     <security>
-        <login-command class="flex.messaging.security.TomcatLoginCommand" server="JBoss"/>
+        <login-command class="com.digitalbarista.cat.security.CATFlexAuthenticationHelper" server="all"/>
         <security-constraint id="valid-user">
             <auth-method>Custom</auth-method>
             <roles>

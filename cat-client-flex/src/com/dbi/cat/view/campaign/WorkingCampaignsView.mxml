@@ -5,6 +5,7 @@
 		<![CDATA[
 			import com.dbi.cat.common.vo.CampaignVO;
 			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.event.CampaignTemplateEvent;
 			import com.dbi.util.ListUtil;
 			
 			import mx.collections.ArrayCollection;
@@ -60,6 +61,11 @@
 				var event:CampaignEvent = new CampaignEvent(CampaignEvent.LIST_CAMPAIGNS);
 				event.clientIds = ListUtil.getIdList(_filterClients, "clientId");
 				dispatchEvent(event);
+				
+				// Make sure these are loaded for create new campaign popup
+				var templateEvent:CampaignTemplateEvent = new CampaignTemplateEvent(CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES);
+				templateEvent.clientIds = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(templateEvent);
 			}
 		]]>
 	</mx:Script>

@@ -1,0 +1,76 @@
+@import "compass";
+@import "left-menu";
+@import "messages";
+@import "dashboard";
+@import "jqueryui";
+@import "coupons";
+@import "login";
+@import "compass/css3/transition";
+
+ul {
+  list-style: none;
+}
+
+h2 {
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.main-container {
+  margin-top: 60px;
+}
+
+.main-view {
+
+  margin-left: 220px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+$loader-dim: 48px;
+
+.data-loader {
+  opacity: 0;
+  position: fixed;
+  width:$loader-dim;
+  height:$loader-dim;
+  right: 5px;
+  bottom: 5px;
+  background-image: url('../img/loader.gif');
+  @include single-transition(opacity, .5s, ease-in-out, 0);
+
+  &.on {
+    opacity: 1;
+  }
+}
+
+$modal-loader-dim: 100px;
+
+.modal-loader{
+  display: none;
+  width: 100%;
+  height: 100%;
+  position:fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  background: rgba(0, 0, 0, 0.5);
+
+  &.on {
+    display: block;
+  }
+
+  &:after {
+    content: "";
+    background-image: url('../img/modal-loader.gif');
+    width: $modal-loader-dim;
+    height: $modal-loader-dim;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -$modal-loader-dim/2 0 0 -$modal-loader-dim/2;
+  }
+}

@@ -1,0 +1,29 @@
+<div class="sent-broadcast">
+    <h2 class="header">Sent Broadcasts</h2>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Date Sent</th>
+            <th>Redemptions</th>
+            <th>Subscribers</th>
+            <th>Message</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="broadcast in broadcastResult.result">
+                <td>{{broadcast.isCoupon && 'Coupon' || 'Message'}}</td>
+                <td>{{broadcast.title}}</td>
+                <td>{{broadcast.broadcastDate}}</td>
+                <td>{{broadcast.couponRedemptionCount}}</td>
+                <td>{{broadcast.subscriberCount}}</td>
+                <td>{{broadcast.message}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div pager paging="paging"></div>
+
+</div>

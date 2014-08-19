@@ -16,7 +16,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.UserManager</source>
+					<source>UserManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -27,7 +27,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.CampaignManager</source>
+					<source>CampaignManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -38,7 +38,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.ClientManager</source>
+					<source>ClientManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -49,7 +49,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.CouponManager</source>
+					<source>CouponManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -60,7 +60,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.LayoutManager</source>
+					<source>LayoutManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -71,7 +71,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.SubscriptionManager</source>
+					<source>SubscriptionManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -82,7 +82,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.ContactManager</source>
+					<source>ContactManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -93,7 +93,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.ReportingManager</source>
+					<source>ReportingManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -104,7 +104,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.MessageManager</source>
+					<source>MessageManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>
@@ -115,7 +115,7 @@
 			</security>
 			<properties>
 					<factory>spring</factory>
-					<source>ejb.AccountManager</source>
+					<source>AccountManager</source>
 					<scope>request</scope>
 			</properties>
 	</destination>

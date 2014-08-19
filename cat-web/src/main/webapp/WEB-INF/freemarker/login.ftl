@@ -1,63 +1,56 @@
 <#import "spring.ftl" as spring/>
 
-<#macro button text id="" href="" class="">
-	<#local buttonClass = "" />
-	<#if class?has_content>
-		<#local buttonClass = class />
-	</#if>
-	
-	<a <#if id?has_content>id="${id}"</#if> <#if href?has_content>href="${href}"</#if> class="button ${buttonClass}">
-		<span class="button-content">
-			<span class="button-text">${text}</span>
-		</span>
-	</a>
-</#macro>
-
 <html>
+
 <head>
-  <title>Login Page</title>
-  <link type="text/css" href="<@spring.url '/css/style.css'/>" rel="stylesheet" />
-  <script src="<@spring.url '/js/libs/jquery/jquery-min.js' />"></script>
-  <script>
-    $(document).ready(function(){
-      var form = $('form');
-      
-      $('#login-button').click(function(){
-          form.submit();
-      });
-      
-      $('input').keypress(function(e){
-        if(e.which == 13){
-         form.submit();
-        }
-      });
-      
-      $('#username').focus();
-     });
-  </script>
+    <title>Login Page</title>
+    <link rel="stylesheet" href="angular/app/css/bootstrap.css"/>
+    <link rel="stylesheet" href="angular/app/css/angular-ui.min.css"/>
+    <link rel="stylesheet" href="angular/app/css/app.css"/>
 </head>
 
-<body> 
+<body>
 
-<div id="login">
-  <div class="login-header">
-    Sign In
-  </div>
-  
-  <form id="login-form" name="login-form" action="<@spring.url "/j_spring_security_check"/>" method="POST"> 
-    <div class="username">
-      <div class="label">Username:</div><input type="text" id="username" name="j_username" >
+<header class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href=""></a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                </ul>
+            </div>
+        </div>
     </div>
-    <div class="password">
-      <div class="label">Password:</div><input type="password" id="password" name="j_password"/>
-    </div>
-    <div class="buttons">
-    	<@button id="login-button" href="javascript:void(0)" text="Login" />
-    </div>
-  </form>
-  <div style="clear:both;"></div>
+</header>
+
+<div class="container login modal">
+    <form class="form-horizontal" action="<@spring.url "/j_spring_security_check"/>" method="POST">
+        <div class="modal-header">
+            <h3>CAT</h3>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="username">Username</label>
+
+            <div class="controls">
+                <input type="text" id="username" placeholder="Username" name="j_username">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputPassword">Password</label>
+
+            <div class="controls">
+                <input type="password" id="inputPassword" placeholder="Password" type="password" name="j_password">
+            </div>
+        </div>
+        <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Sign in</button>
+        </div>
+    </form>
 </div>
 
+<script>
+    var contextPath = '<@spring.url ''/>';
+</script>
 </body>
 
 </html>
