@@ -80,6 +80,7 @@ public class TaggingNodeFireHandler implements ConnectorFireHandler {
 			con.setAddress(s.getAddress());
 			con.setType(ept);
 			con.setCreateDate(Calendar.getInstance());
+                        con.setClient(simpleNode.getCampaign().getClient());
 			sf.getCurrentSession().persist(con);
 		}
 		Date newDate = new Date();
