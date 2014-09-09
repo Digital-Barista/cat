@@ -19,7 +19,7 @@ public class Contact implements BusinessObject<ContactDO>, Comparable<Contact>
 	private Long contactId;
 	private String address;
 	private Calendar createDate;
-	private Set<ContactTag> contactTags;
+	private Set<ContactTag> contactTags = new HashSet<ContactTag>();
 	private Long clientId;
 	private EntryPointType type;
 	private boolean blacklisted;

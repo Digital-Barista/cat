@@ -39,7 +39,7 @@ public class CouponResponseDO implements Serializable,DataObject {
 	private Type responseType;
 	private String actualMessage;
 	private Integer redemptionCount;
-	private Set<CouponRedemptionDO> redemptions;
+	private Set<CouponRedemptionDO> redemptions = new HashSet<CouponRedemptionDO>();
 	private static final long serialVersionUID = 1L;
 
 	public CouponResponseDO() {

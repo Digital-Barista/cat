@@ -34,8 +34,8 @@ public class ClientDO implements Serializable,DataObject {
 	private String contactEmail;
 	private String contactPhone;
 	private boolean active=true;
-	private Set<EntryPointDO> entryPoints;
-	private Set<KeywordLimitDO> keywordLimits;
+	private Set<EntryPointDO> entryPoints = new HashSet<EntryPointDO>();
+	private Set<KeywordLimitDO> keywordLimits = new HashSet<KeywordLimitDO>();
 	private Set<AddInMessageDO> addInMessages = new HashSet<AddInMessageDO>();
 	private Set<ClientInfoDO> clientInfos = new HashSet<ClientInfoDO>();
 	

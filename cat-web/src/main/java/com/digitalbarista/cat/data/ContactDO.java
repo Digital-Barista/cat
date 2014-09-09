@@ -2,6 +2,7 @@ package com.digitalbarista.cat.data;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,8 +40,8 @@ public class ContactDO implements DataObject,Serializable {
 	private ClientDO client;
 	private EntryPointType type;
 	private String alternateId;
-	private Set<ContactTagLinkDO> contactTags;
-	private Set<ContactInfoDO> contactInfos;
+	private Set<ContactTagLinkDO> contactTags = new HashSet<ContactTagLinkDO>();
+	private Set<ContactInfoDO> contactInfos = new HashSet<ContactInfoDO>();
 	private BlacklistDO blacklist;
 	private static final long serialVersionUID = 1L;
 	
@@ -71,7 +72,6 @@ public class ContactDO implements DataObject,Serializable {
 	
 	public ContactTagLinkDO findLink(ContactTagDO tag)
 	{
-                if(getContactTags()==null) return null;
 		for(ContactTagLinkDO link : getContactTags())
 		{
 			if(link.getTag()==tag)

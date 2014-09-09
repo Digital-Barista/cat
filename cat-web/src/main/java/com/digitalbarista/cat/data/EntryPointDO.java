@@ -38,7 +38,7 @@ public class EntryPointDO implements DataObject,Serializable {
 	private Set<ClientDO> clients = new HashSet<ClientDO>();
 	private Long restrictionID;
 	private static final long serialVersionUID = 1L;
-	private Set<KeywordDO> keywords;
+	private Set<KeywordDO> keywords = new HashSet<KeywordDO>();
 	private String credentials;
 	
 	public EntryPointDO() {

@@ -32,7 +32,7 @@ public class Client implements
 	private String contactPhone;
 	private boolean active;
 	private Set<AddInMessage> addInMessages = new HashSet<AddInMessage>();
-	private Set<KeywordLimit> keywordLimits;
+	private Set<KeywordLimit> keywordLimits = new HashSet<KeywordLimit>();
 	private Set<ClientInfo> clientInfos = new HashSet<ClientInfo>();
 	private Set<EntryPointDefinition> entryPoints = new TreeSet<EntryPointDefinition>(
 			new Comparator<EntryPointDefinition>()

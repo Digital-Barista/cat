@@ -34,7 +34,7 @@ public class CouponOfferDO implements Serializable,DataObject {
 	private String nodeUID;
 	private String offerCode;
 	private CampaignDO campaign;
-	private Set<CouponResponseDO> responses;
+	private Set<CouponResponseDO> responses = new HashSet<CouponResponseDO>();
 	
 	private static final long serialVersionUID = 1L;
 

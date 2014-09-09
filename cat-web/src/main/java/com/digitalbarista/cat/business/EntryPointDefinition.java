@@ -26,7 +26,7 @@ public class EntryPointDefinition implements BusinessObject<EntryPointDO>,Serial
 	private String credentials;
 	private EntryPointType type;
 	private EntryRestrictionType restriction;
-	private Set<Integer> clientIDs;
+	private Set<Integer> clientIDs = new HashSet<Integer>();
 	private Long restrictionID;
 	private static final long serialVersionUID = 1L;
 	private Set<Keyword> keywords = new TreeSet<Keyword>(
