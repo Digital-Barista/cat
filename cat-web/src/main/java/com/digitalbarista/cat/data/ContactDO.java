@@ -71,6 +71,7 @@ public class ContactDO implements DataObject,Serializable {
 	
 	public ContactTagLinkDO findLink(ContactTagDO tag)
 	{
+                if(getContactTags()==null) return null;
 		for(ContactTagLinkDO link : getContactTags())
 		{
 			if(link.getTag()==tag)
