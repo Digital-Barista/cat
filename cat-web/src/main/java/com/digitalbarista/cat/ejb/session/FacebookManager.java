@@ -258,7 +258,7 @@ public class FacebookManager
 		crit.add(Restrictions.eq("facebookAppName", app.getAppName()));
 		crit.setProjection(Projections.rowCount());
 
-		Integer count = (Integer) crit.uniqueResult();
+		Integer count = ((Long) crit.uniqueResult()).intValue();
 
 		updateMessageCounter(appName, uid, count);
 	}
