@@ -43,7 +43,7 @@
           hibernate.validator.apply_to_ddl=false
           hibernate.validator.autoregister_listeners=false
           hibernate.transaction.flush_before_completion
-          hibernate.transaction.factory_class=org.hibernate.transaction.JtaTransactionFactory
+          hibernate.transaction.factory_class=org.hibernate.transaction.JTATransactionFactory
         </value>
       </property>
     </bean>
