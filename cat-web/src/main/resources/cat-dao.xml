@@ -37,7 +37,11 @@
           <value>com.digitalbarista.cat.data</value>
         </list>
       </property>
-      <property name="jtaTransactionManager" ref="transactionManager"/>
+      <property name="jtaTransactionManager">
+        <bean class="org.springframework.jndi.JndiObjectFactoryBean">
+            <property name="jndiName" value="java:/TransactionManager"/>
+        </bean>  
+      </property>
       <property name="hibernateProperties">
         <value>
           hibernate.dialect=org.hibernate.dialect.MySQLDialect
