@@ -42,6 +42,7 @@
           hibernate.dialect=org.hibernate.dialect.MySQLDialect
           hibernate.validator.apply_to_ddl=false
           hibernate.validator.autoregister_listeners=false
+          hibernate.transaction.flush_before_completion
         </value>
       </property>
     </bean>
