@@ -37,13 +37,12 @@
           <value>com.digitalbarista.cat.data</value>
         </list>
       </property>
+      <property name="jtaTransactionManager" ref="transactionManager"/>
       <property name="hibernateProperties">
         <value>
           hibernate.dialect=org.hibernate.dialect.MySQLDialect
           hibernate.validator.apply_to_ddl=false
           hibernate.validator.autoregister_listeners=false
-          hibernate.transaction.flush_before_completion
-          hibernate.transaction.factory_class=org.hibernate.transaction.JTATransactionFactory
         </value>
       </property>
     </bean>
