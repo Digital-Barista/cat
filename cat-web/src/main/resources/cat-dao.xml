@@ -21,7 +21,7 @@
   
     <context:component-scan base-package="com.digitalbarista"/>
 	
-    <tx:annotation-driven/>
+    <tx:annotation-driven />
 
     <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
       <property name="jndiName" value="java:/jdbc/campaignAdminDS"/>
@@ -43,6 +43,7 @@
           hibernate.validator.apply_to_ddl=false
           hibernate.validator.autoregister_listeners=false
           hibernate.transaction.flush_before_completion
+          hibernate.transaction.factory_class=org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory
         </value>
       </property>
     </bean>
