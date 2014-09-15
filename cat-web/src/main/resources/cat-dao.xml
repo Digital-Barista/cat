@@ -49,6 +49,7 @@
           hibernate.validator.autoregister_listeners=false
           hibernate.transaction.factory_class=org.hibernate.transaction.JTATransactionFactory
           hibernate.transaction.manager_lookup_class=org.hibernate.transaction.JBossTransactionManagerLookup
+          hibernate.transaction.flush_before_completion=true
         </value>
       </property>
     </bean>
