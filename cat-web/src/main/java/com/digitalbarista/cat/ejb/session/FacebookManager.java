@@ -184,8 +184,8 @@ public class FacebookManager
 			// Update message counter
 			updateMessageCounter(message.getFacebookAppName(), message.getFacebookUID());
 		}
-
-        }
+                sf.getCurrentSession().flush();
+	}
 
 	public FacebookMessage respond(Integer facebookMessageId, String response, String uid, String signedRequest, HttpServletRequest ui) throws FacebookManagerException
 	{
@@ -215,8 +215,8 @@ public class FacebookManager
 			// Update message counter
 			updateMessageCounter(message.getFacebookAppName(), uid);
 		}
-
-                return ret;
+                sf.getCurrentSession().flush();
+		return ret;
 	}
 
 	public void updateMessageCounter(final String appName, final String uid, final Integer count)
