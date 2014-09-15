@@ -48,7 +48,7 @@
           hibernate.validator.apply_to_ddl=false
           hibernate.validator.autoregister_listeners=false
           hibernate.transaction.factory_class=org.hibernate.transaction.JTATransactionFactory
-          hibernate.transaction.manager_lookup_class=org.hibernate.transaction.JbossTransactionManagerLookup
+          hibernate.transaction.manager_lookup_class=org.hibernate.transaction.JBossTransactionManagerLookup
         </value>
       </property>
     </bean>
