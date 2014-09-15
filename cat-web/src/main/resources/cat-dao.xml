@@ -21,7 +21,7 @@
   
     <context:component-scan base-package="com.digitalbarista"/>
 	
-    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <tx:annotation-driven transaction-manager="transactionManager" order="0"/>
 
     <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
       <property name="jndiName" value="java:/jdbc/campaignAdminDS"/>
