@@ -56,6 +56,7 @@ import com.google.gdata.util.ServiceException;
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Session Bean implementation class SubscriptionManagerImpl
  */
 @Component("ReportingManager")
+@Lazy
 @Transactional(propagation=Propagation.REQUIRED)
 public class ReportingManager 
 {

@@ -3,9 +3,11 @@ package com.digitalbarista.cat.ejb.session;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component("CacheAccessManager")
+@Lazy
 public class CacheAccessManager {
 
 	public enum CacheName

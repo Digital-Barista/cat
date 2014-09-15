@@ -12,6 +12,7 @@ import javax.jms.Session;
 
 
 import com.digitalbarista.cat.message.event.CATEvent;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Session Bean implementation class EventManagerImpl
  */
 @Component
+@Lazy
 @Transactional(propagation=Propagation.REQUIRED)
 public class EventManager {
 
