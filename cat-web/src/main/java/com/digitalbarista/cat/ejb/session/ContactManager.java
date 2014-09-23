@@ -41,7 +41,10 @@ import com.digitalbarista.cat.util.SecurityUtil;
 
 import java.util.Arrays;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -53,10 +56,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Component("ContactManager")
 @Lazy
 @Transactional(propagation=Propagation.REQUIRED)
-public class ContactManager{
+public class ContactManager implements ApplicationContextAware {
 
-	private Logger log = LogManager.getLogger(ContactManager.class);
-	
+  private Logger log = LogManager.getLogger(ContactManager.class);
+  private ApplicationContext ctx;
+  
   @Autowired
   private SessionFactory sf;
 
@@ -65,9 +69,6 @@ public class ContactManager{
 
   @Autowired
   ReportingManager reportingManager;
-
-  @Autowired
-	FacebookManager facebookManager;
         
   @Autowired
   SecurityUtil securityUtil;
@@ -482,7 +483,7 @@ public class ContactManager{
 			{
 				Contact c = new Contact();
 				c.copyFrom(contactDO);
-				List<ContactInfo> values = facebookManager.updateProfileInformation(c);
+				List<ContactInfo> values = getFacebookManager().updateProfileInformation(c);
 				
 				// Remove values only visible to admins
 				if (!securityUtil.isAdmin())
@@ -567,4 +568,13 @@ public class ContactManager{
 		
 		return ret;
 	}
+
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        ctx = applicationContext;
+    }
+    
+    public FacebookManager getFacebookManager()
+    {
+        return ctx.getBean(FacebookManager.class);
+    }
 }

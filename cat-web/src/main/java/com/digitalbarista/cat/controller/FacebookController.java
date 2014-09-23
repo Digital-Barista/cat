@@ -9,7 +9,9 @@ import com.digitalbarista.cat.ejb.session.FacebookManager;
 import com.digitalbarista.cat.exception.FacebookManagerException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
@@ -28,11 +30,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping(value="/unsecure/rest/facebook",
                 produces={"application/xml","application/json"},
                 consumes={"application/x-www-form-urlencoded"})
-public class FacebookController {
+public class FacebookController implements ApplicationContextAware {
   
-  @Autowired
-  private FacebookManager facebookManager;
-  
+    private ApplicationContext ctx;
+    
   @ExceptionHandler
   public Model handleException(Throwable t)
   {
@@ -45,7 +46,7 @@ public class FacebookController {
                                            @RequestBody MultiValueMap<String,String> parameterMap,
                                            HttpServletRequest request) throws FacebookManagerException
   {
-    return facebookManager.getMessages(appName, parameterMap.getFirst("uid"), parameterMap.getFirst("signedRequest"), request);
+    return getFacebookManager().getMessages(appName, parameterMap.getFirst("uid"), parameterMap.getFirst("signedRequest"), request);
   }
   
   @RequestMapping(method=RequestMethod.POST,
@@ -55,7 +56,7 @@ public class FacebookController {
                                  @RequestBody MultiValueMap<String,String> parameterMap,
                                  HttpServletRequest request) throws FacebookManagerException
   {
-    return facebookManager.respond(facebookMessageId, response, parameterMap.getFirst("uid"), parameterMap.getFirst("signedRequest"), request);
+    return getFacebookManager().respond(facebookMessageId, response, parameterMap.getFirst("uid"), parameterMap.getFirst("signedRequest"), request);
   }
   
   @RequestMapping(method=RequestMethod.POST,
@@ -64,7 +65,7 @@ public class FacebookController {
                      @RequestBody MultiValueMap<String,String> parameterMap,
                      HttpServletRequest request) throws FacebookManagerException
   {
-    facebookManager.delete(facebookMessageId, parameterMap.getFirst("signedRequest"), request);
+    getFacebookManager().delete(facebookMessageId, parameterMap.getFirst("signedRequest"), request);
   }
   
   @RequestMapping(method=RequestMethod.PUT,
@@ -72,7 +73,7 @@ public class FacebookController {
   public void userAuthorizeApp(@PathVariable("appName") String appName, 
                                @PathVariable("uid") String uid)
   {
-    facebookManager.userAuthorizeApp(appName, uid);
+    getFacebookManager().userAuthorizeApp(appName, uid);
   }
   
   @RequestMapping(method=RequestMethod.POST,
@@ -80,6 +81,15 @@ public class FacebookController {
   public void userDeauthorizeApp(@PathVariable("appName") String appName, 
                                  @RequestParam("fb_sig_user") String uid)
   {
-    facebookManager.userDeauthorizeApp(appName, uid);
+    getFacebookManager().userDeauthorizeApp(appName, uid);
   }
+  
+  private FacebookManager getFacebookManager()
+  {
+      return ctx.getBean(FacebookManager.class);
+  }
+
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        ctx = applicationContext;
+    }
 }

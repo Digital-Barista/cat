@@ -79,7 +79,8 @@ import com.restfb.batch.BatchRequest.BatchRequestBuilder;
 import com.restfb.batch.BatchResponse;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,7 +89,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Session Bean implementation class FacebookManagerImpl
  */
 @Component
-@Lazy
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Transactional(propagation= Propagation.REQUIRED)
 @RunAs("admin")
 public class FacebookManager
