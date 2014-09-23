@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -34,6 +35,7 @@ public class NodeOperationCompletedEventHandler implements CATEventHandler {
   private EventTimerManager timer;
   
 	@Override
+        @Transactional
 	public void processEvent(CATEvent e) {
 		Integer version = cMan.getCurrentCampaignVersionForNode(e.getSource())-1;
 		Node publishedNode = cMan.getSpecificNodeVersion(e.getSource(), version);

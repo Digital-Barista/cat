@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -23,6 +24,7 @@ public class UserSubscribedEventHandler implements CATEventHandler {
   private SubscriptionManager sMan;
   
   @Override
+  @Transactional
   public void processEvent(CATEvent e) {
     switch(e.getSourceType())
     {

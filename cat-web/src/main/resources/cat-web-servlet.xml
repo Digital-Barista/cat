@@ -25,9 +25,11 @@
   <mvc:annotation-driven/>
   <mvc:default-servlet-handler/>
 
+  <tx:annotation-driven transaction-manager="transactionManager" order="0" proxy-target-class="true"/>
+
   <bean id="JmsConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
     <property name="jndiName" value="java:/JmsXA"/>
-   </bean>
+  </bean>
 
   <bean id="CATDestinationResolver" class="com.digitalbarista.cat.jms.CATDestinationResolver">
     <property name="jndiPrefixes">

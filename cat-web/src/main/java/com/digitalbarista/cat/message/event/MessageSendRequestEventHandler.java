@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -63,6 +64,7 @@ public class MessageSendRequestEventHandler implements CATEventHandler {
   private FacebookManager fbMan;
   
 	@Override
+        @Transactional
 	public void processEvent(CATEvent e) {
 		OutgoingMessageEntryDO outAudit = new OutgoingMessageEntryDO();
 		outAudit.setDateSent(new Date());

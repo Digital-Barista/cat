@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -55,6 +56,7 @@ public class CouponNodeFireHandler implements ConnectorFireHandler {
   private SessionFactory sf;
   
 	@Override
+        @Transactional
 	public void handle(Connector conn, Node dest, Integer version, SubscriberDO s, CATEvent e) 
 	{
 		CouponNode cNode = (CouponNode)dest;
