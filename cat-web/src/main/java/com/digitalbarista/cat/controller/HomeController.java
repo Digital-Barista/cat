@@ -26,9 +26,6 @@ public class HomeController {
     private HttpServletRequest request;
 
     @Autowired
-    private HttpServletResponse response;
-
-    @Autowired
     private CouponManager couponManager;
     
     @Autowired
@@ -45,7 +42,7 @@ public class HomeController {
     }
 
     @RequestMapping("/luckyNumbers")
-    public String getLuckyNumberCSV()
+    public String getLuckyNumberCSV(HttpServletResponse response)
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(baos);
