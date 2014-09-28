@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 3/15/13
  * Time: 12:53 PM
  */
-@Controller
+//@Controller
 public class ClientController
 {
     @Autowired

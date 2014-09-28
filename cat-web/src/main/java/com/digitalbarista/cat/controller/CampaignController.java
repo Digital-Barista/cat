@@ -19,7 +19,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.UUID;
 
-@Controller
+//@Controller
 public class CampaignController
 {
     @Autowired

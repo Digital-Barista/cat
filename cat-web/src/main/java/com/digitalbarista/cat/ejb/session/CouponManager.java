@@ -4,9 +4,12 @@ import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.Coupon;
 import com.digitalbarista.cat.business.ServiceMetadata;
 import com.digitalbarista.cat.business.ServiceResponse;
+import com.digitalbarista.cat.data.CampaignInfoDO;
+import com.digitalbarista.cat.data.CampaignStatus;
 import com.digitalbarista.cat.data.CouponOfferDO;
 import com.digitalbarista.cat.data.CouponRedemptionDO;
 import com.digitalbarista.cat.data.CouponResponseDO;
+import com.digitalbarista.cat.data.EntryPointType;
 import com.digitalbarista.cat.util.CouponRedemptionMessage;
 import com.digitalbarista.cat.util.CriteriaUtil;
 import com.digitalbarista.cat.util.SecurityUtil;
@@ -49,10 +52,36 @@ public class CouponManager{
 
   @Autowired
   private ContactManager contactManager;
+  
+  @Autowired
+  private CampaignManager campaignManager;
 
   @Autowired
   private SecurityUtil securityUtil;
 
+  @PreAuthorize("hasRole('ROLE_client')")
+  public List<String> findLuckyNumberList(Long clientID)
+  {
+    Criteria crit;
+    crit = sf.getCurrentSession().createCriteria(CampaignInfoDO.class);
+    crit.add(Restrictions.eq("name", CampaignInfoDO.KEY_AUTO_START_NODE_UID));
+    crit.createAlias("campaign", "c");
+    crit.add(Restrictions.eq("c.status", CampaignStatus.Active));
+    crit.add(Restrictions.eq("c.client.id", clientID));
+    CampaignInfoDO cInfo = (CampaignInfoDO) crit.uniqueResult();
+    
+    crit = sf.getCurrentSession().createCriteria(CouponResponseDO.class);
+    crit.createAlias("couponOffer", "co");
+    crit.add(Restrictions.eq("co.campaign.id",cInfo.getCampaign().getPrimaryKey()));
+    List<CouponResponseDO> couponsSentList = crit.list();
+    
+    List<String> ret = new ArrayList<String>();
+    for(CouponResponseDO resp : couponsSentList)
+        ret.add(resp.getResponseDetail());
+    
+    return ret;
+}
+  
   @SuppressWarnings("unchecked")
   @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client')")
 	public CouponRedemptionMessage redeemCoupon(String couponCode) {
