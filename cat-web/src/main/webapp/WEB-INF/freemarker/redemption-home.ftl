@@ -1,5 +1,4 @@
 <#import "spring.ftl" as spring/>
-<@spring.bind "model"/>
 <html>
 
 <head>
@@ -12,9 +11,6 @@
   <form action="<@spring.url '/home/redeemCoupont' />" method="POST">
   Coupon Code:<input type="text" name="coupon"/><input type="submit" value="Redeem"/><br/>
   </form>
-  <#if model['message']!=null>
-    <b>${model['message']}</b><br/>
-  </#if>
   <a href="<@spring.url '/logout' />">Logout</a/>
 </body>
 
