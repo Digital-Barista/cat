@@ -1,5 +1,5 @@
 <#import "spring.ftl" as spring/>
-
+<@spring.bind "model"/>
 <html>
 
 <head>
