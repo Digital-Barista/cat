@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.hibernate.SessionFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/home")
@@ -45,9 +46,9 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/redeemCoupon",method = RequestMethod.GET)
-    public String getCouponRedemptionPage()
+    public ModelAndView getCouponRedemptionPage()
     {
-        return "redemption-home";
+        return new ModelAndView("redemption-home");
     }
     
     @RequestMapping("/luckyNumbers")
