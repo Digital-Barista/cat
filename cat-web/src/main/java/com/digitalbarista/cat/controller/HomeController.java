@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.hibernate.SessionFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
+@RequestMapping("/home")
 public class HomeController {
 
     @Autowired
@@ -41,7 +44,14 @@ public class HomeController {
         return "app";
     }
 
+    @RequestMapping(value = "/redeemCoupon",method = RequestMethod.GET)
+    public String getCouponRedemptionPage()
+    {
+        return "redemption-home";
+    }
+    
     @RequestMapping("/luckyNumbers")
+    @PreAuthorize("hasRole('ROLE_client') or hasRole('ROLE_account.manager')")
     public String getLuckyNumberCSV(HttpServletResponse response)
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -75,7 +85,7 @@ public class HomeController {
             return null;
         }catch(IOException ex)
         {
-            return "error";
+            throw new RuntimeException("Couldn't output lucky numbers.",ex);
         }
     }
 }
