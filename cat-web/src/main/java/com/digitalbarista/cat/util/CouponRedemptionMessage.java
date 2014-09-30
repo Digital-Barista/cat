@@ -1,7 +1,9 @@
 package com.digitalbarista.cat.util;
 
+import com.digitalbarista.cat.business.Contact;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name="CouponRedemption")
@@ -12,24 +14,27 @@ public class CouponRedemptionMessage {
 	private String detailedMessage;
 	private String offerCode;
 	private String contactUID;
+        private Contact contact;
 	
 	public CouponRedemptionMessage(){}
 	
-	public CouponRedemptionMessage(int code, String message, String detailedMessage, String contactUID)
+	public CouponRedemptionMessage(int code, String message, String detailedMessage, Contact contact)
 	{
 		this.code=code;
 		this.message=message;
 		this.detailedMessage=detailedMessage;
-		this.contactUID = contactUID;
+		this.contactUID = contact==null?null:contact.getUID();
+                this.contact=contact;
 	}
 	
-	public CouponRedemptionMessage(int code, String message, String detailedMessage, String offerCode, String contactUID)
+	public CouponRedemptionMessage(int code, String message, String detailedMessage, String offerCode, Contact contact)
 	{
 		this.code=code;
 		this.message=message;
 		this.detailedMessage=detailedMessage;
 		this.offerCode=offerCode;
-		this.contactUID=contactUID;
+		this.contactUID=contact==null?null:contact.getUID();
+                this.contact=contact;
 	}
 	
 	public CouponRedemptionMessage(int code, String message)
@@ -75,5 +80,13 @@ public class CouponRedemptionMessage {
 	}
 	public void setContactUID(String contactUID) {
 		this.contactUID = contactUID;
+	}
+
+	@XmlTransient
+	public Contact getContact() {
+		return contact;
+	}
+	public void setContact(Contact contact) {
+		this.contact = contact;
 	}
 }

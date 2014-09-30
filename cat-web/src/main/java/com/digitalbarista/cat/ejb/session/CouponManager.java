@@ -144,7 +144,7 @@ public class CouponManager{
 		
 		sf.getCurrentSession().persist(cRed);
 	
-		return new CouponRedemptionMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode(),c.getUID());
+		return new CouponRedemptionMessage(SUCCESS,"Coupon successfully redeemed.",cResp.getActualMessage(),cResp.getCouponOffer().getOfferCode(),c);
 	}
 
   @PreAuthorize("hasRole('ROLE_admin') or hasRole('ROLE_client') or hasRole('ROLE_account.manager')")

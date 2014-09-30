@@ -2,6 +2,7 @@ package com.digitalbarista.cat.controller;
 
 
 import com.digitalbarista.cat.ejb.session.CouponManager;
+import com.digitalbarista.cat.util.CouponRedemptionMessage;
 import com.digitalbarista.cat.util.SecurityUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,8 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.hibernate.SessionFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/home")
@@ -45,10 +46,18 @@ public class HomeController {
         return "app";
     }
 
-    @RequestMapping(value = "/redeemCoupon",method = RequestMethod.GET)
-    public ModelAndView getCouponRedemptionPage()
+    @RequestMapping(value = "/redeemCoupon",method = RequestMethod.POST)
+    public String redeemCoupon(Model model)
     {
-        return new ModelAndView("redemption-home");
+        CouponRedemptionMessage message = couponManager.redeemCoupon((String)model.asMap().get("couponCode"));
+        model.addAttribute("message", "FBID="+message.getContact().getAddress());
+        return "redemption-home";
+    }
+    
+    @RequestMapping(value = "/redeemCoupon",method = RequestMethod.GET)
+    public String getCouponRedemptionPage(Model model)
+    {
+        return "redemption-home";
     }
     
     @RequestMapping("/luckyNumbers")
