@@ -22,6 +22,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/home")
@@ -47,9 +48,9 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/redeemCoupon",method = RequestMethod.POST)
-    public String redeemCoupon(Model model)
+    public String redeemCoupon(@RequestParam("couponCode")String couponCode, Model model)
     {
-        CouponRedemptionMessage message = couponManager.redeemCoupon((String)model.asMap().get("couponCode"));
+        CouponRedemptionMessage message = couponManager.redeemCoupon(couponCode);
         String messageText = message.getDetailedMessage();
         if(message.getContact()!=null)
         {
