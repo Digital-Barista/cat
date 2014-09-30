@@ -50,7 +50,7 @@ public class HomeController {
     public String redeemCoupon(Model model)
     {
         CouponRedemptionMessage message = couponManager.redeemCoupon((String)model.asMap().get("couponCode"));
-        model.addAttribute("message", "FBID="+message.getContact().getAddress());
+        model.addAttribute("message", "FBID="+message.getDetailedMessage());
         return "redemption-home";
     }
     
