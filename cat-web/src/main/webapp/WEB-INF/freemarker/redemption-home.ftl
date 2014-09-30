@@ -11,13 +11,15 @@
 <body>
 <div class="container modal">
   <#--<a id="link-coupon-redemption" href="<@spring.url '/home/redeemCoupon' />">--> <div class="modal-header"><h3>Lucky Number Redemption Page</h3></div><#--</a>-->
-  <div>
   <form action="<@spring.url '/home/redeemCoupon' />" method="POST">
-  <input id="input-coupon-code" placeholder="Enter Lucky Number Code" type="text" name="couponCode"/><input class="btn btn-default" id="button-redeem" type="submit" value="Redeem"/>
+  <div>
+  <input id="input-coupon-code" placeholder="Enter Lucky Number Code" type="text" name="couponCode"/>
+  <input class="btn btn-default" id="button-redeem" type="submit" value="Redeem"/>
+</div>
   </form>
-  </div>
+  
   <#if message??>
-      <span id="text-coupon-message">${message}</span><br/>
+      <span id="text-coupon-message">${message}</span>
   </#if>
   <div class="modal-footer">
     <div style="float:left"><a class="btn btn-default" id="link-lucky-number-download" href="<@spring.url '/home/luckyNumbers' />">Download Lucky Numbers</a></div>
