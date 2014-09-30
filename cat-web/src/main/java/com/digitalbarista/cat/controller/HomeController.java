@@ -50,7 +50,12 @@ public class HomeController {
     public String redeemCoupon(Model model)
     {
         CouponRedemptionMessage message = couponManager.redeemCoupon((String)model.asMap().get("couponCode"));
-        model.addAttribute("message", "FBID="+message.getDetailedMessage());
+        String messageText = message.getDetailedMessage();
+        if(message.getContact()!=null)
+        {
+            messageText += " | FB link: <a href=\"https://www.facebook.com/profile.php?id="+message.getContact().getAddress()+"\">"+message.getContact().getAddress()+"</a>";
+        }
+        model.addAttribute("message", messageText );
         return "redemption-home";
     }
     

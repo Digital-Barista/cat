@@ -11,7 +11,9 @@
   <form action="<@spring.url '/home/redeemCoupon' />" method="POST">
   Coupon Code:<input type="text" name="couponCode"/><input type="submit" value="Redeem"/><br/>
   </form>
-  <b>${message}</b>
+  <#if message??>
+      <b>${message}</b><br/>
+  </#if>
   <a href="<@spring.url '/logout' />">Logout</a/>
 </body>
 
