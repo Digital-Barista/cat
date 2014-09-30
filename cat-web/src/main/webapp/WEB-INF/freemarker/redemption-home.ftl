@@ -2,19 +2,22 @@
 <html>
 
 <head>
-    <title>Login Page</title>
+    <title>Coupon Redemption</title>
+    <link rel="stylesheet" href="<@spring.url '/angular/app/css/bootstrap.css' />"/>
+    <link rel="stylesheet" href="<@spring.url '/angular/app/css/angular-ui.min.css' />"/>
+    <link rel="stylesheet" href="<@spring.url '/angular/app/css/app.css' />"/>
 </head>
 
 <body>
-  <a href="<@spring.url '/home/redeemCoupon' />">Coupon Redemption Page</a><br/>
-  <a href="<@spring.url '/home/luckyNumbers' />">Download Lucky Numbers</a><br/>
+  <a id="link-coupon-redemption" href="<@spring.url '/home/redeemCoupon' />">Coupon Redemption Page</a><br/>
+  <a id="link-lucky-number-download" href="<@spring.url '/home/luckyNumbers' />">Download Lucky Numbers</a><br/>
   <form action="<@spring.url '/home/redeemCoupon' />" method="POST">
-  Coupon Code:<input type="text" name="couponCode"/><input type="submit" value="Redeem"/><br/>
+  Coupon Code:<input id="input-coupon-code" type="text" name="couponCode"/><input id="button-redeem" type="submit" value="Redeem"/><br/>
   </form>
   <#if message??>
-      <b>${message}</b><br/>
+      <span id="text-coupon-message">${message}</span><br/>
   </#if>
-  <a href="<@spring.url '/logout' />">Logout</a/>
+  <a id="link-logout" href="<@spring.url '/logout' />">Logout</a/>
 </body>
 
 </html>
