@@ -81,7 +81,7 @@ public class HomeController {
         {
             for(String couponCode : coupons)
             {
-                writer.write(isFirst?"":",\n");
+                writer.write(isFirst?"":"\n");
                 writer.write(couponCode);
                 isFirst=false;
             }
