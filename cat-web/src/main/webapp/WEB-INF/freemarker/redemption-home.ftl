@@ -11,9 +11,9 @@
 <body>
 <div class="container modal">
   <#--<a id="link-coupon-redemption" href="<@spring.url '/home/redeemCoupon' />">--> <div class="modal-header"><h3>Lucky Number Redemption Page</h3></div><#--</a>-->
-  <form action="<@spring.url '/home/redeemCoupon' />" method="POST">
-  <div>
-  <input id="input-coupon-code" placeholder="Enter Lucky Number Code" type="text" name="couponCode"/>
+  <form class="navbar-form" action="<@spring.url '/home/redeemCoupon' />" method="POST">
+  <div style="margin:15px;">
+  <input id="input-coupon-code" placeholder="Enter Lucky Number Code" type="text" name="couponCode" style="height:100%;"/>
   <input class="btn btn-default" id="button-redeem" type="submit" value="Redeem"/>
 </div>
   </form>
