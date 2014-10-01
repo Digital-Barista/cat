@@ -19,7 +19,7 @@
   </form>
   
   <#if message??>
-      <span id="text-coupon-message">${message}</span>
+      <div id="text-coupon-message">${message}</div>
   </#if>
   <div class="modal-footer">
     <div style="float:left"><a class="btn btn-default" id="link-lucky-number-download" href="<@spring.url '/home/luckyNumbers' />">Download Lucky Numbers</a></div>
