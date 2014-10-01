@@ -26,7 +26,7 @@
 <div class="container login modal">
     <form class="form-horizontal" action="<@spring.url "/j_spring_security_check"/>" method="POST">
         <div class="modal-header">
-            <h3>CAT</h3>
+            <h3>LOGIN:</h3>
         </div>
         <div class="control-group">
             <label class="control-label" for="username">Username</label>
