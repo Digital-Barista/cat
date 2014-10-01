@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	horizontalAlign="center"
+	verticalAlign="middle"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+	creationComplete="init()">
+	<mx:Metadata>
+		[Event(name="controlChange", type="com.dbi.cat.events.WorkspaceEvent")]
+		[Event(name="fitContent", type="com.dbi.cat.events.WorkspaceEvent")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.collections.ArrayCollection;
+			import com.dbi.cat.event.WorkspaceEvent;
+			import com.dbi.cat.view.components.PanZoomCanvas;
+			
+			private static const PADDING:Number = 4;
+			
+			[Bindable]
+	        [Embed("/assets/swf/pointer.swf")]
+	        private var pointer:Class;
+	        
+			[Bindable]
+	        [Embed("/assets/swf/pan.swf")]
+	        private var pan:Class;
+	        
+			[Bindable]
+	        [Embed("/assets/swf/zoomIn.swf")]
+	        private var zoomIn:Class;
+	        
+			[Bindable]
+	        [Embed("/assets/swf/zoomOut.swf")]
+	        private var zoomOut:Class;
+	        
+			[Bindable]
+	        [Embed("/assets/swf/fit_screen.swf")]
+	        private var fitScreen:Class;
+	        
+			[Bindable]
+	        [Embed("/assets/swf/align_top.swf")]
+	        private var alignTopIcon:Class;
+	        
+			[Bindable]
+	        [Embed("/assets/swf/align_bottom.swf")]
+	        private var alignBottomIcon:Class;
+	        
+			[Bindable]
+	        [Embed("/assets/swf/align_left.swf")]
+	        private var alignLeftIcon:Class;
+	        
+			[Bindable]
+	        [Embed("/assets/swf/align_right.swf")]
+	        private var alignRightIcon:Class;
+	        
+	        private var _readonly:Boolean = false;
+	        [Bindable]
+	        public function get readonly():Boolean
+	        {
+	        	return _readonly;
+	        }
+	        public function set readonly(value:Boolean):void
+	        {
+	        	_readonly = value;
+	        	setupReadonly();
+	        }
+	        
+	        [Bindable]
+	        private var actionItems:ArrayCollection = new ArrayCollection();
+	 
+	 		private var aLeft:Object = {source:alignLeftIcon, event:WorkspaceEvent.ALIGN_LEFT, tip:'Align items left'};
+	 		private var aRight:Object = {source:alignRightIcon, event:WorkspaceEvent.ALIGN_RIGHT, tip:'Align items right'};
+	 		private var aTop:Object = {source:alignTopIcon, event:WorkspaceEvent.ALIGN_TOP, tip:'Align items top'};
+	 		private var aBottom:Object = {source:alignBottomIcon, event:WorkspaceEvent.ALIGN_BOTTOM, tip:'Align items bottom'};
+	        
+	        private function init():void
+	        {
+	        	actionItems.addItem({source:zoomIn, event:WorkspaceEvent.ZOOM_IN, tip:'Zoom in'});
+	        	actionItems.addItem({source:zoomOut, event:WorkspaceEvent.ZOOM_OUT, tip:'Zoom out'});
+	        	actionItems.addItem({source:fitScreen, event:WorkspaceEvent.FIT_CONTENT, tip:'Fit contents to screen'});
+	        	
+				setupReadonly();
+	        }
+	        private function setupReadonly():void
+	        {
+	        	if (readonly)
+	        	{
+	        		if (actionItems.contains(aLeft))
+	        			actionItems.removeItemAt(actionItems.getItemIndex(aLeft));
+	        		if (actionItems.contains(aRight))
+	        			actionItems.removeItemAt(actionItems.getItemIndex(aRight));
+	        		if (actionItems.contains(aTop))
+	        			actionItems.removeItemAt(actionItems.getItemIndex(aTop));
+	        		if (actionItems.contains(aBottom))
+	        			actionItems.removeItemAt(actionItems.getItemIndex(aBottom));
+	        	}
+	        	else
+	        	{
+	        		if (!actionItems.contains(aLeft))
+	        			actionItems.addItem(aLeft);
+	        		if (!actionItems.contains(aRight))
+	        			actionItems.addItem(aRight);
+	        		if (!actionItems.contains(aTop))
+	        			actionItems.addItem(aTop);
+	        		if (!actionItems.contains(aBottom))
+	        			actionItems.addItem(aBottom);
+	        	}
+	        }
+	        private function itemClick(item:Object):void
+	        {
+	        	var event:WorkspaceEvent = new WorkspaceEvent(item.event);
+	        	dispatchEvent(event);
+	        	
+	        }
+		]]>
+	</mx:Script>
+	<mx:Repeater id="itemRepeater"
+		dataProvider="{actionItems}">
+		<mx:Canvas id="control"
+			buttonMode="true"
+			click="{itemClick(event.currentTarget.getRepeaterItem())}"
+			width="{height - PADDING}" height="{height - PADDING}"
+			toolTip="{itemRepeater.currentItem.tip}">
+			<mx:SWFLoader id="swfItem" 
+				width="100%" height="100%"
+				source="{itemRepeater.currentItem.source}" />
+		</mx:Canvas>
+	</mx:Repeater>
+</mx:HBox>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Connection xmlns="com.dbi.cat.view.workspace.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:components="com.dbi.cat.view.components.*"
+	xmlns:controls="com.dbi.controls.*"
+	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
+	editWindowWidth="500"
+	editWindowHeight="200"
+	displayIcon="{responseConnectorWorkspace}"
+	workspaceIcon="{responseConnector}"
+	label="Response Connector">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.ResponseConnectorVO;
+			import com.dbi.cat.common.vo.LayoutInfoVO;
+			
+			
+			[Bindable(event="connectorUpdate")]
+			[Bindable(event="connectorLoaded")]
+			public function get responseConnectorVO():ResponseConnectorVO
+			{
+				return editConnectorVO as ResponseConnectorVO;
+			}
+			public function set responseConnectorVO(rc:ResponseConnectorVO):void
+			{
+				connectorVO = rc;
+				dispatchEvent(new Event("connectorLoaded"));
+			}
+			
+			override public function get valid():Boolean
+			{
+				return responseConnectorVO != null && responseConnectorVO.valid;
+			}
+			
+		]]>
+	</mx:Script>
+	<editContent>
+		<mx:Form id="ContentForm"
+			width="100%" 
+			labelWidth="70"
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
+			<mx:FormItem label="Title"
+			width="100%" >
+				<mx:TextInput id="Title"
+					width="100%" 
+					text="{responseConnectorVO.name}"
+					change="{responseConnectorVO.name = Title.text}" />
+			</mx:FormItem>
+		</mx:Form>
+		<AddressSelection
+			labelWidth="70"
+			workspace="{workspace}"
+			entryData="{responseConnectorVO.entryData}"
+			right="0" left="0" top="0" bottom="0"   
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5" />
+	</editContent>
+</Connection>

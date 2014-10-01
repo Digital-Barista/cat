@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service id="remoting-service" 
+    class="flex.messaging.services.RemotingService">
+
+    <adapters>
+        <adapter-definition id="java-object" class="com.digitalbarista.cat.remote.ErrorLoggingJavaAdapter" default="true"/>
+    </adapters>
+
+    <default-channels>
+        <channel ref="my-amf"/>
+    </default-channels>
+
+	<destination id="userManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>UserManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+
+	<destination id="campaignManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>CampaignManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+
+	<destination id="clientManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>ClientManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+
+	<destination id="couponManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>CouponManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+
+	<destination id="layoutManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>LayoutManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+	
+	<destination id="subscriptionManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>SubscriptionManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+	
+	<destination id="contactManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>ContactManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+	
+	<destination id="reportingManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>ReportingManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+	
+	<destination id="messageManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>MessageManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+	
+	<destination id="accountManager">
+			<security>
+				<security-constraint ref="valid-user"/>
+			</security>
+			<properties>
+					<factory>spring</factory>
+					<source>AccountManager</source>
+					<scope>request</scope>
+			</properties>
+	</destination>
+</service>

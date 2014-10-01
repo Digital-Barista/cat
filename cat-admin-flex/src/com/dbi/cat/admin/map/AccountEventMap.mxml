@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" >
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.admin.business.AccountManager;
+			import com.dbi.cat.admin.business.ClientManager;
+			import com.dbi.cat.admin.event.AccountEvent;
+			import com.dbi.cat.admin.event.ClientEvent;
+			
+			import mx.controls.Alert;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<!-- Facebook Account Events -->
+	<EventHandlers type="{AccountEvent.LIST_FACEBOOK_ACCOUNTS}">
+		<RemoteObjectInvoker destination="accountManager"
+			method="getFacebookApps"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{AccountManager}"
+					method="loadFacebookApps"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{AccountEvent.SAVE_FACEBOOK_ACCOUNT}">
+		<RemoteObjectInvoker destination="accountManager"
+			method="save"
+			showBusyCursor="true"
+			arguments="{event.facebookApp}">
+			<resultHandlers>
+				<MethodInvoker generator="{AccountManager}"
+					method="saveFacebookApp"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{AccountEvent.DELETE_FACEBOOK_ACCOUNT}">
+		<RemoteObjectInvoker destination="accountManager"
+							 method="delete"
+							 showBusyCursor="true"
+							 arguments="{event.facebookApp}">
+					<resultHandlers>
+						<MethodInvoker generator="{AccountManager}"
+									   method="deleteFacebookApp"
+									   arguments="{event.facebookApp}" />
+					</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{AccountEvent.EDIT_FACEBOOK_ACCOUNT}">
+		<MethodInvoker generator="{AccountManager}"
+			method="editFacebookApp"
+			arguments="{event.facebookApp}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{AccountEvent.CLOSE_EDIT_FACEBOOK_ACCOUNT}">
+		<MethodInvoker generator="{AccountManager}"
+			method="closeEditFacebookApp" />
+	</EventHandlers>
+	
+	
+</EventMap>

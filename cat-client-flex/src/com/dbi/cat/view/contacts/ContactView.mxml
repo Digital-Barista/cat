@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:contacts="com.dbi.cat.view.contacts.*" 
+	xmlns:controls="com.dbi.controls.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.ContactVO;
+			import com.dbi.cat.common.vo.PagedListVO;
+			import com.dbi.cat.common.vo.PagingInfoVO;
+			import com.dbi.cat.common.vo.UserVO;
+			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.event.UserEvent;
+			import com.dbi.controls.CustomMessage;
+			import com.dbi.event.CustomMessageEvent;
+			
+			import flash.events.MouseEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Menu;
+			import mx.events.IndexChangedEvent;
+			import mx.events.MenuEvent;
+			
+			[Bindable]
+			public var contacts:PagedListVO;
+			
+			[Bindable]
+			public var selectedContacts:ArrayCollection;
+			
+			[Embed("/assets/img/button_down_arrow.png")]
+			public static const actionButtonIcon:Class;
+			
+			public var contactSearchCriteria:ContactSearchCriteriaVO;
+			public var contactPagingInfo:PagingInfoVO;
+			
+			private var actionMenu:Menu;
+			
+			private function get hasSelected():Boolean
+			{
+				return selectedContacts != null && selectedContacts.length > 0;
+			}
+			
+			private function refresh():void
+			{
+				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+				event.searchCriteria = contactSearchCriteria;
+				event.pagingInfo = contactPagingInfo;
+				dispatchEvent(event);
+				dispatchEvent(new ContactEvent(ContactEvent.LIST_CONTACT_TAGS));
+			}
+			private function addContact():void
+			{
+				var event:ContactEvent = new ContactEvent(ContactEvent.EDIT_CONTACT);
+				event.contact = new ContactVO();
+				dispatchEvent(event);
+			}
+			private function deleteContacts(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes" &&
+					selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					var event:ContactEvent = new ContactEvent(ContactEvent.DELETE_CONTACTS);
+					event.contacts = selectedContacts;
+					dispatchEvent(event);
+				}
+			}
+			
+			private function addTags():void
+			{
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+					dispatchEvent(new ContactEvent(ContactEvent.OPEN_ASSIGN_CONTACT_TAGS));
+			}
+			private function removeTags():void
+			{
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+					dispatchEvent(new ContactEvent(ContactEvent.OPEN_UNASSIGN_CONTACT_TAGS));
+			}
+			
+			private function confirmBlacklist():void
+			{
+				
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					CustomMessage.show("Are you sure you want to blacklist the " + selectedContacts.length + " addresses?",
+						["Yes", "No"],
+						blacklist);
+				}
+			}
+			private function blacklist(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes" &&
+					selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					var event:ContactEvent = new ContactEvent(ContactEvent.BLACKLIST_ADDRESSES);
+					event.contacts = selectedContacts;
+					dispatchEvent(event);
+				}
+			}
+			private function confirmDeleteContacts():void
+			{
+				
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					CustomMessage.show("Are you sure you want to delete the " + selectedContacts.length + " selected contacts?",
+						["Yes", "No"],
+						deleteContacts);
+				}
+			}
+			
+			private function confirmUnBlacklist():void
+			{
+				
+				if (selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					CustomMessage.show("Are you sure you want to unblacklist the " + selectedContacts.length + " addresses?",
+						["Yes", "No"],
+						unBlacklist);
+				}
+			}
+			private function unBlacklist(e:CustomMessageEvent):void
+			{
+				if (e.ButtonText == "Yes" &&
+					selectedContacts != null &&
+					selectedContacts.length > 0)
+				{
+					var event:ContactEvent = new ContactEvent(ContactEvent.UNBLACKLIST_ADDRESSES);
+					event.contacts = selectedContacts;
+					dispatchEvent(event);
+				}
+			}
+			
+			private function importContacts():void
+			{
+				dispatchEvent(new ContactEvent(ContactEvent.SELECT_CONTACT_IMPORT_FILE));
+			}
+			private function pageChange(e:IndexChangedEvent):void
+			{
+				if (contactPagingInfo == null)
+					contactPagingInfo = new PagingInfoVO();
+				contactPagingInfo.pageIndex = e.newIndex.toString();
+				contactPagingInfo.pageSize = Pager.pageSize.toString();
+				
+				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+				event.pagingInfo = contactPagingInfo;
+				event.searchCriteria = contactSearchCriteria;
+				dispatchEvent(event);
+			}
+			
+			private function openActions():void
+			{
+				
+				// Disable items if necessary
+				for each (var xml:XML in actionMenuXML..item)
+				{
+					if (xml.hasOwnProperty("@requireSelected"))
+						xml.@enabled = hasSelected;
+				}
+				
+				actionMenu = Menu.createMenu(null, actionMenuXML, false);
+				actionMenu.addEventListener(MenuEvent.ITEM_CLICK, onAction);
+				actionMenu.labelField = "@label";
+				
+				var global:Point = ButtonArea.localToGlobal(new Point(ActionButton.x, ActionButton.y + ActionButton.height));
+				actionMenu.show(global.x, global.y);
+			}
+			
+			private function onAction(e:MenuEvent):void
+			{
+				if (e.item.hasOwnProperty("@id"))
+				{
+					var action:String = e.item.@id;
+					
+					switch (action)
+					{
+						case "import":
+							importContacts();
+							break;
+						case "addContact":
+							addContact();
+							break;
+						case "deleteContacts":
+							confirmDeleteContacts();
+							break;
+						case "addTag":
+							addTags();
+							break;
+						case "removeTag":
+							removeTags();
+							break;
+						case "blacklist":
+							confirmBlacklist();
+							break;
+						case "unblacklist":
+							confirmUnBlacklist();
+							break;
+						case "refresh":
+							refresh();
+							break;
+					}
+				}
+			}
+		]]>	
+	</mx:Script>
+	<mx:XML id="actionMenuXML" xmlns="">
+		<root>
+			<item label="Import Contacts" id="import" />
+			<item label="Add Contact" id="addContact" />
+			<item label="Delete Contacts" id="deleteContacts" />	
+			<item type="separator"  />
+			<item label="Add Tags" id="addTag" requireSelected="true" />	
+			<item label="Remove Tags" id="removeTag" requireSelected="true" />
+			<item type="separator" />
+			<item label="Blacklist Addresses" id="blacklist" requireSelected="true" />	
+			<item label="Unblacklist Addresses" id="unblacklist" requireSelected="true" />
+			<item type="separator" />
+			<item label="Refresh" id="refresh" />	
+		</root>
+	</mx:XML>
+	<mx:Canvas
+		horizontalCenter="0"
+		width="90%"
+		maxWidth="1000"
+		top="10" bottom="10">
+		<mx:TitleWindow 
+			width="100%" height="100%"
+			layout="absolute"
+			title="Contacts">
+			<contacts:ContactListView />
+			<mx:ControlBar horizontalAlign="center">
+				<controls:PagingControl id="Pager"
+					pageIndexChanged="pageChange(event)"
+					totalResults="{contacts.totalResultCount}"
+					pageSize="250"
+					selectedNavButtonStyleName="selectedNavButton" />
+			</mx:ControlBar>
+		</mx:TitleWindow>
+		<mx:HBox id="ButtonArea" right="10" top="7" verticalAlign="middle">
+			<mx:Button id="ActionButton" label="Actions" click="openActions()"
+					   icon="{actionButtonIcon}"/>
+		</mx:HBox>
+	</mx:Canvas>
+</mx:Canvas>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.business.CampaignManager;
+			import com.dbi.cat.business.ClientManager;
+			import com.dbi.cat.business.LayoutInfoManager;
+			import com.dbi.cat.business.LoginManager;
+			import com.dbi.cat.business.NavigationManager;
+			import com.dbi.cat.business.UserManager;
+			import com.dbi.cat.constants.ServiceStatusMessage;
+			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.event.ChangePasswordEvent;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.event.LoadDataEvent;
+			import com.dbi.cat.event.LoginEvent;
+			import com.dbi.cat.event.NavigationEvent;
+			import com.dbi.cat.event.UserEvent;
+        import com.dbi.cat.view.components.LoadingMessageView;
+			
+			import mx.events.FlexEvent;
+			import mx.managers.LayoutManager;
+		]]>
+	</mx:Script>
+	
+	<services:Services id="services" />
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	
+	
+	
+	<!-- Recover Password -->
+	<EventHandlers type="{ChangePasswordEvent.RECOVER_PASSWORD_INITIATE}">
+		<MethodInvoker generator="{UserManager}"
+			method="initiateRecoverPassword"
+			arguments="{event.emailAddress}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ChangePasswordEvent.RECOVER_PASSWORD_RESET}">
+		<MethodInvoker generator="{UserManager}"
+			method="resetRecoverPassword"
+			arguments="{[ event.emailAddress, event.recoverPasswordCode,  
+				event.password, event.confirmPassword ]}" />
+	</EventHandlers>
+	
+	<!-- Change password -->
+	<EventHandlers type="{ChangePasswordEvent.CHANGE_PASSWORD}">
+		<MethodInvoker generator="{UserManager}"
+			method="changePassword"
+			arguments="{[ event.oldPassword, event.password, event.confirmPassword ]}" />
+	</EventHandlers>
+	
+	<!-- Manage Users -->
+	<EventHandlers type="{UserEvent.GET_USER_LIST}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_USERS}" />
+		<RemoteObjectInvoker destination="userManager"
+			method="getVisibleUsers"
+			arguments="{event.clientIds}">
+			<resultHandlers>
+				<MethodInvoker generator="{UserManager}"
+					method="getUserList"
+					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_USERS}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_USERS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{UserEvent.EDIT_USER}">
+		<MethodInvoker generator="{UserManager}"
+			method="editUser"
+			arguments="{event.user}" />
+	</EventHandlers>
+	<EventHandlers type="{UserEvent.SAVE_USER}">
+      <InlineInvoker
+          method="LoadingMessageView.show"
+          arguments="{['Saving User Information...']}" />
+		<RemoteObjectInvoker destination="userManager"
+			method="save"
+      showBusyCursor="true"
+			arguments="{event.user}">
+			<resultHandlers>
+        <InlineInvoker method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{UserManager}"
+					method="saveUser"
+					arguments="{resultObject}" />
+			</resultHandlers>
+        <faultHandlers>
+            <InlineInvoker method="LoadingMessageView.hide" />
+            <MethodInvoker generator="{AppManager}" method="showFault" arguments="{fault}" />
+        </faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{UserEvent.DELETE_USER}">
+		<RemoteObjectInvoker destination="userManager"
+			method="delete"
+			arguments="{event.user}">
+			<resultHandlers>
+				<MethodInvoker generator="{UserManager}"
+					method="deleteUser"
+					arguments="{[event.user.primaryKey]}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{UserEvent.GET_CURRENT_USER}">
+		<RemoteObjectInvoker destination="userManager"
+			method="getCurrentUser">
+			<resultHandlers>
+				<MethodInvoker generator="{LoginManager}"
+					method="loadCurrentUser"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{UserEvent.FILTER_USERS}">
+		<MethodInvoker generator="{UserManager}"
+			method="filterUsers"
+			arguments="{event.filterText}" />
+	</EventHandlers>
+
+	<!-- Manage role events -->
+	<EventHandlers type="{UserEvent.ADD_ROLE}">
+		<MethodInvoker generator="{UserManager}"
+			method="addRole"
+			arguments="{event.role}" />
+	</EventHandlers>
+	<EventHandlers type="{UserEvent.REMOVE_ROLE}">
+		<MethodInvoker generator="{UserManager}"
+			method="removeRole"
+			arguments="{event.role}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UserEvent.CANCEL_EDIT}">
+		<MethodInvoker generator="{UserManager}"
+			method="cancelEdit" />
+	</EventHandlers>
+    
+    <!-- Update current user -->
+    <EventHandlers type="{UserEvent.UPDATE_CURRENT_USER}">
+        <MethodInvoker generator="{LoginManager}"
+                       method="updateCurrentUser"
+                       arguments="{event.user}" />
+    </EventHandlers>
+</EventMap>

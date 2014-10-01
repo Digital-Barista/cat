@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.constants.ServiceStatusMessage;
+			import mx.controls.Alert;
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.business.ClientManager;
+			import com.dbi.cat.event.ClientEvent;
+		]]>
+	</mx:Script>
+	
+	<services:Services id="services" />
+	 
+	<Debugger level="{Debugger.ALL}" />
+	
+	<!-- Client Events -->
+	<EventHandlers type="{ClientEvent.LIST_CLIENTS}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_CLIENTS}" />
+		<RemoteObjectInvoker destination="clientManager"
+			method="getVisibleClients">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadClients"
+					arguments="{resultObject}" />
+				<MethodInvoker generator="{AppManager}" 
+					method="removeGeneralStatusMessage" 
+					arguments="{ServiceStatusMessage.LOADING_CLIENTS}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_CLIENTS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.SAVE_CLIENT}">
+		<RemoteObjectInvoker destination="clientManager"
+			showBusyCursor="true"
+			method="save"
+			arguments="{event.client}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="saveClient"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CHANGE_FILTER_CLIENTS}">
+		<MethodInvoker generator="{ClientManager}"
+					   method="setFilterClients"
+					   arguments="{event.clients}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CHANGE_CLIENT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="changeClient"
+			arguments="{event.client}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.EDIT_CLIENT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="editClient"
+			arguments="{event.client}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CANCEL_EDIT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeEdit" />
+	</EventHandlers>
+	
+	<!-- Keyword events -->
+	<EventHandlers type="{ClientEvent.SAVE_KEYWORD}">
+		<RemoteObjectInvoker destination="clientManager"
+			showBusyCursor="true"
+			method="save"
+			arguments="{event.keyword}">
+			<resultHandlers>
+				<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
+				<MethodInvoker generator="{ClientManager}"
+					method="saveKeyword"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.EDIT_KEYWORD}">
+		<MethodInvoker generator="{ClientManager}"
+			method="editKeyword"
+			arguments="{event.keyword}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.DELETE_KEYWORD}">
+		<RemoteObjectInvoker destination="clientManager"
+			showBusyCursor="true"
+			method="delete"
+			arguments="{event.keyword}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="deleteKeyword"
+					arguments="{event.keyword}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_EDIT_KEYWORD}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeEditKeyword" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.LIST_KEYWORDS}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
+		<RemoteObjectInvoker destination="clientManager"
+			method="getKeywords"
+			arguments="{event.clientIds}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadKeywords"
+					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CHECK_KEYWORD_AVAILABILITY}">
+		<MethodInvoker
+			generator="{ClientManager}"
+			method="startKeywordAvailabilityCheck" />
+		<RemoteObjectInvoker destination="clientManager"
+			method="checkKeywordAvailability"
+			arguments="{event.keyword}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker
+					generator="{ClientManager}"
+					method="showKeywordAvailability"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<!-- Entry point events -->
+	<EventHandlers type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
+		<RemoteObjectInvoker destination="clientManager"
+			method="getEntryPointDefinitions"
+			arguments="{event.clientIds}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="loadEntryPoints"
+					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_ENTRY_POINTS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.SAVE_ENTRY_POINT}">
+		<RemoteObjectInvoker destination="clientManager"
+			method="save"
+			showBusyCursor="true"
+			arguments="{event.entryPointDefinition}">
+			<resultHandlers>
+				<MethodInvoker generator="{ClientManager}"
+					method="saveEntryPoint"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.EDIT_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="editEntryPoint"
+			arguments="{event.entryPointDefinition}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.DELETE_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="deleteEntryPoint"
+			arguments="{event.entryPointDefinition}" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_EDIT_ENTRY_POINT}">
+		<MethodInvoker generator="{ClientManager}"
+			method="closeEditEntryPoint" />
+	</EventHandlers>
+	
+	<!-- Credit events -->
+	<EventHandlers type="{ClientEvent.OPEN_ADD_CREDITS}">
+		<MethodInvoker generator="{ClientManager}"
+					   method="openAddCredits" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.CLOSE_ADD_CREDITS}">
+		<MethodInvoker generator="{ClientManager}"
+					   method="closeAddCredits" />
+	</EventHandlers>
+	<EventHandlers type="{ClientEvent.OPEN_PAYMENT_URL}">
+		<MethodInvoker generator="{ClientManager}"
+					   method="openPaymentURL"
+					   arguments="{event.paymentURL}"/>
+	</EventHandlers>
+    
+  <!-- Account Activation -->
+    <EventHandlers type="{ClientEvent.ACTIVATE_TWITTER_ACCOUNT}">
+        <RemoteObjectInvoker destination="clientManager"
+                             method="startTwitterAuth"
+                             showBusyCursor="true"
+                             arguments="{event.twitterActiviationCallBackUrl}">
+            <resultHandlers>
+                <MethodInvoker generator="{ClientManager}"
+                               method="activateTwitterAccount"
+                               arguments="{resultObject}" />
+            </resultHandlers>
+        </RemoteObjectInvoker>
+    </EventHandlers>
+    
+</EventMap>

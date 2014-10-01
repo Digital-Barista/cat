@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+           xmlns:workspace="com.dbi.cat.view.workspace.*"
+           creationComplete="init()">
+    <mx:Script>
+        <![CDATA[
+            import com.dbi.cat.common.vo.CampaignVO;
+            import com.dbi.cat.common.vo.CouponNodeVO;
+            import com.dbi.cat.event.BroadcastMessageEvent;
+            import com.dbi.controls.CustomMessage;
+            import com.dbi.event.CustomMessageEvent;
+            
+            import mx.collections.ArrayCollection;
+            
+            [Bindable]
+            private var campaign:CampaignVO;
+            
+            [Bindable]
+            private var coupon:CouponNodeVO;
+            
+            public var clients:ArrayCollection;
+            
+            private function init():void
+            {
+                newBroadcast();
+            }
+            
+            private function newBroadcast():void
+            {
+                // Need to add client to campaign so preview functions
+                campaign = new CampaignVO();
+                if (clients &&
+                    clients.length > 0)
+                {
+                    campaign.clientPK = clients.getItemAt(0).clientId;
+                }
+                coupon = new CouponNodeVO();
+                coupon.campaignUID = campaign.uid;
+            }
+            private function confirmNewMessage():void
+            {
+                CustomMessage.show("Are you sure you want to discard the current coupon message?",
+                    ["Yes", "No"],
+                    onConfirmNewMessage);
+            }
+            private function onConfirmNewMessage(e:CustomMessageEvent):void
+            {
+                if (e.ButtonText == "Yes")
+                {
+                    newBroadcast();
+                }
+            }
+            
+            private function confirmSendCouponMessage():void
+            {
+                var e:BroadcastMessageEvent = new BroadcastMessageEvent(BroadcastMessageEvent.OPEN_CONFIRM_BROADCAST_MESSAGE);
+                e.coupon = coupon;
+                dispatchEvent(e);
+            }
+        ]]>
+    </mx:Script>
+    <mx:TitleWindow 
+        width="100%" height="100%"
+        layout="absolute">
+        <workspace:CouponItemEditor 
+            campaign="{campaign}"
+            couponVO="{coupon}"/>
+    </mx:TitleWindow>
+    <mx:HBox right="5" top="7" verticalAlign="middle">
+        <mx:Button label="New Coupon Message"
+                   click="confirmNewMessage()" />
+        <mx:Button label="Send Coupon Message"
+                   click="confirmSendCouponMessage()"/>
+    </mx:HBox>
+</mx:Canvas>

@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*" xmlns:events="com.asfusion.mate.events.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.view.components.LoadingMessageView;
+			import com.dbi.cat.business.ContactManager;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.constants.ServiceStatusMessage;
+			import com.dbi.cat.business.NavigationManager;
+			import com.dbi.cat.business.LayoutInfoManager;
+			import mx.managers.LayoutManager;
+			import com.dbi.cat.business.ClientManager;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.cat.business.CampaignManager;
+			import com.dbi.cat.event.LoadDataEvent;
+			import com.dbi.cat.event.CampaignEvent;
+			import com.dbi.cat.event.ChangePasswordEvent;
+			import com.dbi.cat.business.LoginManager;
+			import com.dbi.cat.event.LoginEvent;
+			import com.dbi.cat.event.NavigationEvent;
+			import com.dbi.cat.business.UserManager;
+			import com.dbi.cat.event.UserEvent;
+			import com.dbi.cat.business.AppManager;
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<services:Services id="services" />
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	
+	<EventHandlers type="{ContactEvent.LIST_CONTACTS}">
+		<PropertySetter generator="{ContactManager}"
+			targetKey="isSearchingContacts"
+			source="{true}" />
+		<RemoteObjectInvoker destination="contactManager"
+			method="getContacts"
+			arguments="{[event.searchCriteria, event.pagingInfo]}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="loadContacts"
+					arguments="{[resultObject, event.searchCriteria, event.pagingInfo]}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CHANGE_SEARCH_CRITERIA}">
+				<MethodInvoker generator="{ContactManager}"
+							   method="changeSearchCriteria"
+							   arguments="{[event.searchCriteria, event.pagingInfo]}" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.LIST_CONTACT_TAGS}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="getContactTags">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="loadContactTags"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.SAVE_CONTACT_TAG}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Creating Contacts Tag']}" />
+		<RemoteObjectInvoker destination="contactManager"
+			method="save"
+			arguments="{event.contactTag}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="saveTag"
+					arguments="{resultObject}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.DELETE_CONTACT_TAG}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="delete"
+			arguments="{event.contactTag}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="deleteTag"
+					arguments="{event.contactTag}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.OPEN_ASSIGN_CONTACT_TAGS}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="openContactTagAssignment" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CLOSE_ASSIGN_CONTACT_TAG}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactTagAssignment" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.OPEN_UNASSIGN_CONTACT_TAGS}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="openContactTagUnassignment" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CLOSE_UNASSIGN_CONTACT_TAG}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactTagUnassignment" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.EDIT_CONTACT}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="editContact"
+			arguments="{event.contact}" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContact" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.SELECT_CONTACTS}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="selectContacts"
+			arguments="{event.contacts}" />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.SAVE_CONTACT}">
+		<RemoteObjectInvoker destination="contactManager"
+			method="save"
+			arguments="{event.contact}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="saveContact"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.DELETE_CONTACTS}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Deleting Contacts']}" />
+		<RemoteObjectInvoker destination="contactManager"
+			method="delete"
+			arguments="{event.contacts}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+							   method="deleteContacts"
+							   arguments="{event.contacts}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.ADD_TAGS_TO_CONTACTS}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Assigning Tags']}" />
+		<RemoteObjectInvoker destination="contactManager"
+			method="addTagsToContacts"
+			arguments="{[event.contacts, event.contactTags]}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="addTagsToContacts"
+					arguments="{[event.contacts, event.contactTags]}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.REMOVE_TAGS_FROM_CONTACTS}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Removing Tags']}" />
+		<RemoteObjectInvoker destination="contactManager"
+			method="removeTagsFromContacts"
+			arguments="{[event.contacts, event.contactTags]}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="removeTagsFromContacts"
+					arguments="{[event.contacts, event.contactTags]}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.BLACKLIST_ADDRESSES}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Blacklisting Contact Addresses']}" />
+		<RemoteObjectInvoker destination="subscriptionManager"
+							 method="blacklistContacts"
+							 arguments="{event.contacts}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+							   method="blacklistContacts"
+							   arguments="{event.contacts}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.UNBLACKLIST_ADDRESSES}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Unblacklisting Contact Addresses']}" />
+		<RemoteObjectInvoker destination="subscriptionManager"
+							 method="unBlacklistContacts"
+							 arguments="{event.contacts}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+							   method="unBlacklistContacts"
+							   arguments="{event.contacts}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.OPEN_CONTACT_TAG_FILTER}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="openContactTagFilter" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT_TAG_FILTER}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactTagFilter" />
+	</EventHandlers>
+	
+	<!--
+		Contact detail events
+	-->
+	
+	<EventHandlers type="{ContactEvent.LOAD_CONTACT_DETAIL}">
+		<MethodInvoker generator="{ContactManager}"
+					   method="loadCurrentContact"
+					   arguments="{null}" />
+		<RemoteObjectInvoker destination="contactManager"
+							 method="getDetailedContact"
+							 arguments="{event.contact.contactId}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+							   method="loadCurrentContact"
+							   arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.OPEN_CONTACT_DETAIL}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="openContactDetail"
+			arguments="{event.contact}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT_DETAIL}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactDetail" />
+	</EventHandlers>
+	
+	<!--
+		Contact Import Events
+	-->
+	
+	<EventHandlers type="{ContactEvent.SELECT_CONTACT_IMPORT_FILE}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="selectContactImportFile"  />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.CLOSE_CONTACT_IMPORT}">
+		<MethodInvoker
+			generator="{ContactManager}"
+			method="closeContactImport"  />
+	</EventHandlers>
+	<EventHandlers type="{ContactEvent.DO_CONTACT_IMPORT}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{['Importing Contacts']}" />
+		<RemoteObjectInvoker destination="contactManager"
+			method="importContacts"
+			arguments="{event.contacts}">
+			<resultHandlers>
+				<MethodInvoker generator="{ContactManager}"
+					method="importContacts"
+					arguments="{[event.contacts, resultObject]}" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+</EventMap>

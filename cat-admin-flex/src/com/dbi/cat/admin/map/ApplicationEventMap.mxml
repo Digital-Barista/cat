@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" >
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.UnhandledFaultEvent;
+			import com.dbi.cat.admin.business.AppManager;
+			import com.dbi.cat.admin.business.LoginManager;
+			import com.dbi.cat.admin.business.NavigationManager;
+			import com.dbi.cat.admin.business.UserManager;
+			import com.dbi.cat.admin.event.AccountEvent;
+			import com.dbi.cat.admin.event.ClientEvent;
+			import com.dbi.cat.admin.event.LoadDataEvent;
+			import com.dbi.cat.admin.event.LoginEvent;
+			import com.dbi.cat.admin.event.UserEvent;
+			
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<!-- Initialize Events -->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<ObjectBuilder generator="{NavigationManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{AppManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{LoginManager}" constructorArguments="{scope.dispatcher}" />
+		<ObjectBuilder generator="{UserManager}" constructorArguments="{scope.dispatcher}" />
+	</EventHandlers>
+	
+	<!-- Global unhandled fault event -->
+	<EventHandlers type="{UnhandledFaultEvent.FAULT}">
+		<MethodInvoker generator="{AppManager}"
+			method="showFault"
+			arguments="{event.fault}" />
+	</EventHandlers>
+	
+	<!-- Login Events -->
+	<EventHandlers type="{LoginEvent.LOGIN}">
+		<MethodInvoker generator="{LoginManager}"
+			method="login"
+			arguments="{[event.username, event.password]}" />
+	</EventHandlers>
+	<EventHandlers type="{LoginEvent.LOGOUT}">
+		<MethodInvoker generator="{LoginManager}"
+			method="logout" />
+	</EventHandlers>
+	
+	<!-- Data Events -->
+	<EventHandlers type="{LoadDataEvent.INITIALIZE_DATA}">
+		<EventAnnouncer type="{UserEvent.GET_CURRENT_USER}" />
+		<EventAnnouncer type="{UserEvent.GET_USER_LIST}" />
+		<EventAnnouncer type="{ClientEvent.LIST_CLIENTS}" />
+		<EventAnnouncer type="{ClientEvent.LIST_ENTRY_POINT_DEFINITIONS}" />
+		<EventAnnouncer type="{ClientEvent.LIST_KEYWORDS}" />
+		<EventAnnouncer type="{ClientEvent.LIST_RESERVED_KEYWORD}" />
+		<EventAnnouncer type="{AccountEvent.LIST_FACEBOOK_ACCOUNTS}" />
+	</EventHandlers>
+</EventMap>

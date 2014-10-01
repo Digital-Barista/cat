@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.view.components.LoadingMessageView;
+			import com.dbi.cat.business.AppManager;
+			import mx.messaging.SubscriptionInfo;
+			import com.dbi.cat.business.ImportManager;
+			import com.dbi.cat.event.ImportEvent;
+			import mx.events.FlexEvent;
+		]]>
+	</mx:Script>
+	
+	<services:Services id="services" />
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<EventHandlers type="{ImportEvent.OPEN_IMPORT_SUBSCRIBERS}">
+		<MethodInvoker generator="{ImportManager}"
+			method="openImportSubscribers"
+			arguments="{event.node}" />
+	</EventHandlers>
+	<EventHandlers type="{ImportEvent.CLOSE_IMPORT_SUBSCRIBERS}">
+		<MethodInvoker generator="{ImportManager}"
+			method="closeImportSubscribers" />
+	</EventHandlers>
+	<EventHandlers type="{ImportEvent.DO_IMPORT}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{'Subscribing Contacts'}" />
+		<RemoteObjectInvoker destination="subscriptionManager"
+			method="subscribeContactsToEntryPoint"
+			arguments="{[event.contacts, event.nodeUID]}">
+			<resultHandlers>
+				<MethodInvoker generator="{ImportManager}"
+					method="importSuccessfull" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{ImportEvent.IMPORT_FILTER}">
+		<InlineInvoker
+			method="LoadingMessageView.show"
+			arguments="{'Subscribing Contacts'}" />
+		<RemoteObjectInvoker destination="subscriptionManager"
+							 method="subscribeContactFilterToEntryPoint"
+							 arguments="{[event.searchCriteria, event.nodeUID]}">
+			<resultHandlers>
+				<MethodInvoker generator="{ImportManager}"
+							   method="importSuccessfull" />
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+			</resultHandlers>
+			<faultHandlers>
+				<InlineInvoker
+					method="LoadingMessageView.hide" />
+				<MethodInvoker generator="{AppManager}"
+							   method="showFault"
+							   arguments="{fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+</EventMap>

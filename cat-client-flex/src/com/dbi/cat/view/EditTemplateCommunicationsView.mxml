@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	width="100%" height="100%"
+	xmlns:view="com.dbi.cat.view.*" 
+	xmlns:workspace="com.dbi.cat.view.workspace.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.event.CampaignTemplateEvent;
+			import com.dbi.cat.common.vo.CampaignVO;
+			
+			[Bindable]
+			public var templateCampaign:CampaignVO;
+			
+			private var _statusMessage:String;
+			[Bindable]
+			public function get statusMessage():String
+			{
+				return _statusMessage;
+			}
+			public function set statusMessage(value:String):void
+			{
+				_statusMessage = value;
+			}
+			
+			private function onClose():void
+			{
+				Workspace.closeMenuItems();
+				
+				// Remove the listener event
+				dispatchEvent(new CampaignTemplateEvent(CampaignTemplateEvent.CLOSE_CAMPAIGN_TEMPLATE_COMMUNICATIONS));
+			}
+			private function refresh():void
+			{
+				var event:CampaignTemplateEvent = new CampaignTemplateEvent(CampaignTemplateEvent.LOAD_CAMPAIGN_TEMPLATE);
+				event.campaign = templateCampaign;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:TitleWindow
+		layout="absolute"
+		width="100%" height="100%"
+		showCloseButton="true"
+		close="onClose()"
+		title="{templateCampaign.name}">
+		<mx:HDividedBox width="100%" height="100%">
+			<view:CommunicationComponentsView  height="100%" width="180" />
+			<workspace:WorkspaceView id="Workspace"
+				 width="100%" height="100%"
+				campaign="{templateCampaign}"
+				borderSides="left"
+				borderStyle="solid"  />
+		</mx:HDividedBox>
+		<mx:Canvas id="StatusMessageBox"
+			visible="{statusMessage.length != 0}"
+			styleName="workspaceStatusMessage"
+			bottom="0" right="0">
+			<mx:Text text="{statusMessage}" />
+		</mx:Canvas>
+	</mx:TitleWindow>
+	<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+		top="5"
+		right="30"
+		width="25" height="25"
+		toolTip="Refresh"
+		click="refresh()" />
+</mx:Canvas>

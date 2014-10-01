@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		   creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.KeywordVO;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.util.ListUtil;
+			
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var keywords:ArrayCollection;
+			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
+			
+			private function init():void
+			{
+			}
+			
+			private function addKeyword():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.EDIT_KEYWORD);
+				event.keyword = new KeywordVO();
+				dispatchEvent(event);
+			}
+			private function refresh():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.LIST_KEYWORDS);
+				event.clientIds = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:TitleWindow
+		layout="absolute"
+		width="100%" height="100%"
+		title="Keywords">
+		<mx:DataGrid id="KeywordGrid"
+			top="0" bottom="0" left="0" right="0"
+			dataProvider="{keywords}"
+			dropEnabled="true">
+			<mx:columns>
+				<mx:DataGridColumn dataField="incomingAddressType" headerText="Type" width="80"  />
+				<mx:DataGridColumn dataField="clientName" headerText="Client" />
+				<mx:DataGridColumn dataField="incomingAddress" headerText="Address" />
+				<mx:DataGridColumn dataField="keyword" headerText="Keyword" />
+				<mx:DataGridColumn itemRenderer="com.dbi.cat.view.profile.KeywordActionsRenderer" headerText="" width="80" sortable="false" />
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:TitleWindow>
+	<mx:HBox top="5" right="10">
+		<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+			width="25" height="25"
+			toolTip="Refresh"
+			click="refresh()" />
+		<mx:Button label="New Keyword"  width="120"
+			click="addKeyword()"  />
+	</mx:HBox>
+</mx:Canvas>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+        import com.dbi.cat.business.AppManager;
+        import com.dbi.cat.business.BroadcastMessageManager;
+        import com.dbi.cat.constants.ServiceStatusMessage;
+        import com.dbi.cat.event.BroadcastMessageEvent;
+        import com.dbi.cat.view.components.LoadingMessageView;
+			
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+    
+    <EventHandlers type="{BroadcastMessageEvent.LIST_BROADCAST_MESSAGES}">
+        <MethodInvoker generator="{AppManager}" 
+                       method="addGeneralStatusMessage" 
+                       arguments="{ServiceStatusMessage.LOADING_BROADCAST_MESSAGES}" />
+        <RemoteObjectInvoker 
+            destination="campaignManager"
+            method="getBroadcastCampaigns"
+            arguments="{event.clientIDs}"
+            showBusyCursor="true">
+            <resultHandlers>
+                <MethodInvoker generator="{BroadcastMessageManager}"
+                               method="loadBroadcastMessages"
+                               arguments="{resultObject}" />
+                <MethodInvoker
+                    generator="{AppManager}"
+                    method="removeGeneralStatusMessage"
+                    arguments="{ServiceStatusMessage.LOADING_BROADCAST_MESSAGES}" />
+            </resultHandlers>
+            <faultHandlers>
+                <MethodInvoker
+                    generator="{AppManager}"
+                    method="removeGeneralStatusMessage"
+                    arguments="{ServiceStatusMessage.LOADING_BROADCAST_MESSAGES}" />
+                <MethodInvoker generator="{AppManager}"
+                               method="showFault"
+                               arguments="{fault}" />
+            </faultHandlers>
+        </RemoteObjectInvoker>
+    </EventHandlers>
+    
+	<EventHandlers type="{BroadcastMessageEvent.SEND_BROADCAST_MESSAGE}">
+      <InlineInvoker
+          method="LoadingMessageView.show"
+          arguments="{['Sending...']}" />
+		<RemoteObjectInvoker destination="campaignManager"
+							 method="broadcastMessageSearch"
+							 arguments="{[event.clientID, event.entryDatas, event.message, event.search]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{BroadcastMessageManager}"
+							   method="broadcastMessageResult"
+							   arguments="{resultObject}" />
+          <InlineInvoker
+              method="LoadingMessageView.hide" />
+			</resultHandlers>
+        <faultHandlers>
+            <InlineInvoker
+                method="LoadingMessageView.hide" />
+            <MethodInvoker generator="{AppManager}"
+                           method="showFault"
+                           arguments="{fault}" />
+        </faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+    
+    <EventHandlers type="{BroadcastMessageEvent.SEND_BROADCAST_COUPON_MESSAGE}">
+        <InlineInvoker
+            method="LoadingMessageView.show"
+            arguments="{['Sending...']}" />
+        <RemoteObjectInvoker destination="campaignManager"
+                             method="broadcastCouponSearch"
+                             arguments="{[event.clientID, event.entryDatas, event.coupon, event.search]}"
+                             showBusyCursor="true">
+            <resultHandlers>
+                <MethodInvoker generator="{BroadcastMessageManager}"
+                               method="broadcastCouponMessageResult"
+                               arguments="{resultObject}" />
+                <InlineInvoker
+                    method="LoadingMessageView.hide" />
+            </resultHandlers>
+            <faultHandlers>
+                <InlineInvoker
+                    method="LoadingMessageView.hide" />
+                <MethodInvoker generator="{AppManager}"
+                               method="showFault"
+                               arguments="{fault}" />
+            </faultHandlers>
+        </RemoteObjectInvoker>
+    </EventHandlers>
+    
+    <EventHandlers type="{BroadcastMessageEvent.OPEN_CONFIRM_BROADCAST_MESSAGE}">
+        <MethodInvoker generator="{BroadcastMessageManager}"
+                       method="openConfirmBroadcast"
+                       arguments="{[event.message, event.coupon]}" />
+    </EventHandlers>
+        
+    <EventHandlers type="{BroadcastMessageEvent.CLOSE_CONFIRM_BROADCAST_MESSAGE}">
+        <MethodInvoker generator="{BroadcastMessageManager}"
+                       method="closeConfirmBroadcast"  />
+    </EventHandlers>
+</EventMap>
