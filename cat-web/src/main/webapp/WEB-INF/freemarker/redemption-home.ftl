@@ -14,7 +14,7 @@
   <form class="navbar-form" action="<@spring.url '/home/redeemCoupon' />" method="POST">
   <div style="margin:15px;">
   <input id="input-coupon-code" placeholder="Enter Lucky Number Code" type="text" name="couponCode" style="height:100%;"/>
-  <input class="btn btn-default" id="button-redeem" type="submit" value="Redeem"/>
+  <input class="btn btn-primary" id="button-redeem" type="submit" value="Redeem"/>
 </div>
   </form>
   
