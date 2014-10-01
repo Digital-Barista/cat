@@ -54,7 +54,7 @@ public class HomeController {
         String messageText = message.getDetailedMessage();
         if(message.getContact()!=null)
         {
-            messageText +="<div><strong>Coupon Message Text</strong></div><div id=\"message-text\"></div> <div id=\"fb-page-link\"><strong>Winning Facebook Page Link</strong> - <a href=\"https://www.facebook.com/profile.php?id="+message.getContact().getAddress()+"\">Cick to go to winning profile</a></div>";
+            "<div><strong>Coupon Message Text:</strong></div><div style=\"margin-bottom:15px\">"+messageText +="</div> <div id=\"fb-page-link\"><strong>Winning Facebook Page Link</strong> - <a href=\"https://www.facebook.com/profile.php?id="+message.getContact().getAddress()+"\">Cick to go to winning profile</a></div>";
         }
         model.addAttribute("message", messageText );
         return "redemption-home";
