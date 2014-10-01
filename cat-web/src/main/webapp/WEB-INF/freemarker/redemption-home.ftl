@@ -19,7 +19,12 @@
   </form>
   
   <#if message??>
-      <div class="well" style="margin:0px 15px 15px 15px;" id="text-coupon-message">${message}</div>
+      <div class="well" style="margin:0px 15px 15px 15px;" id="text-coupon-message">
+        <div><strong>Coupon Message Text:</strong></div><div style="margin-bottom:15px">${message.detailedMessage}</div>
+        <#if message.contact??>
+            <div id="fb-page-link"><strong>Winning Facebook Page Link</strong> - <a href="https://www.facebook.com/profile.php?id=${message.contact.address}">Click to go to winning profile</a></div>
+        </#if>
+      </div>
   </#if>
   <div class="modal-footer">
     <div style="float:left"><a class="btn btn-default" id="link-lucky-number-download" href="<@spring.url '/home/luckyNumbers' />">Download Lucky Numbers</a></div>

@@ -51,12 +51,7 @@ public class HomeController {
     public String redeemCoupon(@RequestParam("couponCode")String couponCode, Model model)
     {
         CouponRedemptionMessage message = couponManager.redeemCoupon(couponCode);
-        String messageText = message.getDetailedMessage();
-        if(message.getContact()!=null)
-        {
-            messageText = "<div><strong>Coupon Message Text:</strong></div><div style=\"margin-bottom:15px\">"+messageText+"</div> <div id=\"fb-page-link\"><strong>Winning Facebook Page Link</strong> - <a href=\"https://www.facebook.com/profile.php?id="+message.getContact().getAddress()+"\">Cick to go to winning profile</a></div>";
-        }
-        model.addAttribute("message", messageText );
+        model.addAttribute("message", message );
         return "redemption-home";
     }
     
