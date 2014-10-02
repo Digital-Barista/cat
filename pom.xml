@@ -4,7 +4,7 @@
 
   <groupId>com.digitalbarista.cat</groupId>
   <artifactId>cat</artifactId>
-  <version>1.3</version>
+  <version>1.4</version>
   <packaging>pom</packaging>
 
   <name>CAT Parent Project</name>
