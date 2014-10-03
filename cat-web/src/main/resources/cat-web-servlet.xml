@@ -48,12 +48,12 @@
   </bean>
 
   <bean id="MainEventMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-    <property name="concurrency" value="10-50"/>
     <property name="connectionFactory" ref="JmsConnectionFactory"/>
     <property name="destinationResolver" ref="CATDestinationResolver"/>
     <property name="destinationName" value="cat/messaging/Events"/>
     <property name="messageListener" ref="MainEventHandler"/>
     <property name="transactionManager" ref="transactionManager"/>
+    <property name="cacheLevelName" value="CACHE_CONNECTION"/>
   </bean>
  
   <bean id="JSONConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
