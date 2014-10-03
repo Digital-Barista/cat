@@ -54,7 +54,7 @@
     <property name="destinationName" value="cat/messaging/Events"/>
     <property name="messageListener" ref="MainEventHandler"/>
     <property name="transactionManager" ref="transactionManager"/>
-    <property name="cacheLevelName" value="CACHE_CONNECTION"/>
+    <property name="cacheLevelName" value="CACHE_SESSION"/>
   </bean>
  
   <bean id="JSONConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
