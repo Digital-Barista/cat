@@ -48,7 +48,7 @@
   </bean>
 
   <bean id="MainEventMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-    <property name="concurrency" value="1-15"/>
+    <property name="concurrency" value="1-40"/>
     <property name="maxMessagesPerTask" value="10"/>
     <property name="connectionFactory" ref="JmsConnectionFactory"/>
     <property name="destinationResolver" ref="CATDestinationResolver"/>
