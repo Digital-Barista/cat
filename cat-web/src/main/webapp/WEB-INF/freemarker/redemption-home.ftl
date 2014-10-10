@@ -22,7 +22,7 @@
       <div class="well" style="margin:0px 15px 15px 15px;" id="text-coupon-message">
         <div><strong>Coupon Message Text:</strong></div><div style="margin-bottom:15px">${message.detailedMessage}</div>
         <#if message.contact??>
-            <div id="fb-page-link"><strong>Winning Facebook Page Link</strong> - <a href="https://www.facebook.com/profile.php?id=${message.contact.address}">Click to go to winning profile</a></div>
+            <div id="fb-page-link"><strong>Winning Facebook Page Link</strong> - <a href="https://www.facebook.com/app_scoped_user_id/${message.contact.address}">Click to go to winning profile</a></div>
         </#if>
       </div>
   </#if>
