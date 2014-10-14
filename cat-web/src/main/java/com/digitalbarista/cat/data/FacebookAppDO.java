@@ -37,7 +37,7 @@ public class FacebookAppDO implements Serializable,DataObject {
 	private ClientDO client;
 	
         @Column(name="send_notifications")
-        private boolean sendNotifications;
+        private boolean sendNotifications=true;
         
 	private static final long serialVersionUID = 1L;
 
