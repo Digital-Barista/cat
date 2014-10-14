@@ -268,11 +268,11 @@
 										group="{ExpirationGroup}" />
 						<mx:RadioButton id="ExpirationDateOption"
 										label="Date"
-                                                                                selected="{couponVO.expireDate!=null}"
+                                                                                selected="{couponVO.expireDate!=null &amp;&amp; couponVO.expireDays==null}"
 										group="{ExpirationGroup}" />
 						<mx:RadioButton id="ExpirationDaysOption"
 										label="Days"
-                                                                                selected="{couponVO.expireDays!=null}"
+                                                                                selected="{couponVO.expireDays!=null &amp;&amp; couponVO.expireDate==null}"
 										group="{ExpirationGroup}" />
 					</mx:HBox>
 					<mx:HBox visible="{ExpirationDateOption.selected}"
