@@ -221,6 +221,15 @@ public class CouponNode extends Node implements Auditable {
 				dataObject.getNodeInfo().remove(nodes.remove(INFO_PROPERTY_EXPIRATION_DATE));
 		}
 
+                if(expireDays==null && expireDate==null)
+                {
+ 			if (nodes.containsKey(INFO_PROPERTY_EXPIRATION_DATE))
+				dataObject.getNodeInfo().remove(nodes.remove(INFO_PROPERTY_EXPIRATION_DATE));
+                   
+ 			if (nodes.containsKey(INFO_PROPERTY_EXPIRATION_DAYS))
+				dataObject.getNodeInfo().remove(nodes.get(INFO_PROPERTY_EXPIRATION_DAYS));
+               }
+                
 		if(offerCode != null)
 		{
 			if(nodes.containsKey(INFO_PROPERTY_OFFER_CODE))
