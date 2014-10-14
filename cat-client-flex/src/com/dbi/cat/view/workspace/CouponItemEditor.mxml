@@ -264,7 +264,7 @@
                                                                                 change="changeExpireType()" />
 						<mx:RadioButton id="ExpirationNeverOption"
 										label="Never"
-                                                                                selected="{couponVO.expireDate==null && couponVO.expireDays==null}"
+                                                                                selected="{(couponVO.expireDate==null &amp;&amp; couponVO.expireDays==null)}"
 										group="{ExpirationGroup}" />
 						<mx:RadioButton id="ExpirationDateOption"
 										label="Date"
