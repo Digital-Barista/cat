@@ -60,21 +60,18 @@ public class NotificationSendRequestEventHandler implements CATEventHandler {
 	@Override
         @Transactional
 	public void processEvent(CATEvent e) {
-            if(e.getSourceType().equals(CATEventSource.FacebookEndpoint)){
-			try
-			{
-				FacebookAppDO applicationInfo = (FacebookAppDO)sf.getCurrentSession().get(FacebookAppDO.class, e.getSource());
-				List<String> fbuids = new ArrayList<String>();
-				fbuids.add(e.getTarget());
-				fbMan.sendAppRequest(fbuids, applicationInfo.getAppName(), "A new message arrived - "+new SimpleDateFormat(dateFormat).format(new Date()));
-                                fbMan.sendNotification(e.getTarget(), applicationInfo.getAppName(), "A new message has arrived!");
-                        }catch(Exception ex)
-			{
-				throw new RuntimeException("Could not deliver the requested message!",ex);
-			}
-		} else {
-			throw new IllegalArgumentException("Cannot process the specified message type.");
-		}
+            try
+            {
+                    FacebookAppDO applicationInfo = (FacebookAppDO)sf.getCurrentSession().get(FacebookAppDO.class, e.getSource());
+                    if(!applicationInfo.isSendNotifications()) return;
+                    List<String> fbuids = new ArrayList<String>();
+                    fbuids.add(e.getTarget());
+                    fbMan.sendAppRequest(fbuids, applicationInfo.getAppName(), "A new message arrived - "+new SimpleDateFormat(dateFormat).format(new Date()));
+                    fbMan.sendNotification(e.getTarget(), applicationInfo.getAppName(), "A new message has arrived!");
+            }catch(Exception ex)
+            {
+                    throw new RuntimeException("Could not deliver the requested message!",ex);
+            }
 	}
 
 }

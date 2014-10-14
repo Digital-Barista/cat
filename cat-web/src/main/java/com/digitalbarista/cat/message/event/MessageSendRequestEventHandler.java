@@ -27,6 +27,7 @@ import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.EntryPointType;
+import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
 import com.digitalbarista.cat.ejb.session.EventManager;
@@ -195,7 +196,9 @@ public class MessageSendRequestEventHandler implements CATEventHandler {
 				fbMessage.setMetadata(sb.toString());
 				sf.getCurrentSession().persist(fbMessage);
 				sf.getCurrentSession().flush();
-                                eMan.queueEvent(CATEvent.buildNotificationRequestedEvent(e.getSource(), e.getTarget()));
+                                FacebookAppDO applicationInfo = (FacebookAppDO)sf.getCurrentSession().get(FacebookAppDO.class, e.getSource());
+                                if(applicationInfo!=null && applicationInfo.isSendNotifications())
+                                    eMan.queueEvent(CATEvent.buildNotificationRequestedEvent(e.getSource(), e.getTarget()));
                         }catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);

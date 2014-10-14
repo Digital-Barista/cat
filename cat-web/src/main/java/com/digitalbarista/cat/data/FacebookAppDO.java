@@ -36,6 +36,9 @@ public class FacebookAppDO implements Serializable,DataObject {
 	@JoinColumn(name="client_id")
 	private ClientDO client;
 	
+        @Column(name="send_notifications")
+        private boolean sendNotifications;
+        
 	private static final long serialVersionUID = 1L;
 
 	public FacebookAppDO() {
@@ -81,4 +84,12 @@ public class FacebookAppDO implements Serializable,DataObject {
 	public void setClient(ClientDO client) {
 		this.client = client;
 	}
+
+        public boolean isSendNotifications() {
+            return sendNotifications;
+        }
+
+        public void setSendNotifications(boolean sendNotifications) {
+            this.sendNotifications = sendNotifications;
+        }        
 }
