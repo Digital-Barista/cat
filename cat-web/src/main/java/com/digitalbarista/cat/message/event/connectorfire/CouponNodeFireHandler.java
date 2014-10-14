@@ -90,12 +90,12 @@ public class CouponNodeFireHandler implements ConnectorFireHandler {
 		{
 			String couponCode=null;
 			
+                        int COUPON_CODE_LENGTH=6;
 			if(cNode.getCouponCode()!=null)
 			{
 				couponCode=cNode.getCouponCode();
 			} else {
 				//Get the counter for 6-digit coupon codes.  This may need to change in the future.
-				int COUPON_CODE_LENGTH=6;
 				CouponCounterDO counter = (CouponCounterDO)sf.getCurrentSession().get(CouponCounterDO.class,COUPON_CODE_LENGTH, LockOptions.UPGRADE);
 				if(counter==null)
 				{
@@ -112,22 +112,14 @@ public class CouponNodeFireHandler implements ConnectorFireHandler {
 			}
 			actualMessage = cNode.getAvailableMessageForType(fromType);
 			//This is for coupon code, and really should check it, but doesn't.
-			int startPos = actualMessage.indexOf('{');
-			int endPos = actualMessage.indexOf('}',-1)+1;
-			if(startPos==-1 || endPos==-1 || endPos<=startPos)
-				throw new IllegalArgumentException("Cannot insert coupon code, since braces are not inserted properly.");
-			actualMessage = actualMessage.substring(0,startPos) + couponCode + ((endPos<actualMessage.length())?actualMessage.substring(endPos):"");
+			actualMessage = actualMessage.replaceAll("\\{"+COUPON_CODE_LENGTH+"_CHAR_CODE\\}", couponCode);
 			//Same here for expiration date.
 			if(cNode.getExpireDays()!=null && cNode.getExpireDays()>0)
 			{
 				Calendar expireDate = GregorianCalendar.getInstance();
 				expireDate.setTime(now);
 				expireDate.add(Calendar.DAY_OF_MONTH, cNode.getExpireDays());
-				startPos = actualMessage.indexOf('[');
-				endPos = actualMessage.indexOf(']',-1)+1;
-				if(startPos==-1 || endPos==-1 || endPos<=startPos)
-					throw new IllegalArgumentException("Cannot insert expiration date, since braces are not inserted properly.");
-				actualMessage = actualMessage.substring(0,startPos) + new SimpleDateFormat("MM/dd/yyyy").format(expireDate.getTime()) + ((endPos<actualMessage.length())?actualMessage.substring(endPos):"");
+				actualMessage = actualMessage.replaceAll("\\[EXPIRE_DATE\\]",new SimpleDateFormat("MM/dd/yyyy").format(expireDate.getTime()));
 			}
 			offer.setIssuedCouponCount(offer.getIssuedCouponCount()+1);
 			response = new CouponResponseDO();
