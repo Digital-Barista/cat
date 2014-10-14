@@ -41,7 +41,7 @@
 				if (_couponVO != null)
 				{
 					replaceTokens();
-					setupRadioButtons();
+					//setupRadioButtons();
 				}
 				dispatchEvent(new Event("updateCoupon"));
 			}
@@ -261,15 +261,18 @@
 				<mx:FormItem label="Expiration">
 					<mx:HBox>
 						<mx:RadioButtonGroup id="ExpirationGroup"
-											 change="changeExpireType()" />
+                                                                                change="changeExpireType()" />
 						<mx:RadioButton id="ExpirationNeverOption"
 										label="Never"
+                                                                                selected="{couponVO.expireDate==null && couponVO.expireDays==null}"
 										group="{ExpirationGroup}" />
 						<mx:RadioButton id="ExpirationDateOption"
 										label="Date"
+                                                                                selected="{couponVO.expireDate!=null}"
 										group="{ExpirationGroup}" />
 						<mx:RadioButton id="ExpirationDaysOption"
 										label="Days"
+                                                                                selected="{couponVO.expireDays!=null}"
 										group="{ExpirationGroup}" />
 					</mx:HBox>
 					<mx:HBox visible="{ExpirationDateOption.selected}"
