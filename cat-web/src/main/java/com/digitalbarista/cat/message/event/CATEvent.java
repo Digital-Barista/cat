@@ -159,6 +159,15 @@ public class CATEvent implements Serializable {
         ret.args.put("nodeVersion", (nodeVersion != null) ? nodeVersion.toString() : "-1");
         return ret;
     }
+    
+    public static CATEvent buildNotificationRequestedEvent(String from, String to) {
+        CATEvent ret = new CATEvent();
+        ret.source = from;
+        ret.type = CATEventType.NotificationSendRequested;
+        ret.targetType = CATTargetType.SpecificSubscriber;
+        ret.target = to;
+        return ret;
+    }
 
     public CATEventSource getSourceType() {
         return sourceType;

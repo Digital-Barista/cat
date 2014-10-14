@@ -1,12 +1,9 @@
 package com.digitalbarista.cat.message.event;
 
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.jms.ConnectionFactory;
@@ -30,9 +27,9 @@ import com.digitalbarista.cat.business.Node;
 import com.digitalbarista.cat.business.ResponseConnector;
 import com.digitalbarista.cat.data.ConnectorType;
 import com.digitalbarista.cat.data.EntryPointType;
-import com.digitalbarista.cat.data.FacebookAppDO;
 import com.digitalbarista.cat.data.FacebookMessageDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.FacebookManager;
 import javax.mail.Message;
 import javax.mail.Session;
@@ -62,6 +59,9 @@ public class MessageSendRequestEventHandler implements CATEventHandler {
   
   @Autowired
   private FacebookManager fbMan;
+  
+  @Autowired
+  private EventManager eMan;
   
 	@Override
         @Transactional
@@ -195,11 +195,7 @@ public class MessageSendRequestEventHandler implements CATEventHandler {
 				fbMessage.setMetadata(sb.toString());
 				sf.getCurrentSession().persist(fbMessage);
 				sf.getCurrentSession().flush();
-				FacebookAppDO applicationInfo = (FacebookAppDO)sf.getCurrentSession().get(FacebookAppDO.class, e.getSource());
-				List<String> fbuids = new ArrayList<String>();
-				fbuids.add(e.getTarget());
-				fbMan.sendAppRequest(fbuids, applicationInfo.getAppName(), "A new message arrived - "+new SimpleDateFormat(dateFormat).format(new Date()));
-                                fbMan.sendNotification(e.getTarget(), applicationInfo.getAppName(), "A new message has arrived!");
+                                eMan.queueEvent(CATEvent.buildNotificationRequestedEvent(e.getSource(), e.getTarget()));
                         }catch(Exception ex)
 			{
 				throw new RuntimeException("Could not deliver the requested message!",ex);

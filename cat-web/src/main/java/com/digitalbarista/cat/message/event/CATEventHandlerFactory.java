@@ -30,8 +30,10 @@ public class CATEventHandlerFactory {
 				return ctx.getBean(ConnectorFiredEventHandler.class);
 			case MessageSendRequested:
 				return ctx.getBean(MessageSendRequestEventHandler.class);
-      case UserSubscribed:
-        return ctx.getBean(UserSubscribedEventHandler.class);
+                        case NotificationSendRequested:
+                                return ctx.getBean(NotificationSendRequestEventHandler.class);
+                        case UserSubscribed:
+                                return ctx.getBean(UserSubscribedEventHandler.class);
 			default:
 				throw new IllegalArgumentException("Unknown event type:  No configured factory: "+t.toString());
 		}
