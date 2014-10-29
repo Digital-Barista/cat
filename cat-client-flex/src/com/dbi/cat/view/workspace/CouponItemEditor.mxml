@@ -303,5 +303,6 @@
 							 couponToken="{couponCodeToken}"
 							 campaign="{campaign}"
 							 currentUser="{currentUser}"
-							 change="replaceTokens()"  top="140"/>
+							 change=""  top="140"/>
+                                                         <!--change="replaceTokens()"  top="140"/>-->
 </mx:Canvas>
