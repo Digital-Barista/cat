@@ -29,7 +29,7 @@
 	  <id>DBI</id>
       <layout>default</layout>
       <name>DBI Repository</name>
-      <url>http://repo.digitalbarista.com/nexus/content/groups/public/</url>
+	  <url>http://repo.digitalbarista.com/nexus</url>
     </repository>
   </distributionManagement>
   
