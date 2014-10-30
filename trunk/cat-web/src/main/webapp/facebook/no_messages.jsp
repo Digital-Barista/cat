@@ -1,1 +1,0 @@
-<div class="noMessageContent">Thank you for allowing our application. You currently have no messages, but make sure to check back regularly for new messages.</div>

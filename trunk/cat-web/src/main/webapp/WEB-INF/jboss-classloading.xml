@@ -1,8 +1,0 @@
-<classloading xmlns="urn:jboss:classloading:1.0"
-              parent-first="false"
-              domain="CATDomain"
-              top-level-classloader="false"
-              parent-domain="DefaultDomain"
-              export-all="NON_EMPTY"
-              import-all="true">
-</classloading>

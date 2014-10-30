@@ -5,7 +5,7 @@
   <artifactId>cat</artifactId>
   <version>1.5</version>
   <packaging>pom</packaging>
-
+  
   <scm>
 	<connection>scm:svn:http://svn.digitalbarista.com/cat/tags/cat-1.5</connection>
 	<developerConnection>scm:svn:http://svn.digitalbarista.com/cat/tags/cat-1.5</developerConnection>
@@ -24,6 +24,15 @@
     <module>cat-web</module>
   </modules>
 
+  <distributionManagement>
+    <repository>
+	  <id>DBI</id>
+      <layout>default</layout>
+      <name>DBI Repository</name>
+	  <url>http://repo.digitalbarista.com/nexus</url>
+    </repository>
+  </distributionManagement>
+  
   <profiles>
     <profile>
       <id>build-flex</id>

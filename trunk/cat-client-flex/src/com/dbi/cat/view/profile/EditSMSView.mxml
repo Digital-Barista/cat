@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
-	<mx:Text text="SMS account information cannot be added or edited.  Please call to change your SMS details."
-		textAlign="center"
-		top="50" horizontalCenter="0"  
-		height="100" width="350"/>
-</mx:Canvas>
