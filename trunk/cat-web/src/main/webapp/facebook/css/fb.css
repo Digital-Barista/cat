@@ -1,0 +1,357 @@
+body
+{
+	font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
+	font-size:11px;
+	color:#808080;
+	margin:0px;
+	padding:0px;
+	border:0px;
+}
+
+a 
+{
+	color:#3B5998;
+	cursor:pointer;
+	text-decoration:none;
+}
+
+td
+{
+	font-size:12px;
+}
+
+h2
+{
+	color:#1C2A47;
+}
+
+#MainContainer
+{
+}
+
+#MessageArea
+{
+	display:none;
+}
+
+#MessageListDiv
+{
+	min-height:350px;
+}
+
+#Invite
+{
+	display:none;
+	width:735px;
+	height:570px;
+}
+#NoMessagesDiv
+{
+	display:none;
+}
+#LoadingMessage
+{
+	position:absolute;
+	width:150px;
+	height:50px;
+	border:8px solid #858585;
+	background-color:white;
+	left:50%;
+	top:130px;
+	margin-left:-50px;
+	padding-top:25px;
+	text-align:center;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	font-size:18px;
+}
+
+.noMessageContent
+{
+	text-align:center;
+	font-weight:bold;
+	font-size:16px;
+	padding-top:90px;
+}
+.errorMessage
+{
+	text-align:center;
+	font-weight:bold;
+	font-size:16px;
+	padding-top:90px;
+}
+.empty
+{
+	font-size:14;
+	font-weight:bold;
+	width:210px;
+	margin-top:50px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.error
+{
+	font-size:14;
+	font-weight:bold;
+	width:270px;
+	margin-top:50px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.header 
+{
+	background:none repeat scroll 0 0 #F2F2F2;
+	border-top:1px solid #CCCCCC;
+
+	height:33px;
+	padding:6px 0;
+	
+	color:#333333;
+	direction:ltr;
+	text-align:left;
+	
+	margin-bottom:10px; 
+}
+
+.footer
+{
+	height:23px;
+	padding:6px 0;
+	background:none repeat scroll 0 0 #F2F2F2;
+	border-top:1px solid #CCCCCC;
+}
+.controlBar
+{
+	color:#808080;
+	font-weight:bold;
+	padding:2px 0;
+}
+
+.banner
+{
+	width:100%;
+	vertical-align:middle;
+}
+
+.bannerTitle
+{
+	color:#333333;
+	font-size:20px;
+	font-weight:bold;
+	height:25px;
+}
+.bannerBookmark
+{
+	text-align:right;
+}
+.bookmark
+{
+	display:none;
+	position:absolute;
+	right:2px;
+	top:4px;
+}
+.toolButton
+{
+	float:right;
+	margin-left:5px;
+}
+
+.login
+{
+	display:none;
+	width:400px;
+	margin-top:100px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.loginCell
+{
+	
+	color:#333333;
+	font-size:16px;
+	
+	width:100%;
+	text-align:center;
+}
+	
+.button
+{
+	margin:5px;
+	
+	background-image:url("/cat/facebook/images/facebook_assets.png");
+	
+	-moz-box-shadow:0 1px 0 rgba(0, 0, 0, 0.1);
+	background-color:#EEEEEE;
+	border-color:#999999 #999999 #888888;
+	
+	border-style:solid;
+	border-width:1px;
+	display:inline-block;
+	outline:medium none;
+	padding:3px 6px;
+	vertical-align:bottom;
+
+	color:#333333;
+	cursor:pointer;
+	text-decoration:none;
+	font-weight:bold;
+}
+	.button:active 
+	{
+		background-color:#DDDDDD;
+		background-image:none;
+		border-color:#999999;
+	}
+
+.bookmarkButton
+{
+}
+
+.removeButton
+{
+	float:right;
+	margin:0 7px;
+	background:url("/cat/facebook/images/delete.png") no-repeat scroll left top transparent;
+	display:block;
+	height:18px;
+	width:18px;
+}
+	.removeButton:hover
+	{
+		background-position:right top;
+	}
+	
+.messageContainer
+{
+	min-height:280px;
+}
+.messageLine
+{
+	width:100%;
+	border-top:1px solid #E5E5E5;
+}
+
+	.messageLine tr td
+	{
+		vertical-align:top;
+	}
+
+.selectColumn
+{
+	padding:10px;
+	width:30px;
+}
+
+.buttonColumn {
+	width: 25px;
+}
+
+.dateColumn
+{
+	width:125px;
+}
+
+.messageColumn
+{
+	padding-top:3px;
+}
+
+.deleteColumn
+{
+	width:25px;
+}
+
+.title
+{
+	font-weight:bold;
+	font-size:1.2em;
+}
+
+.date {
+	margin-bottom:5px;
+  font-weight:bold;
+  color:#999;
+}
+.responseContent
+{
+	color:#22AF0A;
+}
+
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+}
+
+.ie8 .custom-checkbox {
+  zoom: 1;
+}
+
+.custom-checkbox > .box {
+  position: relative;
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+  background-color: #eee;
+  border-radius: 4px;
+}
+
+.custom-checkbox > .box > .tick {
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 18px;
+  height: 6px;
+  border-bottom: 4px solid #3B5998;
+  border-left: 4px solid #3B5998;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  display: none;
+}
+
+.oldie .custom-checkbox > .box > .tick {
+  left: 1px;
+  top: -5px;
+  zoom: 1;
+}
+
+.custom-checkbox > input:checked + .box > .tick {
+  display: block;
+}
+
+.custom-checkbox.checked > .box > .tick {
+  display: block;
+}
+
+.custom-checkbox > input {
+  position: absolute;
+  outline: none;
+  left: 0;
+  top: 0;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  margin: 0;
+  opacity: 0;
+  z-index: 1;
+}
+
+.custom-checkbox > input:active + .box {
+  border-color: #aaa;
+  background-color: #ddd;
+}
+
+/**
+ Special rules for mobile
+*/
+.mobile .buttonColumn {
+	display:none;
+}​​

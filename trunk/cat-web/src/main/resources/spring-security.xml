@@ -1,0 +1,185 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:security="http://www.springframework.org/schema/security"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-3.1.xsd
+           http://www.springframework.org/schema/jee
+           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+
+<!-- 	<security:http auto-config="true">
+		<security:intercept-url pattern="/css/**" filters="none"/>
+    	<security:intercept-url pattern="/js/**" filters="none"/>
+		<security:intercept-url pattern="/app/login/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<security:intercept-url pattern="/**" access="ROLE_USER"/>
+		<security:form-login login-page="/app/login" default-target-url="/app/home"/>
+		<security:logout logout-url="/app/logout" logout-success-url="/app/login/afterlogout"/>
+	</security:http>-->
+
+	<!-- This is the important part of the web configuration.  The rest is setup. -->
+  <security:global-method-security pre-post-annotations="enabled"
+                                   jsr250-annotations="enabled"
+                                   authentication-manager-ref="authenticationManager">
+    <security:expression-handler ref="expressionHandler"/>
+  </security:global-method-security>
+	
+  <bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+    <property name="permissionEvaluator" ref="CATPermissionEvaluator"/> <!--Annotation configured-->
+  </bean>
+
+  <bean id="AppFilterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+	  <property name="authenticationManager" ref="authenticationManager"/>
+	  <property name="accessDecisionManager" ref="webAccessDecisionManager"/>
+	  <property name="securityMetadataSource">
+	    <security:filter-security-metadata-source>
+        <security:intercept-url pattern="/j_spring_security_switch_user" access="ROLE_admin"/>
+        <security:intercept-url pattern="/login/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/rs/**" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/rest/**" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/home/**" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/angular/app" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/angular/app/" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/yeoman/app/" access="ROLE_admin,ROLE_client"/>
+        <security:intercept-url pattern="/" access="ROLE_admin,ROLE_client"/>
+      </security:filter-security-metadata-source>
+	  </property>
+	</bean>	
+
+	<alias name="filterChainProxy" alias="springSecurityFilterChain"/>
+	<bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+		<security:filter-chain-map path-type="ant">
+      <security:filter-chain pattern="/messagebroker/*" filters="AppSecurityContextPersistenceFilter,AppFilterSecurityInterceptor"/>
+			<security:filter-chain pattern="/unsecure/rest/**" filters="AppSecurityContextPersistenceFilter,
+																 AnonymousAuthFilter,
+                                 AppFilterSecurityInterceptor"/>
+			<security:filter-chain pattern="/rest/**" filters="AppSecurityContextPersistenceFilter,
+                                 BasicAuthenticationFilter,
+															   ApiExceptionTranslationFilter,
+															   AppFilterSecurityInterceptor"/>
+			<security:filter-chain pattern="/rs/**" filters="AppSecurityContextPersistenceFilter,
+                                 BasicAuthenticationFilter,
+															   ApiExceptionTranslationFilter,
+															   AppFilterSecurityInterceptor"/>
+			<security:filter-chain pattern="/**" filters="AppSecurityContextPersistenceFilter,
+															   LogoutFilter,
+															   LoginPageAuthenticationFilter,
+															   AnonymousAuthFilter,
+															   SessionManagementFilter,
+															   AppExceptionTranslationFilter,
+															   AppFilterSecurityInterceptor,
+															   SwitchUserFilter"/>
+		</security:filter-chain-map>
+	</bean>
+
+  <bean id="SwitchUserFilter" class="com.digitalbarista.cat.security.FixedSwitchUserFilter">
+	    <property name="userDetailsService" ref="CATUserService" />
+	    <property name="switchUserUrl" value="/j_spring_security_switch_user" />
+	    <property name="exitUserUrl" value="/j_spring_security_exit_user" />
+	    <property name="targetUrl" value="/" />
+ 	</bean>
+
+	<bean id="LogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+	    <constructor-arg value="/login/afterlogout" />
+	    <constructor-arg>
+	        <list><bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" /></list>
+	    </constructor-arg>
+	    <property name="filterProcessesUrl" value="/logout"/>
+	</bean>
+
+	<bean id="RequestCacheAwareFilter" class="org.springframework.security.web.savedrequest.RequestCacheAwareFilter"/>
+
+	<bean id="AnonymousAuthFilter" class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
+	  <property name="key" value="anonKey"/>
+	  <property name="userAttribute" value="anonymous,IS_AUTHENTICATED_ANONYMOUSLY"/>
+	</bean>
+	
+	<bean id="anonymousAuthenticationProvider" class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
+	  <property name="key" value="anonKey"/>
+	</bean>
+	
+	<bean id="SessionManagementFilter" class="org.springframework.security.web.session.SessionManagementFilter">
+		<constructor-arg ref="AppSecurityContextRepo"/>
+	</bean>
+
+	<bean id="BasicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+	  <property name="authenticationManager" ref="authenticationManager"/>
+	  <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
+	</bean>
+
+	<bean id="LoginPageAuthenticationFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+	  <property name="authenticationManager" ref="authenticationManager"/>
+	  <property name="filterProcessesUrl" value="/j_spring_security_check"/>
+	  <property name="authenticationSuccessHandler">
+	  	<bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+	  		<property name="defaultTargetUrl" value="/home/redeemCoupon"/>
+			<property name="alwaysUseDefaultTargetUrl" value="true"/>
+	  	</bean>
+	  </property>
+	</bean> 
+
+	<bean id="AppSecurityContextPersistenceFilter" class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+		<property name='securityContextRepository' ref="AppSecurityContextRepo"/>
+	</bean>
+	
+	<bean id="AppSecurityContextRepo" class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'/>
+  
+	<bean id="RESTSecurityContextPersistenceFilter" class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+		<property name='securityContextRepository' ref="RESTSecurityContextRepo"/>
+	</bean>
+	
+	<bean id="RESTSecurityContextRepo" class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'>
+    <property name="allowSessionCreation" value="false"/>
+  </bean>
+	
+	<bean id="formAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+	  <property name="loginFormUrl" value="/login"/>
+	</bean>
+
+	<bean id="basicAuthenticationEntryPoint" class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+	  <property name="realmName" value="CAT API"/>
+	</bean>
+	
+	<bean id="accessDeniedHandler" class="org.springframework.security.web.access.AccessDeniedHandlerImpl"/>
+	
+	<bean id="AppExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+	  <property name="authenticationEntryPoint" ref="formAuthenticationEntryPoint"/>
+	  <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
+	</bean>
+
+	<bean id="ApiExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+	  <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
+	  <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
+	</bean>
+
+	<!-- End of web app security . . . starting on general security -->
+
+	<jee:jndi-lookup id="cat-ds" jndi-name="java:jdbc/campaignAdminDS"/>
+
+	<bean id="webAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+	    <property name="decisionVoters">
+	        <list>
+	            <bean class="org.springframework.security.access.vote.RoleVoter"/>
+	            <bean class="org.springframework.security.access.vote.AuthenticatedVoter"/>
+	        </list>
+	    </property>
+	</bean>
+
+	<security:authentication-manager alias="authenticationManager" erase-credentials="false">
+		<security:authentication-provider user-service-ref="CATUserService"/>
+	</security:authentication-manager>
+	
+  <bean id="CATUserService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+    <property name="dataSource" ref="cat-ds"/>
+    <property name="rolePrefix" value="ROLE_"/>
+    <property name="usersByUsernameQuery">
+      <value>select username,password,active from users where username = ?</value>
+    </property>
+    <property name="authoritiesByUsernameQuery">
+      <value>select username,role_name from roles where username = ?</value>
+    </property>
+  </bean>
+  
+</beans>

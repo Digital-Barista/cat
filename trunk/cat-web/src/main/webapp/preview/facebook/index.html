@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	</head>
+	<style>
+		body
+		{
+			margin:0px;
+			font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
+			color:#808080;
+			font-size:11px;
+		}
+		#Header
+		{
+			position:absolute;
+			background-color:#3B5998;
+			width:100%;
+			height:41px;
+		}
+		#Body
+		{
+			position:absolute;
+			left:50%;
+			margin-left:-517px;
+			width:1034px;
+			height:100%;
+			background-image:url('facebook_preview_bg.jpg');
+			background-repeat:no-repeat;
+			
+		}
+		#MessageArea
+		{
+			width:735px;
+			height:100%;
+			min-height:200px;
+			margin-top:160px;
+			margin-left:40px;
+		}
+		#Footer
+		{
+			height:23px;
+			padding:6px 0;
+			background:none repeat scroll 0 0 #F2F2F2;
+			border-top:1px solid #CCCCCC;
+		}
+		.button
+		{
+			margin:5px;
+			
+			background-image:url("facebook_assets.png");
+			
+			-moz-box-shadow:0 1px 0 rgba(0, 0, 0, 0.1);
+			background-color:#EEEEEE;
+			border-color:#999999 #999999 #888888;
+			
+			border-style:solid;
+			border-width:1px;
+			display:inline-block;
+			outline:medium none;
+			padding:3px 6px;
+			vertical-align:bottom;
+		
+			color:#333333;
+			cursor:pointer;
+			text-decoration:none;
+			font-weight:bold;
+		}
+		.title
+		{
+			font-weight:bold;
+		}
+		.messageLine
+		{
+			width:100%;
+			border-top:1px solid #E5E5E5;
+		}
+			.messageLine tr td
+			{
+				vertical-align:top;
+			}
+		.selectColumn
+		{
+			width:25px;
+		}
+		
+		.dateColumn
+		{
+			width:125px;
+		}
+		
+		.messageColumn
+		{
+		}
+		
+		.deleteColumn
+		{
+			width:25px;
+		}
+	</style>
+	<script>
+		function setupData()
+		{
+			document.getElementById('MessageDate').innerHTML = this.date;
+			document.getElementById('MessageTitle').innerHTML = this.title;
+			document.getElementById('MessageBody').innerHTML = this.message;
+		}
+	</script>
+	<body onload="setupData()">
+		<div id="Header"></div>
+		<div id="Body">
+			<div id="MessageArea">
+				<table class="messageLine">
+					<tbody>
+						<tr>
+							<td class="selectColumn"><input type="checkbox" ></td>
+							<td id="MessageDate" class="dateColumn"></td>
+							<td class="messageColumn">
+							<div>
+								<div id="MessageTitle" class="title"></div>
+								<div id="MessageBody" class="messageBody"></div>
+							</div>
+							</td>
+							<td class="selectColumn"><a href="#" class="button">Print</a></td>
+							<td class="selectColumn"><a href="#" class="button">Delete</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   width="100%" height="100%"
+		   creationComplete="init()" xmlns:controls="com.dbi.controls.*" xmlns:components="com.dbi.cat.view.components.*">
+		<mx:Script>
+			<![CDATA[
+				import com.dbi.cat.common.vo.AnalyticsData;
+				import com.dbi.cat.common.vo.AnalyticsResponse;
+				import com.dbi.cat.common.vo.DateData;
+				import com.dbi.cat.event.ReportingEvent;
+				import com.dbi.util.DateUtil;
+				import com.dbi.util.ListUtil;
+				
+				import mx.charts.HitData;
+				import mx.charts.chartClasses.IAxis;
+				import mx.collections.ArrayCollection;
+				
+				private var subscriberCount:Number = NaN;
+				
+				private var contactCreateDates_:ArrayCollection;
+				[Bindable]
+				public function get contactCreateDates():ArrayCollection
+				{
+					return contactCreateDates_;
+				}
+				public function set contactCreateDates(value:ArrayCollection):void
+				{
+					contactCreateDates_ = value;
+					
+					// Adjust maximum for axis
+					for each(var d:DateData in contactCreateDates_)
+					{
+						if (d.count > maxLeftYAxis)
+							maxLeftYAxis = d.count;
+					}
+				}
+				
+				private var facebookAppVisits_:AnalyticsResponse;
+				[Bindable]
+				public function get facebookAppVisits():AnalyticsResponse
+				{
+					return facebookAppVisits_;
+				}
+				public function set facebookAppVisits(value:AnalyticsResponse):void
+				{
+					facebookAppVisits_ = value;
+					
+					// Adjust maximum for axis
+					if (facebookAppVisits_ != null)
+					{
+						for each(var a:AnalyticsData in facebookAppVisits_.dataList)
+						{
+							if (a.visits > maxLeftYAxis)
+								maxLeftYAxis = a.visits;
+							if (a.newVisits > maxLeftYAxis)
+								maxLeftYAxis = a.newVisits;
+						}
+					}
+				}
+				
+				[Bindable]
+				public var clients:ArrayCollection;
+				
+				[Bindable]
+				private var maxLeftYAxis:Number = 0;
+				
+				// Visibility properties
+				[Bindable]
+				private var showNewSubscribers:Boolean = true;
+				[Bindable]
+				private var showNewVisits:Boolean = true;
+				[Bindable]
+				private var showVisits:Boolean = true;
+				[Bindable]
+				private var showVisitLength:Boolean = true;
+				
+				
+				private var _filterClients:ArrayCollection;
+				public function set filterClients(value:ArrayCollection):void
+				{
+					_filterClients = value;
+					refresh();
+				}
+				
+				private function get selectedClientIds():ArrayCollection
+				{
+					return ListUtil.getIdList(_filterClients, "clientId");
+				}
+				
+				private function init():void
+				{
+				}
+				
+				private function refresh():void
+				{
+					subscriberCount = NaN;
+					maxLeftYAxis = 0;
+					
+					var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_CONTACT_CREATES);
+					event.clientIDs = selectedClientIds;
+					event.startDate = DateRange.startDate;
+					event.endDate = DateRange.endDate;
+					dispatchEvent(event);
+					
+					// Load facebook visits
+					event = new ReportingEvent(ReportingEvent.LOAD_FACEBOOK_APP_VISITS);
+					event.clientIDs = selectedClientIds;
+					event.startDate = DateRange.startDate;
+					event.endDate = DateRange.endDate;
+					dispatchEvent(event);
+				}
+				
+				private function timeAccessLabel(labelValue:Object, previousValue:Object, axis:IAxis):String
+				{
+					var value:Number = new Number(labelValue);
+					return DateUtil.secondsToTimelabel(value);
+				}
+				
+				private function chartDataTipLabel(hitData:HitData):String
+				{
+					var series:LineSeries = hitData.element as LineSeries;
+					var ret:String = "<b>" + series.displayName + "</b><br />" + DateUtil.formatDate(hitData.item.date) + "<br />";
+					if (series.yField == "timeOnSite")
+					{
+						ret += DateUtil.secondsToTimelabel(hitData.item.timeOnSite);
+					}
+					else
+					{
+						ret += hitData.item[series.yField];
+					}
+					return ret;
+				}
+			]]>
+		</mx:Script>
+	
+	<mx:SolidColor id="visitColor" color="0xFFFFFF" />
+	<mx:SolidColor id="newVisitColor" color="0xFFFFFF" />
+	<mx:SolidColor id="newSubscriberColor" color="0xFFFFFF" />
+	<mx:SolidColor id="visitLengthColor" color="0xFFFFFF" />
+	
+	<mx:Stroke id="visitStrokeColor" color="0x0300FF" />
+	<mx:Stroke id="newVisitStrokeColor" color="0xEFAE00" />
+	<mx:Stroke id="newSubscriberStrokeColor" color="0xB2DC32" />
+	<mx:Stroke id="visitLengthStrokeColor" color="0xFF0000" />
+
+	<mx:Panel title="Contacts" 
+			  height="100%" width="100%" layout="horizontal">
+		<components:DateRangeChooser id="DateRange"
+									 paddingLeft="5"
+									 paddingRight="5"
+									 dateRangeChange="refresh()"/>
+			<mx:VBox
+				height="100%" width="100%">
+				<mx:LineChart id="Chart" height="100%" width="100%"
+							  paddingLeft="5" paddingRight="5" 
+							  showDataTips="true"
+							  dataTipFunction="chartDataTipLabel">
+					
+					<mx:horizontalAxis>
+						<mx:DateTimeAxis dataUnits="days"
+										 minimum="{DateRange.startDate}"
+										 maximum="{DateRange.endDate}"/>
+					</mx:horizontalAxis>
+					
+					<mx:verticalAxis>
+						<mx:LinearAxis id="countAxis" minimum="0" maximum="{maxLeftYAxis}"  />          
+					</mx:verticalAxis>
+					
+					<mx:verticalAxisRenderers>
+						<mx:AxisRenderer placement="right" axis="{timeAxis}"/>
+						<mx:AxisRenderer placement="left" axis="{countAxis}"/>
+					</mx:verticalAxisRenderers>
+					
+					<mx:series> 
+						<mx:LineSeries yField="count" 
+									   xField="date" 
+									   form="segment"
+									   displayName="New Subscribers"
+									   dataProvider="{contactCreateDates}"
+									   visible="{showNewSubscribers}"
+									   fill="{newSubscriberColor}"
+									   stroke="{newSubscriberStrokeColor}"
+									   lineStroke="{newSubscriberStrokeColor}">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:CircleItemRenderer  />
+								</mx:Component>
+							</mx:itemRenderer> 
+						</mx:LineSeries>
+						
+						<mx:LineSeries yField="visits" 
+									   xField="date" 
+									   form="segment" 
+									   displayName="Visits"
+									   dataProvider="{facebookAppVisits.dataList}"
+									   visible="{showVisits}"
+									   fill="{visitColor}"
+									   stroke="{visitStrokeColor}"
+									   lineStroke="{visitStrokeColor}">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:CircleItemRenderer />
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:LineSeries>
+						
+						<mx:LineSeries yField="newVisits" 
+									   xField="date" 
+									   form="segment" 
+									   displayName="New Visits"
+									   dataProvider="{facebookAppVisits.dataList}"
+									   visible="{showNewVisits}"
+									   fill="{newVisitColor}"
+									   stroke="{newVisitStrokeColor}"
+									   lineStroke="{newVisitStrokeColor}">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:CircleItemRenderer />
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:LineSeries>
+						
+						<mx:LineSeries yField="timeOnSite" 
+									   xField="date" 
+									   form="segment" 
+									   displayName="Average Visit Length"
+									   dataProvider="{facebookAppVisits.dataList}"
+									   visible="{showVisitLength}" 
+									   fill="{visitLengthColor}"
+									   stroke="{visitLengthStrokeColor}"
+									   lineStroke="{visitLengthStrokeColor}">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:CircleItemRenderer />
+								</mx:Component>
+							</mx:itemRenderer>
+							<mx:verticalAxis>
+								<mx:LinearAxis id="timeAxis" labelFunction="timeAccessLabel"/>          
+							</mx:verticalAxis>
+						</mx:LineSeries>
+					</mx:series>
+				</mx:LineChart>
+				<mx:HBox width="100%">
+					<mx:VBox>
+						<mx:CheckBox id="NewSubscribers" label="New Subscribers" selected="{showNewSubscribers}" change="{showNewSubscribers = !showNewSubscribers}" />
+						<mx:CheckBox id="Visits" label="Visits" selected="{showVisits}" change="{showVisits = !showVisits}" />
+						<mx:CheckBox id="NewVisits" label="New Visits" selected="{showNewVisits}" change="{showNewVisits = !showNewVisits}" />
+						<mx:CheckBox id="VisitLength" label="Average Visit Length" selected="{showVisitLength}" change="{showVisitLength = !showVisitLength}" />
+					</mx:VBox>
+					<mx:Spacer width="100%" />
+					<mx:Legend id="legend" dataProvider="{Chart}" />
+				</mx:HBox>
+			</mx:VBox>
+	
+	</mx:Panel>
+	<mx:HBox right="5" top="7" verticalAlign="middle">
+		<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+				  top="3" right="200"
+				  width="25" height="25"
+				  toolTip="Refresh"
+				  click="refresh()" />
+	</mx:HBox>
+</mx:Canvas>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="210" height="100%"
+		 creationComplete="init()"
+		 backgroundColor="0xFFFFFF"
+		 horizontalAlign="center">
+	<mx:Metadata>
+		[Event(type="flash.events.Event", name="dateRangeChange")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			
+			public function get startDate():Date
+			{
+				return StartChooser.selectedDate;
+			}
+			public function get endDate():Date
+			{
+				return EndChooser.selectedDate;
+			}
+			
+			private function init():void
+			{
+				setRange(0, 1);
+			}
+			
+			private function setRange(years:Number, months:Number):void
+			{
+				var now:Date = new Date();
+				var start:Date = new Date(now.fullYear - years, now.month - months + 1, 1);
+				
+				StartChooser.selectedDate = start;
+				EndChooser.selectedDate = now;
+			}
+			
+			private function preset(years:Number, months:Number):void
+			{
+				setRange(years, months);
+				fireChangeEvent();
+			}
+			
+			private function fireChangeEvent():void
+			{
+				dispatchEvent(new Event("dateRangeChange", true, true));
+			}
+		]]>
+	</mx:Script>
+	<mx:Label styleName="rangeLabel" width="100%" text="Range" />
+	<mx:HBox horizontalGap="2">
+		<mx:LinkButton label="1M" styleName="rangeButton" click="preset(0, 1)"  />
+		<mx:LinkButton label="3M" styleName="rangeButton" click="preset(0, 3)"  />
+		<mx:LinkButton label="6M" styleName="rangeButton" click="preset(0, 6)"  />
+		<mx:LinkButton label="9M" styleName="rangeButton" click="preset(0, 9)"  />
+		<mx:LinkButton label="1Y" styleName="rangeButton" click="preset(1, 0)" />
+		<mx:LinkButton label="2Y" styleName="rangeButton" click="preset(2, 0)" />
+		<mx:LinkButton label="5Y" styleName="rangeButton" click="preset(5, 0)" />
+	</mx:HBox>
+	<mx:Label styleName="rangeLabel" width="100%" text="Start Date" />
+	<mx:DateChooser id="StartChooser"
+					showToday="false"
+					yearNavigationEnabled="true"
+					change="fireChangeEvent()"/>
+	<mx:Label styleName="rangeLabel" width="100%" text="End Date" />
+	<mx:DateChooser id="EndChooser"
+					showToday="false"
+					yearNavigationEnabled="true"
+					change="fireChangeEvent()"/>
+</mx:VBox>

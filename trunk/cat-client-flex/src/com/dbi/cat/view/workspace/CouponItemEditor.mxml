@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:workspace="com.dbi.cat.view.workspace.*"
+		   width="100%" height="100%" 
+		   creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.CampaignVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.CouponNodeVO;
+			import com.dbi.cat.common.vo.CouponVO;
+			import com.dbi.cat.common.vo.LayoutInfoVO;
+			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.common.vo.UserVO;
+			import com.dbi.cat.event.CampaignMessageEvent;
+			
+			import mx.events.ChildExistenceChangedEvent;
+			import mx.formatters.DateFormatter;
+			
+			public static const EXPIRATION_TOKEN:String = "[EXPIRE_DATE]";
+			
+			private var radioInitialized:Boolean = false;
+			
+			[Bindable]
+			public var currentUser:UserVO;
+			
+			[Bindable]
+			public var campaign:CampaignVO;
+			
+			private var _couponVO:CouponNodeVO;
+			[Bindable(event="updateCoupon")]
+			public function get couponVO():CouponNodeVO
+			{
+				return _couponVO as CouponNodeVO;
+			}
+			public function set couponVO(c:CouponNodeVO):void
+			{
+				_couponVO = c;
+				if (_couponVO != null)
+				{
+					replaceTokens();
+					//setupRadioButtons();
+				}
+				dispatchEvent(new Event("updateCoupon"));
+			}
+			
+			
+			
+			/**
+			 * Initialize on creation complete
+			 */
+			private function init():void
+			{
+          applyPermissions();
+			}
+        
+    private function applyPermissions():void
+    {
+        MaxCouponsFormItem.visible = MaxCouponsFormItem.includeInLayout = currentUser.isManager;
+    }
+			
+			private function setupRadioButtons():void
+			{
+				// Initialize expiration radio buttons only once
+				if (!radioInitialized)
+				{
+					radioInitialized = true;
+					ExpirationNeverOption.selected = couponVO.expireDate == null && couponVO.expireDays == null;
+					ExpirationDateOption.selected = couponVO.expireDate != null;
+					ExpirationDaysOption.selected = couponVO.expireDays != null;
+				}
+			}
+			
+			private function setInfiniteRedemptions():void
+			{
+				if (InfiniteRedemptions.selected)
+					couponVO.maxRedemptions = CouponNodeVO.INFINITE_REDEMPTION_COUNT;
+				else
+					couponVO.maxRedemptions = 0;
+			}
+			private function setInfiniteCoupons():void
+			{
+				if (InfiniteCoupons.selected)
+					couponVO.maxCoupons = CouponNodeVO.INFINITE_COUPONS_COUNT;
+				else
+					couponVO.maxCoupons = 0;
+			}
+			private function changeCodeType():void
+			{
+				if (CouponType.selection == RandomCode)
+					couponVO.couponCode = null;
+				else
+					couponVO.couponCode = "";
+				
+				replaceTokens();
+			}
+			private function changeStaticCouponCode():void
+			{
+				couponVO.couponCode = StaticCodeValue.text;
+				replaceTokens();
+			}
+			private function get couponCodeToken():String
+			{
+				var ret:String = CouponNodeVO.START_COUPON_CODE;
+				if (couponVO.couponCode == null)
+					ret += CouponNodeVO.RANDOM_CODE_LENGTH + "_CHAR_CODE";
+				else
+					ret += couponVO.couponCode;
+				ret += CouponNodeVO.END_COUPON_CODE;
+				return ret;
+			}
+			
+			private function replaceTokens():void
+			{
+				var reg:RegExp = new RegExp("{.*?}", "/g");
+				
+				// Replace coupon tokens in available messages
+				if (couponVO.availableMessage)
+					couponVO.availableMessage = couponVO.availableMessage.replace(reg, couponCodeToken);
+				
+				for (var key:String in couponVO.availableMessages)
+				{
+					if (couponVO.availableMessages[key])
+						couponVO.availableMessages[key] = couponVO.availableMessages[key].replace(reg, couponCodeToken);
+				}
+			}
+			
+			private function previewMessage():void
+			{
+				// Open the preview window
+				dispatchEvent(new CampaignMessageEvent(CampaignMessageEvent.OPEN_MESSAGE_PREVIEW));
+				
+				// Request the message parts
+				var event:CampaignMessageEvent = new CampaignMessageEvent(CampaignMessageEvent.GET_AVAILABLE_COUPON_NODE_PARTS);
+				if (!CouponEditor.showingAvailable)
+					event = new CampaignMessageEvent(CampaignMessageEvent.GET_UNAVAILABLE_COUPON_NODE_PARTS);
+				event.campaign = campaign;
+				event.node = couponVO;
+				dispatchEvent(event);
+			}
+			
+			private function changeExpireType():void
+			{
+				if (ExpirationGroup.selection == ExpirationNeverOption)
+				{
+					couponVO.expireDate = null;
+					couponVO.expireDays = null;
+					
+					// Remove token if necessary
+					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) > 0)
+						couponVO.availableMessage = couponVO.availableMessage.replace(EXPIRATION_TOKEN, "");
+				}
+				else if (ExpirationGroup.selection == ExpirationDateOption)
+				{
+					couponVO.expireDays = null;
+					couponVO.expireDate = new Date();
+					
+					// Remove token if necessary
+					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) > 0)
+						couponVO.availableMessage = couponVO.availableMessage.replace(EXPIRATION_TOKEN, "");
+				}
+				else if (ExpirationGroup.selection == ExpirationDaysOption)
+				{
+					couponVO.expireDate = null;
+					couponVO.expireDays = "";
+					
+					// Add expiration token if it doesn't exist
+					if (couponVO.availableMessage.indexOf(EXPIRATION_TOKEN) < 0)
+						couponVO.availableMessage += EXPIRATION_TOKEN;
+				}
+				dispatchEvent(new Event("availableCharacterUpdate"));
+			}
+			
+			private function changeExpireDate():void
+			{
+				// Update expire date
+				couponVO.expireDate = ExpirationDate.selectedDate;
+				
+				// Add expire date to available message
+				var formatter:DateFormatter = new DateFormatter();
+				formatter.formatString = "M/D/YYYY";
+				couponVO.availableMessage += formatter.format(couponVO.expireDate);
+			}
+		]]>
+	</mx:Script>
+	
+		<mx:HBox width="100%" verticalAlign="top">
+			<mx:Form>
+				<mx:FormItem label="Title" width="100%">
+					<mx:TextInput id="Title" width="225"
+								  text="{couponVO.name}"
+								  change="{couponVO.name = Title.text}" />
+				</mx:FormItem>
+				<mx:FormItem id="MaxCouponsFormItem" label="Max Coupons"
+							 enabled="{campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:HBox width="100%">
+						<mx:TextInput id="MaxCoupons" width="80"
+									  restrict="[0-9]"
+									  text="{couponVO.maxCoupons}"
+									  change="{couponVO.maxCoupons = new Number(MaxCoupons.text)}"
+									  visible="{couponVO.maxCoupons != CouponNodeVO.INFINITE_COUPONS_COUNT}"
+									  includeInLayout="{couponVO.maxCoupons != CouponNodeVO.INFINITE_COUPONS_COUNT}" />
+						<mx:CheckBox id="InfiniteCoupons"
+									 label="Infinite"
+									 selected="{couponVO.maxCoupons == CouponNodeVO.INFINITE_COUPONS_COUNT}"
+									 change="{setInfiniteCoupons()}" />
+					</mx:HBox>
+				</mx:FormItem>
+				<mx:FormItem id="MaxRedemptionsFormItem" label="Max Redemptions"
+							 enabled="{campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:HBox width="100%">
+						<mx:TextInput id="MaxRedemptions" width="80"
+									  restrict="[0-9]"
+									  text="{couponVO.maxRedemptions}"
+									  change="{couponVO.maxRedemptions = new Number(MaxRedemptions.text)}"
+									  visible="{couponVO.maxRedemptions != CouponNodeVO.INFINITE_REDEMPTION_COUNT}"
+									  includeInLayout="{couponVO.maxRedemptions != CouponNodeVO.INFINITE_REDEMPTION_COUNT}" />
+						<mx:CheckBox id="InfiniteRedemptions"
+									 label="Infinite"
+									 selected="{couponVO.maxRedemptions == CouponNodeVO.INFINITE_REDEMPTION_COUNT}"
+									 change="{setInfiniteRedemptions()}" />
+					</mx:HBox>
+				</mx:FormItem>
+				<mx:FormItem label="Coupon Code"
+							 enabled="{campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:HBox width="100%">
+						<mx:RadioButtonGroup id="CouponType"
+											 change="changeCodeType()" />
+						<mx:RadioButton id="RandomCode"
+										label="Random"
+										group="{CouponType}"
+										selected="{couponVO.couponCode == null}" />
+						<mx:RadioButton id="StaticCode"
+										label="Static"
+										group="{CouponType}"
+										selected="{couponVO.couponCode != null}" />
+						<mx:TextInput id="StaticCodeValue"
+									  width="80"
+									  text="{couponVO.couponCode}"
+									  change="changeStaticCouponCode()"
+									  visible="{StaticCode.selected}" />
+					</mx:HBox>
+				</mx:FormItem>
+			</mx:Form>
+			
+			<mx:Form>
+				<mx:FormItem label="Offer Code">
+					<mx:TextInput id="OfferCode" width="225"
+								  text="{couponVO.offerCode}"
+								  change="{couponVO.offerCode = OfferCode.text}" />
+				</mx:FormItem>
+				<mx:FormItem label="Unavailable Date"
+							 enabled="{campaign.mode != CampaignMode.TEMPLATE}">
+					<mx:DateField id="UnavailableDate"
+								  editable="true"
+								  selectedDate="{couponVO.unavailableDate}"
+								  change="{couponVO.unavailableDate = UnavailableDate.selectedDate}" />
+				</mx:FormItem>
+				<mx:FormItem label="Expiration">
+					<mx:HBox>
+						<mx:RadioButtonGroup id="ExpirationGroup"
+                                                                                change="changeExpireType()" />
+						<mx:RadioButton id="ExpirationNeverOption"
+										label="Never"
+                                                                                selected="{(couponVO.expireDate==null &amp;&amp; couponVO.expireDays==null)}"
+										group="{ExpirationGroup}" />
+						<mx:RadioButton id="ExpirationDateOption"
+										label="Date"
+                                                                                selected="{couponVO.expireDate!=null &amp;&amp; couponVO.expireDays==null}"
+										group="{ExpirationGroup}" />
+						<mx:RadioButton id="ExpirationDaysOption"
+										label="Days"
+                                                                                selected="{couponVO.expireDays!=null &amp;&amp; couponVO.expireDate==null}"
+										group="{ExpirationGroup}" />
+					</mx:HBox>
+					<mx:HBox visible="{ExpirationDateOption.selected}"
+							 includeInLayout="{ExpirationDateOption.selected}"
+							 verticalAlign="middle">
+						<mx:Label text="Expire on " />
+						<mx:DateField id="ExpirationDate"
+									  selectedDate="{couponVO.expireDate}"
+									  change="{changeExpireDate()}" />
+					</mx:HBox>
+					<mx:HBox visible="{ExpirationDaysOption.selected}"
+							 includeInLayout="{ExpirationDaysOption.selected}"
+							 verticalAlign="middle">
+						<mx:Label text="Expire" />
+						<mx:TextInput id="ExpirationDays"
+									  width="30"
+									  restrict="0-9"
+									  text="{couponVO.expireDays}"
+									  change="{couponVO.expireDays = ExpirationDays.text}" />
+						<mx:Label text="days from send date" />
+					</mx:HBox>
+				</mx:FormItem>
+			</mx:Form>
+			
+		</mx:HBox>
+		<workspace:CouponMessageEditor id="CouponEditor"
+							 couponVO="{couponVO}"
+							 couponToken="{couponCodeToken}"
+							 campaign="{campaign}"
+							 currentUser="{currentUser}"
+							 change=""  top="140"/>
+                                                         <!--change="replaceTokens()"  top="140"/>-->
+</mx:Canvas>

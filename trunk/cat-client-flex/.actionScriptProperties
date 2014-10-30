@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties analytics="false" mainApplicationPath="client.mxml" projectUUID="61f06979-9ac2-4a8c-a064-e84633bdcfae" version="10">
+  <compiler additionalCompilerArguments="-services &quot;..\..\cat-web\WebContent\WEB-INF\flex\services-config.xml&quot; -locale en_US  -default-background-color #000000" autoRSLOrdering="false" copyDependentFiles="true" flexSDK="Flex 3.6A" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="10.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+    <compilerSourcePath>
+      <compilerSourcePathEntry kind="1" linkType="1" path="${DOCUMENTS}/cat/flex-common-lib/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="${DOCUMENTS}/cat/cat-common-flex/src"/>
+    </compilerSourcePath>
+    <libraryPath defaultLinkType="1">
+      <libraryPathEntry kind="4" path=""/>
+      <libraryPathEntry kind="1" linkType="1" path="libs"/>
+      <libraryPathEntry kind="3" linkType="1" path="${DOCUMENTS}/cat/cat-web/WebContent/WEB-INF/flex/libs/fds.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="${DOCUMENTS}/cat/cat-web/WebContent/WEB-INF/flex/libs/player/playerfds.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="1" linkType="1" path="${DOCUMENTS}/cat/cat-web/WebContent/WEB-INF/flex/locale/{locale}"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="client.mxml"/>
+  </applications>
+  <modules/>
+  <buildCSSFiles/>
+  <flashCatalyst validateFlashCatalystCompatibility="false"/>
+</actionScriptProperties>

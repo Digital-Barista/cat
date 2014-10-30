@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:controls="com.dbi.controls.*">
+	<mx:Form width="100%" height="100%">
+		<mx:FormItem label="Incoming" fontWeight="bold" />
+		<mx:FormItem label="Email Address" width="100%" labelWidth="100">
+			<mx:TextInput id="EmailAddress"  width="100%"/>
+		</mx:FormItem>
+		<mx:FormItem label="Server Type" width="100%" labelWidth="100">
+			<mx:HBox>
+				<mx:RadioButton id="UsePOP" label="POP" groupName="serverType" selected="true" />
+				<mx:RadioButton id="UseIMAP" label="IMAP" groupName="serverType" />
+			</mx:HBox>
+		</mx:FormItem>
+		<mx:FormItem label="Incoming Server" width="100%" labelWidth="100">
+			<mx:TextInput id="IncomingServer"  width="100%"/>
+		</mx:FormItem>
+		<mx:FormItem label="Username" width="100%" labelWidth="100">
+			<mx:TextInput id="Username"  width="100%"/>
+		</mx:FormItem>
+		<mx:FormItem label="Password" width="100%" labelWidth="100">
+			<mx:TextInput id="Password"  width="100%"
+				 displayAsPassword="true"/>
+		</mx:FormItem>
+		<mx:FormItem width="100%" labelWidth="100">
+			<mx:Button id="TestIncoming" label="Test Connection" />
+		</mx:FormItem>
+		<mx:FormItem label="Outgoing" fontWeight="bold" />
+		<mx:FormItem label="SMTP Address" width="100%" labelWidth="100">
+			<mx:TextInput id="SMTPAddress"  width="100%"/>
+		</mx:FormItem>
+		<mx:FormItem label="Username" width="100%" labelWidth="100">
+			<mx:TextInput id="OutgoingUsername"  width="100%"/>
+		</mx:FormItem>
+		<mx:FormItem label="Password" width="100%" labelWidth="100">
+			<mx:TextInput id="OutgoingPassword"  width="100%"
+				 displayAsPassword="true"/>
+		</mx:FormItem>
+		<mx:FormItem width="100%" labelWidth="100">
+			<mx:Button id="TestOutgoing" label="Test Connection" />
+		</mx:FormItem>
+	</mx:Form>
+</mx:Canvas>

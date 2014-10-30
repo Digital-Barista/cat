@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Connection xmlns="com.dbi.cat.view.workspace.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
+	width="400" height="300"
+	editWindowHeight="280"
+	editWindowWidth="300"
+	displayIcon="{dateConnectorWorkspace}"
+	workspaceIcon="{dateConnector}"
+	label="Calendar Connector" xmlns:components="com.dbi.cat.view.components.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.CampaignMode;
+			import com.dbi.cat.common.vo.LayoutInfoVO;
+			import com.dbi.cat.common.vo.CalendarConnectorVO;
+			import mx.events.ListEvent;
+			
+			[Bindable(event="connectorUpdate")]
+			public function get calendarConnectorVO():CalendarConnectorVO
+			{
+				return editConnectorVO as CalendarConnectorVO;
+			}
+			override public function get valid():Boolean
+			{
+				return calendarConnectorVO != null && calendarConnectorVO.valid;
+			}
+			
+			private function get selectedTime():Date
+			{
+				var time:Date = Time.selectedTime;
+				var date:Date = ExecuteDate.selectedDate;
+				if (date != null)
+					return new Date(date.fullYear, date.month, date.date, time.hours, time.minutes);
+				else
+					return new Date(0, 0, 0, time.hours, time.minutes);
+			}
+		]]>
+	</mx:Script>
+	<editContent>
+		<mx:Form right="0" left="0" top="0" bottom="0"   
+			paddingLeft="5" paddingRight="5" paddingBottom="5" paddingTop="5">
+			<mx:FormItem label="Title">
+				<mx:TextInput id="Title"
+					text="{calendarConnectorVO.name}"
+					change="{calendarConnectorVO.name = Title.text}" />
+			</mx:FormItem>
+			<mx:FormItem label="Execute" required="true"
+				enabled="{workspace.campaign.mode != CampaignMode.TEMPLATE}">
+				<components:TimeChooser id="Time"
+					selectedTime="{calendarConnectorVO.targetDate}"
+					timeChange="{calendarConnectorVO.targetDate = selectedTime}" />
+				<mx:DateChooser id="ExecuteDate"
+					selectedDate="{calendarConnectorVO.targetDate}"
+					change="{calendarConnectorVO.targetDate = selectedTime}" />
+			</mx:FormItem>
+		</mx:Form>
+	</editContent>
+</Connection>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.constants.ServiceStatusMessage;
+			import com.dbi.cat.business.CouponManager;
+			import com.dbi.cat.event.CouponEvent;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<EventHandlers type="{CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_COUPONS}" />
+		<RemoteObjectInvoker 
+			destination="couponManager"
+			method="getCouponSummaries"
+			showBusyCursor="true"
+			arguments="{event.clientIds}">
+			<resultHandlers>
+				<MethodInvoker generator="{CouponManager}"
+					method="loadCoupon"
+					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_COUPONS}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_COUPONS}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker> 
+	</EventHandlers>
+	<EventHandlers type="{CouponEvent.REDEEM_COUPON}">
+		<MethodInvoker
+			generator="{CouponManager}"
+			method="clearRedemptionMessage" />
+		<RemoteObjectInvoker 
+			destination="couponManager"
+			method="redeemCoupon"
+			showBusyCursor="true"
+			arguments="{event.couponCode}">
+			<resultHandlers>
+				<MethodInvoker generator="{CouponManager}"
+					method="showCouponRedemption"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker> 
+	</EventHandlers>
+</EventMap>

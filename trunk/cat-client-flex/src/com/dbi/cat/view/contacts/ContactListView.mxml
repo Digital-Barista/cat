@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+	xmlns:contacts="com.dbi.cat.view.contacts.*" 
+	xmlns:components="com.dbi.cat.view.components.*"
+	creationComplete="init()" xmlns:controls="com.dbi.controls.*">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.common.vo.ContactTagVO;
+			import com.dbi.cat.common.vo.ContactVO;
+			import com.dbi.cat.common.vo.PagedListVO;
+			import com.dbi.cat.common.vo.PagingInfoVO;
+			import com.dbi.cat.common.vo.criteria.ContactSearchCriteriaVO;
+			import com.dbi.cat.event.ContactEvent;
+			import com.dbi.cat.view.components.LoadingMessageView;
+			import com.dbi.controls.AdvancedComboBox;
+			import com.dbi.util.DateUtil;
+			import com.dbi.util.ListUtil;
+			
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+			[Bindable]
+			public var contacts:PagedListVO;
+			
+			[Bindable]
+			public var selectedFilterContacts:ArrayCollection;
+			
+			public var contactPagingInfo:PagingInfoVO;
+			
+			[Bindable]
+			public var isSearchingContacts:Boolean = false;
+			
+			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				doFilter();
+			}
+			
+			private var _contactSearchCriteria:ContactSearchCriteriaVO;
+			[Bindable]
+			public function get contactSearchCriteria():ContactSearchCriteriaVO
+			{
+				return _contactSearchCriteria;
+			}
+			public function set contactSearchCriteria(value:ContactSearchCriteriaVO):void
+			{
+				_contactSearchCriteria = value;
+				
+				// Update entry type filter
+				if (_contactSearchCriteria != null)
+				{
+					EntryType.selectedDataItems = _contactSearchCriteria.entryTypes;
+					doFilter();
+				}
+				
+				// Clear selected items
+				Contacts.selectedIndex = -1;
+				dispatchEvent(new Event("filterUpdate"));
+			}
+			
+			private function init():void
+			{
+				ChangeWatcher.watch(Contacts, "selectedItems", selectedContactsChanged);
+			}
+			
+			private function selectedContactsChanged(e:Event):void
+			{
+				var event:ContactEvent = new ContactEvent(ContactEvent.SELECT_CONTACTS);
+				event.contacts = new ArrayCollection(Contacts.selectedItems);
+				dispatchEvent(event);
+			}
+			private function createDateLabel(contact:ContactVO, column:DataGridColumn):String
+			{
+				return DateUtil.formatDate(contact.createDate);
+			}
+			private function tagListLabel(contact:ContactVO, column:DataGridColumn):String
+			{
+				var ret:String = "";
+				for each (var tag:ContactTagVO in contact.contactTags)
+				{
+					if (ret.length > 0)
+						ret += ", ";
+					ret += tag.tag;
+				}
+				return ret;
+			}
+			private function openTagFilter():void
+			{
+				dispatchEvent(new ContactEvent(ContactEvent.OPEN_CONTACT_TAG_FILTER));
+			}
+			private function doFilter():void
+			{
+				var event:ContactEvent = new ContactEvent(ContactEvent.LIST_CONTACTS);
+				
+				// Setup pagingin info
+				if (contactPagingInfo == null)
+				{
+					contactPagingInfo = new PagingInfoVO();
+					contactPagingInfo.pageSize = "250";
+				}
+				contactPagingInfo.pageIndex = "0";
+				
+				// Setup search criteria
+				if (contactSearchCriteria == null)
+				{
+					contactSearchCriteria = new ContactSearchCriteriaVO();
+				}
+				
+				// Add client IDs
+				contactSearchCriteria.clientIds = ListUtil.getIdList(_filterClients, "clientId");
+				
+				// Add EntryTypes
+				contactSearchCriteria.entryTypes = EntryType.selectedDataItems;
+					
+				event.searchCriteria = contactSearchCriteria;
+				event.pagingInfo = contactPagingInfo;
+				
+				// Fire event
+				dispatchEvent(event);
+				dispatchEvent(new Event("filterUpdate"));
+				
+				// Clear selected items
+				Contacts.selectedIndex = -1;
+			}
+			
+			[Bindable(event="filterUpdate")]
+			private function get tagLabel():String
+			{
+				var ret:String = "Filter (0)";
+				if (contactSearchCriteria != null &&
+					contactSearchCriteria.contactTags)
+				{
+					ret = "Filter (" + contactSearchCriteria.contactTags.length + ")";
+				}
+				return ret;
+			}
+			
+			private function get contactTypes():Array
+			{
+				var ret:Array = [{name:""}];
+				return ret.concat(EntryPointType.allTypes.toArray());
+			}
+			
+			private function clientNameLabel(contact:ContactVO, column:DataGridColumn):String
+			{
+				for each (var client:ClientVO in clients)
+				{
+					if (client.clientId.toString() == contact.clientId)
+						return client.name;
+				}
+				return "";
+			}
+			
+			private function openContactDetail():void
+			{
+				var contact:ContactVO = Contacts.selectedItem as ContactVO;
+				if (contact != null)
+				{
+					// Load contact
+					var event:ContactEvent = new ContactEvent(ContactEvent.LOAD_CONTACT_DETAIL);
+					event.contact = contact;
+					dispatchEvent(event);
+					
+					// Open contact window
+					dispatchEvent(new ContactEvent(ContactEvent.OPEN_CONTACT_DETAIL));
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Canvas width="100%" height="100%">
+		<mx:HBox width="100%" verticalAlign="middle"
+			top="5">
+			<mx:Label text="Type:" />
+			<components:MultiSelectDropDown
+				id="EntryType"
+				dataProvider="{EntryPointType.allTypeNames}"
+				dataField="name"
+				selectedItemsChanged="doFilter()" />
+			<mx:Label text="Tags" />
+			<mx:Button label="{tagLabel}"
+				click="openTagFilter()" />
+		</mx:HBox>
+		<mx:DataGrid id="Contacts"
+			width="100%" height="100%" top="30"
+			dataProvider="{contacts.results}"
+			allowMultipleSelection="true"
+			doubleClickEnabled="true"
+			doubleClick="openContactDetail()">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Client" labelFunction="clientNameLabel" width="100" />
+				<mx:DataGridColumn headerText="Type" dataField="type" width="60" />
+				<mx:DataGridColumn headerText="Contact" dataField="UID" width="150" />
+				<mx:DataGridColumn headerText="Date Added" labelFunction="createDateLabel" width="80" />
+				<mx:DataGridColumn headerText="Tags" dataField="tagListLabel" sortable="false" />
+				<mx:DataGridColumn headerText="Blacklisted" dataField="blacklisted"
+								   itemRenderer="com.dbi.controls.CheckMarkItemRenderer"
+								   width="80"  />
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:Canvas>
+	<mx:Canvas width="100%" height="100%"
+		backgroundAlpha="0.5" backgroundColor="0xAAAAAA"
+		visible="{isSearchingContacts}">
+		<mx:ProgressBar width="200" height="20"
+			label="Loading Contacts..."
+			labelPlacement="center"
+			indeterminate="true"
+			verticalCenter="0" horizontalCenter="0" />
+	</mx:Canvas>
+</mx:Canvas>

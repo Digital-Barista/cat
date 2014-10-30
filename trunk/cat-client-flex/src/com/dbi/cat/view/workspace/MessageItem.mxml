@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Node xmlns="com.dbi.cat.view.workspace.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:components="com.dbi.cat.view.components.*"
+	implements="com.dbi.cat.view.workspace.ILayoutInfoItem"
+	width="400" height="300" xmlns:vo="com.dbi.cat.vo.*"
+	editWindowHeight="600"
+	editWindowWidth="800"
+	displayIcon="{messageIcon}"
+	workspaceIcon="{messageIcon}"
+	label="Message">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.MessageVO;
+			import com.dbi.cat.common.vo.UserVO;
+			
+			
+			[Bindable]
+			public var currentUser:UserVO;
+			
+			[Bindable(event="nodeUpdate")]
+			public function get messageVO():MessageVO
+			{
+				return editNodeVO as MessageVO;
+			}
+			public function set messageVO(m:MessageVO):void
+			{
+				nodeVO = m;
+			}
+			
+			override public function get valid():Boolean
+			{
+				return messageVO != null && messageVO.valid;
+			}
+		]]>
+	</mx:Script>
+	<editContent>
+		<MessageItemEditor messageVO="{messageVO}"
+						   campaign="{workspace.campaign}"
+						   currentUser="{currentUser}"/>
+	</editContent>
+</Node>

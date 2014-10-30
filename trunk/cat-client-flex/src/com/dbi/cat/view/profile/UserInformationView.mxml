@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Form xmlns:mx="http://www.adobe.com/2006/mxml"
+	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.UserVO;
+			
+			[Bindable]
+			public var user:UserVO;
+			
+			[Bindable]
+			public var editing:Boolean;
+		]]>
+	</mx:Script>
+	<mx:FormItem label="Name">
+		<mx:Label text="{user.name}" />
+	</mx:FormItem>
+	<mx:FormItem label="Email Address">
+		<mx:Label text="{user.email}" />
+	</mx:FormItem>
+	<mx:FormItem label="Username">
+		<mx:Label text="{user.username}" />
+	</mx:FormItem>
+	<mx:FormItem label="Password">
+		<mx:Label text="********" />
+	</mx:FormItem>
+</mx:Form>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+	width="100%" height="100%">
+<mx:Script>
+	<![CDATA[
+		import mx.effects.Glow;
+		[Bindable]
+		public var title:String;
+		
+		[Bindable]
+		public var imageUrl:String;
+		
+		private var glow:Glow;
+		
+		private function hoverOver():void
+		{
+			var glow:GlowFilter = new GlowFilter(0xAAAAAA);
+			iconContainer.filters = [glow];
+		}
+		private function hoverOut():void
+		{
+			iconContainer.filters = [];
+		}
+	]]>
+</mx:Script>
+	<mx:VBox id="iconContainer"
+		horizontalCenter="0" verticalCenter="0" horizontalAlign="center"
+		horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		rollOver="hoverOver()"
+		rollOut="hoverOut()" >
+		<mx:Image source="{imageUrl}"/>
+		<mx:Label text="{title}" fontWeight="bold"/>
+	</mx:VBox>
+	
+</mx:Canvas>

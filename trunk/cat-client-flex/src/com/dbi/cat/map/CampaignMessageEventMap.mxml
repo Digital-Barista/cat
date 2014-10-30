@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.business.CampaignMessageManager;
+			import com.dbi.cat.event.CampaignMessageEvent;
+			import com.dbi.cat.business.AppManager;
+			import com.dbi.cat.constants.ServiceStatusMessage;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	
+	<EventHandlers type="{CampaignMessageEvent.GET_MESSAGE_PART}">
+		<RemoteObjectInvoker destination="messageManager"
+							 method="getMessagePart"
+							 arguments="{[event.campaign, event.entryType.name, event.message]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignMessageManager}"
+							   method="loadMessagePart"
+							   arguments="{[event.title, resultObject]}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.GET_MESSAGE_NODE_PARTS}">
+		<RemoteObjectInvoker destination="messageManager"
+			method="getMessageParts"
+			arguments="{[event.campaign, event.node]}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignMessageManager}"
+					method="loadMessageParts"
+					arguments="{[event.node, resultObject]}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.GET_AVAILABLE_COUPON_NODE_PARTS}">
+		<RemoteObjectInvoker destination="messageManager"
+							 method="getAvailableMessageParts"
+							 arguments="{[event.campaign, event.node]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignMessageManager}"
+							   method="loadMessageParts"
+							   arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.GET_UNAVAILABLE_COUPON_NODE_PARTS}">
+		<RemoteObjectInvoker destination="messageManager"
+							 method="getUnavailableMessageParts"
+							 arguments="{[event.campaign, event.node]}"
+							 showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignMessageManager}"
+							   method="loadMessageParts"
+							   arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.OPEN_MESSAGE_PREVIEW}">
+		<MethodInvoker generator="{CampaignMessageManager}"
+			method="openMessagePreview" />
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignMessageEvent.CLOSE_MESSAGE_PREVIEW}">
+		<MethodInvoker generator="{CampaignMessageManager}"
+			method="closeMessagePreview" />
+	</EventHandlers>
+    
+    <EventHandlers type="{CampaignMessageEvent.OPEN_HTML_EDITOR}">
+        <MethodInvoker generator="{CampaignMessageManager}"
+                       method="openHTMLEditor"
+                       arguments="{[event.message, event.editTextArea]}" />
+    </EventHandlers>
+</EventMap>

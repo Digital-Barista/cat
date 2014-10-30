@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+	width="400" height="260"
+	showCloseButton="true"
+	close="onClose()" xmlns:controls="com.dbi.controls.*"
+	title="{currentEntryPointDefinition.primaryKey == null ? 'Create Entry Point' : 'Edit Entry Point'}">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.EntryRestrictionType;
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+			import com.dbi.cat.common.vo.EntryPointVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.admin.event.ClientEvent;
+			
+			[Bindable]
+			public var currentEntryPointDefinition:EntryPointDefinitionVO;
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_ENTRY_POINT));
+			}
+			private function save():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_ENTRY_POINT);
+				event.entryPoint = currentEntryPointDefinition;
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Form width="100%">
+		<mx:FormItem label="Type" width="100%">
+			<controls:AdvancedComboBox id="Type"
+				labelField="name"
+				dataProvider="{EntryPointType.allTypes}"
+				selectedBindingProperty="name"
+				selectedBindingValue="{currentEntryPointDefinition.type}"
+				change="{currentEntryPointDefinition.type = Type.selectedItem.name}" />
+		</mx:FormItem>
+		<mx:FormItem label="Restriction" width="100%">
+			<controls:AdvancedComboBox id="Restriction"
+				labelField="label"
+				selectedBindingProperty="value"
+				selectedBindingValue="{currentEntryPointDefinition.restriction}"
+				change="{currentEntryPointDefinition.restriction = Restriction.selectedItem.value}">
+				<controls:dataProvider>
+					<mx:ArrayCollection>
+						<mx:Object label="{EntryRestrictionType.SHARED}" value="{EntryRestrictionType.SHARED}" />
+						<mx:Object label="{EntryRestrictionType.SINGLE_CLIENT}" value="{EntryRestrictionType.SINGLE_CLIENT}" />
+						<mx:Object label="{EntryRestrictionType.SINGLE_RESELLER}" value="{EntryRestrictionType.SINGLE_RESELLER}" />
+					</mx:ArrayCollection>
+				</controls:dataProvider>
+			</controls:AdvancedComboBox>
+		</mx:FormItem>
+		<mx:FormItem label="Entry Point" width="100%">
+			<mx:TextInput id="EntryPoint"
+				text="{currentEntryPointDefinition.value}"
+				change="{currentEntryPointDefinition.value = EntryPoint.text}" />
+		</mx:FormItem>
+		<mx:FormItem label="description" width="100%">
+			<mx:TextArea id="Description" width="100%" height="100%"
+				text="{currentEntryPointDefinition.description}"
+				change="{currentEntryPointDefinition.description = Description.text}" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar>
+		<mx:Button id="Save" label="Save"
+			click="save()" />
+	</mx:ControlBar>
+</mx:TitleWindow>

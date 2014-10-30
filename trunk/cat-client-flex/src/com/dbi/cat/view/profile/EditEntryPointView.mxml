@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:profile="com.dbi.cat.view.profile.*" 
+	layout="absolute" 
+	width="400" height="470"
+	showCloseButton="true"
+	close="onClose()" xmlns:controls="com.dbi.controls.*"
+	title="{currentEntryPointDefinition.primaryKey == null ? 'Create Account' : 'Edit Account'}" xmlns:components="com.dbi.cat.view.components.*" >
+	<mx:Script>
+		<![CDATA[
+        import com.dbi.cat.common.constants.EntryPointType;
+        import com.dbi.cat.common.constants.EntryRestrictionType;
+        import com.dbi.cat.common.vo.ClientVO;
+        import com.dbi.cat.common.vo.EntryPointDefinitionVO;
+        import com.dbi.cat.common.vo.EntryPointVO;
+        import com.dbi.cat.common.vo.UserVO;
+        import com.dbi.cat.event.ClientEvent;
+        import com.dbi.cat.view.components.SelectionBox;
+        
+        import mx.collections.ArrayCollection;
+			
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+        
+      
+        [Bindable]
+      public var currentUser:UserVO;
+        
+			private var _currentEntryPointDefinition:EntryPointDefinitionVO;
+			[Bindable]
+			public function get currentEntryPointDefinition():EntryPointDefinitionVO
+			{
+				return _currentEntryPointDefinition;
+			}
+			public function set currentEntryPointDefinition(value:EntryPointDefinitionVO):void
+			{
+				_currentEntryPointDefinition = value;
+				setCorrectView();
+			}
+			
+			private function onClose():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_EDIT_ENTRY_POINT));
+			}
+			private function save():void
+			{
+        currentEntryPointDefinition.clientIDs = new ArrayCollection([Client.selectedItem.clientId]);
+          
+				var event:ClientEvent = new ClientEvent(ClientEvent.SAVE_ENTRY_POINT);
+				event.entryPointDefinition = currentEntryPointDefinition;
+				dispatchEvent(event);
+			}
+			private function changeView():void
+			{
+				currentEntryPointDefinition.type = EntryPointCombo.selectedItem != null ? EntryPointCombo.selectedItem.name : null;
+				setCorrectView();
+			}
+			
+			private function setCorrectView():void
+			{
+				switch (currentEntryPointDefinition.type)
+				{
+					case EntryPointType.SMS.name:
+						AccountViews.selectedChild = SMSView;
+						break;
+					case EntryPointType.EMAIL.name:
+						AccountViews.selectedChild = EmailView;
+						break;
+					case EntryPointType.TWITTER.name:
+						AccountViews.selectedChild = TwitterView;
+						break;
+          case EntryPointType.FACEBOOK.name:
+              AccountViews.selectedChild = FacebookView;
+              break;
+					default:
+						AccountViews.selectedChild = NoView;
+						break;
+				}
+			}
+		]]>
+	</mx:Script>
+    <mx:Form>
+        <mx:FormItem label="Client">
+            <components:FormattedComboBox
+                id="Client"
+                dataProvider="{clients}"
+                selectedBindingProperty="clientId"
+                labelField="name"  />
+        </mx:FormItem>
+        <mx:FormItem label="Account Type">
+            <controls:AdvancedComboBox id="EntryPointCombo"
+                                       enabled="{currentEntryPointDefinition.primaryKey == null}"
+                                       dataProvider="{currentUser.entryPointTypes}"
+                                       change="changeView()"
+                                       labelField="name"
+                                       selectedBindingProperty="name"
+                                       selectedBindingValue="{currentEntryPointDefinition.type}" />
+        </mx:FormItem>
+    </mx:Form>
+    <mx:HRule right="10" left="10" top="76"/>
+	<mx:ViewStack id="AccountViews"
+		top="86" bottom="0" right="0" left="0">
+		<profile:EditEmailView id="EmailView"  />
+		<profile:EditSMSView id="SMSView" />
+		<profile:EditTwitterView id="TwitterView" entryPointDefinition="{currentEntryPointDefinition}" />
+      <profile:EditFacebookView id="FacebookView" />
+		<profile:NoTypeView id="NoView" />
+	</mx:ViewStack>
+	<mx:ControlBar>
+		<mx:Button id="Save" label="Save"
+			click="save()" />
+	</mx:ControlBar>
+</mx:TitleWindow>

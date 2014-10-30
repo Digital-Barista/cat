@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%"
+	creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.vo.CouponVO;
+			import com.dbi.cat.event.CouponEvent;
+			import com.dbi.util.ListUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.formatters.DateFormatter;
+			
+			[Bindable]
+			public var coupons:ArrayCollection;
+			
+			private var _filterClients:ArrayCollection;
+			public function set filterClients(value:ArrayCollection):void
+			{
+				_filterClients = value;
+				refresh();
+			}
+			
+			private function init():void
+			{
+			}
+			
+			private function formatDate(dataField:String):Function
+			{
+				return function(coupon:CouponVO, column:AdvancedDataGridColumn):String
+				{
+					if (coupon[dataField] == null)
+						return "N/A";
+						
+					var df:DateFormatter = new DateFormatter();
+					df.formatString = "MM/DD/YYY";
+					return df.format(coupon[dataField]);
+				}
+			}
+			
+			private function formatInfinite(dataField:String):Function
+			{
+				return function(coupon:CouponVO, column:AdvancedDataGridColumn):String
+				{
+					if (coupon[dataField] < 0)
+						return "Infinite";
+					return coupon[dataField];
+				}
+			}
+			private function formatExpirationDays(coupon:CouponVO, column:AdvancedDataGridColumn):String
+			{
+				if (coupon.expireDays == null)
+					return "N/A";
+				return coupon.expireDays;
+			}
+			
+			private function formatTime(coupon:CouponVO, column:AdvancedDataGridColumn):String
+			{
+				if (coupon.averageRedemptionTime <= 0)
+					return "N/A";
+					
+				var time:Number = Math.round(coupon.averageRedemptionTime / 1000);
+				var ret:String = "";
+				
+				var secMinutes:Number = 60;
+				var secHours:Number = secMinutes * 60;
+				var secDays:Number = secHours * 24;
+				var secWeeks:Number = secDays * 7;
+				 
+				if (time >= secWeeks)
+				{
+					var weeks:Number = Math.floor(time / secWeeks);
+					ret += weeks + "w ";
+					time -= weeks * secWeeks;
+				}
+				if (time >= secDays)
+				{
+					var days:Number = Math.floor(time / secDays);
+					ret += days + "d ";
+					time -= days * secDays;
+				}
+				if (time >= secHours)
+				{
+					var hours:Number = Math.floor(time / secHours);
+					ret += hours + "h ";
+					time -= hours * secHours;
+				}
+				if (time >= secMinutes)
+				{
+					var minutes:Number = Math.floor(time / secMinutes);
+					ret += minutes + "m ";
+					time -= minutes * secMinutes;
+				}
+				if (time > 0)
+				{
+					ret += time + "s";
+				}
+				return ret;
+			}
+			
+			private function refresh():void
+			{
+				var event:CouponEvent = new CouponEvent(CouponEvent.GET_COUPON_SUMMARY_BY_CLIENT);
+				event.clientIds = ListUtil.getIdList(_filterClients, "clientId");
+				dispatchEvent(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:TitleWindow width="100%" height="100%"
+		layout="absolute">
+		<mx:AdvancedDataGrid left="0" top="0" right="0" bottom="0"
+			dataProvider="{coupons}">
+			<mx:columns>
+				<mx:AdvancedDataGridColumn headerText="Campaign" dataField="campaignName" />
+				<mx:AdvancedDataGridColumn headerText="Coupon" dataField="couponName" />
+				<mx:AdvancedDataGridColumn headerText="Max Coupons" labelFunction="formatInfinite('maxCouponCount')" />
+				<mx:AdvancedDataGridColumn headerText="Max Redemptions" labelFunction="formatInfinite('maxRedemptions')" />
+				<mx:AdvancedDataGridColumn headerText="Unavailable Date" labelFunction="formatDate('unavailableDate')" />
+				<mx:AdvancedDataGridColumn headerText="Expiration Date" labelFunction="formatDate('expireDate')" />
+				<mx:AdvancedDataGridColumn headerText="Expiration Days" labelFunction="formatExpirationDays" />
+				<mx:AdvancedDataGridColumn headerText="Sent" dataField="issuedCouponCount" />
+				<mx:AdvancedDataGridColumn headerText="Redeemed" dataField="totalRedemptionCount" />
+				<mx:AdvancedDataGridColumn headerText="Avg. Time to Redeem" labelFunction="formatTime" />
+			</mx:columns>
+		</mx:AdvancedDataGrid>
+	</mx:TitleWindow>
+	<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+		top="3" right="10"
+		width="25" height="25"
+		toolTip="Refresh"
+		click="refresh()" />
+</mx:Canvas>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:services="com.dbi.cat.services.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.constants.ServiceStatusMessage;
+			import com.dbi.cat.business.CampaignManager;
+			import com.dbi.cat.business.CampaignTemplateManager;
+			import com.dbi.cat.event.CampaignTemplateEvent;
+			import com.dbi.cat.business.CampaignTestManager;
+			import com.dbi.cat.business.AppManager;
+		]]>
+	</mx:Script>
+	
+	<Debugger level="{Debugger.ALL}" />
+	
+	<EventHandlers type="{CampaignTemplateEvent.EDIT_CAMPAIGN_TEMPLATE}">
+		<MethodInvoker generator="{CampaignTemplateManager}"
+			method="editCampaignTemplate"
+			arguments="{event.campaign}" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignTemplateEvent.CLOSE_EDIT_CAMPAIGN_TEMPLATE}">
+		<MethodInvoker generator="{CampaignTemplateManager}"
+			method="closeEditCampaignTemplate" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignTemplateEvent.CLOSE_CAMPAIGN_TEMPLATE_COMMUNICATIONS}">
+		<MethodInvoker generator="{CampaignTemplateManager}"
+			method="closeCampaignTemplateCommunications" />
+	</EventHandlers>
+	<EventHandlers type="{CampaignTemplateEvent.FILTER_CAMPAIGN_TEMPLATES}">
+		<MethodInvoker generator="{CampaignTemplateManager}"
+			method="filterTemplates"
+			arguments="{event.filterText}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignTemplateEvent.SAVE_CAMPAIGN_TEMPLATE}">
+		<RemoteObjectInvoker destination="campaignManager"
+			showBusyCursor="true"
+			method="save"
+			arguments="{event.campaign}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignTemplateManager}"
+					method="saveCampaignTemplate"
+					arguments="{event.campaign}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignTemplateEvent.DELETE_CAMPAIGN_TEMPLATE}">
+		<RemoteObjectInvoker destination="campaignManager"
+			showBusyCursor="true"
+			method="delete"
+			arguments="{event.campaign}">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignTemplateManager}"
+					method="deleteCampaignTemplate"
+					arguments="{event.campaign}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+	<EventHandlers type="{CampaignTemplateEvent.LIST_CAMPAIGN_TEMPLATES}">
+		<MethodInvoker generator="{AppManager}" 
+			method="addGeneralStatusMessage" 
+			arguments="{ServiceStatusMessage.LOADING_TEMPLATES}" />
+		<RemoteObjectInvoker destination="campaignManager"
+			method="getCampaignTemplates"
+			arguments="{event.clientIds}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignTemplateManager}"
+					method="loadCampaignTemplates"
+					arguments="{resultObject}" />
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_TEMPLATES}" />
+			</resultHandlers>
+			<faultHandlers>
+				<MethodInvoker
+					generator="{AppManager}"
+					method="removeGeneralStatusMessage"
+					arguments="{ServiceStatusMessage.LOADING_TEMPLATES}" />
+				<MethodInvoker generator="{AppManager}"
+					method="showFault"
+					arguments="{event.fault}" />
+			</faultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	<EventHandlers type="{CampaignTemplateEvent.LOAD_CAMPAIGN_TEMPLATE}">
+		<RemoteObjectInvoker destination="campaignManager"
+			method="getDetailedCampaign"
+			arguments="{event.campaign.uid}"
+			showBusyCursor="true">
+			<resultHandlers>
+				<MethodInvoker generator="{CampaignTemplateManager}"
+					method="loadCampaignTemplate"
+					arguments="{resultObject}" />
+			</resultHandlers>
+		</RemoteObjectInvoker>
+	</EventHandlers>
+	
+</EventMap>

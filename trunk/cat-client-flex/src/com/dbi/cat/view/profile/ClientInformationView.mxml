@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Form xmlns:mx="http://www.adobe.com/2006/mxml"
+	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" xmlns:controls="com.dbi.controls.*" 
+	xmlns:components="com.dbi.cat.view.components.*" 
+	xmlns:profile="com.dbi.cat.view.profile.*">
+	<mx:Script>
+		<![CDATA[
+        import com.dbi.cat.common.constants.EntryPointType;
+        import com.dbi.cat.common.vo.ClientInfoVO;
+        import com.dbi.cat.common.vo.ClientVO;
+        import com.dbi.cat.common.vo.UserVO;
+        import com.dbi.cat.event.ClientEvent;
+        
+        import mx.collections.ArrayCollection;
+			
+			private var _client:ClientVO;
+			[Bindable]
+			public function get client():ClientVO
+			{
+				return _client;
+			}
+			public function set client(value:ClientVO):void
+			{
+				_client = value;
+				dispatchEvent(new Event("clientChange"));
+			}
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+        
+        private var _currentUser:UserVO;
+        public function get currentUser():UserVO
+        {
+            return _currentUser;
+        }
+        public function set currentUser(value:UserVO):void
+        {
+            _currentUser = value;
+            applyPermissions();
+        }
+        
+        
+        private function applyPermissions():void
+        {
+            var isManager:Boolean = false;
+            if (currentUser != null)
+            {
+                isManager = currentUser.isManager;
+            }
+            
+            EntryTypeTabs.visible = EntryTypeTabs.includeInLayout = isManager;
+        }
+        
+			private function changeClient():void
+			{
+				var event:ClientEvent = new ClientEvent(ClientEvent.CHANGE_CLIENT);
+				event.client = Client.selectedItem as ClientVO;
+				dispatchEvent(event);
+			}
+			
+			[Bindable(event="clientChange")]
+			private function get paymentURL():String
+			{
+				if (client != null)
+				{
+					for each (var info:ClientInfoVO in client.clientInfos)
+					{
+						if (info.name == ClientInfoVO.KEY_CREDIT_PAYMENT_URL)
+							return info.value;
+					}
+				}
+				return "";
+			}
+		]]>
+	</mx:Script>
+	<mx:FormItem label="Organization">
+		<components:FormattedComboBox
+			id="Client"
+			dataProvider="{clients}"
+			selectedBindingProperty="clientId"
+			selectedBindingValue="{client.clientId}"
+			labelField="name" 
+			y="249" horizontalCenter="250"
+			change="changeClient()" />
+	</mx:FormItem>
+	<mx:FormItem label="Contact Name">
+		<mx:Label text="{client.contactName}" />
+	</mx:FormItem>
+	<mx:FormItem label="Contact Email">
+		<mx:Label text="{client.contactEmail}" />
+	</mx:FormItem>
+	<mx:FormItem label="Contact Phone">
+		<mx:Label text="{client.contactPhone}" />
+	</mx:FormItem>
+	<!--
+	<mx:FormItem label="Credit Payment URL">
+		<mx:Label text="{paymentURL}" />
+	</mx:FormItem>
+	-->
+	<mx:TabNavigator id="EntryTypeTabs"
+		width="450" height="300"
+		tabOffset="20">
+		<mx:Repeater id="EntryTypeRepeater" 
+			dataProvider="{EntryPointType.allTypes}">
+			<profile:ClientInfoEditor entryType="{EntryTypeRepeater.currentItem}"
+				editable="false" />
+		</mx:Repeater>
+	</mx:TabNavigator>
+</mx:Form>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="204"
+				showCloseButton="true" layout="absolute" title="Message Credits" 
+				xmlns:components="com.dbi.cat.view.components.*"
+				close="onClose()">
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.common.constants.EntryPointType;
+			import com.dbi.cat.common.vo.ClientInfoVO;
+			import com.dbi.cat.common.vo.ClientVO;
+			import com.dbi.cat.event.ClientEvent;
+			import com.dbi.controls.AdvancedComboBox;
+			import com.dbi.controls.CustomMessage;
+			
+			import mx.collections.ArrayCollection;
+			
+			
+			[Bindable]
+			public var clients:ArrayCollection;
+			
+			[Bindable(event="clientChanged")]
+			private function get entryPointTypes():ArrayCollection
+			{
+				var ret:ArrayCollection = new ArrayCollection();
+				
+				// Ignore this if clients haven't loaded yet
+				if (Client != null && Client.selectedItem != null)
+				{
+					for each (var type:EntryPointType in EntryPointType.allTypes)
+					{
+						var value:Number = NaN;
+						
+						for each (var info:ClientInfoVO in Client.selectedItem.clientInfos)
+						{
+							if (info.entryType == type.name &&
+								info.name == ClientInfoVO.KEY_MESSAGE_CREDITS)
+							{
+								if (info.value != null)
+									value = new Number(info.value);
+								break;
+							}
+						}
+						
+						// If no message credit limit is set use the default
+						if (isNaN(value))
+							value = type.defaultMessageCredits;
+						
+						// If there is a message credit limit the type can have credits added
+						if (!isNaN(value))
+							ret.addItem(type);
+					}
+				}
+				return ret;
+			}
+			
+			private function clientChanged():void
+			{
+				dispatchEvent(new Event("clientChanged"));
+			}
+			private function onClose():void
+			{
+				dispatchEvent(new ClientEvent(ClientEvent.CLOSE_ADD_CREDITS));
+			}
+			private function openPaymentURL():void
+			{
+				var url:String = null;
+				if (Client.selectedItem != null &&
+					Client.selectedItem.clientInfos != null)
+				{
+					for each (var info:ClientInfoVO in Client.selectedItem.clientInfos)
+					{
+						if (info.name == ClientInfoVO.KEY_CREDIT_PAYMENT_URL)
+						{
+							url = info.value;
+						}
+					}
+					
+					if (url == null ||
+						url.length == 0)
+					{
+						CustomMessage.show("A payment gateway has not been setup for this client");
+					}
+					else
+					{
+						var event:ClientEvent = new ClientEvent(ClientEvent.OPEN_PAYMENT_URL);
+						event.paymentURL = url + "?id=" + Client.selectedItem.clientId + "&type=" + NetworkType.selectedLabel;
+						dispatchEvent(event);
+					}
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Form verticalCenter="0" horizontalCenter="0">
+		<mx:FormItem label="Client">
+			<components:FormattedComboBox
+				id="Client"
+				labelField="name"
+				bindingBehavior="{AdvancedComboBox.BINDING_BEHAVIOR_FIRST}"
+				dataProvider="{clients}"
+				change="clientChanged()"
+				valueCommit="clientChanged()" />
+		</mx:FormItem>
+		<mx:FormItem label="Network Type">
+			<mx:ComboBox id="NetworkType"
+						 dataProvider="{entryPointTypes}"
+						 labelField="name" />
+		</mx:FormItem>
+	</mx:Form>
+	<mx:ControlBar x="0" y="256" horizontalAlign="right">
+		<mx:Text text="You will be taken to a payment website to complete the transaction."   height="38" width="210"/>
+		<mx:Button label="Add Credits"
+				   click="openPaymentURL()" />
+	</mx:ControlBar>
+</mx:TitleWindow>

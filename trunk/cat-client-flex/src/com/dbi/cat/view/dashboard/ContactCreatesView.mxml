@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   width="100%" height="100%"
+		   creationComplete="init()" xmlns:controls="com.dbi.controls.*" xmlns:components="com.dbi.cat.view.components.*">
+		<mx:Script>
+			<![CDATA[
+				import com.dbi.cat.common.vo.DateData;
+				import com.dbi.cat.event.ReportingEvent;
+				import com.dbi.util.ListUtil;
+				
+				import mx.charts.chartClasses.Series;
+				import mx.collections.ArrayCollection;
+				
+				private var subscriberCount:Number = NaN;
+				
+				[Bindable]
+				public var contactCreateDates:ArrayCollection;
+				
+				[Bindable]
+				public var clients:ArrayCollection;
+				
+				private var _filterClients:ArrayCollection;
+				public function set filterClients(value:ArrayCollection):void
+				{
+					_filterClients = value;
+					refresh();
+				}
+				
+				private function get selectedClientIds():ArrayCollection
+				{
+					return ListUtil.getIdList(_filterClients, "clientId");
+				}
+				
+				private function init():void
+				{
+				}
+				
+				private function refresh():void
+				{
+					subscriberCount = NaN;
+					
+					var event:ReportingEvent = new ReportingEvent(ReportingEvent.LOAD_CONTACT_CREATES);
+					event.clientIDs = selectedClientIds;
+					event.startDate = DateRange.startDate;
+					event.endDate = DateRange.endDate;
+					dispatchEvent(event);
+				}
+				
+				public function getTotalDataValue(series:Series, item:DateData, fieldName:String):Object 
+				{
+					if(fieldName == 'yValue')
+					{
+						// If the first item initialize the count to the total
+						if (isNaN(subscriberCount))
+							subscriberCount = item.total;
+						
+						subscriberCount += item.count;
+						return(subscriberCount);
+					}
+					else if(fieldName == "xValue")
+					{	
+						return(item.date);
+					}
+						
+					return null;
+				}
+			]]>
+		</mx:Script>
+	<mx:Panel title="Contacts" 
+			  height="100%" width="100%" layout="horizontal">
+		<components:DateRangeChooser id="DateRange"
+									 paddingLeft="5"
+									 paddingRight="5"
+									 dateRangeChange="refresh()"/>
+		
+		<mx:VBox width="100%" height="100%">
+			<mx:Label text="New Contacts" styleName="chartLabel" />
+			<mx:LineChart id="NewSubscribers" height="100%" width="100%"
+						  paddingLeft="5" paddingRight="5" 
+						  showDataTips="true" 
+						  dataProvider="{contactCreateDates}">
+				
+				<mx:horizontalAxis>
+					<mx:DateTimeAxis dataUnits="days"
+									 minimum="{DateRange.startDate}"
+									 maximum="{DateRange.endDate}"/>
+				</mx:horizontalAxis>
+				
+				<mx:series> 
+					<mx:LineSeries yField="count" 
+								   xField="date" 
+								   form="segment" 
+								   displayName="New Subscriber Count">
+						<mx:lineStroke>
+							<mx:Stroke 
+								color="0xB2DC32" 
+								weight="0.2" />
+						</mx:lineStroke> 
+					</mx:LineSeries>
+				</mx:series>
+			</mx:LineChart>
+			
+			<mx:Label text="Total Contacts" styleName="chartLabel" />
+			<mx:LineChart id="TotalSubscribers" height="100%" width="100%"
+						  paddingLeft="5" paddingRight="5" 
+						  showDataTips="true"
+						  dataProvider="{contactCreateDates}">
+				
+				<mx:horizontalAxis>
+					<mx:DateTimeAxis dataUnits="days"
+									 minimum="{DateRange.startDate}"
+									 maximum="{DateRange.endDate}"/>
+				</mx:horizontalAxis>
+				
+				<mx:series> 
+					<mx:LineSeries yField="count" 
+								   xField="date" 
+								   dataFunction="getTotalDataValue"
+								   form="segment" 
+								   displayName="Total Subscriber Count">
+						<mx:lineStroke>
+							<mx:Stroke 
+								color="0xB2DC32" 
+								weight="0.2" />
+						</mx:lineStroke> 
+					</mx:LineSeries>
+				</mx:series>
+			</mx:LineChart>
+		</mx:VBox>
+	</mx:Panel>
+	<mx:HBox right="5" top="7" verticalAlign="middle">
+		<mx:Image source="@Embed(source='/assets/img/refresh.png')"
+				  top="3" right="200"
+				  width="25" height="25"
+				  toolTip="Refresh"
+				  click="refresh()" />
+	</mx:HBox>
+</mx:Canvas>

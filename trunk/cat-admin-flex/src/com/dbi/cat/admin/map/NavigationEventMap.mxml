@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns="http://mate.asfusion.com/" >
+	
+	<mx:Script>
+		<![CDATA[
+			import com.dbi.cat.admin.business.NavigationManager;
+			import com.dbi.cat.admin.event.NavigationEvent;
+		]]>
+	</mx:Script>
+	
+	<EventHandlers type="{NavigationEvent.LOGIN}">
+		<MethodInvoker generator="{NavigationManager}"
+			method="navigate"
+			arguments="{event.type}" />
+	</EventHandlers>
+	<EventHandlers type="{NavigationEvent.CLIENTS}">
+		<MethodInvoker generator="{NavigationManager}"
+			method="navigate"
+			arguments="{event.type}" />
+	</EventHandlers>
+</EventMap>

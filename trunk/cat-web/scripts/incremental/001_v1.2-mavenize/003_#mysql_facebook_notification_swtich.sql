@@ -1,0 +1,1 @@
+ alter table facebook_app add column send_notifications tinyint(1) not null default 1;

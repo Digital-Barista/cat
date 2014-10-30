@@ -1,0 +1,10 @@
+.chart {
+  float:left;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  @include border-radius(5px, 5px);
+  padding:5px;
+
+  &:nth-child(2){
+    margin-left: 5px;
+  }
+}
