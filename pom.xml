@@ -7,6 +7,11 @@
   <version>1.5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <scm>
+	<connection>scm:svn:http://svn.digitalbarista.com/cat/trunk</connection>
+	<developerConnection>scm:svn:http://svn.digitalbarista.com/cat/trunk</developerConnection>
+  </scm>
+  
   <name>CAT Parent Project</name>
   <organization>
       <name>Digital Barista, Inc.</name>
