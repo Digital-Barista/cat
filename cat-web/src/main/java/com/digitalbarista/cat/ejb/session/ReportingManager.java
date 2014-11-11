@@ -76,7 +76,7 @@ public class ReportingManager
 	
 
 	private static final String DBI_ANALYTICS_USERNAME = "dbigaviewonly@gmail.com";
-	private static final String DBI_ANALYTICS_PASSWORD = "Yamahar666";
+	private static final String DBI_ANALYTICS_PASSWORD = "Yamahar666!!";
 	private static final String DBI_ANALYTICS_TABLE_ID = "ga:40674401"; // Table ID associated with an Analytics Profile (*.digitalbarista.com)
 	
 	private static final String GA_VISITS = "ga:visits";
