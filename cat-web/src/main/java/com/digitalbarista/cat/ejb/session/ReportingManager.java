@@ -55,6 +55,7 @@ import com.google.gdata.data.analytics.DataFeed;
 import com.google.gdata.util.ServiceException;
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.ProjectionList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -671,29 +672,38 @@ public class ReportingManager
 	private List<DashboardCount> getContactCounts(List<Long> clientIds)
 	{
 		List<DashboardCount> ret = new ArrayList<DashboardCount>();
-		Set<EntryPointType> unused = new HashSet<EntryPointType>(Arrays.asList(EntryPointType.values()));
 			
 		// Get contact count
                 Criteria crit = sf.getCurrentSession().createCriteria(ContactDO.class);
                 crit.add(Restrictions.in("client.id", clientIds));
-                Map<EntryPointType,Long> counts = new HashMap<EntryPointType,Long>();
-                for(ContactDO contact : (List<ContactDO>)crit.list())
-                {
-                    if(!counts.containsKey(contact.getType()))
-                        counts.put(contact.getType(), 0L);
-                    counts.put(contact.getType(),counts.get(contact.getType())+1);
-                }
-                
-                for(EntryPointType type : EntryPointType.values())
-                {
-                    if(counts.containsKey(type))
-                    {
-                        ret.add(new DashboardCount(type, counts.get(type)));
-                    } else {
-                        ret.add(new DashboardCount(type,0L));
-                    }
-                }
-                
+                ProjectionList pl = Projections.projectionList();
+                pl.add(Projections.groupProperty("type"));
+                pl.add(Projections.count("id"));
+                crit.setProjection(pl);
+//		String queryString = "select type, count(*) from contact " +
+//			"where client_id in (:clientIds) " +
+//			"group by type";
+//
+//		SQLQuery query = sf.getCurrentSession().createSQLQuery(queryString);
+//		query.setParameter("clientIds", clientIds);
+		List<Object> contactResults = (List<Object>)crit.list();
+		
+		// Update contact counts
+		Set<EntryPointType> unused = new HashSet<EntryPointType>(Arrays.asList(EntryPointType.values()));
+		for (Object row : contactResults)
+		{
+			Object[] values = (Object[])row;
+			EntryPointType type = EntryPointType.valueOf(values[0].toString());
+			Long count = new Long(values[1].toString());
+			ret.add(new DashboardCount(type, count));
+
+			unused.remove(type);
+		}
+
+		// Add unused types
+		for (EntryPointType type : unused)
+			ret.add(new DashboardCount(type, new Long(0)));
+		
 		return ret;
 	}
 	
