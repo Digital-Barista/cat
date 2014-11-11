@@ -55,6 +55,7 @@ import com.google.gdata.data.analytics.DataFeed;
 import com.google.gdata.util.ServiceException;
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.ProjectionList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -673,13 +674,19 @@ public class ReportingManager
 		List<DashboardCount> ret = new ArrayList<DashboardCount>();
 			
 		// Get contact count
-		String queryString = "select type, count(*) from contact " +
-			"where client_id in (:clientIds) " +
-			"group by type";
-
-		SQLQuery query = sf.getCurrentSession().createSQLQuery(queryString);
-		query.setParameter("clientIds", clientIds);
-		List<Object> contactResults = (List<Object>)query.list();
+                Criteria crit = sf.getCurrentSession().createCriteria(ContactDO.class);
+                crit.add(Restrictions.in("client.id", clientIds));
+                ProjectionList pl = Projections.projectionList();
+                pl.add(Projections.groupProperty("type"));
+                pl.add(Projections.count("id"));
+                crit.setProjection(pl);
+//		String queryString = "select type, count(*) from contact " +
+//			"where client_id in (:clientIds) " +
+//			"group by type";
+//
+//		SQLQuery query = sf.getCurrentSession().createSQLQuery(queryString);
+//		query.setParameter("clientIds", clientIds);
+		List<Object> contactResults = (List<Object>)crit.list();
 		
 		// Update contact counts
 		Set<EntryPointType> unused = new HashSet<EntryPointType>(Arrays.asList(EntryPointType.values()));
