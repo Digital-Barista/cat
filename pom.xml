@@ -3,12 +3,12 @@
 
   <groupId>com.digitalbarista.cat</groupId>
   <artifactId>cat</artifactId>
-  <version>1.5.2</version>
+  <version>1.6-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <scm>
-	<connection>scm:svn:http://svn.digitalbarista.com/cat/tags/cat-1.5.2</connection>
-	<developerConnection>scm:svn:http://svn.digitalbarista.com/cat/tags/cat-1.5.2</developerConnection>
+	<connection>scm:svn:http://svn.digitalbarista.com/cat/trunk</connection>
+	<developerConnection>scm:svn:http://svn.digitalbarista.com/cat/trunk</developerConnection>
   </scm>
   
   <name>CAT Parent Project</name>
