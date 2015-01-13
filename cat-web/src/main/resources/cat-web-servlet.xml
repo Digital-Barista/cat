@@ -39,7 +39,7 @@
     </property>
   </bean>  
   	
-  <bean id="MailListenerMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+  <bean id="MailListenerMessageConainer" class="com.digitalbarista.cat.jms.CATMessageListenerContainer">
     <property name="connectionFactory" ref="JmsConnectionFactory"/>
     <property name="destinationResolver" ref="CATDestinationResolver"/>
     <property name="destinationName" value="cat/messaging/MailEvents"/>
@@ -47,7 +47,7 @@
     <property name="transactionManager" ref="transactionManager"/>
   </bean>
 
-  <bean id="MainEventMessageConainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+  <bean id="MainEventMessageConainer" class="com.digitalbarista.cat.jms.CATMessageListenerContainer">
     <property name="concurrency" value="1-40"/>
     <property name="maxMessagesPerTask" value="10"/>
     <property name="connectionFactory" ref="JmsConnectionFactory"/>
@@ -63,6 +63,13 @@
         <map>
             <entry key="com.digitalbarista.cat:name=MainEventQueueListenerContainer" value-ref="MainEventMessageConainer"/>
         </map>
+      </property>
+      <property name="assembler">
+          <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
+              <property name="managedInterfaces">
+                  <value>com.digitalbarista.cat.jms.MessageListenerContainerMBean</value>
+              </property>
+          </bean>
       </property>
       <property name="server">
           <bean class="org.springframework.jmx.support.MBeanServerFactoryBean">
