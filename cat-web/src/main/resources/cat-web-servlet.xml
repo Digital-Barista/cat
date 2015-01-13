@@ -56,7 +56,19 @@
     <property name="messageListener" ref="MainEventHandler"/>
     <property name="transactionManager" ref="transactionManager"/>
   </bean>
- 
+
+
+  <bean id="jmsMbeanExporter" class="org.springframework.jmx.export.MBeanExporter">
+      <map>
+          <entry key="com.digitalbarista.cat:name=MainEventQueueListenerContainer" value-ref="MainEventMessageConainer"/>
+      </map>
+      <property name="server">
+          <bean class="org.springframework.jmx.support.MBeanServerFactoryBean">
+              <property name="locateExistingServerIfPossible"/>
+          </bean>
+      </property>
+  </bean>
+     
   <bean id="JSONConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
 
   <bean id="JAXBMarshaller" class="com.digitalbarista.cat.util.CATJaxb2Marshaller"/>
