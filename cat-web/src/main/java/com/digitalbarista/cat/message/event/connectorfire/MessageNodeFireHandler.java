@@ -1,6 +1,5 @@
 package com.digitalbarista.cat.message.event.connectorfire;
 
-import javax.persistence.LockModeType;
 
 import com.digitalbarista.cat.business.CampaignMessagePart;
 import com.digitalbarista.cat.business.Connector;
@@ -16,6 +15,7 @@ import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.MessageManager;
 import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 import com.digitalbarista.cat.message.event.CATEvent;
+import com.digitalbarista.cat.message.event.CATEventHandlerFactory;
 import org.hibernate.LockOptions;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +42,9 @@ public class MessageNodeFireHandler implements ConnectorFireHandler {
 
   @Autowired
   private SessionFactory sf;
+  
+  @Autowired
+  private CATEventHandlerFactory eventHandlerFactory;
   
 	@Override
         @Transactional
@@ -72,7 +75,12 @@ public class MessageNodeFireHandler implements ConnectorFireHandler {
 		for(String actualMessage : messagePart.getMessages())
 		{
 			sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getAddress(), actualMessage, mNode.getName(),mNode.getUid(),version);
-			eMan.queueEvent(sendMessageEvent);
+                        if(fromType==EntryPointType.Facebook)
+                        {
+                            eventHandlerFactory.processEvent(sendMessageEvent);
+                        } else {
+                            eMan.queueEvent(sendMessageEvent);
+                        }
 		}
 			
 		csl.setLastHitNode(simpleNode);

@@ -110,10 +110,10 @@ public class ConnectorFiredEventHandler implements CATEventHandler {
 			Query q = sf.getCurrentSession().getNamedQuery("all.subscribers.on.node");
 			q.setParameter("nodeUID", conn.getSourceNodeUID());
 			List<SubscriberDO> subs = (List<SubscriberDO>)q.list();
-      for(SubscriberDO s : subs)
-      {
-        eventManager.queueEvent(CATEvent.buildFireConnectorForSubscriberEvent(conn.getUid(),""+s.getPrimaryKey(),-1));
-      }
+                        for(SubscriberDO s : subs)
+                        {
+                          eventManager.queueEvent(CATEvent.buildFireConnectorForSubscriberEvent(conn.getUid(),""+s.getPrimaryKey(),-1));
+                        }
 //			for(SubscriberDO s : subs)
 //			{
 //				CampaignSubscriberLinkDO csl=null;

@@ -4,10 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import javax.persistence.LockModeType;
-
-import org.hibernate.LockMode;
-import org.hibernate.Session;
 
 import com.digitalbarista.cat.business.CampaignMessagePart;
 import com.digitalbarista.cat.business.Connector;
@@ -27,6 +23,7 @@ import com.digitalbarista.cat.ejb.session.EventManager;
 import com.digitalbarista.cat.ejb.session.MessageManager;
 import com.digitalbarista.cat.ejb.session.SubscriptionManager;
 import com.digitalbarista.cat.message.event.CATEvent;
+import com.digitalbarista.cat.message.event.CATEventHandlerFactory;
 import com.digitalbarista.cat.util.SequentialBitShuffler;
 import org.hibernate.LockOptions;
 import org.hibernate.SessionFactory;
@@ -54,6 +51,9 @@ public class CouponNodeFireHandler implements ConnectorFireHandler {
   
   @Autowired
   private SessionFactory sf;
+  
+  @Autowired
+  private CATEventHandlerFactory eventHandlerFactory;
   
 	@Override
         @Transactional
@@ -147,7 +147,12 @@ public class CouponNodeFireHandler implements ConnectorFireHandler {
 		for(String splitMessage : messagePart.getMessages())
 		{
 			sendMessageEvent = CATEvent.buildSendMessageRequestedEvent(fromAddress, fromType, s.getAddress(), splitMessage, cNode.getName(),cNode.getUid(),version);
-			eMan.queueEvent(sendMessageEvent);
+			if(fromType==EntryPointType.Facebook)
+                        {
+                            eventHandlerFactory.processEvent(sendMessageEvent);
+                        } else {
+                            eMan.queueEvent(sendMessageEvent);
+                        }
 		}
 			
 		csl.setLastHitNode(simpleNode);
