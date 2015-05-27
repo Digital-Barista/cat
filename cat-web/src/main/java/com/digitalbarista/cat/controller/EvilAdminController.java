@@ -87,6 +87,10 @@ public class EvilAdminController {
         if("*".equals(contactUID) || "ALL".equals(contactUID))
         {
             subscriberCount=cInfo.getCampaign().getSubscribers().size();
+            for(CampaignSubscriberLinkDO csl : cInfo.getCampaign().getSubscribers())
+            {
+                sf.getCurrentSession().delete(csl);
+            }
             cInfo.getCampaign().getSubscribers().clear();
             contacts = contactManager.getContacts(crit, null);
         } else {
@@ -102,6 +106,10 @@ public class EvilAdminController {
             }
             subscriberCount=toRemove.size();
             cInfo.getCampaign().getSubscribers().removeAll(toRemove);
+            for(CampaignSubscriberLinkDO csl : toRemove)
+            {
+                sf.getCurrentSession().delete(csl);
+            }
         }
         contactManager.delete(contacts.getResults());
 
