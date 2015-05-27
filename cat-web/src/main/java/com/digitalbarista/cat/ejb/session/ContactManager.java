@@ -148,6 +148,12 @@ public class ContactManager implements ApplicationContextAware {
 	    			crit.createAlias("contactTags.tag", "tag");
 	    			crit.add(Restrictions.in("tag.contactTagId", tagIds));
 	    		}
+                        
+                        //Search for a particular UID.
+                        if(searchCriteria.getContactUID() != null)
+                        {
+                            crit.add(Restrictions.eq("UID", searchCriteria.getContactUID()));
+                        }
 	    	}
 	    	
 	    	// Get unpaged total results from criteria

@@ -11,7 +11,14 @@ public class ContactSearchCriteria {
 	private List<EntryPointType> entryTypes; 
 	private List<ContactTag> contactTags;
 	private String address;
-	
+        private String contactUID;
+
+        public String getContactUID() {
+            return contactUID;
+        }
+        public void setContactUID(String contactUID) {
+            this.contactUID = contactUID;
+        }
 	public List<Long> getClientIds() {
 		return clientIds;
 	}

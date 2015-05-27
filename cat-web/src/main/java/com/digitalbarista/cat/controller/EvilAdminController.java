@@ -1,13 +1,19 @@
 
 package com.digitalbarista.cat.controller;
 
+import com.digitalbarista.cat.business.Contact;
 import com.digitalbarista.cat.business.FacebookApp;
 import com.digitalbarista.cat.business.ServiceError;
 import com.digitalbarista.cat.business.ServiceResponse;
+import com.digitalbarista.cat.business.criteria.ContactSearchCriteria;
 import com.digitalbarista.cat.data.CampaignDO;
 import com.digitalbarista.cat.ejb.session.CampaignManager;
+import com.digitalbarista.cat.ejb.session.ContactManager;
 import com.digitalbarista.cat.ejb.session.FacebookManager;
+import com.digitalbarista.cat.util.PagedList;
 import com.digitalbarista.cat.util.SecurityUtil;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -29,6 +35,9 @@ public class EvilAdminController {
     CampaignManager campaignManager;
     
     @Autowired
+    ContactManager contactManager;
+    
+    @Autowired
     SecurityUtil securityUtil;
     
     @Autowired
@@ -36,7 +45,8 @@ public class EvilAdminController {
     
     @RequestMapping("/clearWelcomes")
     @Transactional(propagation = Propagation.REQUIRED)
-    public ServiceResponse clearWelcomes(@RequestParam(value="appName",required=true) String appName)
+    public ServiceResponse clearWelcomes(@RequestParam(value="appName",required=true) String appName,
+                                         @RequestParam(value="contactUID",required=true) String contactUID)
     {
         ServiceResponse ret = new ServiceResponse();
         FacebookApp app = fbManager.findFacebookAppByName(appName);
@@ -49,6 +59,20 @@ public class EvilAdminController {
         Query q = sf.getCurrentSession().getNamedQuery("entry.campaign");
         q.setParameter("clientId", app.getClientId());
         CampaignDO camp = (CampaignDO)q.uniqueResult();
+
+        ContactSearchCriteria crit = new ContactSearchCriteria();
+        List<Long> clientIDs = new ArrayList<Long>();
+        clientIDs.add(app.getClientId());
+        crit.setClientIds(clientIDs);
+        if("*".equals(contactUID) || "ALL".equals(contactUID))
+        {
+            //noop for now.  Find them all.
+        } else {
+            crit.setContactUID(contactUID);
+        }
+        PagedList<Contact> contacts = contactManager.getContacts(crit, null);
+        contactManager.delete(contacts.getResults());
+        
         int subscriberCount = camp.getSubscribers().size();
         camp.getSubscribers().clear();
         ret.setResult(""+subscriberCount+" subscribers were removed from the welcome campaign, and can now receive the welcome message again.");
