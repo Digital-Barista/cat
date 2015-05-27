@@ -101,7 +101,7 @@ public class EvilAdminController {
             {
                 for(CampaignSubscriberLinkDO csl : cInfo.getCampaign().getSubscribers())
                 {
-                    if(EntryPointType.Facebook.equals(csl.getSubscriber().getType()) && contactUID.equals(csl.getSubscriber().getAddress()))
+                    if(EntryPointType.Facebook.equals(csl.getSubscriber().getType()) && csl.getSubscriber().getAddress().equals(csl.getSubscriber().getAddress()))
                     {
                         toRemove.add(csl);
                     }
