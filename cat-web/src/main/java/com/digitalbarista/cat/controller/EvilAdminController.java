@@ -97,18 +97,24 @@ public class EvilAdminController {
             crit.setContactUID(contactUID);
             contacts = contactManager.getContacts(crit, null);
             List<CampaignSubscriberLinkDO> toRemove = new ArrayList<CampaignSubscriberLinkDO>();
-            for(CampaignSubscriberLinkDO csl : cInfo.getCampaign().getSubscribers())
+            if(contacts.getTotalResultCount()==1)
             {
-                if(EntryPointType.Facebook.equals(csl.getSubscriber().getType()) && contactUID.equals(csl.getSubscriber().getAddress()))
+                for(CampaignSubscriberLinkDO csl : cInfo.getCampaign().getSubscribers())
                 {
-                    toRemove.add(csl);
+                    if(EntryPointType.Facebook.equals(csl.getSubscriber().getType()) && contactUID.equals(csl.getSubscriber().getAddress()))
+                    {
+                        toRemove.add(csl);
+                    }
                 }
-            }
-            subscriberCount=toRemove.size();
-            cInfo.getCampaign().getSubscribers().removeAll(toRemove);
-            for(CampaignSubscriberLinkDO csl : toRemove)
-            {
-                sf.getCurrentSession().delete(csl);
+                subscriberCount=toRemove.size();
+                cInfo.getCampaign().getSubscribers().removeAll(toRemove);
+                for(CampaignSubscriberLinkDO csl : toRemove)
+                {
+                    sf.getCurrentSession().delete(csl);
+                }
+            } else {
+                ret.setResult("Either could not find contact "+contactUID+", or you do not have access to remove them.");
+                return ret;
             }
         }
         contactManager.delete(contacts.getResults());
