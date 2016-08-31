@@ -29,7 +29,7 @@
 	  <id>DBI</id>
       <layout>default</layout>
       <name>DBI Repository</name>
-	  <url>http://repo.digitalbarista.com/nexus/content/repositories/releases</url>
+	  <url>http://repo.digitalbarista.com/content/repositories/releases</url>
     </repository>
   </distributionManagement>
   
@@ -415,7 +415,7 @@
         <checksumPolicy>warn</checksumPolicy>
         <updatePolicy>daily</updatePolicy>
       </snapshots>
-      <url>http://repo.digitalbarista.com/nexus/content/groups/public/</url>
+      <url>http://repo.digitalbarista.com/content/groups/public/</url>
     </repository>
     <repository>
       <id>jbosspublic</id>
@@ -465,7 +465,7 @@
         <checksumPolicy>warn</checksumPolicy>
         <updatePolicy>daily</updatePolicy>
       </snapshots>
-      <url>http://repo.digitalbarista.com/nexus/content/groups/public/</url>
+      <url>http://repo.digitalbarista.com/content/groups/public/</url>
     </pluginRepository>
     <pluginRepository>
       <id>sonatypeflex</id>
